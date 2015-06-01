@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Demo: Boilerplate</title>
+	<title>Demo: Modal</title>
 
 	<link rel="stylesheet" href="../build/bootstrap.css">
-	<link rel="stylesheet" href="../build/boilerplate.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
-	<script src="../build/globals/boilerplate.js"></script>
+	<script src="../build/globals/modal.js"></script>
 </head>
 <body>
-	<h1>Boilerplate</h1>
+	<h1>Modal</h1>
 	<script type="text/javascript">
-		new metal.Boilerplate().render();
+		window.modal = new metal.Modal({
+			header: metal.SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+			body: 'One fine body...',
+			footer: metal.SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+		}).render();
 	</script>
 </body>
 </html>

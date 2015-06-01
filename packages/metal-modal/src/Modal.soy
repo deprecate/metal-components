@@ -4,4 +4,59 @@
  * This renders the main element.
  */
 {template .content}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			{delcall Modal.header data="all" /}
+			{delcall Modal.body data="all" /}
+			{delcall Modal.footer data="all" /}
+		</div>
+	</div>
 {/template}
+
+/**
+ * @param body
+ */
+{template .body}
+	{$body}
+{/template}
+
+/**
+ * @param footer
+ */
+{template .footer}
+	{$footer}
+{/template}
+
+/**
+ * @param header
+ */
+{template .header}
+	{$header}
+{/template}
+
+/**
+ * @param? elementContent
+ * @param id
+ * @param? surfaceId
+ */
+{deltemplate Modal.body variant="'element'"}
+	<section id="{$id}-body" class="modal-body">{$elementContent}</section>
+{/deltemplate}
+
+/**
+ * @param? elementContent
+ * @param id
+ * @param? surfaceId
+ */
+{deltemplate Modal.footer variant="'element'"}
+	<footer id="{$id}-footer" class="modal-footer">{$elementContent}</footer>
+{/deltemplate}
+
+/**
+ * @param? elementContent
+ * @param id
+ * @param? surfaceId
+ */
+{deltemplate Modal.header variant="'element'"}
+		<header id="{$id}-header" class="modal-header">{$elementContent}</header>
+{/deltemplate}

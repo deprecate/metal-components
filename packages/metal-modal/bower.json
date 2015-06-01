@@ -22,7 +22,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"metaljs": "liferay/metal.js#master",
-		"soyutils": "~2012.12.21",
+		"soyutils": "2014.04.22",
 		"aui-component": "alloyui/component",
 		"bootstrap-sass": "~3.3.4"
 	}

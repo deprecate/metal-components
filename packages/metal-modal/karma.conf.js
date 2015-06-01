@@ -19,7 +19,8 @@ module.exports = function (config) {
     ],
 
     preprocessors: {
-      'src/**/*.js': ['coverage', 'commonjs'],
+      'src/!(*.soy).js': ['coverage', 'commonjs'],
+      'src/*.soy.js': ['babel', 'commonjs'],
       'bower_components/metaljs/**/*.js': ['babel', 'commonjs'],
       'bower_components/aui-component/**/*.js': ['babel', 'commonjs'],
       'test/**/*.js': ['babel', 'commonjs']

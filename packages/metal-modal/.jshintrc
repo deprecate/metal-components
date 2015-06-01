@@ -7,6 +7,10 @@
 	"esnext": true,
 	"evil": false,
 	"forin": false,
+	"globals": {
+		"soy": true,
+		"soydata": true
+	},
 	"immed": true,
 	"indent": 2,
 	"lastsemic": false,
