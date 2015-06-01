@@ -1,0 +1,29 @@
+{
+	"name": "aui-modal",
+	"version": "0.1.0",
+	"homepage": "https://github.com/alloyui/modal",
+	"authors": [
+		"Maira Bello <maira.araujo@liferay.com>"
+	],
+	"description": "AlloyUI's modal component",
+	"main": "src/Modal.js",
+	"moduleType": [
+		"es6"
+	],
+	"keywords": [
+		"aui",
+		"alloyui",
+		"metaljs"
+	],
+	"ignore": [
+		"*",
+		"!src/**/*"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"metaljs": "liferay/metal.js#master",
+		"soyutils": "~2012.12.21",
+		"aui-component": "alloyui/component",
+		"bootstrap-sass": "~3.3.4"
+	}
+}
