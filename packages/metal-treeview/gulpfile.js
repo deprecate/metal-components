@@ -3,5 +3,5 @@
 var auiTasks = require('aui-tasks');
 
 auiTasks({
-  bundleFileName: 'treeview.js'
+	bundleFileName: 'treeview.js'
 });

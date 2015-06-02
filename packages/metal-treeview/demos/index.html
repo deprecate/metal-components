@@ -1,19 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Demo: TreeView</title>
+	<meta charset="UTF-8">
+	<title>Demo: TreeView</title>
 
-  <link rel="stylesheet" href="../build/bootstrap.css">
-  <link rel="stylesheet" href="../build/treeview.css">
+	<link rel="stylesheet" href="../build/bootstrap.css">
+	<link rel="stylesheet" href="../build/treeview.css">
 
-  <script src="../bower_components/soyutils/soyutils.js"></script>
-  <script src="../build/globals/treeview.js"></script>
+	<script src="../bower_components/soyutils/soyutils.js"></script>
+	<script src="../build/globals/treeview.js"></script>
 </head>
 <body>
-  <h1>TreeView</h1>
-  <script type="text/javascript">
-    new aui.TreeView().render();
-  </script>
+	<h1>TreeView</h1>
+	<script type="text/javascript">
+		new aui.TreeView({
+			nodes: [
+				{
+					name: 'Movies',
+					children: [
+						{
+							name: 'The Hunt',
+							children: [
+								{name: 'year: 2012'},
+								{name: 'director: Thomas Vinterberg'}
+							]
+						},
+						{
+							name: 'Wild Tales',
+							children: [
+								{name: 'year: 2015'},
+								{name: 'director: Damián Szifron'}
+							],
+							expanded: true
+						}
+					],
+					expanded: true
+				}
+			]
+		}).render();
+	</script>
 </body>
 </html>

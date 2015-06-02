@@ -4,4 +4,64 @@
  * This renders the main element.
  */
 {template .content}
+	{delcall TreeView.nodes data="all" /}
 {/template}
+
+/**
+ * @param id
+ * @param nodes
+ * @param? parentSurfaceId
+ */
+{template .nodes}
+	{foreach $node in $nodes}
+		{let $index: index($node) /}
+		{delcall TreeView.node}
+			{param id: $id /}
+			{param node: $node /}
+			{param surfaceId: isNonnull($parentSurfaceId) ? ($parentSurfaceId + '-' + $index) : $index /}
+		{/delcall}
+	{/foreach}
+{/template}
+
+/**
+ * @param id
+ * @param node
+ * @param surfaceId
+ */
+{template .node}
+	{if $node}
+		<div class="treeview-node-wrapper {$node.expanded ? 'expanded' : ''}">
+			<div class="treeview-node-main clearfix {$node.children ? 'hasChildren' : ''}" data-onclick="handleNodeClicked_">
+				{if $node.children}
+					<div class="treeview-node-toggler"></div>
+				{/if}
+				<span class="treeview-node-name">{$node.name}</span>
+			</div>
+			{if $node.children}
+				{delcall TreeView.nodes}
+					{param id: $id /}
+					{param nodes: $node.children /}
+					{param parentSurfaceId: $surfaceId /}
+				{/delcall}
+			{/if}
+		</div>
+	{/if}
+{/template}
+
+/**
+ * @param? elementContent
+ * @param id
+ * @param? surfaceId
+ */
+{deltemplate TreeView.nodes variant="'element'"}
+	<ul id="{$id}-{$surfaceId}" class="treeview-nodes">{$elementContent}</ul>
+{/deltemplate}
+
+/**
+ * @param? elementContent
+ * @param id
+ * @param? surfaceId
+ */
+{deltemplate TreeView.node variant="'element'"}
+	<li id="{$id}-{$surfaceId}" class="treeview-node">{$elementContent}</li>
+{/deltemplate}
