@@ -151,30 +151,6 @@ describe('Modal', function() {
     });
   });
 
-  it('should decorate', function() {
-    var markup = soy.$$getDelegateFn('Modal')({
-      id: 'modal',
-      header: 'header',
-      body: 'body',
-      footer: 'footer',
-      overlay: true,
-      visible: false
-    }, null);
-
-    dom.append(document.body, markup.content);
-    var outerHTML = document.getElementById('modal').outerHTML;
-
-    modal = new Modal({
-      element: '#modal',
-      header: 'header',
-      body: 'body',
-      footer: 'footer',
-      visible: false
-    }).decorate();
-
-    assert.strictEqual(modal.element.outerHTML, outerHTML);
-  });
-
   it('should modal progressive enchance always as hidden', function() {
     var markup = soy.$$getDelegateFn('Modal')({
       id: 'modal',
