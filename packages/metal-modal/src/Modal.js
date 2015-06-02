@@ -10,43 +10,43 @@ import './Modal.soy';
  * Modal component.
  */
 class Modal extends Component {
-  /**
-   * @inheritDoc
-   */
-  constructor(opt_config) {
-    super(opt_config);
-  }
+	/**
+	 * @inheritDoc
+	 */
+	constructor(opt_config) {
+		super(opt_config);
+	}
 
-  /**
-   * @inheritDoc
-   */
-  disposeInternal() {
-    dom.exitDocument(this.overlayElement);
-    super.disposeInternal();
-  }
+	/**
+	 * @inheritDoc
+	 */
+	disposeInternal() {
+		dom.exitDocument(this.overlayElement);
+		super.disposeInternal();
+	}
 
-  /**
-   * @inheritDoc
-   */
-  syncOverlay(overlay) {
-    var willShowOverlay = overlay && this.visible;
-    dom[willShowOverlay ? 'enterDocument' : 'exitDocument'](this.overlayElement);
-  }
+	/**
+	 * @inheritDoc
+	 */
+	syncOverlay(overlay) {
+		var willShowOverlay = overlay && this.visible;
+		dom[willShowOverlay ? 'enterDocument' : 'exitDocument'](this.overlayElement);
+	}
 
-  /**
-   * @inheritDoc
-   */
-  syncVisible(visible) {
-    this.element.style.display = visible ? 'block' : '';
-    this.syncOverlay(this.overlay);
-  }
+	/**
+	 * @inheritDoc
+	 */
+	syncVisible(visible) {
+		this.element.style.display = visible ? 'block' : '';
+		this.syncOverlay(this.overlay);
+	}
 
-  /**
-   * @inheritDoc
-   */
-  valueOverlayElementFn_() {
-    return dom.buildFragment('<div class="modal-backdrop fade in"></div>').firstChild;
-  }
+	/**
+	 * @inheritDoc
+	 */
+	valueOverlayElementFn_() {
+		return dom.buildFragment('<div class="modal-backdrop fade in"></div>').firstChild;
+	}
 }
 
 /**
@@ -58,45 +58,45 @@ class Modal extends Component {
 Modal.ELEMENT_CLASSES = 'modal';
 
 Modal.ATTRS = {
-  /**
-   * Content to be placed inside modal body.
-   * @type {string|SanitizedHtml}
-   */
-  body: {
-  },
+	/**
+	 * Content to be placed inside modal body.
+	 * @type {string|SanitizedHtml}
+	 */
+	body: {
+	},
 
-  /**
-   * Content to be placed inside modal footer.
-   * @type {string|SanitizedHtml}
-   */
-  footer: {
-  },
+	/**
+	 * Content to be placed inside modal footer.
+	 * @type {string|SanitizedHtml}
+	 */
+	footer: {
+	},
 
-  /**
-   * Content to be placed inside modal header.
-   * @type {string|SanitizedHtml}
-   */
-  header: {
-  },
+	/**
+	 * Content to be placed inside modal header.
+	 * @type {string|SanitizedHtml}
+	 */
+	header: {
+	},
 
-  /**
-   * Whether overlay should be visible when modal is visible.
-   * @type {boolean}
-   * @default true
-   */
-  overlay: {
-    validator: core.isBoolean,
-    value: true
-  },
+	/**
+	 * Whether overlay should be visible when modal is visible.
+	 * @type {boolean}
+	 * @default true
+	 */
+	overlay: {
+		validator: core.isBoolean,
+		value: true
+	},
 
-  /**
-   * Element to be used as overlay.
-   * @type {Element}
-   */
-  overlayElement: {
-    initOnly: true,
-    valueFn: 'valueOverlayElementFn_'
-  }
+	/**
+	 * Element to be used as overlay.
+	 * @type {Element}
+	 */
+	overlayElement: {
+		initOnly: true,
+		valueFn: 'valueOverlayElementFn_'
+	}
 };
 
 ComponentRegistry.register('Modal', Modal);
