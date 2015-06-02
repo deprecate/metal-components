@@ -63,7 +63,6 @@ Modal.ATTRS = {
    * @type {string|SanitizedHtml}
    */
   body: {
-    value: ''
   },
 
   /**
@@ -71,7 +70,6 @@ Modal.ATTRS = {
    * @type {string|SanitizedHtml}
    */
   footer: {
-    value: ''
   },
 
   /**
@@ -79,7 +77,6 @@ Modal.ATTRS = {
    * @type {string|SanitizedHtml}
    */
   header: {
-    value: ''
   },
 
   /**

@@ -17,21 +17,30 @@
  * @param body
  */
 {template .body}
-	{$body}
+	{if $body}
+		{$body}
+	{/if}
 {/template}
 
 /**
  * @param footer
  */
 {template .footer}
-	{$footer}
+	{if $footer}
+		{$footer}
+	{/if}
 {/template}
 
 /**
  * @param header
  */
 {template .header}
-	{$header}
+	{if $header}
+		<button type="button" class="close" data-onclick="hide" aria-label="Close">
+			<span aria-hidden="true">×</span>
+		</button>
+		{$header}
+	{/if}
 {/template}
 
 /**

@@ -28,10 +28,11 @@ describe('Modal', function() {
     modal = new Modal({
       header: 'header'
     }).render();
-    var header = modal.getSurfaceElement('header').innerHTML;
+    var headerElement = modal.getSurfaceElement('header');
     var body = modal.getSurfaceElement('body').innerHTML;
     var footer = modal.getSurfaceElement('footer').innerHTML;
-    assert.strictEqual('header', header);
+    assert.strictEqual('header', headerElement.childNodes[1].textContent);
+    assert.ok(dom.hasClass(headerElement.childNodes[0], 'close'));
     assert.strictEqual('', body);
     assert.strictEqual('', footer);
   });
@@ -74,8 +75,9 @@ describe('Modal', function() {
     modal = new Modal().render();
     modal.header = 'header';
     async.nextTick(function() {
-      var header = modal.getSurfaceElement('header').innerHTML;
-      assert.strictEqual('header', header);
+      var header = modal.getSurfaceElement('header');
+      assert.strictEqual('header', header.childNodes[1].textContent);
+      assert.ok(dom.hasClass(header.childNodes[0], 'close'));
       done();
     });
   });
@@ -114,6 +116,17 @@ describe('Modal', function() {
         assert.ok(modal.overlayElement.parentNode);
         done();
       });
+    });
+  });
+
+  it('should close on clicking close icon', function(done) {
+    modal = new Modal({
+      header: 'header'
+    }).render();
+    dom.triggerEvent(modal.element.querySelector('.close'), 'click');
+    async.nextTick(function() {
+      assert.ok(!modal.visible);
+      done();
     });
   });
 
