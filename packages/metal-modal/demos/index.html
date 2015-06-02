@@ -12,10 +12,10 @@
 <body>
 	<h1>Modal</h1>
 	<script type="text/javascript">
-		window.modal = new metal.Modal({
-			header: metal.SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+		window.modal = new aui.Modal({
+			header: aui.SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
 			body: 'One fine body...',
-			footer: metal.SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+			footer: aui.SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
 		}).render();
 	</script>
 </body>

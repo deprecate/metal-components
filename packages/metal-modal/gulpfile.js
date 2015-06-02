@@ -3,5 +3,6 @@
 var auiTasks = require('aui-tasks');
 
 auiTasks({
-  bundleFileName: 'modal.js'
+  bundleFileName: 'modal.js',
+  globalName: 'aui'
 });
