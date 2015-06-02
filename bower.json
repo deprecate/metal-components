@@ -1,0 +1,21 @@
+{
+  "name": "alloyui",
+  "version": "0.0.1",
+  "description": "AlloyUI is a collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
+  "moduleType": [
+    "es6"
+  ],
+  "keywords": [
+    "aui",
+    "alloyui",
+    "metaljs"
+  ],
+  "ignore": [
+    "*"
+  ],
+  "dependencies": {
+    "aui-modal": "alloyui/modal",
+    "aui-tooltip": "alloyui/tooltip",
+    "aui-treeview": "alloyui/treeview"
+  }
+}
