@@ -1,3 +1,3 @@
-# AlloyUI Modal
+# Alloy Modal
 
-AlloyUI's modal component.
+Alloy's modal component.

@@ -1,9 +1,9 @@
 {
-  "name": "aui-modal",
+  "name": "alloy-modal",
   "version": "0.1.0",
-  "description": "AlloyUI's modal component",
+  "description": "Alloy's modal component",
   "license": "MIT",
-  "repository": "alloyui/modal",
+  "repository": "metal/alloy-modal",
   "author": {
     "name": "Maira Bello",
     "email": "maira.araujo@liferay.com"
@@ -15,13 +15,14 @@
     "test": "gulp test"
   },
   "keywords": [
-    "aui",
+    "alloy",
     "alloyui",
+    "metal",
     "metaljs",
     "modal"
   ],
   "devDependencies": {
-		"aui-tasks": "alloyui/tasks",
+		"metal-tasks": "metal/metal-tasks",
 		"chai": "^2.3.0",
 		"gulp": "^3.8.11",
 		"isparta": "^3.0.3",

@@ -2,14 +2,14 @@
 
 import core from 'bower:metaljs/src/core';
 import dom from 'bower:metaljs/src/dom/dom';
-import Component from 'bower:aui-component/src/Component';
 import ComponentRegistry from 'bower:metaljs/src/component/ComponentRegistry';
+import SoyComponent from 'bower:metaljs/src/soy/SoyComponent';
 import './Modal.soy';
 
 /**
  * Modal component.
  */
-class Modal extends Component {
+class Modal extends SoyComponent {
 	/**
 	 * @inheritDoc
 	 */
@@ -23,6 +23,20 @@ class Modal extends Component {
 	disposeInternal() {
 		dom.exitDocument(this.overlayElement);
 		super.disposeInternal();
+	}
+
+	/**
+	 * Hides the modal, setting its `visible` attribute to false.
+	 */
+	hide() {
+		this.visible = false;
+	}
+
+	/**
+	 * Shows the modal, setting its `visible` attribute to true.
+	 */
+	show() {
+		this.visible = true;
 	}
 
 	/**

@@ -197,4 +197,18 @@ describe('Modal', function() {
 
 		assert.ok(!dom.hasClass(modal.element, 'hidden'));
 	});
+
+	it('should set "visible" attr to false when "hide" method is called', function() {
+		modal = new Modal().render();
+		modal.hide();
+		assert.ok(!modal.visible);
+	});
+
+	it('should set "visible" attr to true when "show" method is called', function() {
+		modal = new Modal({
+			visible: false
+		}).render();
+		modal.show();
+		assert.ok(modal.visible);
+	});
 });

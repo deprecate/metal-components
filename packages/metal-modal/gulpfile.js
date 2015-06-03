@@ -1,8 +1,9 @@
 'use strict';
 
-var auiTasks = require('aui-tasks');
+var metalTasks = require('metal-tasks');
 
-auiTasks({
+metalTasks({
 	bundleCssFileName: 'modal.css',
-	bundleFileName: 'modal.js'
+	bundleFileName: 'modal.js',
+	globalName: 'alloy'
 });
