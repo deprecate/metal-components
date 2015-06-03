@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo: Modal</title>
+
+	<link rel="stylesheet" href="../build/bootstrap.css">
+
+	<script src="../bower_components/soyutils/soyutils.js"></script>
+	<script src="../bower_components/jquery/dist/jquery.js"></script>
+	<script src="../build/globals-jquery/modal.js"></script>
+</head>
+<body>
+	<h1>Modal</h1>
+	<div id="Modal"></div>
+	<script type="text/javascript">
+		$('#Modal').modal({
+			header: alloy.SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+			body: 'One fine body...',
+			footer: alloy.SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+		});
+	</script>
+</body>
+</html>

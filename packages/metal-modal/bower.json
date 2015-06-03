@@ -1,28 +1,29 @@
 {
-	"name": "alloy-modal",
-	"version": "0.1.0",
-	"homepage": "https://github.com/metal/alloy-modal",
-	"authors": [
-		"Maira Bello <maira.araujo@liferay.com>"
-	],
-	"description": "AlloyUI's modal component",
-	"main": "src/Modal.js",
-	"moduleType": [
-		"es6"
-	],
-	"keywords": [
-		"alloy",
-		"alloyui",
-		"metaljs"
-	],
-	"ignore": [
-		"*",
-		"!src/**/*"
-	],
-	"license": "MIT",
-	"dependencies": {
-		"metaljs": "liferay/metal.js#master",
-		"soyutils": "2014.04.22",
-		"bootstrap-sass": "~3.3.4"
-	}
+  "name": "alloy-modal",
+  "version": "0.1.0",
+  "homepage": "https://github.com/metal/alloy-modal",
+  "authors": [
+    "Maira Bello <maira.araujo@liferay.com>"
+  ],
+  "description": "AlloyUI's modal component",
+  "main": "src/Modal.js",
+  "moduleType": [
+    "es6"
+  ],
+  "keywords": [
+    "alloy",
+    "alloyui",
+    "metaljs"
+  ],
+  "ignore": [
+    "*",
+    "!src/**/*"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "metaljs": "liferay/metal.js#master",
+    "soyutils": "2014.04.22",
+    "bootstrap-sass": "~3.3.4",
+    "metal-jquery-adapter": "metal/metal-jquery-adapter"
+  }
 }
