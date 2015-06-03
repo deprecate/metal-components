@@ -1,8 +1,8 @@
 'use strict';
 
-import ComponentRegistry from 'bower:metaljs/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metaljs/src/soy/SoyComponent';
-import dom from 'bower:metaljs/src/dom/dom';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import SoyComponent from 'bower:metal/src/soy/SoyComponent';
+import dom from 'bower:metal/src/dom/dom';
 import './TreeView.soy';
 
 /**

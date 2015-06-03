@@ -10,7 +10,6 @@
     "alloy",
     "alloyui",
     "metal",
-    "metaljs",
     "treeview"
   ],
   "ignore": [
@@ -18,9 +17,9 @@
     "!src/**/*"
   ],
   "dependencies": {
-    "metaljs": "liferay/metal.js#master",
+    "metal": "metal/metal.js#master",
     "soyutils": "2014.04.22",
     "bootstrap-sass": "~3.3.4",
-    "metal-jquery-adapter": "metal/metal-jquery-adapter"
+    "metal-jquery-adapter": "metal/metal-jquery-adapter#master"
   }
 }

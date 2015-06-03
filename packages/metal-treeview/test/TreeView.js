@@ -1,6 +1,6 @@
 'use strict';
 
-import dom from 'bower:metaljs/src/dom/dom';
+import dom from 'bower:metal/src/dom/dom';
 import TreeView from '../src/TreeView';
 
 var treeView;

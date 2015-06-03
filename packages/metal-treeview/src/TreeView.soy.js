@@ -1,5 +1,5 @@
 /* jshint ignore:start */
-import ComponentRegistry from 'bower:metaljs/src/component/ComponentRegistry';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 var Templates = ComponentRegistry.Templates;
 // This file was automatically generated from TreeView.soy.
 // Please don't edit this file by hand.
