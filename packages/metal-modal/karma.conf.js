@@ -1,8 +1,8 @@
 var isparta = require('isparta');
-var metaljs = require('metaljs');
+var metal = require('metal');
 
 var babelOptions = {
-  resolveModuleSource: metaljs.renameAlias,
+  resolveModuleSource: metal.renameAlias,
   sourceMap: 'both'
 };
 
@@ -12,7 +12,7 @@ module.exports = function (config) {
 
     files: [
       'bower_components/soyutils/soyutils.js',
-      'bower_components/metaljs/src/**/*.js',
+      'bower_components/metal/src/**/*.js',
       'src/**/*.js',
       'test/**/*.js'
     ],
@@ -20,7 +20,7 @@ module.exports = function (config) {
     preprocessors: {
       'src/!(*.soy).js': ['coverage', 'commonjs'],
       'src/*.soy.js': ['babel', 'commonjs'],
-      'bower_components/metaljs/**/*.js': ['babel', 'commonjs'],
+      'bower_components/metal/**/*.js': ['babel', 'commonjs'],
       'test/**/*.js': ['babel', 'commonjs']
     },
 

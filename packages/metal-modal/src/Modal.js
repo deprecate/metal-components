@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'bower:metaljs/src/core';
-import dom from 'bower:metaljs/src/dom/dom';
-import ComponentRegistry from 'bower:metaljs/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metaljs/src/soy/SoyComponent';
+import core from 'bower:metal/src/core';
+import dom from 'bower:metal/src/dom/dom';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import './Modal.soy';
 
 /**

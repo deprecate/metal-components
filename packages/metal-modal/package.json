@@ -18,11 +18,9 @@
     "alloy",
     "alloyui",
     "metal",
-    "metaljs",
     "modal"
   ],
   "devDependencies": {
-		"metal-tasks": "metal/metal-tasks",
 		"chai": "^2.3.0",
 		"gulp": "^3.8.11",
 		"isparta": "^3.0.3",
@@ -33,7 +31,8 @@
 		"karma-coverage": "^0.3.1",
 		"karma-mocha": "^0.1.10",
 		"karma-source-map-support": "^1.0.0",
-		"metaljs": "^0.1.7",
+		"metal": "metal/metal.js#master",
+		"metal-tasks": "metal/metal-tasks#master",
 		"mocha": "^2.2.5"
   }
 }
