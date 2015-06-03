@@ -1,3 +1,3 @@
-# AlloyUI aui-treeview
+# Alloy aui-treeview
 
-AlloyUI's tree view component
+Alloy's tree view component

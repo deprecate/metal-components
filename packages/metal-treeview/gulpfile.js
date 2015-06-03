@@ -1,8 +1,9 @@
 'use strict';
 
-var auiTasks = require('aui-tasks');
+var metalTasks = require('metal-tasks');
 
-auiTasks({
+metalTasks({
 	bundleCssFileName: 'treeview.css',
-	bundleFileName: 'treeview.js'
+	bundleFileName: 'treeview.js',
+	globalName: 'alloy'
 });

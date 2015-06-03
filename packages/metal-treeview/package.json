@@ -1,9 +1,9 @@
 {
-  "name": "aui-treeview",
+  "name": "alloy-treeview",
   "version": "0.0.1",
-  "description": "AlloyUI's tree view component",
+  "description": "Alloy's tree view component",
   "license": "MIT",
-  "repository": "mairatma/aui-treeview",
+  "repository": "metal/alloy-treeview",
   "engines": {
     "node": ">=0.12.0"
   },
@@ -11,12 +11,13 @@
     "test": "gulp test"
   },
   "keywords": [
-    "aui",
+    "alloy",
     "alloyui",
-    "metaljs"
+    "metal",
+    "metaljs",
+    "treeview"
   ],
   "devDependencies": {
-    "aui-tasks": "alloyui/tasks",
     "chai": "^2.3.0",
     "gulp": "^3.8.11",
     "isparta": "^3.0.3",
@@ -28,6 +29,7 @@
     "karma-mocha": "^0.1.10",
     "karma-source-map-support": "^1.0.0",
     "metaljs": "^0.1.7",
+    "metal-tasks": "metal/metal-tasks",
     "mocha": "^2.2.5"
   }
 }

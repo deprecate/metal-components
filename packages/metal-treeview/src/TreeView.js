@@ -1,14 +1,14 @@
 'use strict';
 
-import Component from 'bower:aui-component/src/Component';
 import ComponentRegistry from 'bower:metaljs/src/component/ComponentRegistry';
+import SoyComponent from 'bower:metaljs/src/soy/SoyComponent';
 import dom from 'bower:metaljs/src/dom/dom';
 import './TreeView.soy';
 
 /**
  * TreeView component.
  */
-class TreeView extends Component {
+class TreeView extends SoyComponent {
 	constructor(opt_config) {
 		super(opt_config);
 	}
