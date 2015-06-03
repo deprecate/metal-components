@@ -3,17 +3,18 @@
   "version": "0.0.1",
   "description": "AlloyUI is a collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "license": "MIT",
-  "repository": "mairatma/alloyui",
+  "repository": "metal/alloyui",
   "engines": {
     "node": ">=0.12.0"
   },
   "keywords": [
-    "aui",
+    "alloy",
     "alloyui",
+    "metal",
     "metaljs"
   ],
   "devDependencies": {
-    "aui-tasks": "alloyui/tasks",
+    "metal-tasks": "metal/metal-tasks",
     "gulp": "^3.8.11"
   }
 }

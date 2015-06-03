@@ -6,16 +6,17 @@
     "es6"
   ],
   "keywords": [
-    "aui",
+    "alloy",
     "alloyui",
+    "metal",
     "metaljs"
   ],
   "ignore": [
     "*"
   ],
   "dependencies": {
-    "aui-modal": "alloyui/modal",
-    "aui-tooltip": "alloyui/tooltip",
-    "aui-treeview": "alloyui/treeview"
+    "alloy-modal": "metal/alloy-modal",
+    "alloy-tooltip": "metal/alloy-tooltip",
+    "alloy-treeview": "metal/alloy-treeview"
   }
 }

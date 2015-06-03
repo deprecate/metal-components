@@ -1,10 +1,11 @@
 'use strict';
 
-var auiTasks = require('aui-tasks');
+var metalTasks = require('metal-tasks');
 
-auiTasks({
-	buildSrc: 'bower_components/aui-*/src/**/*.js',
-	bundleFileName: 'aui.js',
-	scssSrc: 'bower_components/aui-*/src/**/*.scss',
+metalTasks({
+	buildSrc: 'bower_components/alloy-*/src/**/*.js',
+	bundleFileName: 'alloy.js',
+	globalName: 'alloy',
+	scssSrc: 'bower_components/alloy-*/src/**/*.scss',
 	registerTestTasks: false
 });
