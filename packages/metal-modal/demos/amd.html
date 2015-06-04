@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo: Modal</title>
+
+	<link rel="stylesheet" href="../build/bootstrap.css">
+
+	<script src="../bower_components/soyutils/soyutils.js"></script>
+	<script src="../bower_components/requirejs/require.js"></script>
+</head>
+<body>
+	<h1>Modal</h1>
+	<script type="text/javascript">
+		requirejs.config({
+	    baseUrl: '../build/amd'
+		});
+		requirejs(['alloy-modal/src/Modal', 'metal/src/soy/SoyComponent'], function(Modal, SoyComponent) {
+			window.modal = new Modal({
+				header: SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+				body: 'One fine body...',
+				footer: SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+			}).render();
+		});
+	</script>
+</body>
+</html>
