@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo: Modal</title>
+
+	<link rel="stylesheet" href="../build/bootstrap.css">
+
+	<script src="../bower_components/soyutils/soyutils.js"></script>
+	<script src="../bower_components/system.js/dist/system.js"></script>
+	<script src="systemJsConfig.js"></script>
+</head>
+<body>
+	<h1>Modal</h1>
+	<script type="text/javascript">
+		System.import('src/Modal').then(function(Modal) {
+			System.import('bower:metal/src/soy/SoyComponent').then(function(SoyComponent) {
+				window.modal = new Modal.default({
+					header: SoyComponent.default.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+					body: 'One fine body...',
+					footer: SoyComponent.default.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+				}).render();
+			});
+		});
+	</script>
+</body>
+</html>

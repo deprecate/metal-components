@@ -25,6 +25,7 @@
     "metal-jquery-adapter": "metal/metal-jquery-adapter#master",
     "bootstrap-sass": "~3.3.4",
     "soyutils": "2014.04.22",
-    "requirejs": "~2.1.18"
+    "traceur": "~0.0.90",
+    "system.js": "~0.17.1"
   }
 }
