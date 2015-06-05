@@ -1,19 +1,22 @@
 'use strict';
 
-var metalTasks = require('metal-tasks');
+var gulp = require('gulp');
+var metal = require('gulp-metal');
 var path = require('path');
 
-metalTasks({
+metal.registerTasks({
 	buildSrc: 'bower_components/alloy-*/src/**/*.js',
 	bundleFileName: 'alloy.js',
 	globalName: 'alloy',
-	registerTestTasks: false,
-	scssSrc: 'bower_components/alloy-*/src/**/*.scss',
-	soyGeneratedDest: function(file) {
-		var index = file.relative.indexOf(path.sep + 'src' + path.sep);
-		file.base = path.join(file.base, file.relative.substr(0, index + 5));
-		return 'build/soy';
-	},
-	soySkipCompilation: true,
-	soySrc: 'bower_components/alloy-*/src/**/*.soy'
+	scssSrc: 'bower_components/alloy-*/src/**/*.scss'
+});
+
+gulp.task('soy', function() {
+	return gulp.src('bower_components/alloy-*/src/**/*.soy')
+		.pipe(metal.soy.generateSoy()())
+		.pipe(gulp.dest(function(file) {
+			var index = file.relative.indexOf(path.sep + 'src' + path.sep);
+			file.base = path.join(file.base, file.relative.substr(0, index + 5));
+			return 'build/soy';
+		}));
 });

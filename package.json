@@ -14,7 +14,7 @@
     "metaljs"
   ],
   "devDependencies": {
-    "metal-tasks": "metal/metal-tasks",
-    "gulp": "^3.8.11"
+    "gulp": "^3.8.11",
+    "gulp-metal": "^0.1.1"
   }
 }
