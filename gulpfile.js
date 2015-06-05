@@ -7,6 +7,7 @@ var path = require('path');
 metal.registerTasks({
 	buildSrc: 'bower_components/alloy-*/src/**/*.js',
 	bundleFileName: 'alloy.js',
+	cssSrc: 'bower_components/alloy-*/src/**/*.css',
 	globalName: 'alloy',
 	scssSrc: 'bower_components/alloy-*/src/**/*.scss'
 });
