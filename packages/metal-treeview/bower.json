@@ -19,7 +19,7 @@
   "dependencies": {
     "metal": "metal/metal.js#master",
     "soyutils": "2014.04.22",
-    "bootstrap-sass": "~3.3.4",
+    "bootstrap": "~3.3.4",
     "metal-jquery-adapter": "metal/metal-jquery-adapter#master"
   }
 }
