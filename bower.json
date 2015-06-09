@@ -1,5 +1,5 @@
 {
-  "name": "alloyui",
+  "name": "alloy-ui",
   "version": "0.0.1",
   "description": "AlloyUI is a collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "moduleType": [
