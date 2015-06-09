@@ -211,4 +211,5 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('Modal.header'), '', 0, Template
 Templates.Modal.body.params = ["body"];
 Templates.Modal.footer.params = ["footer"];
 Templates.Modal.header.params = ["header"];
+export default Templates.Modal;
 /* jshint ignore:end */
