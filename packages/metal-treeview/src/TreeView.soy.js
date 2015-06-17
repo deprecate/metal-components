@@ -169,4 +169,5 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.node'), '', 0, Templat
 
 Templates.TreeView.nodes.params = ["id","nodes"];
 Templates.TreeView.node.params = ["id","node","surfaceId"];
+export default Templates.TreeView;
 /* jshint ignore:end */
