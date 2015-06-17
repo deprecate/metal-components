@@ -1,14 +1,13 @@
 {
-  "name": "alloy-treeview",
+  "name": "crystal-treeview",
   "version": "0.0.1",
-  "description": "Alloy's tree view component",
+  "description": "Crystal's tree view component",
   "main": "src/TreeView.js",
   "moduleType": [
     "es6"
   ],
   "keywords": [
-    "alloy",
-    "alloyui",
+    "crystal",
     "metal",
     "treeview"
   ],

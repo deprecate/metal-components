@@ -1,9 +1,9 @@
 {
-  "name": "alloy-treeview",
+  "name": "crystal-treeview",
   "version": "0.0.1",
-  "description": "Alloy's tree view component",
+  "description": "Crystal's tree view component",
   "license": "MIT",
-  "repository": "metal/alloy-treeview",
+  "repository": "metal/crystal-treeview",
   "engines": {
     "node": ">=0.12.0"
   },
@@ -11,8 +11,7 @@
     "test": "gulp test"
   },
   "keywords": [
-    "alloy",
-    "alloyui",
+    "crystal",
     "metal",
     "treeview"
   ],
