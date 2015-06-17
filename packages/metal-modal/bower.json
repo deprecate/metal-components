@@ -1,18 +1,17 @@
 {
-  "name": "alloy-modal",
+  "name": "crystal-modal",
   "version": "0.1.0",
-  "homepage": "https://github.com/metal/alloy-modal",
+  "homepage": "https://github.com/metal/crystal-modal",
   "authors": [
     "Maira Bello <maira.araujo@liferay.com>"
   ],
-  "description": "AlloyUI's modal component",
+  "description": "Crystal's modal component",
   "main": "src/Modal.js",
   "moduleType": [
     "es6"
   ],
   "keywords": [
-    "alloy",
-    "alloyui",
+    "crystal",
     "metal"
   ],
   "ignore": [

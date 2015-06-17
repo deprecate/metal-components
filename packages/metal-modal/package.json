@@ -1,9 +1,9 @@
 {
-  "name": "alloy-modal",
+  "name": "crystal-modal",
   "version": "0.1.0",
-  "description": "Alloy's modal component",
+  "description": "Crystal's modal component",
   "license": "MIT",
-  "repository": "metal/alloy-modal",
+  "repository": "metal/crystal-modal",
   "author": {
     "name": "Maira Bello",
     "email": "maira.araujo@liferay.com"
@@ -15,8 +15,7 @@
     "test": "gulp test"
   },
   "keywords": [
-    "alloy",
-    "alloyui",
+    "crystal",
     "metal",
     "modal"
   ],
