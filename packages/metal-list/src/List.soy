@@ -1,0 +1,46 @@
+{namespace Templates.List}
+
+/**
+ * This renders the main element
+ */
+{template .content}
+	{delcall List.items data="all" /}
+{/template}
+
+/**
+ * This renders the main element
+ * @param items
+ */
+{template .items}
+	{foreach $item in $items}
+		<li class="list-item u-cf" data-index="{index($item)}" data-onclick="handleClick">
+			{if $item.icons}
+				<div class="list-icons u-pull-right">
+					{foreach $icon in $item.icons}
+						<span class="list-icon {$icon}"></span>
+					{/foreach}
+				</div>
+			{/if}
+			{if $item.avatar}
+				<span class="list-image u-pull-left {$item.avatar.class}">
+					{$item.avatar.content}
+				</span>
+			{/if}
+			<div class="list-main-content u-pull-left">
+				<div class="list-text-primary">{$item.textPrimary}</div>
+				{if $item.textSecondary}
+					<div class="list-text-secondary">{$item.textSecondary}</div>
+				{/if}
+			</div>
+		</li>
+	{/foreach}
+{/template}
+
+/**
+ * @param? elementContent
+ * @param id
+ * @param? surfaceId
+ */
+{deltemplate List.items variant="'element'"}
+	<ul id="{$id}-items">{$elementContent}</ul>
+{/deltemplate}
