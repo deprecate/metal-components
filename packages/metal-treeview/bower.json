@@ -2,7 +2,7 @@
   "name": "crystal-treeview",
   "version": "0.0.1",
   "description": "Crystal's tree view component",
-  "main": "src/TreeView.js",
+  "main": "src/Treeview.js",
   "moduleType": [
     "es6"
   ],

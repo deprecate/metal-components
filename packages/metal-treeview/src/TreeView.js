@@ -3,12 +3,12 @@
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import dom from 'bower:metal/src/dom/dom';
-import './TreeView.soy';
+import './Treeview.soy';
 
 /**
- * TreeView component.
+ * Treeview component.
  */
-class TreeView extends SoyComponent {
+class Treeview extends SoyComponent {
 	constructor(opt_config) {
 		super(opt_config);
 	}
@@ -97,14 +97,14 @@ class TreeView extends SoyComponent {
  * @type {string}
  * @static
  */
-TreeView.ELEMENT_CLASSES = 'treeview';
+Treeview.ELEMENT_CLASSES = 'treeview';
 
 /**
- * TreeView attributes definition.
+ * Treeview attributes definition.
  * @type {Object}
  * @static
  */
-TreeView.ATTRS = {
+Treeview.ATTRS = {
 	/**
 	 * This tree view's nodes. Each node should have a name, and can optionally
 	 * have nested children nodes. It should also indicate if its children are
@@ -120,6 +120,6 @@ TreeView.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('TreeView', TreeView);
+ComponentRegistry.register('Treeview', Treeview);
 
-export default TreeView;
+export default Treeview;

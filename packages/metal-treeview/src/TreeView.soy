@@ -1,10 +1,10 @@
-{namespace Templates.TreeView}
+{namespace Templates.Treeview}
 
 /**
  * This renders the main element.
  */
 {template .content}
-	{delcall TreeView.nodes data="all" /}
+	{delcall Treeview.nodes data="all" /}
 {/template}
 
 /**
@@ -15,7 +15,7 @@
 {template .nodes}
 	{foreach $node in $nodes}
 		{let $index: index($node) /}
-		{delcall TreeView.node}
+		{delcall Treeview.node}
 			{param id: $id /}
 			{param node: $node /}
 			{param surfaceId: isNonnull($parentSurfaceId) ? ($parentSurfaceId + '-' + $index) : $index /}
@@ -38,7 +38,7 @@
 				<span class="treeview-node-name">{$node.name}</span>
 			</div>
 			{if $node.children}
-				{delcall TreeView.nodes}
+				{delcall Treeview.nodes}
 					{param id: $id /}
 					{param nodes: $node.children /}
 					{param parentSurfaceId: $surfaceId /}
@@ -53,7 +53,7 @@
  * @param id
  * @param? surfaceId
  */
-{deltemplate TreeView.nodes variant="'element'"}
+{deltemplate Treeview.nodes variant="'element'"}
 	<ul id="{$id}-{$surfaceId}" class="treeview-nodes">{$elementContent}</ul>
 {/deltemplate}
 
@@ -62,6 +62,6 @@
  * @param id
  * @param? surfaceId
  */
-{deltemplate TreeView.node variant="'element'"}
+{deltemplate Treeview.node variant="'element'"}
 	<li id="{$id}-{$surfaceId}" class="treeview-node">{$elementContent}</li>
 {/deltemplate}

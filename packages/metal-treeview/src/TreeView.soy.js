@@ -1,20 +1,20 @@
 /* jshint ignore:start */
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 var Templates = ComponentRegistry.Templates;
-// This file was automatically generated from TreeView.soy.
+// This file was automatically generated from Treeview.soy.
 // Please don't edit this file by hand.
 
 /**
- * @fileoverview Templates in namespace Templates.TreeView.
- * @hassoydeltemplate {TreeView}
- * @hassoydeltemplate {TreeView.node}
- * @hassoydeltemplate {TreeView.nodes}
- * @hassoydelcall {TreeView}
- * @hassoydelcall {TreeView.node}
- * @hassoydelcall {TreeView.nodes}
+ * @fileoverview Templates in namespace Templates.Treeview.
+ * @hassoydeltemplate {Treeview}
+ * @hassoydeltemplate {Treeview.node}
+ * @hassoydeltemplate {Treeview.nodes}
+ * @hassoydelcall {Treeview}
+ * @hassoydelcall {Treeview.node}
+ * @hassoydelcall {Treeview.nodes}
  */
 
-if (typeof Templates.TreeView == 'undefined') { Templates.TreeView = {}; }
+if (typeof Templates.Treeview == 'undefined') { Templates.Treeview = {}; }
 
 
 /**
@@ -24,11 +24,11 @@ if (typeof Templates.TreeView == 'undefined') { Templates.TreeView = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.content = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), '', true)(opt_data, null, opt_ijData));
+Templates.Treeview.content = function(opt_data, opt_ignored, opt_ijData) {
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Treeview.nodes'), '', true)(opt_data, null, opt_ijData));
 };
 if (goog.DEBUG) {
-  Templates.TreeView.content.soyTemplateName = 'Templates.TreeView.content';
+  Templates.Treeview.content.soyTemplateName = 'Templates.Treeview.content';
 }
 
 
@@ -39,19 +39,19 @@ if (goog.DEBUG) {
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.nodes = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Treeview.nodes = function(opt_data, opt_ignored, opt_ijData) {
   var output = '';
   var nodeList5 = opt_data.nodes;
   var nodeListLen5 = nodeList5.length;
   for (var nodeIndex5 = 0; nodeIndex5 < nodeListLen5; nodeIndex5++) {
     var nodeData5 = nodeList5[nodeIndex5];
     var index__soy6 = nodeIndex5;
-    output += soy.$$getDelegateFn(soy.$$getDelTemplateId('TreeView.node'), '', true)({id: opt_data.id, node: nodeData5, surfaceId: opt_data.parentSurfaceId != null ? opt_data.parentSurfaceId + '-' + index__soy6 : index__soy6}, null, opt_ijData);
+    output += soy.$$getDelegateFn(soy.$$getDelTemplateId('Treeview.node'), '', true)({id: opt_data.id, node: nodeData5, surfaceId: opt_data.parentSurfaceId != null ? opt_data.parentSurfaceId + '-' + index__soy6 : index__soy6}, null, opt_ijData);
   }
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
 if (goog.DEBUG) {
-  Templates.TreeView.nodes.soyTemplateName = 'Templates.TreeView.nodes';
+  Templates.Treeview.nodes.soyTemplateName = 'Templates.Treeview.nodes';
 }
 
 
@@ -62,11 +62,11 @@ if (goog.DEBUG) {
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.node = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml((opt_data.node) ? '<div class="treeview-node-wrapper ' + soy.$$escapeHtmlAttribute(opt_data.node.expanded ? 'expanded' : '') + '"><div class="treeview-node-main clearfix ' + soy.$$escapeHtmlAttribute(opt_data.node.children ? 'hasChildren' : '') + '" data-onclick="handleNodeClicked_">' + ((opt_data.node.children) ? '<div class="treeview-node-toggler"></div>' : '') + '<span class="treeview-node-name">' + soy.$$escapeHtml(opt_data.node.name) + '</span></div>' + ((opt_data.node.children) ? soy.$$getDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), '', true)({id: opt_data.id, nodes: opt_data.node.children, parentSurfaceId: opt_data.surfaceId}, null, opt_ijData) : '') + '</div>' : '');
+Templates.Treeview.node = function(opt_data, opt_ignored, opt_ijData) {
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml((opt_data.node) ? '<div class="treeview-node-wrapper ' + soy.$$escapeHtmlAttribute(opt_data.node.expanded ? 'expanded' : '') + '"><div class="treeview-node-main clearfix ' + soy.$$escapeHtmlAttribute(opt_data.node.children ? 'hasChildren' : '') + '" data-onclick="handleNodeClicked_">' + ((opt_data.node.children) ? '<div class="treeview-node-toggler"></div>' : '') + '<span class="treeview-node-name">' + soy.$$escapeHtml(opt_data.node.name) + '</span></div>' + ((opt_data.node.children) ? soy.$$getDelegateFn(soy.$$getDelTemplateId('Treeview.nodes'), '', true)({id: opt_data.id, nodes: opt_data.node.children, parentSurfaceId: opt_data.surfaceId}, null, opt_ijData) : '') + '</div>' : '');
 };
 if (goog.DEBUG) {
-  Templates.TreeView.node.soyTemplateName = 'Templates.TreeView.node';
+  Templates.Treeview.node.soyTemplateName = 'Templates.Treeview.node';
 }
 
 
@@ -77,13 +77,13 @@ if (goog.DEBUG) {
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.__deltemplate_s33_6f4f2112 = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Treeview.__deltemplate_s33_97f15e76 = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-' + soy.$$escapeHtmlAttribute(opt_data.surfaceId) + '" class="treeview-nodes">' + soy.$$escapeHtml(opt_data.elementContent) + '</ul>');
 };
 if (goog.DEBUG) {
-  Templates.TreeView.__deltemplate_s33_6f4f2112.soyTemplateName = 'Templates.TreeView.__deltemplate_s33_6f4f2112';
+  Templates.Treeview.__deltemplate_s33_97f15e76.soyTemplateName = 'Templates.Treeview.__deltemplate_s33_97f15e76';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), 'element', 0, Templates.TreeView.__deltemplate_s33_6f4f2112);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Treeview.nodes'), 'element', 0, Templates.Treeview.__deltemplate_s33_97f15e76);
 
 
 /**
@@ -93,13 +93,13 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), 'element', 0,
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.__deltemplate_s41_68b4c502 = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Treeview.__deltemplate_s41_9bb13687 = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-' + soy.$$escapeHtmlAttribute(opt_data.surfaceId) + '" class="treeview-node">' + soy.$$escapeHtml(opt_data.elementContent) + '</li>');
 };
 if (goog.DEBUG) {
-  Templates.TreeView.__deltemplate_s41_68b4c502.soyTemplateName = 'Templates.TreeView.__deltemplate_s41_68b4c502';
+  Templates.Treeview.__deltemplate_s41_9bb13687.soyTemplateName = 'Templates.Treeview.__deltemplate_s41_9bb13687';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.node'), 'element', 0, Templates.TreeView.__deltemplate_s41_68b4c502);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Treeview.node'), 'element', 0, Templates.Treeview.__deltemplate_s41_9bb13687);
 
 
 /**
@@ -109,14 +109,14 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.node'), 'element', 0, 
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.__deltemplate_s49_13da0f6e = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Treeview.__deltemplate_s49_bcc6b7e7 = function(opt_data, opt_ignored, opt_ijData) {
   opt_data = opt_data || {};
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('TreeView'), 'element', true)({elementClasses: opt_data.elementClasses, elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.TreeView.content(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Treeview'), 'element', true)({elementClasses: opt_data.elementClasses, elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Treeview.content(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
 };
 if (goog.DEBUG) {
-  Templates.TreeView.__deltemplate_s49_13da0f6e.soyTemplateName = 'Templates.TreeView.__deltemplate_s49_13da0f6e';
+  Templates.Treeview.__deltemplate_s49_bcc6b7e7.soyTemplateName = 'Templates.Treeview.__deltemplate_s49_bcc6b7e7';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView'), '', 0, Templates.TreeView.__deltemplate_s49_13da0f6e);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Treeview'), '', 0, Templates.Treeview.__deltemplate_s49_bcc6b7e7);
 
 
 /**
@@ -126,14 +126,14 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView'), '', 0, Templates.Tr
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.__deltemplate_s55_38810b2c = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Treeview.__deltemplate_s55_9da5f16b = function(opt_data, opt_ignored, opt_ijData) {
   opt_data = opt_data || {};
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="treeview component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + soy.$$escapeHtml(opt_data.elementContent) + '</div>');
 };
 if (goog.DEBUG) {
-  Templates.TreeView.__deltemplate_s55_38810b2c.soyTemplateName = 'Templates.TreeView.__deltemplate_s55_38810b2c';
+  Templates.Treeview.__deltemplate_s55_9da5f16b.soyTemplateName = 'Templates.Treeview.__deltemplate_s55_9da5f16b';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView'), 'element', 0, Templates.TreeView.__deltemplate_s55_38810b2c);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Treeview'), 'element', 0, Templates.Treeview.__deltemplate_s55_9da5f16b);
 
 
 /**
@@ -143,13 +143,13 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView'), 'element', 0, Templ
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.__deltemplate_s63_c801199b = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.TreeView.nodes(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
+Templates.Treeview.__deltemplate_s63_91ba2bf6 = function(opt_data, opt_ignored, opt_ijData) {
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Treeview.nodes'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Treeview.nodes(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
 };
 if (goog.DEBUG) {
-  Templates.TreeView.__deltemplate_s63_c801199b.soyTemplateName = 'Templates.TreeView.__deltemplate_s63_c801199b';
+  Templates.Treeview.__deltemplate_s63_91ba2bf6.soyTemplateName = 'Templates.Treeview.__deltemplate_s63_91ba2bf6';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), '', 0, Templates.TreeView.__deltemplate_s63_c801199b);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Treeview.nodes'), '', 0, Templates.Treeview.__deltemplate_s63_91ba2bf6);
 
 
 /**
@@ -159,15 +159,15 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.nodes'), '', 0, Templa
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.TreeView.__deltemplate_s68_f6fc17d6 = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('TreeView.node'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.TreeView.node(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
+Templates.Treeview.__deltemplate_s68_23e29483 = function(opt_data, opt_ignored, opt_ijData) {
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Treeview.node'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Treeview.node(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
 };
 if (goog.DEBUG) {
-  Templates.TreeView.__deltemplate_s68_f6fc17d6.soyTemplateName = 'Templates.TreeView.__deltemplate_s68_f6fc17d6';
+  Templates.Treeview.__deltemplate_s68_23e29483.soyTemplateName = 'Templates.Treeview.__deltemplate_s68_23e29483';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('TreeView.node'), '', 0, Templates.TreeView.__deltemplate_s68_f6fc17d6);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Treeview.node'), '', 0, Templates.Treeview.__deltemplate_s68_23e29483);
 
-Templates.TreeView.nodes.params = ["id","nodes"];
-Templates.TreeView.node.params = ["id","node","surfaceId"];
-export default Templates.TreeView;
+Templates.Treeview.nodes.params = ["id","nodes"];
+Templates.Treeview.node.params = ["id","node","surfaceId"];
+export default Templates.Treeview;
 /* jshint ignore:end */
