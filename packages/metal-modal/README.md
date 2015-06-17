@@ -1,3 +1,3 @@
-# Alloy Modal
+# Crystal Modal
 
-Alloy's modal component.
+Crystal's modal component.
