@@ -1,15 +1,14 @@
 {
-  "name": "alloy-ui",
+  "name": "crystal-components",
   "version": "0.0.1",
-  "description": "AlloyUI is a collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
+  "description": "A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "license": "MIT",
-  "repository": "metal/alloyui",
+  "repository": "metal/crystal-components",
   "engines": {
     "node": ">=0.12.0"
   },
   "keywords": [
-    "alloy",
-    "alloyui",
+    "crystal",
     "metal",
     "metaljs"
   ],

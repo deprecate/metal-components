@@ -1,13 +1,12 @@
 {
-  "name": "alloy-ui",
+  "name": "crystal-components",
   "version": "0.0.1",
-  "description": "AlloyUI is a collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
+  "description": "A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "moduleType": [
     "es6"
   ],
   "keywords": [
-    "alloy",
-    "alloyui",
+    "crystal",
     "metal",
     "metaljs"
   ],
@@ -15,8 +14,8 @@
     "*"
   ],
   "dependencies": {
-    "alloy-modal": "metal/alloy-modal",
-    "alloy-tooltip": "metal/alloy-tooltip",
-    "alloy-treeview": "metal/alloy-treeview"
+    "crystal-modal": "metal/crystal-modal",
+    "crystal-tooltip": "metal/crystal-tooltip",
+    "crystal-treeview": "metal/crystal-treeview"
   }
 }

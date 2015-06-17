@@ -1,3 +1,3 @@
-# AlloyUI
+# crystal-components
 
-AlloyUI is a collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS).
+A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS).
