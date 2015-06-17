@@ -1,2 +1,39 @@
-.list {
+@import "../bower_components/steel-bootstrap/src/variables";
+@import "../bower_components/steel-bootstrap/src/mixins";
+
+/* List
+	 ========================================================================== */
+
+.list .list-item {
+	@include anim(background);
+	border-radius: $border-radius-small;
+	margin: 0;
+	padding: 8px;
+	width: 100%;
+}
+
+.list .list-item:hover {
+	background-color: rgba($primary, .05);
+}
+
+.list .list-main-content {
+	margin-left: 12px;
+}
+
+.list .list-text-primary {
+	color: rgba($secondary, .8);
+	font-size: 14px;
+}
+
+.list .list-text-secondary {
+	color: rgba($secondary, .4);
+	font-size: 12px;
+}
+
+.list .list-icons {
+	margin-top: 8px;
+}
+
+.list .list-icon {
+	margin-left: 3px;
 }
