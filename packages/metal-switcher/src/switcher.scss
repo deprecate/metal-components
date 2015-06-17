@@ -1,4 +1,49 @@
 @import "../bower_components/steel-bootstrap/src/variables";
 @import "../bower_components/steel-bootstrap/src/mixins";
+
+/* Switcher - Off
+	 ========================================================================== */
+
 .switcher {
+	@include user-select(none);
+	border-radius: 12px;
+	border: 1px solid rgba($secondary, .2);
+	cursor: pointer;
+	height: 24px;
+	width: 40px;
+}
+
+.switcher-control {
+	background: rgba($secondary, .2);
+	border-radius: 50%;
+	float: left;
+	height: 24px;
+	margin: -1px 0 0 -1px;
+	width: 24px;
+}
+
+.switcher-control-icon {
+	background: #fff;
+	height: 2px;
+	margin: 11px auto;
+	width: 6px;
+}
+
+/* Switcher - On
+	 ========================================================================== */
+
+.switcher-on {
+	background: rgba($primary, .1);
+}
+
+.switcher-on .switcher-control {
+	background: $primary;
+	float: right;
+	margin: -1px -1px 0 0;
+}
+
+.switcher-on .switcher-control-icon {
+	height: 6px;
+	margin: 9px auto;
+	width: 2px;
 }
