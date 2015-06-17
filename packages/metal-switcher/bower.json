@@ -15,9 +15,9 @@
 		"!src/**/*"
 	],
 	"dependencies": {
-		
-		"metal": "~0.3.1",
-		"metal-jquery-adapter": "~0.0.1",
+		"steel-bootstrap": "metal/steel-bootstrap#master",
+		"metal": "metal/metal.js#master",
+		"metal-jquery-adapter": "metal/metal-jquery-adapter#master",
 		"bootstrap": "~3.3.4",
 		"soyutils": "2014.04.22"
 	}
