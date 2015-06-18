@@ -17,7 +17,9 @@
 		new steel.Autocomplete({
 			inputElement: document.querySelector('input'),
 			data: function(query) {
-				return ['Alabama', 'Alaska'];
+				return ['Alabama', 'Alaska'].filter(function(item) {
+					return query && item.toLowerCase().indexOf(query.toLowerCase()) === 0;
+				});
 			}
 		}).render();
 	</script>
