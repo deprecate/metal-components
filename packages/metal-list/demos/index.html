@@ -13,7 +13,12 @@
 <body>
 	<h1>List</h1>
 	<script type="text/javascript">
-		new steel.List().render();
+		new steel.List({
+			items: [
+				{textPrimary: 'Aragorn', textSecondary: 'Son of Arathorn'},
+				{textPrimary: 'Gimli', textSecondary: 'Son of Glóin'}
+			]
+		}).render();
 	</script>
 </body>
 </html>

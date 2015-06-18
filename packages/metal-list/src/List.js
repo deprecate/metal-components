@@ -40,10 +40,10 @@ List.ELEMENT_CLASSES = 'list';
 List.ATTRS = {
 	/**
 	 * The list items. Each is represented by an object that can have the following keys:
-	 *   - content: The item's main content.
-	 *   - help: (Optional) The item's help content.
+	 *   - textPrimary: The item's main content.
+	 *   - textSecondary: (Optional) The item's help content.
 	 *   - icons: (Optional) A list of icon css classes to render on the right side.
-	 *   - img: (Optional) An object that specifies the image's src and, optionally, a css
+	 *   - avatar: (Optional) An object that specifies the avatar's content and, optionally, a css
 	 *       class it should use.
 	 * @type {!Array<!Object>}
 	 * @default []
