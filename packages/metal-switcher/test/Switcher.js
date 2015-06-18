@@ -13,17 +13,21 @@ describe('Switcher', function() {
 		}
 	});
 
-	it('should switcher turn on when checked attribute is true', function () {
-		switcher = new Switcher({ checked: true }).render();
+	it('should switcher turn on when checked attribute is true', function() {
+		switcher = new Switcher({
+			checked: true
+		}).render();
 		assert.ok(dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
-	it('should switcher turn off when checked attribute is false', function () {
-		switcher = new Switcher({ checked: false }).render();
+	it('should switcher turn off when checked attribute is false', function() {
+		switcher = new Switcher({
+			checked: false
+		}).render();
 		assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
-	it('should switcher toggle on click', function (done) {
+	it('should switcher toggle on click', function(done) {
 		switcher = new Switcher().render();
 		dom.triggerEvent(switcher.element, 'click');
 		async.nextTick(function() {
@@ -37,17 +41,17 @@ describe('Switcher', function() {
 	});
 
 	it('should decorate', function() {
-	  var markup = soy.$$getDelegateFn('Switcher')({
-	    id: 'switcher'
-	  }, null);
+		var markup = soy.$$getDelegateFn('Switcher')({
+			id: 'switcher'
+		}, null);
 
-	  dom.append(document.body, markup.content);
-	  var outerHTML = document.getElementById('switcher').outerHTML;
+		dom.append(document.body, markup.content);
+		var outerHTML = document.getElementById('switcher').outerHTML;
 
-	  switcher = new Switcher({
-	    element: '#switcher'
-	  }).decorate();
+		switcher = new Switcher({
+			element: '#switcher'
+		}).decorate();
 
-	  assert.strictEqual(switcher.element.outerHTML, outerHTML);
+		assert.strictEqual(switcher.element.outerHTML, outerHTML);
 	});
 });
