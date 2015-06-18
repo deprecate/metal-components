@@ -35,9 +35,7 @@ class AutocompleteBase extends SoyComponent {
 	 * @inheritDoc
 	 */
 	detached() {
-		if (this.eventHandler_) {
-			this.eventHandler_.removeAllListeners();
-		}
+		this.eventHandler_.removeAllListeners();
 	}
 
 	/**
