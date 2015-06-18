@@ -26,7 +26,7 @@
     "system.js": "~0.17.1",
     "bootstrap": "~3.3.4",
     "requirejs": "~2.1.18",
-    "metal": "~0.3.1",
-    "metal-jquery-adapter": "~0.0.1"
+    "metal": "metal/metal.js#master",
+    "metal-jquery-adapter": "metal/metal-jquery-adapter#master"
   }
 }
