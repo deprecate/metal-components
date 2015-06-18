@@ -24,7 +24,8 @@ describe('Autocomplete', function() {
 	});
 
 	beforeEach(function() {
-		input = document.createElement('div');
+		input = document.createElement('input');
+		input.type = 'text';
 		dom.enterDocument(input);
 	});
 
@@ -105,7 +106,9 @@ describe('Autocomplete', function() {
 			inputElement: input
 		}).render();
 
-		component.request('a').then(function() {
+		input.setAttribute('value', 'a');
+		input.focus();
+		async.nextTick(function() {
 			async.nextTick(function() {
 				component.once('select', function(value) {
 					assert.deepEqual({
@@ -121,21 +124,47 @@ describe('Autocomplete', function() {
 		});
 	});
 
-	it('should hide element when click outside', function(done) {
+	it('should hide element when click outside input', function(done) {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
 		}).render();
 
-		component.request('a').then(function() {
+		var otherInput = document.createElement('input');
+		otherInput.type = 'text';
+		dom.enterDocument(otherInput);
+
+		input.setAttribute('value', 'a');
+		input.focus();
+		async.nextTick(function() {
 			async.nextTick(function() {
 				async.nextTick(function() {
 					assert.ok(!component.visible);
+					dom.exitDocument(otherInput);
 					done();
 				});
 				assert.ok(component.visible);
-				dom.triggerEvent(document, 'click');
+				otherInput.focus();
+				dom.triggerEvent(otherInput, 'click');
 			});
+		});
+	});
+
+	it('should not hide element when clicking inside input', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		}).render();
+
+		input.setAttribute('value', 'a');
+		input.focus();
+		async.nextTick(function() {
+			async.nextTick(function() {
+				assert.ok(component.visible);
+				done();
+			});
+			assert.ok(component.visible);
+			dom.triggerEvent(input, 'click');
 		});
 	});
 
