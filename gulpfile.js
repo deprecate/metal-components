@@ -21,3 +21,5 @@ gulp.task('soy', function() {
 			return 'build/soy';
 		}));
 });
+
+gulp.task('default', ['build:globals', 'build:amd', 'build:jquery']);
