@@ -1,0 +1,40 @@
+{namespace Templates.Alert}
+
+/**
+ * This renders the main element
+ */
+{template .content}
+	{delcall Alert.dismiss data="all" /}
+	{delcall Alert.body data="all" /}
+{/template}
+
+/**
+ * @param body
+ */
+{template .body}
+	{if $body}
+		{$body}
+	{/if}
+{/template}
+
+/**
+ * @param dismissible
+ */
+{template .dismiss}
+	{if $dismissible}
+	<button type="button" class="close" aria-label="Close" data-onclick="close">
+		<span aria-hidden="true">×</span>
+	</button>
+	{/if}
+{/template}
+
+/**
+ * @param? elementContent
+ * @param? elementClasses
+ * @param? id
+ */
+{deltemplate Alert variant="'element'"}
+<div id="{$id}" class="alert alert-dismissible component {$elementClasses ? $elementClasses : ''}" role="alert">
+{$elementContent}
+</div>
+{/deltemplate}
