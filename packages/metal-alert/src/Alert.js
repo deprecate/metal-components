@@ -22,6 +22,10 @@ class Alert extends SoyComponent {
 		this.syncVisible(false);
 	}
 
+	toggle() {
+		this.visible = !this.visible;
+	}
+
 	syncDismissible(dismissible) {
 		dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
 	}

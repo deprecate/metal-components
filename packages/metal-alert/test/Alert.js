@@ -29,6 +29,22 @@ describe('Alert', function() {
 		component.visible = false;
 	});
 
+	it('should toggle alert and fire transitionend', function(done) {
+		var component = new Alert({
+			visible: true
+		}).render();
+		assert.ok(component.visible);
+		dom.once(component.element, 'transitionend', function() {
+			assert.ok(!component.visible);
+			dom.once(component.element, 'transitionend', function() {
+				component.dispose();
+				done();
+			});
+			component.toggle();
+		});
+		component.toggle();
+	});
+
 	it('should close alert, fire transitionend and dispose itself', function(done) {
 		var component = new Alert({
 			visible: true
