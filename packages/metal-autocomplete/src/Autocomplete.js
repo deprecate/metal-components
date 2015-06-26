@@ -28,6 +28,9 @@ class Autocomplete extends AutocompleteBase {
 		this.on('click', this.genericStopPropagation_);
 		this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+		if (this.visible) {
+			this.align();
+		}
 	}
 
 	/**
