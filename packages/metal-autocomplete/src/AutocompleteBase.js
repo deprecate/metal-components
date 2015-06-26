@@ -140,6 +140,15 @@ AutocompleteBase.ATTRS = {
 			this.inputElement.focus();
 		},
 		validator: core.isFunction
+	},
+
+	/**
+	 * Indicates if the component is visible or not.
+	 * @type {boolean}
+	 */
+	visible: {
+		validator: core.isBoolean,
+		value: false
 	}
 };
 
