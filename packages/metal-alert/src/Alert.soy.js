@@ -55,7 +55,7 @@ if (goog.DEBUG) {
  * @suppress {checkTypes}
  */
 Templates.Alert.dismiss = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml((opt_data.dismissible) ? '<button type="button" class="close" aria-label="Close" data-onclick="close"><span aria-hidden="true">\u00D7</span></button>' : '');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml((opt_data.dismissible) ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">\u00D7</span></button>' : '');
 };
 if (goog.DEBUG) {
   Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';

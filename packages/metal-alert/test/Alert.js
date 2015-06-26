@@ -56,13 +56,13 @@ describe('Alert', function() {
 		});
 	});
 
-	it('should close alert and fire transitionend from close element', function(done) {
+	it('should hide alert and fire transitionend from close element', function(done) {
 		var component = new Alert({
 			visible: true
 		}).render();
 		dom.triggerEvent(component.element.querySelector('.close'), 'click');
 		dom.once(component.element, 'transitionend', function() {
-			assert.ok(component.isDisposed());
+			assert.ok(!component.visible);
 			done();
 		});
 	});
