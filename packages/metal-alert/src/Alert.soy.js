@@ -105,7 +105,7 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert'), '', 0, Templates.Alert
  */
 Templates.Alert.__deltemplate_s27_cbcfd186 = function(opt_data, opt_ignored, opt_ijData) {
   var output = '';
-  var elementId__soy28 = opt_data.id + '-' + (opt_data.surfaceId != null ? opt_data.surfaceId : 'body');
+  var elementId__soy28 = (opt_data.id ? opt_data.id : '') + '-' + (opt_data.surfaceId != null ? opt_data.surfaceId : 'body');
   output += '<div id="' + soy.$$escapeHtmlAttribute(elementId__soy28) + '">' + soy.$$escapeHtml(opt_data.elementContent) + '</div>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
@@ -123,7 +123,7 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.body'), 'element', 0, Tem
  * @suppress {checkTypes}
  */
 Templates.Alert.__deltemplate_s34_9a197608 = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Alert.body'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Alert.body(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Alert.body'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Alert.body(opt_data, null, opt_ijData)), id: opt_data.id, surfaceId: opt_data.surfaceId}, null, opt_ijData));
 };
 if (goog.DEBUG) {
   Templates.Alert.__deltemplate_s34_9a197608.soyTemplateName = 'Templates.Alert.__deltemplate_s34_9a197608';
@@ -138,16 +138,16 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.body'), '', 0, Templates.
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Alert.__deltemplate_s39_fbeb8299 = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Alert.__deltemplate_s40_fbeb8299 = function(opt_data, opt_ignored, opt_ijData) {
   var output = '';
-  var elementId__soy40 = opt_data.id + '-' + (opt_data.surfaceId != null ? opt_data.surfaceId : 'dismiss');
-  output += '<div id="' + soy.$$escapeHtmlAttribute(elementId__soy40) + '">' + soy.$$escapeHtml(opt_data.elementContent) + '</div>';
+  var elementId__soy41 = (opt_data.id ? opt_data.id : '') + '-' + (opt_data.surfaceId != null ? opt_data.surfaceId : 'dismiss');
+  output += '<div id="' + soy.$$escapeHtmlAttribute(elementId__soy41) + '">' + soy.$$escapeHtml(opt_data.elementContent) + '</div>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
 if (goog.DEBUG) {
-  Templates.Alert.__deltemplate_s39_fbeb8299.soyTemplateName = 'Templates.Alert.__deltemplate_s39_fbeb8299';
+  Templates.Alert.__deltemplate_s40_fbeb8299.soyTemplateName = 'Templates.Alert.__deltemplate_s40_fbeb8299';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), 'element', 0, Templates.Alert.__deltemplate_s39_fbeb8299);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), 'element', 0, Templates.Alert.__deltemplate_s40_fbeb8299);
 
 
 /**
@@ -157,13 +157,13 @@ soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), 'element', 0, 
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Alert.__deltemplate_s46_d8c68a2a = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Alert.dismiss(opt_data, null, opt_ijData)), id: opt_data.id}, null, opt_ijData));
+Templates.Alert.__deltemplate_s47_d8c68a2a = function(opt_data, opt_ignored, opt_ijData) {
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(soy.$$getDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), 'element', true)({elementContent: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('' + Templates.Alert.dismiss(opt_data, null, opt_ijData)), id: opt_data.id, surfaceId: opt_data.surfaceId}, null, opt_ijData));
 };
 if (goog.DEBUG) {
-  Templates.Alert.__deltemplate_s46_d8c68a2a.soyTemplateName = 'Templates.Alert.__deltemplate_s46_d8c68a2a';
+  Templates.Alert.__deltemplate_s47_d8c68a2a.soyTemplateName = 'Templates.Alert.__deltemplate_s47_d8c68a2a';
 }
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), '', 0, Templates.Alert.__deltemplate_s46_d8c68a2a);
+soy.$$registerDelegateFn(soy.$$getDelTemplateId('Alert.dismiss'), '', 0, Templates.Alert.__deltemplate_s47_d8c68a2a);
 
 Templates.Alert.body.params = ["body"];
 Templates.Alert.dismiss.params = ["dismissible"];
