@@ -1,6 +1,7 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
+import object from 'bower:metal/src/object/object';
 import Treeview from '../src/Treeview';
 
 var treeview;
@@ -194,5 +195,30 @@ describe('Treeview', function() {
 			assert.notStrictEqual(nodeElement, treeview.element.querySelector('.treeview-node'));
 			done();
 		});
+	});
+
+	it('should decorate content rendered via soy without repainting', function() {
+		var data = {
+			id: 'decorated',
+			nodes: [
+				{
+					name: 'Node 1',
+					children: [
+						{
+							name: 'Node 1.1'
+						}
+					]
+				}
+			]
+		};
+		dom.append(document.body, soy.$$getDelegateFn('Treeview')(data).content);
+
+		var element = document.getElementById('decorated');
+		var soyRenderedContent = element.innerHTML;
+
+		treeview = new Treeview(object.mixin({
+			element: element
+		}, data)).decorate();
+		assert.strictEqual(soyRenderedContent, treeview.element.innerHTML);
 	});
 });

@@ -30,8 +30,8 @@
  */
 {template .node}
 	{if $node}
-		<div class="treeview-node-wrapper {$node.expanded ? 'expanded' : ''}">
-			<div class="treeview-node-main clearfix {$node.children ? 'hasChildren' : ''}" data-onclick="handleNodeClicked_">
+		<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
+			<div class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}" data-onclick="handleNodeClicked_">
 				{if $node.children}
 					<div class="treeview-node-toggler"></div>
 				{/if}
@@ -42,6 +42,7 @@
 					{param id: $id /}
 					{param nodes: $node.children /}
 					{param parentSurfaceId: $surfaceId /}
+					{param surfaceId: $surfaceId + '-nodes' /}
 				{/delcall}
 			{/if}
 		</div>
@@ -54,7 +55,8 @@
  * @param? surfaceId
  */
 {deltemplate Treeview.nodes variant="'element'"}
-	<ul id="{$id}-{$surfaceId}" class="treeview-nodes">{$elementContent}</ul>
+	{let $elementId: ($id ? $id : '') + '-' + (isNonnull($surfaceId) ? $surfaceId : 'nodes') /}
+	<ul id="{$elementId}" class="treeview-nodes">{$elementContent}</ul>
 {/deltemplate}
 
 /**
