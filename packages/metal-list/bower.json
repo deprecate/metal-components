@@ -18,6 +18,7 @@
 	"dependencies": {
 		"metal": "metal/metal.js#master",
 		"metal-jquery-adapter": "metal/metal-jquery-adapter#master",
+		"steel-avatar": "metal/steel-avatar#master",
 		"steel-bootstrap": "metal/steel-bootstrap#master"
 	}
 }

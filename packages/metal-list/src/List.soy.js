@@ -43,9 +43,9 @@ Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
   var itemListLen5 = itemList5.length;
   for (var itemIndex5 = 0; itemIndex5 < itemListLen5; itemIndex5++) {
     var itemData5 = itemList5[itemIndex5];
-    output += '<li class="list-item u-cf" data-index="' + soy.$$escapeHtmlAttribute(itemIndex5) + '" data-onclick="handleClick">';
+    output += '<li class="list-item clearfix" data-index="' + soy.$$escapeHtmlAttribute(itemIndex5) + '" data-onclick="handleClick">';
     if (itemData5.icons) {
-      output += '<div class="list-icons u-pull-right">';
+      output += '<div class="list-icons pull-right">';
       var iconList12 = itemData5.icons;
       var iconListLen12 = iconList12.length;
       for (var iconIndex12 = 0; iconIndex12 < iconListLen12; iconIndex12++) {
@@ -54,7 +54,7 @@ Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
       }
       output += '</div>';
     }
-    output += ((itemData5.avatar) ? '<span class="list-image u-pull-left ' + soy.$$escapeHtmlAttribute(itemData5.avatar['class']) + '">' + soy.$$escapeHtml(itemData5.avatar.content) + '</span>' : '') + '<div class="list-main-content u-pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(itemData5.textPrimary) + '</div>' + ((itemData5.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(itemData5.textSecondary) + '</div>' : '') + '</div></li>';
+    output += ((itemData5.avatar) ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(itemData5.avatar['class']) + '">' + soy.$$escapeHtml(itemData5.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(itemData5.textPrimary) + '</div>' + ((itemData5.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(itemData5.textSecondary) + '</div>' : '') + '</div></li>';
   }
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };

@@ -5,6 +5,7 @@
 	<title>Demo: List</title>
 
 	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
+	<link rel="stylesheet" href="../bower_components/steel-avatar/build/avatar.css">
 	<link rel="stylesheet" href="../build/list.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
@@ -15,8 +16,22 @@
 	<script type="text/javascript">
 		new steel.List({
 			items: [
-				{textPrimary: 'Aragorn', textSecondary: 'Son of Arathorn'},
-				{textPrimary: 'Gimli', textSecondary: 'Son of Glóin'}
+				{
+					textPrimary: 'Aragorn',
+					textSecondary: 'Son of Arathorn',
+					avatar: {
+						class: 'avatar-photo avatar-small',
+						content: steel.SoyComponent.sanitizeHtml('<img src="https://avatars0.githubusercontent.com/u/5216049?v=3&s=72"/>')
+					}
+				},
+				{
+					textPrimary: 'Gimli',
+					textSecondary: 'Son of Glóin',
+					avatar: {
+						class: 'avatar-photo avatar-small',
+						content: steel.SoyComponent.sanitizeHtml('<img src="https://avatars3.githubusercontent.com/u/113087?v=3&s=72"/>')
+					}
+				}
 			]
 		}).render();
 	</script>

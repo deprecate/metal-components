@@ -7,6 +7,7 @@
 .list .list-item {
 	@include anim(background);
 	border-radius: $border-radius-small;
+	list-style: none;
 	margin: 0;
 	padding: 8px;
 	width: 100%;
@@ -36,4 +37,8 @@
 
 .list .list-icon {
 	margin-left: 3px;
+}
+
+.list > ul {
+	padding: 0;
 }
