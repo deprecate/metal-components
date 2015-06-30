@@ -14,7 +14,7 @@ metal.registerTasks({
 
 gulp.task('soy', function() {
 	return gulp.src('bower_components/crystal-*/src/**/*.soy')
-		.pipe(metal.soy.generateSoy()())
+		.pipe(metal.soy.generateSoy())
 		.pipe(gulp.dest(function(file) {
 			var index = file.relative.indexOf(path.sep + 'src' + path.sep);
 			file.base = path.join(file.base, file.relative.substr(0, index + 5));
