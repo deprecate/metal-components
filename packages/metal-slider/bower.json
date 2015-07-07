@@ -1,0 +1,23 @@
+{
+	"name": "crystal-slider",
+	"version": "0.0.0",
+	"description": "Crystal's slider component",
+	"main": "src/Slider.js",
+	"moduleType": [
+		"es6"
+	],
+	"keywords": [
+		"metal",
+		"crystal"
+	],
+	"ignore": [
+		"*",
+		"!src/**/*",
+		"!test/**/*"
+	],
+	"dependencies": {
+		"bootstrap": "~3.3.4",
+		"metal": "metal/metal.js#master",
+		"metal-jquery-adapter": "metal/metal-jquery-adapter#master"
+	}
+}
