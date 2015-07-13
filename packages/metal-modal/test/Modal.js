@@ -2,6 +2,7 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Modal from '../src/Modal';
 
 var modal;
@@ -152,14 +153,14 @@ describe('Modal', function() {
 	});
 
 	it('should modal progressive enchance always as hidden', function() {
-		var markup = soy.$$getDelegateFn('Modal')({
+		var markup = ComponentRegistry.Templates.Modal.content({
 			id: 'modal',
 			elementClasses: 'component centered',
 			header: 'header',
 			body: 'body',
 			footer: 'footer',
 			overlay: true
-		}, null);
+		});
 
 		dom.append(document.body, markup.content);
 		var outerHTML = document.getElementById('modal').outerHTML;
@@ -176,7 +177,7 @@ describe('Modal', function() {
 	});
 
 	it('should change to visible when decorated and visible is true', function() {
-		var markup = soy.$$getDelegateFn('Modal')({
+		var markup = ComponentRegistry.Templates.Modal.content({
 			id: 'modal',
 			elementClasses: 'component centered',
 			header: 'header',

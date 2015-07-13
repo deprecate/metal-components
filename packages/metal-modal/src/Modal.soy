@@ -2,70 +2,56 @@
 
 /**
  * This renders the main element.
+ * @param id
+ * @param elementClasses
  */
 {template .content}
-	<div class="modal-dialog">
-		<div class="modal-content">
-			{delcall Modal.header data="all" /}
-			{delcall Modal.body data="all" /}
-			{delcall Modal.footer data="all" /}
+	<div id="{$id}" class="modal {$elementClasses}">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				{call .header data="all" /}
+				{call .body data="all" /}
+				{call .footer data="all" /}
+			</div>
 		</div>
 	</div>
 {/template}
 
 /**
+ * @param id
  * @param body
  */
 {template .body}
-	{if $body}
-		{$body}
-	{/if}
+	<section id="{$id}-body" class="modal-body">
+		{if $body}
+			{$body}
+		{/if}
+	</section>
 {/template}
 
 /**
  * @param footer
+ * @param id
  */
 {template .footer}
-	{if $footer}
-		{$footer}
-	{/if}
+	<footer id="{$id}-footer" class="modal-footer">
+		{if $footer}
+			{$footer}
+		{/if}
+	</footer>
 {/template}
 
 /**
  * @param header
+ * @param id
  */
 {template .header}
-	{if $header}
-		<button type="button" class="close" data-onclick="hide" aria-label="Close">
-			<span aria-hidden="true">×</span>
-		</button>
-		{$header}
-	{/if}
+	<header id="{$id}-header" class="modal-header">
+		{if $header}
+			<button type="button" class="close" data-onclick="hide" aria-label="Close">
+				<span aria-hidden="true">×</span>
+			</button>
+			{$header}
+		{/if}
+	</header>
 {/template}
-
-/**
- * @param? elementContent
- * @param id
- * @param? surfaceId
- */
-{deltemplate Modal.body variant="'element'"}
-	<section id="{$id}-body" class="modal-body">{$elementContent}</section>
-{/deltemplate}
-
-/**
- * @param? elementContent
- * @param id
- * @param? surfaceId
- */
-{deltemplate Modal.footer variant="'element'"}
-	<footer id="{$id}-footer" class="modal-footer">{$elementContent}</footer>
-{/deltemplate}
-
-/**
- * @param? elementContent
- * @param id
- * @param? surfaceId
- */
-{deltemplate Modal.header variant="'element'"}
-		<header id="{$id}-header" class="modal-header">{$elementContent}</header>
-{/deltemplate}
