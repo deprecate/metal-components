@@ -22,4 +22,4 @@ gulp.task('soy', function() {
 		}));
 });
 
-gulp.task('default', ['build:globals', 'build:amd', 'build:jquery']);
+gulp.task('default', ['build:globals', 'build:amd', 'build:amd:jquery']);
