@@ -2,9 +2,13 @@
 
 /**
  * This renders the main element
+ * @param elementClasses
+ * @param id
  */
 {template .content}
-	<div class="switcher-control">
-		<div class="switcher-control-icon"></div>
+	<div id="{$id}" class="switcher component {$elementClasses}">
+		<div class="switcher-control">
+			<div class="switcher-control-icon"></div>
+		</div>
 	</div>
 {/template}

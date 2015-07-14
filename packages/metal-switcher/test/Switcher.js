@@ -2,6 +2,7 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Switcher from '../src/Switcher';
 
 var switcher;
@@ -41,9 +42,9 @@ describe('Switcher', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = soy.$$getDelegateFn('Switcher')({
+		var markup = ComponentRegistry.Templates.Switcher.content({
 			id: 'switcher'
-		}, null);
+		});
 
 		dom.append(document.body, markup.content);
 		var outerHTML = document.getElementById('switcher').outerHTML;
