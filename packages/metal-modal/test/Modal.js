@@ -155,7 +155,7 @@ describe('Modal', function() {
 	it('should modal progressive enchance always as hidden', function() {
 		var markup = ComponentRegistry.Templates.Modal.content({
 			id: 'modal',
-			elementClasses: 'component centered',
+			elementClasses: 'centered',
 			header: 'header',
 			body: 'body',
 			footer: 'footer',
@@ -179,7 +179,7 @@ describe('Modal', function() {
 	it('should change to visible when decorated and visible is true', function() {
 		var markup = ComponentRegistry.Templates.Modal.content({
 			id: 'modal',
-			elementClasses: 'component centered',
+			elementClasses: 'centered',
 			header: 'header',
 			body: 'body',
 			footer: 'footer',
