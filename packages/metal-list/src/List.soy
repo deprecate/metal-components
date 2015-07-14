@@ -2,38 +2,45 @@
 
 /**
  * This renders the main element
+ * @param elementClasses
+ * @param id
  */
 {template .content}
-	{delcall List.items data="all" /}
+	<div id="{$id}" class="list component {$elementClasses}">
+		{call .items data="all" /}
+	</div>
 {/template}
 
 /**
  * This renders the main element
+ * @param id
  * @param items
  */
 {template .items}
-	{foreach $item in $items}
-		<li class="list-item clearfix" data-index="{index($item)}" data-onclick="handleClick">
-			{if $item.icons}
-				<div class="list-icons pull-right">
-					{foreach $icon in $item.icons}
-						<span class="list-icon {$icon}"></span>
-					{/foreach}
-				</div>
-			{/if}
-			{if $item.avatar}
-				<span class="list-image pull-left {$item.avatar.class}">
-					{$item.avatar.content}
-				</span>
-			{/if}
-			<div class="list-main-content pull-left">
-				<div class="list-text-primary">{$item.textPrimary}</div>
-				{if $item.textSecondary}
-					<div class="list-text-secondary">{$item.textSecondary}</div>
+	<ul id="{$id}-items">
+		{foreach $item in $items}
+			<li class="list-item clearfix" data-index="{index($item)}" data-onclick="handleClick">
+				{if $item.icons}
+					<div class="list-icons pull-right">
+						{foreach $icon in $item.icons}
+							<span class="list-icon {$icon}"></span>
+						{/foreach}
+					</div>
 				{/if}
-			</div>
-		</li>
-	{/foreach}
+				{if $item.avatar}
+					<span class="list-image pull-left {$item.avatar.class}">
+						{$item.avatar.content}
+					</span>
+				{/if}
+				<div class="list-main-content pull-left">
+					<div class="list-text-primary">{$item.textPrimary}</div>
+					{if $item.textSecondary}
+						<div class="list-text-secondary">{$item.textSecondary}</div>
+					{/if}
+				</div>
+			</li>
+		{/foreach}
+	</ul>
 {/template}
 
 /**
