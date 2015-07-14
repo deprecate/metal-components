@@ -2,39 +2,38 @@
 
 /**
  * This renders the main element
+ * @param id
+ * @param elementClasses
  */
 {template .content}
-	{delcall Alert.dismiss data="all" /}
-	{delcall Alert.body data="all" /}
+	<div id="{$id}" class="alert alert-dismissible component {$elementClasses}" role="alert">
+		{call .dismiss data="all" /}
+		{call .body data="all" /}
+	</div>
 {/template}
 
 /**
  * @param body
+ * @param id
  */
 {template .body}
-	{if $body}
-		{$body}
-	{/if}
+	<div id="{$id}-body">
+		{if $body}
+			{$body}
+		{/if}
+	</div>
 {/template}
 
 /**
  * @param dismissible
+ * @param id
  */
 {template .dismiss}
-	{if $dismissible}
-	<button type="button" class="close" aria-label="Close" data-onclick="toggle">
-		<span aria-hidden="true">×</span>
-	</button>
-	{/if}
+	<div id="{$id}-dismiss">
+		{if $dismissible}
+		<button type="button" class="close" aria-label="Close" data-onclick="toggle">
+			<span aria-hidden="true">×</span>
+		</button>
+		{/if}
+	</div>
 {/template}
-
-/**
- * @param? elementContent
- * @param? elementClasses
- * @param? id
- */
-{deltemplate Alert variant="'element'"}
-<div id="{$id}" class="alert alert-dismissible component {$elementClasses ? $elementClasses : ''}" role="alert">
-{$elementContent}
-</div>
-{/deltemplate}
