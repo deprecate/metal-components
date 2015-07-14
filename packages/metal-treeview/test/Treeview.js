@@ -2,6 +2,7 @@
 
 import dom from 'bower:metal/src/dom/dom';
 import object from 'bower:metal/src/object/object';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Treeview from '../src/Treeview';
 
 var treeview;
@@ -211,7 +212,7 @@ describe('Treeview', function() {
 				}
 			]
 		};
-		dom.append(document.body, soy.$$getDelegateFn('Treeview')(data).content);
+		dom.append(document.body, ComponentRegistry.Templates.Treeview.content(data).content);
 
 		var element = document.getElementById('decorated');
 		var soyRenderedContent = element.innerHTML;

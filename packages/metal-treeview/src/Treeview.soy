@@ -2,25 +2,33 @@
 
 /**
  * This renders the main element.
+ * @param id
+ * @param elementClasses
  */
 {template .content}
-	{delcall Treeview.nodes data="all" /}
+	<div id="{$id}" class="treeview component {$elementClasses}">
+		{call .nodes data="all" /}
+	</div>
 {/template}
 
 /**
  * @param id
  * @param nodes
  * @param? parentSurfaceId
+ * @param? surfaceId
  */
 {template .nodes}
-	{foreach $node in $nodes}
-		{let $index: index($node) /}
-		{delcall Treeview.node}
-			{param id: $id /}
-			{param node: $node /}
-			{param surfaceId: isNonnull($parentSurfaceId) ? ($parentSurfaceId + '-' + $index) : $index /}
-		{/delcall}
-	{/foreach}
+	{let $elementId: $id + '-' + (isNonnull($surfaceId) ? $surfaceId : 'nodes') /}
+	<ul id="{$elementId}" class="treeview-nodes">
+		{foreach $node in $nodes}
+			{let $index: index($node) /}
+			{call .node}
+				{param id: $id /}
+				{param node: $node /}
+				{param surfaceId: isNonnull($parentSurfaceId) ? ($parentSurfaceId + '-' + $index) : $index /}
+			{/call}
+		{/foreach}
+	</ul>
 {/template}
 
 /**
@@ -28,42 +36,25 @@
  * @param node
  * @param surfaceId
  */
-{template .node}
-	{if $node}
-		<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
-			<div class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}" data-onclick="handleNodeClicked_">
+{template .node private="true"}
+	<li id="{$id}-{$surfaceId}" class="treeview-node">
+		{if $node}
+			<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
+				<div class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}" data-onclick="handleNodeClicked_">
+					{if $node.children}
+						<div class="treeview-node-toggler"></div>
+					{/if}
+					<span class="treeview-node-name">{$node.name}</span>
+				</div>
 				{if $node.children}
-					<div class="treeview-node-toggler"></div>
+					{call .nodes}
+						{param id: $id /}
+						{param nodes: $node.children /}
+						{param parentSurfaceId: $surfaceId /}
+						{param surfaceId: $surfaceId + '-nodes' /}
+					{/call}
 				{/if}
-				<span class="treeview-node-name">{$node.name}</span>
 			</div>
-			{if $node.children}
-				{delcall Treeview.nodes}
-					{param id: $id /}
-					{param nodes: $node.children /}
-					{param parentSurfaceId: $surfaceId /}
-					{param surfaceId: $surfaceId + '-nodes' /}
-				{/delcall}
-			{/if}
-		</div>
-	{/if}
+		{/if}
+	</li>
 {/template}
-
-/**
- * @param? elementContent
- * @param id
- * @param? surfaceId
- */
-{deltemplate Treeview.nodes variant="'element'"}
-	{let $elementId: ($id ? $id : '') + '-' + (isNonnull($surfaceId) ? $surfaceId : 'nodes') /}
-	<ul id="{$elementId}" class="treeview-nodes">{$elementContent}</ul>
-{/deltemplate}
-
-/**
- * @param? elementContent
- * @param id
- * @param? surfaceId
- */
-{deltemplate Treeview.node variant="'element'"}
-	<li id="{$id}-{$surfaceId}" class="treeview-node">{$elementContent}</li>
-{/deltemplate}
