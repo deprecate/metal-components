@@ -6,7 +6,6 @@ var Templates = ComponentRegistry.Templates;
 
 /**
  * @fileoverview Templates in namespace Templates.List.
- * @hassoydeltemplate {List.items}
  */
 
 if (typeof Templates.List == 'undefined') { Templates.List = {}; }
@@ -59,22 +58,6 @@ Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
 if (goog.DEBUG) {
   Templates.List.items.soyTemplateName = 'Templates.List.items';
 }
-
-
-/**
- * @param {Object.<string, *>=} opt_data
- * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
- * @suppress {checkTypes}
- */
-Templates.List.__deltemplate_s45_e3f298e9 = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items">' + soy.$$escapeHtml(opt_data.elementContent) + '</ul>');
-};
-if (goog.DEBUG) {
-  Templates.List.__deltemplate_s45_e3f298e9.soyTemplateName = 'Templates.List.__deltemplate_s45_e3f298e9';
-}
-soy.$$registerDelegateFn(soy.$$getDelTemplateId('List.items'), 'element', 0, Templates.List.__deltemplate_s45_e3f298e9);
 
 Templates.List.content.params = ["elementClasses","id"];
 Templates.List.items.params = ["id","items"];
