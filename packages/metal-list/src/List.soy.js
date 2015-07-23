@@ -19,7 +19,7 @@ if (typeof Templates.List == 'undefined') { Templates.List = {}; }
  * @suppress {checkTypes}
  */
 Templates.List.content = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component ' + soy.$$escapeHtmlAttribute(opt_data.elementClasses) + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
   Templates.List.content.soyTemplateName = 'Templates.List.content';
@@ -59,7 +59,7 @@ if (goog.DEBUG) {
   Templates.List.items.soyTemplateName = 'Templates.List.items';
 }
 
-Templates.List.content.params = ["elementClasses","id"];
+Templates.List.content.params = ["id"];
 Templates.List.items.params = ["id","items"];
 export default Templates.List;
 /* jshint ignore:end */
