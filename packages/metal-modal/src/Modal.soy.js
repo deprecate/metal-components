@@ -70,7 +70,7 @@ if (goog.DEBUG) {
   Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
 }
 
-Templates.Modal.content.params = ["id","elementClasses"];
+Templates.Modal.content.params = ["id"];
 Templates.Modal.body.params = ["id","body"];
 Templates.Modal.footer.params = ["footer","id"];
 Templates.Modal.header.params = ["header","id"];
