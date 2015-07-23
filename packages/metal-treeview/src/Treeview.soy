@@ -3,10 +3,10 @@
 /**
  * This renders the main element.
  * @param id
- * @param elementClasses
+ * @param? elementClasses
  */
 {template .content}
-	<div id="{$id}" class="treeview component {$elementClasses}">
+	<div id="{$id}" class="treeview component{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .nodes data="all" /}
 	</div>
 {/template}

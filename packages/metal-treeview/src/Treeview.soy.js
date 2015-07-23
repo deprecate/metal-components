@@ -19,7 +19,7 @@ if (typeof Templates.Treeview == 'undefined') { Templates.Treeview = {}; }
  * @suppress {checkTypes}
  */
 Templates.Treeview.content = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="treeview component ' + soy.$$escapeHtmlAttribute(opt_data.elementClasses) + '">' + Templates.Treeview.nodes(opt_data, null, opt_ijData) + '</div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="treeview component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Treeview.nodes(opt_data, null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
   Templates.Treeview.content.soyTemplateName = 'Templates.Treeview.content';
@@ -66,7 +66,7 @@ if (goog.DEBUG) {
   Templates.Treeview.node.soyTemplateName = 'Templates.Treeview.node';
 }
 
-Templates.Treeview.content.params = ["id","elementClasses"];
+Templates.Treeview.content.params = ["id"];
 Templates.Treeview.nodes.params = ["id","nodes"];
 export default Templates.Treeview;
 /* jshint ignore:end */
