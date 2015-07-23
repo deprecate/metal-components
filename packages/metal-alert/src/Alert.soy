@@ -3,10 +3,10 @@
 /**
  * This renders the main element
  * @param id
- * @param elementClasses
+ * @param? elementClasses
  */
 {template .content}
-	<div id="{$id}" class="alert alert-dismissible component {$elementClasses}" role="alert">
+	<div id="{$id}" class="alert alert-dismissible component{$elementClasses ? ' ' + $elementClasses : ''}" role="alert">
 		{call .dismiss data="all" /}
 		{call .body data="all" /}
 	</div>
