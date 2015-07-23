@@ -6,7 +6,7 @@
  * @param? elementClasses
  */
 {template .content}
-	<div id="{$id}" class="modal component {$elementClasses}">
+	<div id="{$id}" class="modal component{$elementClasses ? ' ' + $elementClasses : ''}">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				{call .header data="all" /}

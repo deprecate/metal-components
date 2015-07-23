@@ -199,6 +199,22 @@ describe('Modal', function() {
 		assert.ok(!dom.hasClass(modal.element, 'hidden'));
 	});
 
+	it('should handle calling template without passing "elementClasses"', function() {
+		var markup = ComponentRegistry.Templates.Modal.content({
+			id: 'modal',
+			header: 'header',
+			body: 'body',
+			footer: 'footer',
+			overlay: true
+		}, null);
+		dom.append(document.body, markup.content);
+
+		var element = document.querySelector('#modal');
+		assert.strictEqual('modal component', element.className);
+
+		element.remove();
+	});
+
 	it('should set "visible" attr to false when "hide" method is called', function() {
 		modal = new Modal().render();
 		modal.hide();
