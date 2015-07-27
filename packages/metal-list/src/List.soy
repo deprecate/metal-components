@@ -27,6 +27,13 @@
 						{/foreach}
 					</div>
 				{/if}
+				{if $item.iconsHtml}
+					<div class="list-icons pull-right">
+						{foreach $iconHtml in $item.iconsHtml}
+							{$iconHtml}
+						{/foreach}
+					</div>
+				{/if}
 				{if $item.avatar}
 					<span class="list-image pull-left {$item.avatar.class}">
 						{$item.avatar.content}

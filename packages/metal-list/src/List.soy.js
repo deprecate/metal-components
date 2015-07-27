@@ -50,6 +50,16 @@ Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
       }
       output += '</div>';
     }
+    if (itemData14.iconsHtml) {
+      output += '<div class="list-icons pull-right">';
+      var iconHtmlList30 = itemData14.iconsHtml;
+      var iconHtmlListLen30 = iconHtmlList30.length;
+      for (var iconHtmlIndex30 = 0; iconHtmlIndex30 < iconHtmlListLen30; iconHtmlIndex30++) {
+        var iconHtmlData30 = iconHtmlList30[iconHtmlIndex30];
+        output += soy.$$escapeHtml(iconHtmlData30);
+      }
+      output += '</div>';
+    }
     output += ((itemData14.avatar) ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(itemData14.avatar['class']) + '">' + soy.$$escapeHtml(itemData14.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(itemData14.textPrimary) + '</div>' + ((itemData14.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(itemData14.textSecondary) + '</div>' : '') + '</div></li>';
   }
   output += '</ul>';
