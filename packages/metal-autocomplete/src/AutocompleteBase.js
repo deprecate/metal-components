@@ -65,7 +65,7 @@ class AutocompleteBase extends SoyComponent {
 			})
 			.then(function(data) {
 				if (Array.isArray(data)) {
-					return data.map(self.format.bind(self));
+					return data.map(self.format.bind(self)).filter(val => core.isDefAndNotNull(val));
 				}
 			});
 

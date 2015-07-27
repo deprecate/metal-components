@@ -103,6 +103,36 @@ describe('AutocompleteBase', function() {
 		});
 	});
 
+	it('should removes format data items null', function(done) {
+		var formatter = function() {
+			return null;
+		};
+		component = new AutocompleteBase({
+			data: [1, 2],
+			inputElement: input,
+			format: formatter
+		}).render();
+		component.request().then(function(data) {
+			assert.deepEqual([], data);
+			done();
+		});
+	});
+
+	it('should removes format data items undefined', function(done) {
+		var formatter = function() {
+			return undefined;
+		};
+		component = new AutocompleteBase({
+			data: [1, 2],
+			inputElement: input,
+			format: formatter
+		}).render();
+		component.request().then(function(data) {
+			assert.deepEqual([], data);
+			done();
+		});
+	});
+
 	it('should default select function set value and focus input element', function() {
 		component = new AutocompleteBase({
 			data: [],
