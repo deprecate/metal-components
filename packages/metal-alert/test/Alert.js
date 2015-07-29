@@ -95,4 +95,21 @@ describe('Alert', function() {
 
 		component.dispose();
 	});
+
+	it('should close alert when click outside', function(done) {
+		var component = new Alert({
+			visible: true
+		}).render();
+
+		assert.ok(component.visible);
+		dom.triggerEvent(component.element, 'click');
+		dom.once(component.element, 'transitionend', function() {
+			assert.ok(component.visible);
+			dom.triggerEvent(document, 'click');
+			dom.once(component.element, 'transitionend', function() {
+				assert.ok(!component.visible);
+				done();
+			});
+		});
+	});
 });

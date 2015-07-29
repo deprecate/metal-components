@@ -5,6 +5,7 @@ import dom from 'bower:metal/src/dom/dom';
 import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Anim from 'bower:metal-anim/src/Anim';
+import EventHandler from 'bower:metal/src/events/EventHandler';
 import 'bower:metal/src/dom/events';
 import './Alert.soy.js';
 
@@ -14,12 +15,39 @@ import './Alert.soy.js';
 class Alert extends SoyComponent {
 	constructor(opt_config) {
 		super(opt_config);
+		this.eventHandler_ = new EventHandler();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	detached() {
+		super.detached();
+		this.eventHandler_.removeAllListeners();
 	}
 
 	close() {
 		dom.once(this.element, 'animationend', this.dispose.bind(this));
 		dom.once(this.element, 'transitionend', this.dispose.bind(this));
+		this.eventHandler_.removeAllListeners();
 		this.syncVisible(false);
+	}
+
+	/**
+	 * Handles document click in order to close the alert.
+	 * @param {!Event} event
+	 */
+	handleDocClick_(event) {
+		if (this.element.contains(event.target)) {
+			this.hide();
+		}
+	}
+
+	/**
+	 * Hide the alert.
+	 */
+	hide() {
+		this.visible = false;
 	}
 
 	toggle() {
@@ -27,6 +55,13 @@ class Alert extends SoyComponent {
 	}
 
 	syncDismissible(dismissible) {
+		if (dismissible) {
+			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+		}
+		else {
+			this.eventHandler_.removeAllListeners();
+		}
+
 		dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
 	}
 
