@@ -19,7 +19,7 @@
  */
 {template .items}
 	<ul id="{$id}-items" data-onclick="handleClick">
-		{if $itemsHtml}
+		{if isNonnull($itemsHtml)}
 			{$itemsHtml}
 		{else}
 			{foreach $item in $items}
