@@ -112,4 +112,19 @@ describe('Alert', function() {
 			});
 		});
 	});
+
+	it('should hide alert after delay', function(done) {
+		var alert = new Alert({
+			hideDelay: 0
+		}).render();
+
+		assert.ok(!alert.visible);
+		alert.visible = true;
+		dom.once(alert.element, 'transitionend', function() {
+			dom.once(alert.element, 'transitionend', function() {
+				assert.ok(!alert.visible);
+				done();
+			});
+		});
+	});
 });

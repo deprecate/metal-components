@@ -66,11 +66,24 @@ class Alert extends SoyComponent {
 	}
 
 	syncVisible(visible) {
+		var hideDelay = this.hideDelay;
+
 		dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
 		dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
 		// Some browsers do not fire transitionend events when running in background
 		// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
 		Anim.emulateEnd(this.element);
+
+		if (visible && core.isNumber(hideDelay)) {
+			this.syncHideDelay(hideDelay);
+		}
+	}
+
+	syncHideDelay(hideDelay) {
+		if (core.isNumber(hideDelay) && this.visible) {
+			clearTimeout(this.delay_);
+			this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
+		}
 	}
 }
 
@@ -107,6 +120,15 @@ Alert.ATTRS = {
 	dismissible: {
 		validator: core.isBoolean,
 		value: true
+	},
+
+	/**
+	 * Delay hiding the alert (ms).
+	 * @type {number | undefined}
+	 * @default undefined
+	 */
+	hideDelay: {
+		value: undefined
 	},
 
 	visible: {
