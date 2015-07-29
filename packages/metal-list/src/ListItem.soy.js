@@ -37,21 +37,21 @@ Templates.ListItem.item = function(opt_data, opt_ignored, opt_ijData) {
   var output = '';
   if (opt_data.item.icons) {
     output += '<div class="list-icons pull-right">';
-    var iconList36 = opt_data.item.icons;
-    var iconListLen36 = iconList36.length;
-    for (var iconIndex36 = 0; iconIndex36 < iconListLen36; iconIndex36++) {
-      var iconData36 = iconList36[iconIndex36];
-      output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData36) + '"></span>';
+    var iconList40 = opt_data.item.icons;
+    var iconListLen40 = iconList40.length;
+    for (var iconIndex40 = 0; iconIndex40 < iconListLen40; iconIndex40++) {
+      var iconData40 = iconList40[iconIndex40];
+      output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData40) + '"></span>';
     }
     output += '</div>';
   }
   if (opt_data.item.iconsHtml) {
     output += '<div class="list-icons pull-right">';
-    var iconHtmlList45 = opt_data.item.iconsHtml;
-    var iconHtmlListLen45 = iconHtmlList45.length;
-    for (var iconHtmlIndex45 = 0; iconHtmlIndex45 < iconHtmlListLen45; iconHtmlIndex45++) {
-      var iconHtmlData45 = iconHtmlList45[iconHtmlIndex45];
-      output += soy.$$escapeHtml(iconHtmlData45);
+    var iconHtmlList49 = opt_data.item.iconsHtml;
+    var iconHtmlListLen49 = iconHtmlList49.length;
+    for (var iconHtmlIndex49 = 0; iconHtmlIndex49 < iconHtmlListLen49; iconHtmlIndex49++) {
+      var iconHtmlData49 = iconHtmlList49[iconHtmlIndex49];
+      output += soy.$$escapeHtml(iconHtmlData49);
     }
     output += '</div>';
   }

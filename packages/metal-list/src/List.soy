@@ -15,15 +15,20 @@
  * This renders the main element
  * @param id
  * @param items
+ * @param itemsHtml
  */
 {template .items}
 	<ul id="{$id}-items" data-onclick="handleClick">
-		{foreach $item in $items}
-			{call Templates.ListItem.content}
-				{param id: $id + '-items-' + index($item) /}
-				{param index: index($item) /}
-				{param item: $item /}
-			{/call}
-		{/foreach}
+		{if $itemsHtml}
+			{$itemsHtml}
+		{else}
+			{foreach $item in $items}
+				{call Templates.ListItem.content}
+					{param id: $id + '-items-' + index($item) /}
+					{param index: index($item) /}
+					{param item: $item /}
+				{/call}
+			{/foreach}
+		{/if}
 	</ul>
 {/template}

@@ -35,11 +35,15 @@ if (goog.DEBUG) {
  */
 Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
   var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" data-onclick="handleClick">';
-  var itemList14 = opt_data.items;
-  var itemListLen14 = itemList14.length;
-  for (var itemIndex14 = 0; itemIndex14 < itemListLen14; itemIndex14++) {
-    var itemData14 = itemList14[itemIndex14];
-    output += Templates.ListItem.content({id: opt_data.id + '-items-' + itemIndex14, index: itemIndex14, item: itemData14}, null, opt_ijData);
+  if (opt_data.itemsHtml) {
+    output += soy.$$escapeHtml(opt_data.itemsHtml);
+  } else {
+    var itemList18 = opt_data.items;
+    var itemListLen18 = itemList18.length;
+    for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
+      var itemData18 = itemList18[itemIndex18];
+      output += Templates.ListItem.content({id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18}, null, opt_ijData);
+    }
   }
   output += '</ul>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
@@ -49,6 +53,6 @@ if (goog.DEBUG) {
 }
 
 Templates.List.content.params = ["id"];
-Templates.List.items.params = ["id","items"];
+Templates.List.items.params = ["id","items","itemsHtml"];
 export default Templates.List;
 /* jshint ignore:end */

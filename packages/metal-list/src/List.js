@@ -63,6 +63,9 @@ List.ATTRS = {
 		valueFn: function() {
 			return [];
 		}
+	},
+
+	itemsHtml: {
 	}
 };
 
