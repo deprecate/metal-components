@@ -113,13 +113,13 @@ Alert.ATTRS = {
 		value: ''
 	},
 
-	elementClasses: {
-		value: 'alert-success'
-	},
-
 	dismissible: {
 		validator: core.isBoolean,
 		value: true
+	},
+
+	elementClasses: {
+		value: 'alert-success'
 	},
 
 	/**
