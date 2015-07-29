@@ -15,6 +15,11 @@
 	<h1>List</h1>
 	<script type="text/javascript">
 		new steel.List({
+			events: {
+				itemSelected: function(event) {
+					console.log(event);
+				}
+			},
 			items: [
 				{
 					textPrimary: 'Aragorn',

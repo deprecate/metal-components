@@ -1,5 +1,6 @@
 'use strict';
 
+import dom from 'bower:metal/src/dom/dom';
 import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import './ListItem.js';
@@ -21,7 +22,14 @@ class List extends SoyComponent {
 	 * @param {Event} event The native click event
 	 */
 	handleClick(event) {
-		this.emit('itemSelected', event.delegateTarget);
+		var target = event.target;
+		while (target) {
+			if (dom.match(target, '.listitem')) {
+				break;
+			}
+			target = target.parentNode;
+		}
+		this.emit('itemSelected', target);
 	}
 }
 

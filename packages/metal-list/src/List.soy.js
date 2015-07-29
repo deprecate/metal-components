@@ -34,7 +34,7 @@ if (goog.DEBUG) {
  * @suppress {checkTypes}
  */
 Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
-  var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items">';
+  var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" data-onclick="handleClick">';
   var itemList14 = opt_data.items;
   var itemListLen14 = itemList14.length;
   for (var itemIndex14 = 0; itemIndex14 < itemListLen14; itemIndex14++) {

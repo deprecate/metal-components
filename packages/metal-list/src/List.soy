@@ -17,7 +17,7 @@
  * @param items
  */
 {template .items}
-	<ul id="{$id}-items">
+	<ul id="{$id}-items" data-onclick="handleClick">
 		{foreach $item in $items}
 			{call Templates.ListItem.content}
 				{param id: $id + '-items-' + index($item) /}
