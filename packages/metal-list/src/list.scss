@@ -4,7 +4,7 @@
 /* List
 	 ========================================================================== */
 
-.list .list-item {
+.list .listitem {
 	@include anim(background);
 	border-radius: $border-radius-small;
 	list-style: none;
@@ -13,7 +13,7 @@
 	width: 100%;
 }
 
-.list .list-item:hover {
+.list .listitem:hover {
 	background-color: rgba($primary, .05);
 }
 

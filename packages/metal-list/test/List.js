@@ -1,5 +1,6 @@
 'use strict';
 
+import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
 import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import List from '../src/List';
@@ -101,6 +102,7 @@ describe('List', function() {
 
 	it('should render new items when the attribute is updated', function(done) {
 		list = new List({
+			id: 'list',
 			items: [{
 				textPrimary: 'Item 1'
 			}, {
@@ -114,10 +116,12 @@ describe('List', function() {
 			textPrimary: 'New Item 2'
 		}];
 		list.once('attrsChanged', function() {
-			var contents = list.element.querySelectorAll('li .list-text-primary');
-			assert.strictEqual('New Item 1', contents[0].textContent);
-			assert.strictEqual('New Item 2', contents[1].textContent);
-			done();
+			async.nextTick(function() {
+				var contents = list.element.querySelectorAll('li .list-text-primary');
+				assert.strictEqual('New Item 1', contents[0].textContent);
+				assert.strictEqual('New Item 2', contents[1].textContent);
+				done();
+			});
 		});
 	});
 

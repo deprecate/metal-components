@@ -39,28 +39,7 @@ Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
   var itemListLen14 = itemList14.length;
   for (var itemIndex14 = 0; itemIndex14 < itemListLen14; itemIndex14++) {
     var itemData14 = itemList14[itemIndex14];
-    output += '<li class="list-item clearfix" data-index="' + soy.$$escapeHtmlAttribute(itemIndex14) + '" data-onclick="handleClick">';
-    if (itemData14.icons) {
-      output += '<div class="list-icons pull-right">';
-      var iconList21 = itemData14.icons;
-      var iconListLen21 = iconList21.length;
-      for (var iconIndex21 = 0; iconIndex21 < iconListLen21; iconIndex21++) {
-        var iconData21 = iconList21[iconIndex21];
-        output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData21) + '"></span>';
-      }
-      output += '</div>';
-    }
-    if (itemData14.iconsHtml) {
-      output += '<div class="list-icons pull-right">';
-      var iconHtmlList30 = itemData14.iconsHtml;
-      var iconHtmlListLen30 = iconHtmlList30.length;
-      for (var iconHtmlIndex30 = 0; iconHtmlIndex30 < iconHtmlListLen30; iconHtmlIndex30++) {
-        var iconHtmlData30 = iconHtmlList30[iconHtmlIndex30];
-        output += soy.$$escapeHtml(iconHtmlData30);
-      }
-      output += '</div>';
-    }
-    output += ((itemData14.avatar) ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(itemData14.avatar['class']) + '">' + soy.$$escapeHtml(itemData14.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(itemData14.textPrimary) + '</div>' + ((itemData14.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(itemData14.textSecondary) + '</div>' : '') + '</div></li>';
+    output += Templates.ListItem.content({id: opt_data.id + '-items-' + itemIndex14, index: itemIndex14, item: itemData14}, null, opt_ijData);
   }
   output += '</ul>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);

@@ -2,6 +2,7 @@
 
 import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import './ListItem.js';
 import './List.soy.js';
 
 /**
@@ -43,6 +44,7 @@ List.ATTRS = {
 	 *   - textPrimary: The item's main content.
 	 *   - textSecondary: (Optional) The item's help content.
 	 *   - icons: (Optional) A list of icon css classes to render on the right side.
+	 *   - iconsHtml: (Optional) A list of icon css classes to render on the right side.
 	 *   - avatar: (Optional) An object that specifies the avatar's content and, optionally, a css
 	 *       class it should use.
 	 * @type {!Array<!Object>}
