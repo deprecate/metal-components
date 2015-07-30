@@ -113,6 +113,21 @@ describe('Alert', function() {
 		});
 	});
 
+	it('should not close alert when click on the element', function(done) {
+		var component = new Alert({
+			visible: true
+		}).render();
+
+		assert.ok(component.visible);
+		dom.triggerEvent(component.element, 'click');
+		dom.once(component.element, 'transitionend', function() {
+			assert.ok(component.visible);
+			dom.triggerEvent(component.element, 'click');
+			assert.ok(component.visible);
+			done();
+		});
+	});
+
 	it('should hide alert after delay', function(done) {
 		var alert = new Alert({
 			hideDelay: 0
