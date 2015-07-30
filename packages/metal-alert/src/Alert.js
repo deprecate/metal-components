@@ -39,8 +39,9 @@ class Alert extends SoyComponent {
 	 */
 	handleDocClick_(event) {
 		if (this.element.contains(event.target)) {
-			this.hide();
+			return;
 		}
+		this.hide();
 	}
 
 	/**
@@ -57,8 +58,7 @@ class Alert extends SoyComponent {
 	syncDismissible(dismissible) {
 		if (dismissible) {
 			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
-		}
-		else {
+		} else {
 			this.eventHandler_.removeAllListeners();
 		}
 
@@ -66,16 +66,14 @@ class Alert extends SoyComponent {
 	}
 
 	syncVisible(visible) {
-		var hideDelay = this.hideDelay;
-
 		dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
 		dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
 		// Some browsers do not fire transitionend events when running in background
 		// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
 		Anim.emulateEnd(this.element);
 
-		if (visible && core.isNumber(hideDelay)) {
-			this.syncHideDelay(hideDelay);
+		if (visible && core.isNumber(this.hideDelay)) {
+			this.syncHideDelay(this.hideDelay);
 		}
 	}
 
@@ -124,11 +122,9 @@ Alert.ATTRS = {
 
 	/**
 	 * Delay hiding the alert (ms).
-	 * @type {number | undefined}
-	 * @default undefined
+	 * @type {?number}
 	 */
 	hideDelay: {
-		value: undefined
 	},
 
 	visible: {
