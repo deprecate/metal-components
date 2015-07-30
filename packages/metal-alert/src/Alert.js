@@ -38,10 +38,9 @@ class Alert extends SoyComponent {
 	 * @param {!Event} event
 	 */
 	handleDocClick_(event) {
-		if (this.element.contains(event.target)) {
-			return;
+		if (!this.element.contains(event.target)) {
+			this.hide();
 		}
-		this.hide();
 	}
 
 	/**
