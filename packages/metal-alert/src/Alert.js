@@ -24,6 +24,7 @@ class Alert extends SoyComponent {
 	detached() {
 		super.detached();
 		this.eventHandler_.removeAllListeners();
+		clearTimeout(this.delay_);
 	}
 
 	close() {
