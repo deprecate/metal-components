@@ -8,19 +8,21 @@ Crystal's rating component
 
 2. Install global dependencies:
 
-```
-[sudo] npm install -g gulp
-```
+  ```
+  [sudo] npm install -g gulp
+  ```
 
 3. Install local dependencies:
 
-```
-npm install
-bower install
-```
+  ```
+  npm install
+  bower install
+  ```
 
 4. Build the code:
 
-```
-gulp build
-```
+  ```
+  gulp build
+  ```
+
+5. Open the demo at demos/index.html on your browser.
