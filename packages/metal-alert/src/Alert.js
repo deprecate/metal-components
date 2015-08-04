@@ -37,6 +37,7 @@ class Alert extends SoyComponent {
 	/**
 	 * Handles document click in order to close the alert.
 	 * @param {!Event} event
+	 * @protected
 	 */
 	handleDocClick_(event) {
 		if (!this.element.contains(event.target)) {
