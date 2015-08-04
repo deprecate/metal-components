@@ -146,9 +146,9 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should not close modal when press escape key and the attribute hideOnEsc is not true', function(done) {
+	it('should not close modal when press escape key and the attribute hideOnEscape is not true', function(done) {
 		modal = new Modal({
-			hideOnEsc: false
+			hideOnEscape: false
 		}).render();
 		dom.triggerEvent(document, 'keyup', {
 			keyCode: 27

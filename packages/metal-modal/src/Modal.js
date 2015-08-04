@@ -63,8 +63,8 @@ class Modal extends SoyComponent {
 	/**
 	 * @inheritDoc
 	 */
-	syncHideOnEsc(hideOnEsc) {
-		if (hideOnEsc) {
+	syncHideOnEscape(hideOnEscape) {
+		if (hideOnEscape) {
 			this.eventHandler_.add(dom.on(document, 'keyup', this.handleKeyup_.bind(this)));
 		} else {
 			this.eventHandler_.removeAllListeners();
@@ -130,7 +130,7 @@ Modal.ATTRS = {
 	 * @type {boolean}
 	 * @default true
 	 */
-	hideOnEsc: {
+	hideOnEscape: {
 		validator: core.isBoolean,
 		value: true
 	},
