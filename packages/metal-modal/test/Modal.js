@@ -131,6 +131,34 @@ describe('Modal', function() {
 		});
 	});
 
+	it('should close modal when press the escape key', function(done) {
+		modal = new Modal().render();
+		dom.triggerEvent(document, 'keyup');
+		async.nextTick(function() {
+			assert.ok(modal.visible);
+			dom.triggerEvent(document, 'keyup', {
+				keyCode: 27
+			});
+			async.nextTick(function() {
+				assert.ok(!modal.visible);
+				done();
+			});
+		});
+	});
+
+	it('should not close modal when press escape key and the attribute hideOnEsc is not true', function(done) {
+		modal = new Modal({
+			hideOnEsc: false
+		}).render();
+		dom.triggerEvent(document, 'keyup', {
+			keyCode: 27
+		});
+		async.nextTick(function() {
+			assert.ok(modal.visible);
+			done();
+		});
+	});
+
 	it('should close modal overlay when modal closes', function(done) {
 		modal = new Modal().render();
 		modal.hide();
