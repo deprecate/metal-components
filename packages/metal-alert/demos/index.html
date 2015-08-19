@@ -13,10 +13,31 @@
 <body>
 	<h1>Alert</h1>
 	<script type="text/javascript">
-		new steel.Alert({ visible: true, body: 'Success', dismissible: false }).render();
-		new steel.Alert({ visible: true, body: 'Danger', elementClasses: 'alert-danger', dismissible: false }).render();
-		new steel.Alert({ visible: true, body: 'Warning', elementClasses: 'alert-warning' }).render();
-		new steel.Alert({ visible: true, body: 'Info', elementClasses: 'alert-info', hideDelay: 2000 }).render();
+		new steel.Alert({
+			visible: true,
+			body: 'Success',
+			dismissible: false
+		}).render();
+
+		new steel.Alert({
+			visible: true,
+			body: 'Danger',
+			elementClasses: 'alert-danger',
+			dismissible: false
+		}).render();
+
+		new steel.Alert({
+			visible: true,
+			body: 'Success',
+			elementClasses: 'alert-success',
+			hideDelay: 10000
+		}).render();
+
+		new steel.Alert({
+			visible: true,
+			body: 'Danger',
+			elementClasses: 'alert-danger'
+		}).render();
 	</script>
 </body>
 </html>
