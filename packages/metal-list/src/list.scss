@@ -6,15 +6,15 @@
 
 .list .listitem {
 	@include anim(background);
-	border-radius: $border-radius-small;
+	border-bottom: 1px solid rgba($primary, .2);
 	list-style: none;
 	margin: 0;
-	padding: 8px;
+	padding: 35px 12px;
 	width: 100%;
 }
 
-.list .listitem:hover {
-	background-color: rgba($primary, .05);
+.list .listitem:last-child {
+	border-bottom: 0;
 }
 
 .list .list-main-content {
@@ -22,23 +22,40 @@
 }
 
 .list .list-text-primary {
-	color: rgba($secondary, .8);
-	font-size: 14px;
+	color: rgba($primary, .6);
+	font-size: 16px;
+	margin-top: 5px;
 }
 
 .list .list-text-secondary {
-	color: rgba($secondary, .4);
+	color: rgba($primary, .4);
 	font-size: 12px;
 }
 
 .list .list-icons {
-	margin-top: 8px;
+	margin-top: 16px;
 }
 
 .list .list-icon {
+	@include anim(color);
+	color: rgba($primary, .3);
 	margin-left: 3px;
+}
+
+.list .list-icon:hover {
+	color: rgba($primary, .6);
+}
+
+.list .list-label {
+	margin-top: 8px;
+	margin-right: 40px;
 }
 
 .list > ul {
 	padding: 0;
+}
+
+.list .avatar-photo img {
+	width: 48px;
+	height: 48px;
 }

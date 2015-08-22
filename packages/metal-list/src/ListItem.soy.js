@@ -34,28 +34,28 @@ if (goog.DEBUG) {
  * @suppress {checkTypes}
  */
 Templates.ListItem.item = function(opt_data, opt_ignored, opt_ijData) {
-  var output = '';
+  var output = ((opt_data.item.avatar) ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + ((opt_data.item.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
   if (opt_data.item.icons) {
     output += '<div class="list-icons pull-right">';
-    var iconList40 = opt_data.item.icons;
-    var iconListLen40 = iconList40.length;
-    for (var iconIndex40 = 0; iconIndex40 < iconListLen40; iconIndex40++) {
-      var iconData40 = iconList40[iconIndex40];
-      output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData40) + '"></span>';
+    var iconList56 = opt_data.item.icons;
+    var iconListLen56 = iconList56.length;
+    for (var iconIndex56 = 0; iconIndex56 < iconListLen56; iconIndex56++) {
+      var iconData56 = iconList56[iconIndex56];
+      output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData56) + '"></span>';
     }
     output += '</div>';
   }
   if (opt_data.item.iconsHtml) {
     output += '<div class="list-icons pull-right">';
-    var iconHtmlList49 = opt_data.item.iconsHtml;
-    var iconHtmlListLen49 = iconHtmlList49.length;
-    for (var iconHtmlIndex49 = 0; iconHtmlIndex49 < iconHtmlListLen49; iconHtmlIndex49++) {
-      var iconHtmlData49 = iconHtmlList49[iconHtmlIndex49];
-      output += soy.$$escapeHtml(iconHtmlData49);
+    var iconHtmlList65 = opt_data.item.iconsHtml;
+    var iconHtmlListLen65 = iconHtmlList65.length;
+    for (var iconHtmlIndex65 = 0; iconHtmlIndex65 < iconHtmlListLen65; iconHtmlIndex65++) {
+      var iconHtmlData65 = iconHtmlList65[iconHtmlIndex65];
+      output += soy.$$escapeHtml(iconHtmlData65);
     }
     output += '</div>';
   }
-  output += ((opt_data.item.avatar) ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + ((opt_data.item.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
+  output += (opt_data.item.label) ? '<span class="label list-label pull-right ' + soy.$$escapeHtmlAttribute(opt_data.item.label['class']) + '">' + soy.$$escapeHtml(opt_data.item.label.content) + '</span>' : '';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
 if (goog.DEBUG) {

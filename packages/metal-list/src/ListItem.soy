@@ -16,6 +16,17 @@
  * @param item
  */
 {template .item}
+	{if $item.avatar}
+		<span class="list-image pull-left {$item.avatar.class}">
+			{$item.avatar.content}
+		</span>
+	{/if}
+	<div class="list-main-content pull-left">
+		<div class="list-text-primary">{$item.textPrimary}</div>
+		{if $item.textSecondary}
+			<div class="list-text-secondary">{$item.textSecondary}</div>
+		{/if}
+	</div>
 	{if $item.icons}
 		<div class="list-icons pull-right">
 			{foreach $icon in $item.icons}
@@ -30,15 +41,9 @@
 			{/foreach}
 		</div>
 	{/if}
-	{if $item.avatar}
-		<span class="list-image pull-left {$item.avatar.class}">
-			{$item.avatar.content}
+	{if $item.label}
+		<span class="label list-label pull-right {$item.label.class}">
+			{$item.label.content}
 		</span>
 	{/if}
-	<div class="list-main-content pull-left">
-		<div class="list-text-primary">{$item.textPrimary}</div>
-		{if $item.textSecondary}
-			<div class="list-text-secondary">{$item.textSecondary}</div>
-		{/if}
-	</div>
 {/template}
