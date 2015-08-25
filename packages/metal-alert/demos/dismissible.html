@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo: Alert dismissible</title>
+
+	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
+	<link rel="stylesheet" href="../build/alert.css">
+
+	<script src="../bower_components/soyutils/soyutils.js"></script>
+	<script src="../build/globals/alert.js"></script>
+</head>
+<body>
+	<h1>Alert dismissible</h1>
+	<script>
+		new steel.Alert({
+			visible: true,
+			body: 'Danger',
+			elementClasses: 'alert-danger',
+			dismissible: false
+		}).render();
+	</script>
+</body>
+</html>
