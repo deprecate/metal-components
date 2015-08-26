@@ -5,6 +5,8 @@
 	<title>Demo: ButtonGroup</title>
 
 	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
+	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-12.css">
+	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-16.css">
 	<link rel="stylesheet" href="../build/buttonGroup.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
@@ -13,7 +15,19 @@
 <body>
 	<h1>ButtonGroup</h1>
 	<script type="text/javascript">
-		new steel.ButtonGroup().render();
+		window.buttonGroup = new steel.ButtonGroup({
+			buttons: [
+				{
+					label: 'First'
+				},
+				{
+					label: 'Second'
+				},
+				{
+					label: 'Third'
+				}
+			]
+		}).render();
 	</script>
 </body>
 </html>
