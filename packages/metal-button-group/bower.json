@@ -1,0 +1,23 @@
+{
+	"name": "steel-buttonGroup",
+	"version": "0.0.0",
+	"description": "Steel's button group component",
+	"main": "src/ButtonGroup.js",
+	"moduleType": [
+		"es6"
+	],
+	"keywords": [
+		"metal",
+		"steel"
+	],
+	"ignore": [
+		"*",
+		"!src/**/*",
+		"!test/**/*"
+	],
+	"dependencies": {
+		"metal": "metal/metal.js#master",
+		"metal-jquery-adapter": "metal/metal-jquery-adapter#master",
+		"steel-bootstrap": "metal/steel-bootstrap#master"
+	}
+}
