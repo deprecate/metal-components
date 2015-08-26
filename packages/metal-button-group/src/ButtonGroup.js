@@ -38,6 +38,19 @@ class ButtonGroup extends SoyComponent {
 	}
 
 	/**
+	 * Gets the current number of selected buttons.
+	 * @param {!Object} opt_selected Optional object of selected buttons to use
+	 *   instead of the `selected` attr.
+	 * @return {number}
+	 */
+	getSelectedCount(opt_selected) {
+		var selected = opt_selected || this.selected;
+		return Object.keys(selected)
+			.filter(index => selected[index])
+			.length;
+	}
+
+	/**
 	 * Handles a `click` event fired on one of the buttons. Appropriately selects
 	 * or deselects the clicked button.
 	 * @param {!Event} event
@@ -46,12 +59,32 @@ class ButtonGroup extends SoyComponent {
 	handleClick_(event) {
 		var button = event.delegateTarget;
 		var index = button.getAttribute('data-index');
-		if (this.selected[index]) {
-			delete this.selected[index];
-		} else {
+		if (!this.selected[index]) {
 			this.selected[index] = true;
+			this.selected = this.selected;
+		} else if (this.getSelectedCount() > this.minSelected) {
+			delete this.selected[index];
+			this.selected = this.selected;
 		}
-		this.selected = this.selected;
+	}
+
+	/**
+	 * Checks if the minimum number of buttons is selected. If not, the remaining
+	 * number of buttons needed to reach the minimum will be selected.
+	 * @protected
+	 */
+	setterSelectedFn_(selected) {
+		var minSelected = Math.min(this.minSelected, this.buttons.length);
+		var selectedCount = this.getSelectedCount(selected);
+		var i = 0;
+		while (selectedCount < minSelected) {
+			if (!selected[i]) {
+				selected[i] = true;
+				selectedCount++;
+			}
+			i++;
+		}
+		return selected;
 	}
 
 	/**
@@ -84,11 +117,25 @@ ButtonGroup.ATTRS = {
 	},
 
 	/**
+	 * The minimum number of buttons that need to be selected at a time. If the
+	 * minimum number of buttons is not already initially selected, this will
+	 * automaticaly select the first `minSelected` buttons.
+	 * @type {number}
+	 * @default 0
+	 */
+	minSelected: {
+		validator: core.isNumber,
+		value: 0,
+		writeOnce: true
+	},
+
+	/**
 	 * An object that indicates which buttons are selected. The indices of the
 	 * selected buttons will be keys on the object that are set to true.
 	 * @type {!Object<number, boolean>}
 	 */
 	selected: {
+		setter: 'setterSelectedFn_',
 		validator: core.isObject,
 		valueFn: function() {
 			return {};

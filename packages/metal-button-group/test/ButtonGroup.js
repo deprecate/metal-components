@@ -86,4 +86,56 @@ describe('ButtonGroup', function() {
 		assert.ok(!dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
 		assert.ok(dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
 	});
+
+	it('should automatically select the number of buttons remaining to reach `minSelected`', function() {
+		buttonGroup = new ButtonGroup({
+			buttons: [
+				{
+					label: 'First'
+				},
+				{
+					label: 'Second'
+				},
+				{
+					label: 'Third'
+				}
+			],
+			minSelected: 2,
+			selected: {
+				'0': true
+			}
+		}).render();
+
+		assert.ok(buttonGroup.selected[0]);
+		assert.ok(buttonGroup.selected[1]);
+		assert.ok(!buttonGroup.selected[2]);
+	});
+
+	it('should not allow deselecting a button if the total count will be lower than `minSelected`', function() {
+		buttonGroup = new ButtonGroup({
+			buttons: [
+				{
+					label: 'First'
+				},
+				{
+					label: 'Second'
+				},
+				{
+					label: 'Third'
+				}
+			],
+			minSelected: 2,
+			selected: {
+				'0': true
+			}
+		}).render();
+
+		var buttonElements = buttonGroup.element.querySelectorAll('button');
+		dom.triggerEvent(buttonElements[0], 'click');
+
+		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
+		assert.ok(buttonGroup.selected[0]);
+		assert.ok(buttonGroup.selected[1]);
+		assert.ok(!buttonGroup.selected[2]);
+	});
 });
