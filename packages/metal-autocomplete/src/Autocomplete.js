@@ -17,6 +17,8 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	constructor(opt_config) {
 		super(opt_config);
+
+		this.once('render', this.handleRender_);
 	}
 
 	/**
@@ -39,14 +41,6 @@ class Autocomplete extends AutocompleteBase {
 	detached() {
 		super.detached();
 		this.list.detach();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	renderInternal() {
-		this.list = new List().render(this.element);
-		this.list.on('itemSelected', this.onListItemSelected_.bind(this));
 	}
 
 	/**
@@ -75,6 +69,16 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	handleInputFocus_() {
 		this.request(this.inputElement.value);
+	}
+
+	/**
+	 * Handles the `render` event, creating a `List` component and rendering
+	 * it inside this autocomplete.
+	 * @protected
+	 */
+	handleRender_() {
+		this.list = new List().render(this.element);
+		this.list.on('itemSelected', this.onListItemSelected_.bind(this));
 	}
 
 	/**
