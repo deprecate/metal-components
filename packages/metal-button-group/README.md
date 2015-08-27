@@ -1,4 +1,4 @@
-# steel-buttonGroup
+# steel-button-group
 
 Steel's button group component
 

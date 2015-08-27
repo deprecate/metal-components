@@ -1,5 +1,5 @@
 {
-	"name": "steel-buttonGroup",
+	"name": "steel-button-group",
 	"version": "0.0.0",
 	"description": "Steel's button group component",
 	"main": "src/ButtonGroup.js",
