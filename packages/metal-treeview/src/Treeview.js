@@ -9,15 +9,12 @@ import './Treeview.soy';
  * Treeview component.
  */
 class Treeview extends SoyComponent {
-	constructor(opt_config) {
-		super(opt_config);
-	}
-
 	/**
 	 * Called after this component has been attached to the dom.
 	 */
 	attached() {
-		this.on('nodesChanged', this.onNodesChanged_.bind(this));
+		this.on('nodesChanged', this.onNodesChanged_);
+		this.on('renderSurface', this.handleRenderSurface_);
 	}
 
 	/**
@@ -47,21 +44,6 @@ class Treeview extends SoyComponent {
 	}
 
 	/**
-	 * Overrides SoyComponent's original method, skipping it when the flag for
-	 * ignoring surface updates is set.
-	 * @param {string} surfaceId The surface id.
-	 * @return {Object|string} The content to be rendered.
-	 * @protected
-	 * @override
-	 */
-	getSurfaceContent_(surfaceId) {
-		if (!this.ignoreSurfaceUpdate_) {
-			return super.getSurfaceContent_(surfaceId);
-		}
-		this.ignoreSurfaceUpdate_ = false;
-	}
-
-	/**
 	 * This is called when one of this tree view's nodes is clicked.
 	 * @param {Event} event
 	 * @protected
@@ -78,6 +60,20 @@ class Treeview extends SoyComponent {
 
 		this.nodes = this.nodes;
 		this.ignoreSurfaceUpdate_ = true;
+	}
+
+	/**
+	 * Handles a `renderSurface` event. Prevents rerendering surfaces when the changes
+	 * the surface was caused by a ui event that has already updated the screen.
+	 * @param {!Object} data
+	 * @param {!Object} event
+	 * @protected
+	 */
+	handleRenderSurface_(data, event) {
+		if (this.ignoreSurfaceUpdate_) {
+			event.preventDefault();
+			this.ignoreSurfaceUpdate_ = false;
+		}
 	}
 
 	/**
