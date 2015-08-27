@@ -58,6 +58,51 @@ describe('ButtonGroup', function() {
 		assert.ok(!dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
 	});
 
+	it('should convert given "selected" attr from labels array to map', function() {
+		buttonGroup = new ButtonGroup({
+			buttons: [
+				{
+					label: 'First'
+				},
+				{
+					label: 'Second'
+				},
+				{
+					label: 'Third'
+				}
+			],
+			selected: ['First', 'Third']
+		}).render();
+
+		var expectedSelected = {
+			'0': true,
+			'2': true
+		};
+		assert.deepEqual(expectedSelected, buttonGroup.selected);
+	});
+
+	it('should add ButtonGroup.SELECTED_CLASS to buttons specified as labels in "selected" array attr', function() {
+		buttonGroup = new ButtonGroup({
+			buttons: [
+				{
+					label: 'First'
+				},
+				{
+					label: 'Second'
+				},
+				{
+					label: 'Third'
+				}
+			],
+			selected: ['First', 'Third']
+		}).render();
+
+		var buttonElements = buttonGroup.element.querySelectorAll('button');
+		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
+		assert.ok(!dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
+		assert.ok(dom.hasClass(buttonElements[2], ButtonGroup.SELECTED_CLASS));
+	});
+
 	it('should add/remove ButtonGroup.SELECTED_CLASS to elements when clicked', function() {
 		buttonGroup = new ButtonGroup({
 			buttons: [

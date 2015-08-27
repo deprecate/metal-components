@@ -22,6 +22,24 @@ class ButtonGroup extends SoyComponent {
 	}
 
 	/**
+	 * Converts the given array of button labels to a map with the respective indices
+	 * as keys.
+	 * @param {!Array<string>} selectedArr
+	 * @return {!Object<string, boolean>}
+	 * @protected
+	 */
+	convertToMap_(selectedArr) {
+		var selected = {};
+		var buttons = this.buttons;
+		for (var i = 0; i < buttons.length; i++) {
+			if (selectedArr.indexOf(buttons[i].label) !== -1) {
+				selected[i] = true;
+			}
+		}
+		return selected;
+	}
+
+	/**
 	 * The default behavior of the `selectedChanged` event. Adds or removes the CSS
 	 * class defined by `ButtonGroup.SELECTED_CLASS` to each button.
 	 * @param {!Object} event
@@ -71,9 +89,14 @@ class ButtonGroup extends SoyComponent {
 	/**
 	 * Checks if the minimum number of buttons is selected. If not, the remaining
 	 * number of buttons needed to reach the minimum will be selected.
+	 * @param {!Object<number, boolean>|!Array<string>} selected
 	 * @protected
 	 */
 	setterSelectedFn_(selected) {
+		if (selected instanceof Array) {
+			selected = this.convertToMap_(selected);
+		}
+
 		var minSelected = Math.min(this.minSelected, this.buttons.length);
 		var selectedCount = this.getSelectedCount(selected);
 		var i = 0;
@@ -132,7 +155,7 @@ ButtonGroup.ATTRS = {
 	/**
 	 * An object that indicates which buttons are selected. The indices of the
 	 * selected buttons will be keys on the object that are set to true.
-	 * @type {!Object<number, boolean>}
+	 * @type {!Object<number, boolean>|!Array<string>}
 	 */
 	selected: {
 		setter: 'setterSelectedFn_',
