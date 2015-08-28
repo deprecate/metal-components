@@ -18,6 +18,7 @@
 	"dependencies": {
 		"metal": "metal/metal.js#master",
 		"metal-jquery-adapter": "metal/metal-jquery-adapter#master",
-		"steel-bootstrap": "metal/steel-bootstrap#master"
+		"steel-bootstrap": "metal/steel-bootstrap#master",
+		"steel-dropdown": "metal/steel-dropdown#master"
 	}
 }

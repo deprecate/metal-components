@@ -5,15 +5,30 @@
 	<title>Demo: Select</title>
 
 	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
+	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-12.css">
+	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-16.css">
 	<link rel="stylesheet" href="../build/select.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
 	<script src="../build/globals/select.js"></script>
+
+	<style>
+		.select {
+			margin-bottom: 10px;
+		}
+	</style>
 </head>
 <body>
 	<h1>Select</h1>
 	<script type="text/javascript">
-		new steel.Select().render();
+		window.select = new steel.Select({
+			items: ['Number', 'String', 'Boolean', 'Array', 'Object'],
+			label: 'Type'
+		}).render();
+
+		window.select2 = new steel.Select({
+			items: ['GET', 'DELETE', 'HEAD', 'POST', 'PATCH', 'PUT']
+		}).render();
 	</script>
 </body>
 </html>

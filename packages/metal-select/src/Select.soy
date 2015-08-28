@@ -4,8 +4,25 @@
  * This renders the main element.
  * @param? elementClasses
  * @param id
+ * @param items
+ * @param label
+ * @param selectedIndex
  */
 {template .content}
 	<div id="{$id}" class="select component{$elementClasses ? ' ' + $elementClasses : ''}">
+		{call Templates.Dropdown.content}
+			{param body kind="html"}
+				{foreach $item in $items}
+					<li data-onclick="{$id}:handleItemClick_" class="{$selectedIndex == index($item) ? 'selected' : ''}"><a href="#">{$item}</a></li>
+				{/foreach}
+			{/param}
+			{param header kind="html"}
+				<button class="btn btn-default dropdown-select" type="button" data-onclick="toggle">
+					{$selectedIndex == -1 ? $label : $items[$selectedIndex]}
+					<span class="icon-12-arrow-down-short"></span>
+				</button>
+			{/param}
+			{param id: $id + '-dropdown' /}
+		{/call}
 	</div>
 {/template}
