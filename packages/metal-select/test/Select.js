@@ -28,6 +28,26 @@ describe('Select', function() {
 		assert.strictEqual('Third', items[2].textContent);
 	});
 
+	it('should use the "btn btn-default" CSS class for the button by default', function() {
+		select = new Select({
+			items: ['First', 'Second', 'Third'],
+			label: 'Foo'
+		}).render();
+
+		assert.ok(dom.hasClass(select.element.querySelector('button'), 'btn'));
+		assert.ok(dom.hasClass(select.element.querySelector('button'), 'btn-default'));
+	});
+
+	it('should use the CSS class given by the `buttonClass` attr', function() {
+		select = new Select({
+			buttonClass: 'myClass',
+			items: ['First', 'Second', 'Third'],
+			label: 'Foo'
+		}).render();
+
+		assert.ok(dom.hasClass(select.element.querySelector('button'), 'myClass'));
+	});
+
 	it('should render given label inside button', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third'],

@@ -46,6 +46,16 @@ class Select extends SoyComponent {
  */
 Select.ATTRS = {
 	/**
+	 * The CSS class used by the select menu button.
+	 * @type {string}
+	 * @default 'btn btn-default'
+	 */
+	buttonClass: {
+		validator: core.isString,
+		value: 'btn btn-default'
+	},
+
+	/**
 	 * A list with the names of the select dropdown items.
 	 * @type {!Array<string>}
 	 * @default []
