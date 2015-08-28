@@ -20,15 +20,25 @@
 </head>
 <body>
 	<h1>Select</h1>
+	<div class="col-md-2">
+		<h1>Dropdown + button</h1>
+	</div>
+	<div class="col-md-10">
+		<h1>Dropdown + input group</h1>
+		<div class="input-group">
+			<div class="input-group-btn"></div>
+			<input type="text" class="form-control" aria-label="...">
+		</div>
+	</div>
 	<script type="text/javascript">
 		window.select = new steel.Select({
 			items: ['Number', 'String', 'Boolean', 'Array', 'Object'],
 			label: 'Type'
-		}).render();
+		}).render('.col-md-2');
 
 		window.select2 = new steel.Select({
 			items: ['GET', 'DELETE', 'HEAD', 'POST', 'PATCH', 'PUT']
-		}).render();
+		}).render('.input-group-btn');
 	</script>
 </body>
 </html>
