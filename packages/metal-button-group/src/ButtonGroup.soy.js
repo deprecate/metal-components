@@ -26,7 +26,7 @@ Templates.ButtonGroup.content = function(opt_data, opt_ignored, opt_ijData) {
     var buttonData8 = buttonList8[buttonIndex8];
     var type__soy9 = buttonData8.type ? buttonData8.type : 'button';
     var cssClass__soy10 = buttonData8.cssClass ? buttonData8.cssClass : 'btn btn-default';
-    output += '<button type="' + soy.$$escapeHtmlAttribute(type__soy9) + '" class="' + soy.$$escapeHtmlAttribute(cssClass__soy10) + soy.$$escapeHtmlAttribute(opt_data.selected[buttonIndex8] ? ' btn-group-selected' : '') + '" data-index="' + soy.$$escapeHtmlAttribute(buttonIndex8) + '" data-onclick="handleClick_"><span class="btn-label">' + soy.$$escapeHtml(buttonData8.label ? buttonData8.label : '') + '</span><span class="btn-icon icon-12-check"></span></button>';
+    output += '<button type="' + soy.$$escapeHtmlAttribute(type__soy9) + '" class="' + soy.$$escapeHtmlAttribute(cssClass__soy10) + soy.$$escapeHtmlAttribute(opt_data.selected[buttonIndex8] ? ' btn-group-selected' : '') + '" data-index="' + soy.$$escapeHtmlAttribute(buttonIndex8) + '" data-onclick="handleClick_"><span class="btn-group-label">' + soy.$$escapeHtml(buttonData8.label ? buttonData8.label : '') + '</span><span class="btn-group-icon icon-12-check"></span></button>';
   }
   output += '</div>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
