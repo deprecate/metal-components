@@ -40,7 +40,8 @@
 	<script type="text/javascript">
 		window.select1 = new steel.Select({
 			items: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE'],
-			buttonClass: 'btn btn-default btn-sm dropdown-select-group-left'
+			buttonClass: 'btn btn-default btn-sm dropdown-select-group-left',
+			hiddenFieldName: 'method'
 		}).render('#first');
 
 		window.select2 = new steel.Select({
