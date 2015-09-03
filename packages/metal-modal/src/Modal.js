@@ -22,6 +22,29 @@ class Modal extends SoyComponent {
 	/**
 	 * @inheritDoc
 	 */
+	attached() {
+		this.autoFocus_();
+	}
+
+	/**
+	 * Automatically focuses the element specified by the `autoFocus` attr.
+	 * @protected
+	 */
+	autoFocus_() {
+		if (this.inDocument && this.visible && this.autoFocus) {
+			var element = this.autoFocus;
+			if (core.isString(element)) {
+				element = this.element.querySelector(element);
+			}
+			if (element) {
+				element.focus();
+			}
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	detached() {
 		super.detached();
 		this.eventHandler_.removeAllListeners();
@@ -85,6 +108,7 @@ class Modal extends SoyComponent {
 	syncVisible(visible) {
 		this.element.style.display = visible ? 'block' : '';
 		this.syncOverlay(this.overlay);
+		this.autoFocus_();
 	}
 
 	/**
@@ -104,6 +128,16 @@ class Modal extends SoyComponent {
 Modal.ELEMENT_CLASSES = 'modal';
 
 Modal.ATTRS = {
+	/**
+	 * The element that should be automatically focused when the modal becomes visible,
+	 * or `false` if no auto focus should happen. Defaults to the modal's close button.
+	 * @type {boolean|string|!Element}
+	 */
+	autoFocus: {
+		validator: val => val === false || core.isString(val) || core.isElement(val),
+		value: '.close'
+	},
+
 	/**
 	 * Content to be placed inside modal body.
 	 * @type {string|SanitizedHtml}

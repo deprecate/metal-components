@@ -4,6 +4,7 @@ import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Modal from '../src/Modal';
+import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 
 var modal;
 
@@ -177,6 +178,69 @@ describe('Modal', function() {
 		async.nextTick(function() {
 			assert.ok(modal.overlayElement.parentNode);
 			done();
+		});
+	});
+
+	describe('Automatic Focus', function() {
+		it('should automatically focus close button', function() {
+			modal = new Modal({
+				header: 'My Header'
+			}).render();
+			assert.strictEqual(modal.element.querySelector('.close'), document.activeElement);
+		});
+
+		it('should not automatically focus any element if "autoFocus" attr is set to "false"', function() {
+			var prevActiveElement = document.activeElement;
+			modal = new Modal({
+				autoFocus: false,
+				header: 'My Header'
+			}).render();
+			assert.strictEqual(prevActiveElement, document.activeElement);
+		});
+
+		it('should automatically focus internal element that matches selector specified by "autoFocus" attr', function() {
+			modal = new Modal({
+				autoFocus: '.body-btn',
+				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>')
+			}).render();
+			assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
+		});
+
+		it('should automatically focus element specified by "autoFocus" attr', function() {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+
+			modal = new Modal({
+				autoFocus: element
+			}).render();
+			assert.strictEqual(element, document.activeElement);
+		});
+
+		it('should not automatically focus "autoFocus" element if modal is rendered invisible', function() {
+			var prevActiveElement = document.activeElement;
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+
+			modal = new Modal({
+				autoFocus: element,
+				visible: false
+			}).render();
+			assert.strictEqual(prevActiveElement, document.activeElement);
+		});
+
+		it('should automatically focus "autoFocus" element when modal becomes visible', function(done) {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			modal = new Modal({
+				autoFocus: element,
+				visible: false
+			}).render();
+
+			modal.visible = true;
+			modal.once('attrsChanged', function() {
+				assert.strictEqual(element, document.activeElement);
+				done();
+			});
 		});
 	});
 
