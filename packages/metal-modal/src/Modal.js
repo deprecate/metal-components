@@ -108,7 +108,13 @@ class Modal extends SoyComponent {
 	syncVisible(visible) {
 		this.element.style.display = visible ? 'block' : '';
 		this.syncOverlay(this.overlay);
-		this.autoFocus_();
+		if (this.visible) {
+			this.lastFocusedElement_ = document.activeElement;
+			this.autoFocus_();
+		} else if (this.lastFocusedElement_) {
+			this.lastFocusedElement_.focus();
+			this.lastFocusedElement_ = null;
+		}
 	}
 
 	/**

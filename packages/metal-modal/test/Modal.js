@@ -244,6 +244,29 @@ describe('Modal', function() {
 		});
 	});
 
+	describe('Refocus Last Element', function() {
+		it('should refocus the previously active element when modal is hidden', function(done) {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			element.focus();
+
+			modal = new Modal({
+				header: 'My Header',
+				visible: false
+			}).render();
+
+			modal.visible = true;
+			modal.once('attrsChanged', function() {
+				assert.notStrictEqual(element, document.activeElement);
+				modal.visible = false;
+				modal.once('attrsChanged', function() {
+					assert.strictEqual(element, document.activeElement);
+					done();
+				});
+			});
+		});
+	});
+
 	it('should modal progressive enchance always as hidden', function() {
 		var markup = ComponentRegistry.Templates.Modal.content({
 			id: 'modal',
