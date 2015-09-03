@@ -181,6 +181,18 @@ describe('Modal', function() {
 		});
 	});
 
+	it('should set the "role" HTML attribute to "dialog" by default', function() {
+		modal = new Modal().render();
+		assert.strictEqual('dialog', modal.element.getAttribute('role'));
+	});
+
+	it('should set the "role" HTML attribute to value specified by the "role" attr', function() {
+		modal = new Modal({
+			role: 'alertdialog'
+		}).render();
+		assert.strictEqual('alertdialog', modal.element.getAttribute('role'));
+	});
+
 	describe('Automatic Focus', function() {
 		it('should automatically focus close button', function() {
 			modal = new Modal({
@@ -274,7 +286,8 @@ describe('Modal', function() {
 			header: 'header',
 			body: 'body',
 			footer: 'footer',
-			overlay: true
+			overlay: true,
+			role: 'dialog'
 		});
 
 		dom.append(document.body, markup.content);

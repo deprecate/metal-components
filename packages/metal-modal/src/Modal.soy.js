@@ -19,7 +19,7 @@ if (typeof Templates.Modal == 'undefined') { Templates.Modal = {}; }
  * @suppress {checkTypes}
  */
 Templates.Modal.content = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '"><div class="modal-dialog"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="' + soy.$$escapeHtmlAttribute(opt_data.role) + '" aria-labelledby="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header"><div class="modal-dialog"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
 };
 if (goog.DEBUG) {
   Templates.Modal.content.soyTemplateName = 'Templates.Modal.content';
@@ -70,7 +70,7 @@ if (goog.DEBUG) {
   Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
 }
 
-Templates.Modal.content.params = ["id"];
+Templates.Modal.content.params = ["id","role"];
 Templates.Modal.body.params = ["id","body"];
 Templates.Modal.footer.params = ["footer","id"];
 Templates.Modal.header.params = ["header","id"];

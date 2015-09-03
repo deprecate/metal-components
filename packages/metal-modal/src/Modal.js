@@ -192,6 +192,16 @@ Modal.ATTRS = {
 	overlayElement: {
 		initOnly: true,
 		valueFn: 'valueOverlayElementFn_'
+	},
+
+	/**
+	 * The ARIA role to be used for this modal.
+	 * @type {string}
+	 * @default 'dialog'
+	 */
+	role: {
+		validator: core.isString,
+		value: 'dialog'
 	}
 };
 
