@@ -23,19 +23,18 @@ class Modal extends SoyComponent {
 	 * @inheritDoc
 	 */
 	attached() {
-		this.autoFocus_();
+		this.autoFocus_(this.autoFocus);
 	}
 
 	/**
-	 * Automatically focuses the element specified by the `autoFocus` attr.
+	 * Automatically focuses the element specified by the given selector.
+	 * @param {boolean|string} autoFocusSelector The selector, or false if no
+	 *   element should be automatically focused.
 	 * @protected
 	 */
-	autoFocus_() {
-		if (this.inDocument && this.visible && this.autoFocus) {
-			var element = this.autoFocus;
-			if (core.isString(element)) {
-				element = this.element.querySelector(element);
-			}
+	autoFocus_(autoFocusSelector) {
+		if (this.inDocument && this.visible && autoFocusSelector) {
+			var element = this.element.querySelector(autoFocusSelector);
 			if (element) {
 				element.focus();
 			}
@@ -55,7 +54,20 @@ class Modal extends SoyComponent {
 	 */
 	disposeInternal() {
 		dom.exitDocument(this.overlayElement);
+		this.unrestrictFocus_();
 		super.disposeInternal();
+	}
+
+	/**
+	 * Handles a `focus` event on the document. If the focused element is
+	 * outside the modal and an overlay is being used, focuses the modal back.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleDocumentFocus_(event) {
+		if (this.overlay && !this.element.contains(event.target)) {
+			this.autoFocus_('.modal-dialog');
+		}
 	}
 
 	/**
@@ -74,6 +86,26 @@ class Modal extends SoyComponent {
 	 */
 	hide() {
 		this.visible = false;
+	}
+
+	/**
+	 * Restricts focus to the modal while it's visible.
+	 * @protected
+	 */
+	restrictFocus_() {
+		this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+	}
+
+	/**
+	 * Shifts the focus back to the last element that had been focused before the
+	 * modal was shown.
+	 * @protected
+	 */
+	shiftFocusBack_() {
+		if (this.lastFocusedElement_) {
+			this.lastFocusedElement_.focus();
+			this.lastFocusedElement_ = null;
+		}
 	}
 
 	/**
@@ -110,10 +142,21 @@ class Modal extends SoyComponent {
 		this.syncOverlay(this.overlay);
 		if (this.visible) {
 			this.lastFocusedElement_ = document.activeElement;
-			this.autoFocus_();
-		} else if (this.lastFocusedElement_) {
-			this.lastFocusedElement_.focus();
-			this.lastFocusedElement_ = null;
+			this.autoFocus_(this.autoFocus);
+			this.restrictFocus_();
+		} else {
+			this.unrestrictFocus_();
+			this.shiftFocusBack_();
+		}
+	}
+
+	/**
+	 * Removes the handler that restricts focus to elements inside the modal.
+	 * @protected
+	 */
+	unrestrictFocus_() {
+		if (this.restrictFocusHandle_) {
+			this.restrictFocusHandle_.removeListener();
 		}
 	}
 
@@ -135,12 +178,13 @@ Modal.ELEMENT_CLASSES = 'modal';
 
 Modal.ATTRS = {
 	/**
-	 * The element that should be automatically focused when the modal becomes visible,
-	 * or `false` if no auto focus should happen. Defaults to the modal's close button.
-	 * @type {boolean|string|!Element}
+	 * A selector for the element that should be automatically focused when the modal
+	 * becomes visible, or `false` if no auto focus should happen. Defaults to the
+	 * modal's close button.
+	 * @type {boolean|string}
 	 */
 	autoFocus: {
-		validator: val => val === false || core.isString(val) || core.isElement(val),
+		validator: val => val === false || core.isString(val),
 		value: '.close'
 	},
 

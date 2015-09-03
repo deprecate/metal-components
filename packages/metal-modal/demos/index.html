@@ -11,13 +11,14 @@
 </head>
 <body>
 	<h1>Modal</h1>
+	<div class="container"></div>
 	<button type="button" class="btn btn-primary openModal">Open Modal</button>
 	<script type="text/javascript">
 		window.modal = new crystal.Modal({
 			header: crystal.SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
 			body: 'One fine body...',
 			footer: crystal.SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
-		}).render();
+		}).render('.container');
 
 		document.querySelector('.openModal').addEventListener('click', function() {
 			modal.show();

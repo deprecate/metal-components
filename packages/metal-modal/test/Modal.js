@@ -218,23 +218,11 @@ describe('Modal', function() {
 			assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
 		});
 
-		it('should automatically focus element specified by "autoFocus" attr', function() {
-			var element = document.createElement('button');
-			dom.enterDocument(element);
-
-			modal = new Modal({
-				autoFocus: element
-			}).render();
-			assert.strictEqual(element, document.activeElement);
-		});
-
 		it('should not automatically focus "autoFocus" element if modal is rendered invisible', function() {
 			var prevActiveElement = document.activeElement;
-			var element = document.createElement('button');
-			dom.enterDocument(element);
-
 			modal = new Modal({
-				autoFocus: element,
+				autoFocus: '.body-btn',
+				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>'),
 				visible: false
 			}).render();
 			assert.strictEqual(prevActiveElement, document.activeElement);
@@ -244,13 +232,14 @@ describe('Modal', function() {
 			var element = document.createElement('button');
 			dom.enterDocument(element);
 			modal = new Modal({
-				autoFocus: element,
+				autoFocus: '.body-btn',
+				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>'),
 				visible: false
 			}).render();
 
 			modal.visible = true;
 			modal.once('attrsChanged', function() {
-				assert.strictEqual(element, document.activeElement);
+				assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
 				done();
 			});
 		});
@@ -276,6 +265,78 @@ describe('Modal', function() {
 					done();
 				});
 			});
+		});
+	});
+
+	describe('Restrict Focus', function() {
+		it('should not allow focusing elements outside the modal while it\'s visible', function() {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			modal = new Modal().render();
+
+			// Focus and call the `focus` event manually, since the test browser's window may not have
+			// focus at the moment, and it's not guaranteed that the event will fire autimatically.
+			element.focus();
+			dom.triggerEvent(element, 'focus');
+			assert.notStrictEqual(element, document.activeElement);
+			assert.strictEqual(modal.element.querySelector('.modal-dialog'), document.activeElement);
+		});
+
+		it('should not restrict focusing outside modal if not visible', function() {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			modal = new Modal({
+				visible: false
+			}).render();
+
+			element.focus();
+			dom.triggerEvent(element, 'focus');
+			assert.strictEqual(element, document.activeElement);
+		});
+
+		it('should restrict/unrestrict focusing outside modal as visibility changes', function(done) {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			modal = new Modal().render();
+
+			modal.visible = false;
+			modal.once('attrsChanged', function() {
+				element.focus();
+				dom.triggerEvent(element, 'focus');
+				assert.strictEqual(element, document.activeElement);
+
+				modal.visible = true;
+				modal.once('attrsChanged', function() {
+					element.focus();
+					dom.triggerEvent(element, 'focus');
+					assert.notStrictEqual(element, document.activeElement);
+					assert.strictEqual(modal.element.querySelector('.modal-dialog'), document.activeElement);
+					done();
+				});
+			});
+		});
+
+		it('should not restrict focusing outside modal if "overlay" is false', function() {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			modal = new Modal({
+				overlay: false
+			}).render();
+
+			element.focus();
+			dom.triggerEvent(element, 'focus');
+			assert.strictEqual(element, document.activeElement);
+		});
+
+		it('should not restrict focusing inside modal', function() {
+			modal = new Modal({
+				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+			}).render();
+
+			var element = modal.element.querySelector('.body-btn');
+			element.focus();
+			dom.triggerEvent(element, 'focus');
+			assert.strictEqual(element, document.activeElement);
 		});
 	});
 

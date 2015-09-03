@@ -12,7 +12,7 @@
 		class="modal component{$elementClasses ? ' ' + $elementClasses : ''}"
 		role="{$role}"
 		aria-labelledby="{$id}-header">
-		<div class="modal-dialog">
+		<div class="modal-dialog" tabindex="0">
 			<div class="modal-content">
 				{call .header data="all" /}
 				{call .body data="all" /}
