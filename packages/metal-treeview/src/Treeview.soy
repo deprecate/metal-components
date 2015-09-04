@@ -42,7 +42,7 @@
 			<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
 				<div class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}" data-onclick="handleNodeClicked_">
 					{if $node.children}
-						<div class="treeview-node-toggler"></div>
+						<a href="#" class="treeview-node-toggler"></a>
 					{/if}
 					<span class="treeview-node-name">{$node.name}</span>
 				</div>

@@ -49,6 +49,7 @@ class Treeview extends SoyComponent {
 	 * @protected
 	 */
 	handleNodeClicked_(event) {
+		event.preventDefault();
 		var node = event.delegateTarget.parentNode;
 		var nodeObj = this.getNodeObjFromId_(node.parentNode.id);
 		nodeObj.expanded = !nodeObj.expanded;
