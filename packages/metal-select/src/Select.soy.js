@@ -35,6 +35,6 @@ if (goog.DEBUG) {
   Templates.Select.content.soyTemplateName = 'Templates.Select.content';
 }
 
-Templates.Select.content.params = ["buttonClass","hiddenInputName","id","items","label","selectedIndex"];
+Templates.Select.content.params = ["buttonClass","id","items","label","selectedIndex"];
 export default Templates.Select;
 /* jshint ignore:end */
