@@ -6,7 +6,7 @@
  * @param? elementClasses
  */
 {template .content}
-	<div id="{$id}" class="treeview component{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div id="{$id}" class="treeview component{$elementClasses ? ' ' + $elementClasses : ''}" role="tree">
 		{call .nodes data="all" /}
 	</div>
 {/template}
@@ -40,7 +40,10 @@
 	<li id="{$id}-{$surfaceId}" class="treeview-node">
 		{if $node}
 			<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
-				<div class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}" data-onclick="handleNodeClicked_">
+				<div
+					class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}"
+					data-onclick="handleNodeClicked_"
+					role="treeitem">
 					{if $node.children}
 						<a href="#" class="treeview-node-toggler"></a>
 					{/if}
