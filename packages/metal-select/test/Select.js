@@ -18,24 +18,6 @@ describe('Select', function() {
 		assert.strictEqual(-1, select.selectedIndex);
 	});
 
-	it('should create values for items when only names are given', function() {
-		select = new Select({
-			items: ['First', 'Second']
-		}).render();
-
-		var expectedItems = [
-			{
-				name: 'First',
-				value: 0
-			},
-			{
-				name: 'Second',
-				value: 1
-			}
-		];
-		assert.deepEqual(expectedItems, select.items);
-	});
-
 	it('should render items inside dropdown', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
@@ -105,16 +87,7 @@ describe('Select', function() {
 
 	it('should set the hidden input\'s value as the selected item\'s value', function() {
 		select = new Select({
-			items: [
-				{
-					name: 'First',
-					value: 'first'
-				},
-				{
-					name: 'Second',
-					value: 'second'
-				}
-			],
+			items: ['first', 'second'],
 			label: 'Foo',
 			selectedIndex: 1
 		}).render();
@@ -153,16 +126,7 @@ describe('Select', function() {
 
 	it('should update hidden input\'s value when item is selected', function(done) {
 		select = new Select({
-			items: [
-				{
-					name: 'First',
-					value: 'first'
-				},
-				{
-					name: 'Second',
-					value: 'second'
-				}
-			],
+			items: ['first', 'second'],
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');

@@ -15,17 +15,17 @@
 		<input
 			type="hidden"
 			name="{$hiddenInputName ? $hiddenInputName : ''}"
-			value="{$selectedIndex == -1 ? '' : $items[$selectedIndex].value}"
+			value="{$selectedIndex == -1 ? '' : $items[$selectedIndex]}"
 		/>
 		{call Templates.Dropdown.content}
 			{param body kind="html"}
 				{foreach $item in $items}
-					<li data-onclick="{$id}:handleItemClick_" class="{$selectedIndex == index($item) ? 'selected' : ''}"><a href="#">{$item.name}</a></li>
+					<li data-onclick="{$id}:handleItemClick_" class="{$selectedIndex == index($item) ? 'selected' : ''}"><a href="#">{$item}</a></li>
 				{/foreach}
 			{/param}
 			{param header kind="html"}
 				<button class="{$buttonClass} dropdown-select" type="button" data-onclick="toggle">
-					{$selectedIndex == -1 ? $label : $items[$selectedIndex].name}
+					{$selectedIndex == -1 ? $label : $items[$selectedIndex]}
 					<span class="icon-12-arrow-down-short"></span>
 				</button>
 			{/param}

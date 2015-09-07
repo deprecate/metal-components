@@ -38,27 +38,6 @@ class Select extends SoyComponent {
 		event.preventDefault();
 	}
 
-	/**
-	 * Setter for the `items` attribute. If just the names of the items are
-	 * given, uses their indexes as values.
-	 * @param {!Array<string>|!Array<!{name: string, value: string}} items
-	 * @return {!Array<!{name: string, value: string}}
-	 * @protected
-	 */
-	setterItemsFn_(items) {
-		var finalItems = [];
-		for (var i = 0; i < items.length; i++) {
-			if (core.isString(items[i])) {
-				finalItems.push({
-					name: items[i],
-					value: i
-				});
-			} else {
-				finalItems.push(items[i]);
-			}
-		}
-		return finalItems;
-	}
 }
 
 /**
@@ -94,7 +73,6 @@ Select.ATTRS = {
 	 * @default []
 	 */
 	items: {
-		setter: 'setterItemsFn_',
 		validator: val => val instanceof Array,
 		valueFn: function() {
 			return [];
