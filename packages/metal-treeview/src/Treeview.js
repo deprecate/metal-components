@@ -49,18 +49,19 @@ class Treeview extends SoyComponent {
 	 * @protected
 	 */
 	handleNodeClicked_(event) {
-		event.preventDefault();
-		var node = event.delegateTarget.parentNode;
-		var nodeObj = this.getNodeObjFromId_(node.parentNode.id);
-		nodeObj.expanded = !nodeObj.expanded;
-		if (nodeObj.expanded) {
-			dom.addClasses(node, 'expanded');
-		} else {
-			dom.removeClasses(node, 'expanded');
-		}
+		this.toggleExpandedState_(event.delegateTarget.parentNode);
+	}
 
-		this.nodes = this.nodes;
-		this.ignoreSurfaceUpdate_ = true;
+	/**
+	 * This is called when one of this tree view's nodes receives a keypress.
+	 * If the pressed key is ENTER or SPACE, the node's expanded state will be toggled.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleNodeKeyUp_(event) {
+		if (event.keyCode === 13 || event.keyCode === 32) {
+			this.toggleExpandedState_(event.delegateTarget.parentNode);
+		}
 	}
 
 	/**
@@ -85,6 +86,24 @@ class Treeview extends SoyComponent {
 	 */
 	onNodesChanged_() {
 		this.ignoreSurfaceUpdate_ = false;
+	}
+
+	/**
+	 * Toggles the expanded state for the given tree node.
+	 * @param {!Element} node
+	 * @protected
+	 */
+	toggleExpandedState_(node) {
+		var nodeObj = this.getNodeObjFromId_(node.parentNode.id);
+		nodeObj.expanded = !nodeObj.expanded;
+		if (nodeObj.expanded) {
+			dom.addClasses(node, 'expanded');
+		} else {
+			dom.removeClasses(node, 'expanded');
+		}
+
+		this.nodes = this.nodes;
+		this.ignoreSurfaceUpdate_ = true;
 	}
 }
 

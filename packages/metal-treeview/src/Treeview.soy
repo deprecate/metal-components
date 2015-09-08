@@ -43,9 +43,11 @@
 				<div
 					class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}"
 					data-onclick="handleNodeClicked_"
-					role="treeitem">
+					data-onkeyup="handleNodeKeyUp_"
+					role="treeitem"
+					tabindex="0">
 					{if $node.children}
-						<a href="#" class="treeview-node-toggler"></a>
+						<div class="treeview-node-toggler"></div>
 					{/if}
 					<span class="treeview-node-name">{$node.name}</span>
 				</div>

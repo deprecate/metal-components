@@ -128,6 +128,90 @@ describe('Treeview', function() {
 		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
 	});
 
+	it('should expand/collapse children nodes when ENTER is pressed on parent node', function() {
+		treeview = new Treeview({
+			nodes: [
+				{
+					name: 'Node 1',
+					children: [
+						{
+							name: 'Node 1.1'
+						}
+					]
+				}
+			]
+		}).render();
+
+		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
+		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
+
+		dom.triggerEvent(nodeMainElement, 'keyup', {
+			keyCode: 13
+		});
+		assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
+
+		dom.triggerEvent(nodeMainElement, 'keyup', {
+			keyCode: 13
+		});
+		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+	});
+
+	it('should expand/collapse children nodes when SPACE is pressed on parent node', function() {
+		treeview = new Treeview({
+			nodes: [
+				{
+					name: 'Node 1',
+					children: [
+						{
+							name: 'Node 1.1'
+						}
+					]
+				}
+			]
+		}).render();
+
+		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
+		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
+
+		dom.triggerEvent(nodeMainElement, 'keyup', {
+			keyCode: 32
+		});
+		assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
+
+		dom.triggerEvent(nodeMainElement, 'keyup', {
+			keyCode: 32
+		});
+		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+	});
+
+	it('should not expand/collapse children nodes when key different from SPACE and ENTER is pressed on parent node', function() {
+		treeview = new Treeview({
+			nodes: [
+				{
+					name: 'Node 1',
+					children: [
+						{
+							name: 'Node 1.1'
+						}
+					]
+				}
+			]
+		}).render();
+
+		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
+		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
+
+		dom.triggerEvent(nodeMainElement, 'keyup', {
+			keyCode: 1
+		});
+		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+
+		dom.triggerEvent(nodeMainElement, 'keyup', {
+			keyCode: 20
+		});
+		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+	});
+
 	it('should update the node object when the node element is clicked', function() {
 		treeview = new Treeview({
 			nodes: [
