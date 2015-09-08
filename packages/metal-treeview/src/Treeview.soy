@@ -44,6 +44,7 @@
 					class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}"
 					data-onclick="handleNodeClicked_"
 					data-onkeyup="handleNodeKeyUp_"
+					aria-expanded="{$node.expanded ? 'true' : 'false'}"
 					role="treeitem"
 					tabindex="0">
 					{if $node.children}

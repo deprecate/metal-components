@@ -49,7 +49,7 @@ class Treeview extends SoyComponent {
 	 * @protected
 	 */
 	handleNodeClicked_(event) {
-		this.toggleExpandedState_(event.delegateTarget.parentNode);
+		this.toggleExpandedState_(event.delegateTarget);
 	}
 
 	/**
@@ -60,7 +60,7 @@ class Treeview extends SoyComponent {
 	 */
 	handleNodeKeyUp_(event) {
 		if (event.keyCode === 13 || event.keyCode === 32) {
-			this.toggleExpandedState_(event.delegateTarget.parentNode);
+			this.toggleExpandedState_(event.delegateTarget);
 		}
 	}
 
@@ -94,12 +94,14 @@ class Treeview extends SoyComponent {
 	 * @protected
 	 */
 	toggleExpandedState_(node) {
-		var nodeObj = this.getNodeObjFromId_(node.parentNode.id);
+		var nodeObj = this.getNodeObjFromId_(node.parentNode.parentNode.id);
 		nodeObj.expanded = !nodeObj.expanded;
 		if (nodeObj.expanded) {
-			dom.addClasses(node, 'expanded');
+			dom.addClasses(node.parentNode, 'expanded');
+			node.setAttribute('aria-expanded', 'true');
 		} else {
-			dom.removeClasses(node, 'expanded');
+			dom.removeClasses(node.parentNode, 'expanded');
+			node.setAttribute('aria-expanded', 'false');
 		}
 
 		this.nodes = this.nodes;

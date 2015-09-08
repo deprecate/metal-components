@@ -123,9 +123,11 @@ describe('Treeview', function() {
 
 		dom.triggerEvent(nodeMainElement, 'click');
 		assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
+		assert.strictEqual('true', nodeMainElement.getAttribute('aria-expanded'));
 
 		dom.triggerEvent(nodeMainElement, 'click');
 		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+		assert.strictEqual('false', nodeMainElement.getAttribute('aria-expanded'));
 	});
 
 	it('should expand/collapse children nodes when ENTER is pressed on parent node', function() {
