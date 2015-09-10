@@ -240,6 +240,7 @@ describe('Modal', function() {
 			modal.visible = true;
 			modal.once('attrsChanged', function() {
 				assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
+				dom.exitDocument(element);
 				done();
 			});
 		});
@@ -262,6 +263,7 @@ describe('Modal', function() {
 				modal.visible = false;
 				modal.once('attrsChanged', function() {
 					assert.strictEqual(element, document.activeElement);
+					dom.exitDocument(element);
 					done();
 				});
 			});
