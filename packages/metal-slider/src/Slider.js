@@ -52,7 +52,8 @@ class Slider extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Attaches the drag events to handle value updates when dragging the rail handle.
+	 * protected
 	 */
 	attachDragEvents_() {
 		this.drag_.on(Drag.Events.DRAG, this.updateValueFromDragData_.bind(this));
@@ -90,7 +91,7 @@ class Slider extends SoyComponent {
 
 	/**
 	 * Handles mouse down actions on the slider rail and updates the slider value accordingly.
-	 * @param  {Event} event
+	 * @param {!Event} event
 	 * @protected
 	 */
 	onRailMouseDown_(event) {
@@ -100,7 +101,8 @@ class Slider extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Synchronizes the slider UI with the max attribute.
+	 * @param {number} newVal The new value of the attribute.
 	 */
 	syncMax(newVal) {
 		if (newVal < this.value) {
@@ -111,7 +113,8 @@ class Slider extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Synchronizes the slider UI with the min attribute.
+	 * @param {number} newVal The new value of the attribute.
 	 */
 	syncMin(newVal) {
 		if (newVal > this.value) {
@@ -122,9 +125,10 @@ class Slider extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Synchronizes the slider UI with the value attribute.
+	 * @param {number} newVal The new value of the attribute.
 	 */
-	syncValue() {
+	syncValue(newVal) {
 		this.updateHandlePosition_();
 	}
 
@@ -144,8 +148,8 @@ class Slider extends SoyComponent {
 
 	/**
 	 * Updates the slider value based on the UI state of the handle element.
-	 * @param  {Number} handlePosition Position of the handle in px.
-	 * @param  {Number} offset         Offset to be added to normalize relative inputs.
+	 * @param {number} handlePosition Position of the handle in px.
+	 * @param {number} offset Offset to be added to normalize relative inputs.
 	 * @protected
 	 */
 	updateValue_(handlePosition, offset) {
@@ -154,7 +158,7 @@ class Slider extends SoyComponent {
 
 	/**
 	 * Handles Drag events from the rail handle and updates the slider value accordingly.
-	 * @param  {Object} data
+	 * @param {!Object} data
 	 * @protected
 	 */
 	updateValueFromDragData_(data) {
@@ -166,7 +170,7 @@ Slider.ATTRS = {
 	/**
 	 * Name of the hidden input field that holds the slider value. Useful when slider is embedded
 	 * inside a form so it can automatically send its value.
-	 * @type {String}
+	 * @type {string}
 	 */
 	inputName: {
 		validator: core.isString
@@ -174,7 +178,7 @@ Slider.ATTRS = {
 
 	/**
 	 * Defines the maximum value handled by the slider.
-	 * @type {Number}
+	 * @type {number}
 	 * @default 100
 	 */
 	max: {
@@ -183,7 +187,7 @@ Slider.ATTRS = {
 
 	/**
 	 * Defines the minimum value handled by the slider.
-	 * @type {Number}
+	 * @type {number}
 	 * @default 0
 	 */
 	min: {
@@ -192,7 +196,7 @@ Slider.ATTRS = {
 
 	/**
 	 * Defines the currently selected value on the slider.
-	 * @type {Number}
+	 * @type {number}
 	 * @default 50
 	 */
 	value: {
@@ -206,7 +210,7 @@ Slider.ATTRS = {
 /**
  * Default slider elementClasses.
  * @default slider
- * @type {String}
+ * @type {string}
  * @static
  */
 Slider.ELEMENT_CLASSES = 'slider';
