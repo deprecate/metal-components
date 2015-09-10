@@ -17,6 +17,7 @@
     "crystal-affix": "metal/crystal-affix#master",
     "crystal-modal": "metal/crystal-modal#master",
     "crystal-scrollspy": "metal/crystal-scrollspy#master",
+    "crystal-slider": "metal/crystal-slider#master",
     "crystal-tooltip": "metal/crystal-tooltip#master",
     "crystal-treeview": "metal/crystal-treeview#master"
   }
