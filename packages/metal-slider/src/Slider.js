@@ -128,7 +128,7 @@ class Slider extends SoyComponent {
 	 * Synchronizes the slider UI with the value attribute.
 	 * @param {number} newVal The new value of the attribute.
 	 */
-	syncValue(newVal) {
+	syncValue() {
 		this.updateHandlePosition_();
 	}
 
