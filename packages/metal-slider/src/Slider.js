@@ -30,8 +30,6 @@ class Slider extends SoyComponent {
 	 * @inheritDoc
 	 */
 	attached() {
-		super.attached();
-
 		/**
 		 * Manages dragging the rail handle to update the slider value.
 		 * @type {Drag}
