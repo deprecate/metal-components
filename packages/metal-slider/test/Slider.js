@@ -2,6 +2,7 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
+import DragTestHelper from 'bower:metal-drag-drop/test/fixtures/DragTestHelper';
 import Position from 'bower:metal-position/src/Position';
 import Slider from '../src/Slider';
 
@@ -64,6 +65,24 @@ describe('Slider', function() {
 				assert.strictEqual(10, slider.value);
 				done();
 			});
+		});
+	});
+
+	it('should update the value of the slider when dragging the rail handle', function(done) {
+		slider = new Slider({
+			min: 0,
+			value: 0,
+			max: 100
+		}).render();
+
+		var handle = slider.element.querySelector('.handle');
+
+		DragTestHelper.triggerMouseEvent(handle, 'mousedown', 0, 0);
+		DragTestHelper.triggerMouseEvent(document, 'mousemove', 0.5 * document.body.clientWidth, 0);
+
+		async.nextTick(function() {
+			assert.strictEqual(50, slider.value);
+			done();
 		});
 	});
 
