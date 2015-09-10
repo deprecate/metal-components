@@ -269,47 +269,52 @@ describe('Modal', function() {
 	});
 
 	describe('Restrict Focus', function() {
+		var outsideElement;
+
+		beforeEach(function() {
+			outsideElement = document.createElement('button');
+			dom.enterDocument(outsideElement);
+		});
+
+		afterEach(function() {
+			dom.exitDocument(outsideElement);
+		});
+
 		it('should not allow focusing elements outside the modal while it\'s visible', function() {
-			var element = document.createElement('button');
-			dom.enterDocument(element);
 			modal = new Modal().render();
 
 			// Focus and call the `focus` event manually, since the test browser's window may not have
 			// focus at the moment, and it's not guaranteed that the event will fire autimatically.
-			element.focus();
-			dom.triggerEvent(element, 'focus');
-			assert.notStrictEqual(element, document.activeElement);
+			outsideElement.focus();
+			dom.triggerEvent(outsideElement, 'focus');
+			assert.notStrictEqual(outsideElement, document.activeElement);
 			assert.strictEqual(modal.element.querySelector('.modal-dialog'), document.activeElement);
 		});
 
 		it('should not restrict focusing outside modal if not visible', function() {
-			var element = document.createElement('button');
-			dom.enterDocument(element);
 			modal = new Modal({
 				visible: false
 			}).render();
 
-			element.focus();
-			dom.triggerEvent(element, 'focus');
-			assert.strictEqual(element, document.activeElement);
+			outsideElement.focus();
+			dom.triggerEvent(outsideElement, 'focus');
+			assert.strictEqual(outsideElement, document.activeElement);
 		});
 
 		it('should restrict/unrestrict focusing outside modal as visibility changes', function(done) {
-			var element = document.createElement('button');
-			dom.enterDocument(element);
 			modal = new Modal().render();
 
 			modal.visible = false;
 			modal.once('attrsChanged', function() {
-				element.focus();
-				dom.triggerEvent(element, 'focus');
-				assert.strictEqual(element, document.activeElement);
+				outsideElement.focus();
+				dom.triggerEvent(outsideElement, 'focus');
+				assert.strictEqual(outsideElement, document.activeElement);
 
 				modal.visible = true;
 				modal.once('attrsChanged', function() {
-					element.focus();
-					dom.triggerEvent(element, 'focus');
-					assert.notStrictEqual(element, document.activeElement);
+					outsideElement.focus();
+					dom.triggerEvent(outsideElement, 'focus');
+					assert.notStrictEqual(outsideElement, document.activeElement);
 					assert.strictEqual(modal.element.querySelector('.modal-dialog'), document.activeElement);
 					done();
 				});
@@ -317,15 +322,13 @@ describe('Modal', function() {
 		});
 
 		it('should not restrict focusing outside modal if "overlay" is false', function() {
-			var element = document.createElement('button');
-			dom.enterDocument(element);
 			modal = new Modal({
 				overlay: false
 			}).render();
 
-			element.focus();
-			dom.triggerEvent(element, 'focus');
-			assert.strictEqual(element, document.activeElement);
+			outsideElement.focus();
+			dom.triggerEvent(outsideElement, 'focus');
+			assert.strictEqual(outsideElement, document.activeElement);
 		});
 
 		it('should not restrict focusing inside modal', function() {
