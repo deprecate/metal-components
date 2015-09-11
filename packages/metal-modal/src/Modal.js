@@ -116,7 +116,8 @@ class Modal extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Syncs the component according to the value of the `hideOnEscape` attribute.
+	 * @param {boolean} hideOnEscape
 	 */
 	syncHideOnEscape(hideOnEscape) {
 		if (hideOnEscape) {
@@ -127,7 +128,8 @@ class Modal extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Syncs the component according to the value of the `overlay` attribute.
+	 * @param {boolean} overlay
 	 */
 	syncOverlay(overlay) {
 		var willShowOverlay = overlay && this.visible;
@@ -135,7 +137,8 @@ class Modal extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Syncs the component according to the value of the `visible` attribute.
+	 * @param {boolean} visible
 	 */
 	syncVisible(visible) {
 		this.element.style.display = visible ? 'block' : '';
@@ -161,7 +164,8 @@ class Modal extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Defines the default value for the `overlayElement` attribute.
+	 * @protected
 	 */
 	valueOverlayElementFn_() {
 		return dom.buildFragment('<div class="modal-backdrop fade in"></div>').firstChild;
@@ -171,7 +175,7 @@ class Modal extends SoyComponent {
 /**
  * Default modal elementClasses.
  * @default modal
- * @type {String}
+ * @type {string}
  * @static
  */
 Modal.ELEMENT_CLASSES = 'modal';
