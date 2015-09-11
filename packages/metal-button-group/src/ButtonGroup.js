@@ -87,9 +87,11 @@ class ButtonGroup extends SoyComponent {
 	}
 
 	/**
-	 * Checks if the minimum number of buttons is selected. If not, the remaining
-	 * number of buttons needed to reach the minimum will be selected.
+	 * Setter function for the `selected` attribute. Checks if the minimum number
+	 * of buttons is selected. If not, the remaining number of buttons needed to
+	 * reach the minimum will be selected.
 	 * @param {!Object<number, boolean>|!Array<string>} selected
+	 * @return {!Object<number, boolean>}
 	 * @protected
 	 */
 	setterSelectedFn_(selected) {
