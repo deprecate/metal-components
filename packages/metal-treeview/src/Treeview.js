@@ -45,7 +45,7 @@ class Treeview extends SoyComponent {
 
 	/**
 	 * This is called when one of this tree view's nodes is clicked.
-	 * @param {Event} event
+	 * @param {!Event} event
 	 * @protected
 	 */
 	handleNodeClicked_(event) {
@@ -82,7 +82,7 @@ class Treeview extends SoyComponent {
 	 * Fired when the `nodes` attribute changes. Make sure that any other
 	 * updates to the `nodes` attribute made after ignoreSurfaceUpdate_ is
 	 * set to true, cause surfaces to update again.
-	 * @return {[type]} [description]
+	 * @protected
 	 */
 	onNodesChanged_() {
 		this.ignoreSurfaceUpdate_ = false;
@@ -119,7 +119,7 @@ Treeview.ELEMENT_CLASSES = 'treeview';
 
 /**
  * Treeview attributes definition.
- * @type {Object}
+ * @type {!Object}
  * @static
  */
 Treeview.ATTRS = {
