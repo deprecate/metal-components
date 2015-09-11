@@ -40,7 +40,7 @@ class AutocompleteBase extends SoyComponent {
 
 	/**
 	 * Handles the user input.
-	 * @param {Event} event
+	 * @param {!Event} event
 	 * @protected
 	 */
 	handleUserInput_() {
@@ -49,8 +49,8 @@ class AutocompleteBase extends SoyComponent {
 
 	/**
 	 * Cancels pending request and starts a request for the user input.
-	 * @param {String} query
-	 * @return {CancellablePromise} Deferred request.
+	 * @param {string} query
+	 * @return {!CancellablePromise} Deferred request.
 	 */
 	request(query) {
 		var self = this;
@@ -91,7 +91,7 @@ class AutocompleteBase extends SoyComponent {
 
 /**
  * AutocompleteBase attributes definition.
- * @type {Object}
+ * @type {!Object}
  * @static
  */
 AutocompleteBase.ATTRS = {
@@ -99,7 +99,6 @@ AutocompleteBase.ATTRS = {
 	 * Function or array, which have to return the results from the query.
 	 * If function, it should return an `array` or a `Promise`. In case of
 	 * Promise, it should be resolved with an array containing the results.
-	 *
 	 * @type {Array.<object>|function}
 	 */
 	data: {

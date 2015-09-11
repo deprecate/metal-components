@@ -54,7 +54,7 @@ class Autocomplete extends AutocompleteBase {
 	/**
 	 * Handles document click in order to hide autocomplete. If input element is
 	 * focused autocomplete will not hide.
-	 * @param {Event} event
+	 * @param {!Event} event
 	 */
 	handleDocClick_() {
 		if (document.activeElement === this.inputElement) {
@@ -65,7 +65,7 @@ class Autocomplete extends AutocompleteBase {
 
 	/**
 	 * Handles input focus.
-	 * @param {Event} event
+	 * @param {!Event} event
 	 */
 	handleInputFocus_() {
 		this.request(this.inputElement.value);
@@ -98,7 +98,8 @@ class Autocomplete extends AutocompleteBase {
 	/**
 	 * Emits a `select` event with the information about the selected item and
 	 * hides the element.
-	 * @param {Element} item The list selected item.
+	 * @param {!Element} item The list selected item.
+	 * @protected
 	 */
 	onListItemSelected_(item) {
 		var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
@@ -108,7 +109,7 @@ class Autocomplete extends AutocompleteBase {
 
 	/**
 	 * Stops propagation of an event.
-	 * @param {Event} event
+	 * @param {!Event} event
 	 * @protected
 	 */
 	genericStopPropagation_(event) {
@@ -116,7 +117,8 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Synchronization logic for `visible` attribute.
+	 * @param {boolean} visible
 	 */
 	syncVisible(visible) {
 		super.syncVisible(visible);
@@ -142,9 +144,16 @@ class Autocomplete extends AutocompleteBase {
 	}
 }
 
+/**
+ * Attributes definition.
+ * @type {!Object}
+ * @static
+ */
 Autocomplete.ATTRS = {
 	/**
-	 * @inheritDoc
+	 * Function that converts a given item to the format that should be used by
+	 * the autocomplete.
+	 * @type {!function()}
 	 */
 	format: {
 		value: function(item) {
