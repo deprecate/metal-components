@@ -27,6 +27,9 @@ class Alert extends SoyComponent {
 		clearTimeout(this.delay_);
 	}
 
+	/**
+	 * Closes the alert, disposing it once the animation ends.
+	 */
 	close() {
 		dom.once(this.element, 'animationend', this.dispose.bind(this));
 		dom.once(this.element, 'transitionend', this.dispose.bind(this));
@@ -52,10 +55,17 @@ class Alert extends SoyComponent {
 		this.visible = false;
 	}
 
+	/**
+	 * Toggles the visibility of the alert.
+	 */
 	toggle() {
 		this.visible = !this.visible;
 	}
 
+	/**
+	 * Synchronization logic for `dismissible` attribute.
+	 * @param {boolean} dismissible
+	 */
 	syncDismissible(dismissible) {
 		if (dismissible) {
 			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
@@ -66,6 +76,10 @@ class Alert extends SoyComponent {
 		dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
 	}
 
+	/**
+	 * Synchronization logic for `visible` attribute.
+	 * @param {boolean} visible
+	 */
 	syncVisible(visible) {
 		dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
 		dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
@@ -78,6 +92,10 @@ class Alert extends SoyComponent {
 		}
 	}
 
+	/**
+	 * Synchronization logic for `hideDelay` attribute.
+	 * @param {?number} hideDelay
+	 */
 	syncHideDelay(hideDelay) {
 		if (core.isNumber(hideDelay) && this.visible) {
 			clearTimeout(this.delay_);
@@ -89,17 +107,21 @@ class Alert extends SoyComponent {
 /**
  * Default alert elementClasses.
  * @default alert
- * @type {String}
+ * @type {string}
  * @static
  */
 Alert.ELEMENT_CLASSES = 'alert';
 
 /**
  * Alert attributes definition.
- * @type {Object}
+ * @type {!Object}
  * @static
  */
 Alert.ATTRS = {
+	/**
+	 * The CSS classes that should be added to the alert when being shown/hidden.
+	 * @type {!Object}
+	 */
 	animClasses: {
 		validator: core.isObject,
 		value: {
@@ -108,15 +130,29 @@ Alert.ATTRS = {
 		}
 	},
 
+	/**
+	 * The body content of the alert.
+	 * @type {string}
+	 */
 	body: {
 		value: ''
 	},
 
+	/**
+	 * Flag indicating if the alert should be dismissable (closeable).
+	 * @type {boolean}
+	 * @default true
+	 */
 	dismissible: {
 		validator: core.isBoolean,
 		value: true
 	},
 
+	/**
+	 * The CSS classes that should be added to the alert.
+	 * @type {string}
+	 * @default 'alert-success'
+	 */
 	elementClasses: {
 		value: 'alert-success'
 	},
@@ -128,6 +164,11 @@ Alert.ATTRS = {
 	hideDelay: {
 	},
 
+	/**
+	 * Flag indicating if the alert is visible or not.
+	 * @type {boolean}
+	 * @default false
+	 */
 	visible: {
 		value: false
 	}
