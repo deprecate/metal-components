@@ -10,6 +10,9 @@ import './List.soy.js';
  * List component.
  */
 class List extends SoyComponent {
+	/**
+	 * @inheritDoc
+	 */
 	constructor(opt_config) {
 		super(opt_config);
 	}
@@ -17,9 +20,7 @@ class List extends SoyComponent {
 	/**
 	 * Handles click event on the list. The function fires an
 	 * {@code itemSelected} event.
-	 *
-	 * @protected
-	 * @param {Event} event The native click event
+	 * @param {!Event} event The native click event
 	 */
 	handleClick(event) {
 		var target = event.target;
@@ -36,14 +37,14 @@ class List extends SoyComponent {
 /**
  * Default list elementClasses.
  * @default list
- * @type {String}
+ * @type {string}
  * @static
  */
 List.ELEMENT_CLASSES = 'list';
 
 /**
  * List attributes definition.
- * @type {Object}
+ * @type {!Object}
  * @static
  */
 List.ATTRS = {
@@ -65,6 +66,10 @@ List.ATTRS = {
 		}
 	},
 
+	/**
+	 * The list items as HTML to be added directly to the list.
+	 * @type {string}
+	 */
 	itemsHtml: {
 	}
 };
