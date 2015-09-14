@@ -82,7 +82,7 @@ Select.ATTRS = {
 	/**
 	 * The label that should be used for the select menu when no item is
 	 * selected. If not set, the first item will be selected automatically.
-	 * @type {Object}
+	 * @type {string}
 	 */
 	label: {
 		validator: core.isString
