@@ -10,6 +10,9 @@ import './Switcher.soy.js';
  * Switcher component.
  */
 class Switcher extends SoyComponent {
+	/**
+	 * @inheritDoc
+	 */
 	constructor(opt_config) {
 		super(opt_config);
 	}
@@ -29,7 +32,8 @@ class Switcher extends SoyComponent {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Synchronization logic for the `checked` attribute.
+	 * @param {boolean} checked
 	 */
 	syncChecked(checked) {
 		dom[checked ? 'addClasses' : 'removeClasses'](this.element, 'switcher-on');
@@ -39,17 +43,22 @@ class Switcher extends SoyComponent {
 /**
  * Default switcher elementClasses.
  * @default list
- * @type {String}
+ * @type {string}
  * @static
  */
 Switcher.ELEMENT_CLASSES = 'switcher';
 
 /**
  * Switcher attributes definition.
- * @type {Object}
+ * @type {!Object}
  * @static
  */
 Switcher.ATTRS = {
+	/**
+	 * Flag indicating if the switcher is currently checked or not.
+	 * @type {boolean}
+	 * @default false
+	 */
 	checked: {
 		validator: core.isBoolean,
 		value: false
