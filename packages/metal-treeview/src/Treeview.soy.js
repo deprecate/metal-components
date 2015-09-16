@@ -67,7 +67,7 @@ if (goog.DEBUG) {
 }
 
 Templates.Treeview.content.params = ["id"];
-Templates.Treeview.nodes.params = ["id","nodes"];
+Templates.Treeview.nodes.params = ["id","nodes","parentSurfaceId","surfaceId"];
 Templates.Treeview.node.private = true;
 export default Templates.Treeview;
 /* jshint ignore:end */
