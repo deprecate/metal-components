@@ -6,6 +6,7 @@
  * @param? elementClasses
  * @param id
  * @param? selected
+ * @skipUpdates elementClasses selected
  */
 {template .content}
 	<div id="{$id}" class="btn-group component{$elementClasses ? ' ' + $elementClasses : ''}">
@@ -14,7 +15,7 @@
 			{let $cssClass: $button.cssClass ? $button.cssClass : 'btn btn-default' /}
 			<button
 				type="{$type}"
-				class="{$cssClass}{$selected[index($button)] ? ' btn-group-selected' : ''}"
+				class="{$cssClass}{$selected and $selected[index($button)] ? ' btn-group-selected' : ''}"
 				data-index="{index($button)}"
 				data-onclick="handleClick_">
 				<span class="btn-group-label">{$button.label ? $button.label : ''}</span>
