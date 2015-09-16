@@ -2,8 +2,9 @@
 
 /**
  * This renders the main element.
- * @param id
  * @param? elementClasses
+ * @param id
+ * @skipUpdates elementClasses
  */
 {template .content}
 	<div id="{$id}" class="slider component{$elementClasses ? ' ' + $elementClasses : ''}">
