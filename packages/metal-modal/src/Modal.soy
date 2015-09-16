@@ -4,14 +4,14 @@
  * This renders the main element.
  * @param id
  * @param? elementClasses
- * @param role
+ * @param? role
  * @skipUpdates elementClasses
  */
 {template .content}
 	<div
 		id="{$id}"
 		class="modal component{$elementClasses ? ' ' + $elementClasses : ''}"
-		role="{$role}"
+		role="{$role ? $role : 'dialog'}"
 		aria-labelledby="{$id}-header">
 		<div class="modal-dialog" tabindex="0">
 			<div class="modal-content">
