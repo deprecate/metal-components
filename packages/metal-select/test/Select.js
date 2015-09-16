@@ -1,6 +1,7 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
+import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Dropdown from 'bower:steel-dropdown/src/Dropdown';
 import Select from '../src/Select';
 
@@ -8,7 +9,9 @@ describe('Select', function() {
 	var select;
 
 	afterEach(function() {
-		select.dispose();
+		if (select) {
+			select.dispose();
+		}
 	});
 
 	it('should set "items" to an empty array by default', function() {
@@ -145,6 +148,43 @@ describe('Select', function() {
 		select.components[select.id + '-dropdown'].once('attrsChanged', function() {
 			assert.strictEqual(1, select.selectedIndex);
 			done();
+		});
+	});
+
+	describe('Soy', function() {
+		it('should render correct selected item if `selectedIndex` is given', function() {
+			var templateFn = ComponentRegistry.Templates.Select.content;
+			var content = templateFn({
+				id: 'select',
+				items: ['First', 'Second', 'Third'],
+				selectedIndex: 1
+			});
+
+			var element = dom.buildFragment(content);
+			assert.strictEqual('Second', element.querySelector('input[type="hidden"]').value);
+		});
+
+		it('should automatically render first item as selected if `selectedIndex` is not given', function() {
+			var templateFn = ComponentRegistry.Templates.Select.content;
+			var content = templateFn({
+				id: 'select',
+				items: ['First', 'Second', 'Third']
+			});
+
+			var element = dom.buildFragment(content);
+			assert.strictEqual('First', element.querySelector('input[type="hidden"]').value);
+		});
+
+		it('should not select any item if `label` is given but `selectedIndex` is not', function() {
+			var templateFn = ComponentRegistry.Templates.Select.content;
+			var content = templateFn({
+				id: 'select',
+				items: ['First', 'Second', 'Third'],
+				label: 'Order'
+			});
+
+			var element = dom.buildFragment(content);
+			assert.strictEqual('', element.querySelector('input[type="hidden"]').value);
 		});
 	});
 });

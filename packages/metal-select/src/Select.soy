@@ -8,25 +8,26 @@
  * @param id
  * @param items
  * @param label
- * @param selectedIndex
+ * @param? selectedIndex
  * @skipUpdates elementClasses
  */
 {template .content}
 	<div id="{$id}" class="select component{$elementClasses ? ' ' + $elementClasses : ''}">
+		{let $currSelectedIndex: isNonnull($selectedIndex) ? $selectedIndex : ($label or (length($items) == 0) ? -1 : 0) /}
 		<input
 			type="hidden"
 			name="{$hiddenInputName ? $hiddenInputName : ''}"
-			value="{$selectedIndex == -1 ? '' : $items[$selectedIndex]}"
+			value="{$currSelectedIndex == -1 ? '' : $items[$currSelectedIndex]}"
 		/>
 		{call Templates.Dropdown.content}
 			{param body kind="html"}
 				{foreach $item in $items}
-					<li data-onclick="{$id}:handleItemClick_" class="{$selectedIndex == index($item) ? 'selected' : ''}"><a href="#">{$item}</a></li>
+					<li data-onclick="{$id}:handleItemClick_" class="{$currSelectedIndex == index($item) ? 'selected' : ''}"><a href="#">{$item}</a></li>
 				{/foreach}
 			{/param}
 			{param header kind="html"}
 				<button class="{$buttonClass} dropdown-select" type="button" data-onclick="toggle">
-					{$selectedIndex == -1 ? $label : $items[$selectedIndex]}
+					{$currSelectedIndex == -1 ? $label : $items[$currSelectedIndex]}
 					<span class="icon-12-arrow-down-short"></span>
 				</button>
 			{/param}
