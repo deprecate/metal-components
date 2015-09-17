@@ -46,49 +46,6 @@ describe('ButtonGroup', function() {
 				},
 				{
 					label: 'Second'
-				}
-			],
-			selected: {
-				'0': true
-			}
-		}).render();
-
-		var buttonElements = buttonGroup.element.querySelectorAll('button');
-		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
-		assert.ok(!dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
-	});
-
-	it('should convert given "selected" attr from labels array to map', function() {
-		buttonGroup = new ButtonGroup({
-			buttons: [
-				{
-					label: 'First'
-				},
-				{
-					label: 'Second'
-				},
-				{
-					label: 'Third'
-				}
-			],
-			selected: ['First', 'Third']
-		}).render();
-
-		var expectedSelected = {
-			'0': true,
-			'2': true
-		};
-		assert.deepEqual(expectedSelected, buttonGroup.selected);
-	});
-
-	it('should add ButtonGroup.SELECTED_CLASS to buttons specified as labels in "selected" array attr', function() {
-		buttonGroup = new ButtonGroup({
-			buttons: [
-				{
-					label: 'First'
-				},
-				{
-					label: 'Second'
 				},
 				{
 					label: 'Third'
@@ -146,14 +103,10 @@ describe('ButtonGroup', function() {
 				}
 			],
 			minSelected: 2,
-			selected: {
-				'0': true
-			}
+			selected: ['First']
 		}).render();
 
-		assert.ok(buttonGroup.selected[0]);
-		assert.ok(buttonGroup.selected[1]);
-		assert.ok(!buttonGroup.selected[2]);
+		assert.deepEqual(['First', 'Second'], buttonGroup.selected);
 	});
 
 	it('should not allow deselecting a button if the total count will be lower than `minSelected`', function() {
@@ -170,17 +123,13 @@ describe('ButtonGroup', function() {
 				}
 			],
 			minSelected: 2,
-			selected: {
-				'0': true
-			}
+			selected: ['First']
 		}).render();
 
 		var buttonElements = buttonGroup.element.querySelectorAll('button');
 		dom.triggerEvent(buttonElements[0], 'click');
 
 		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
-		assert.ok(buttonGroup.selected[0]);
-		assert.ok(buttonGroup.selected[1]);
-		assert.ok(!buttonGroup.selected[2]);
+		assert.deepEqual(['First', 'Second'], buttonGroup.selected);
 	});
 });

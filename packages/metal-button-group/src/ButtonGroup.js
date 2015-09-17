@@ -22,24 +22,6 @@ class ButtonGroup extends SoyComponent {
 	}
 
 	/**
-	 * Converts the given array of button labels to a map with the respective indices
-	 * as keys.
-	 * @param {!Array<string>} selectedArr
-	 * @return {!Object<string, boolean>}
-	 * @protected
-	 */
-	convertToMap_(selectedArr) {
-		var selected = {};
-		var buttons = this.buttons;
-		for (var i = 0; i < buttons.length; i++) {
-			if (selectedArr.indexOf(buttons[i].label) !== -1) {
-				selected[i] = true;
-			}
-		}
-		return selected;
-	}
-
-	/**
 	 * The default behavior of the `selectedChanged` event. Adds or removes the CSS
 	 * class defined by `ButtonGroup.SELECTED_CLASS` to each button.
 	 * @param {!Object} event
@@ -47,25 +29,12 @@ class ButtonGroup extends SoyComponent {
 	 */
 	defaultSelectedChanged_(event) {
 		for (var i = 0; i < this.buttonElements_.length; i++) {
-			if (event.newVal[i]) {
+			if (event.newVal.indexOf(this.buttons[i].label) !== -1) {
 				dom.addClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
 			} else {
 				dom.removeClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
 			}
 		}
-	}
-
-	/**
-	 * Gets the current number of selected buttons.
-	 * @param {!Object} opt_selected Optional object of selected buttons to use
-	 *   instead of the `selected` attr.
-	 * @return {number}
-	 */
-	getSelectedCount(opt_selected) {
-		var selected = opt_selected || this.selected;
-		return Object.keys(selected)
-			.filter(index => selected[index])
-			.length;
 	}
 
 	/**
@@ -77,11 +46,12 @@ class ButtonGroup extends SoyComponent {
 	handleClick_(event) {
 		var button = event.delegateTarget;
 		var index = button.getAttribute('data-index');
-		if (!this.selected[index]) {
-			this.selected[index] = true;
+		var selectedIndex = this.selected.indexOf(this.buttons[index].label);
+		if (selectedIndex === -1) {
+			this.selected.push(this.buttons[index].label);
 			this.selected = this.selected;
-		} else if (this.getSelectedCount() > this.minSelected) {
-			delete this.selected[index];
+		} else if (this.selected.length > this.minSelected) {
+			this.selected.splice(selectedIndex, 1);
 			this.selected = this.selected;
 		}
 	}
@@ -95,17 +65,11 @@ class ButtonGroup extends SoyComponent {
 	 * @protected
 	 */
 	setterSelectedFn_(selected) {
-		if (selected instanceof Array) {
-			selected = this.convertToMap_(selected);
-		}
-
 		var minSelected = Math.min(this.minSelected, this.buttons.length);
-		var selectedCount = this.getSelectedCount(selected);
 		var i = 0;
-		while (selectedCount < minSelected) {
-			if (!selected[i]) {
-				selected[i] = true;
-				selectedCount++;
+		while (selected.length < minSelected) {
+			if (selected.indexOf(this.buttons[i].label) === -1) {
+				selected.push(this.buttons[i].label);
 			}
 			i++;
 		}
@@ -155,15 +119,14 @@ ButtonGroup.ATTRS = {
 	},
 
 	/**
-	 * An object that indicates which buttons are selected. The indices of the
-	 * selected buttons will be keys on the object that are set to true.
-	 * @type {!Object<number, boolean>|!Array<string>}
+	 * An array with the labels of the buttons that should be selected.
+	 * @type {!Array<string>}
 	 */
 	selected: {
 		setter: 'setterSelectedFn_',
-		validator: core.isObject,
+		validator: Array.isArray,
 		valueFn: function() {
-			return {};
+			return [];
 		}
 	}
 };

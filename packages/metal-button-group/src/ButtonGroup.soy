@@ -15,7 +15,7 @@
 			{let $cssClass: $button.cssClass ? $button.cssClass : 'btn btn-default' /}
 			<button
 				type="{$type}"
-				class="{$cssClass}{$selected and $selected[index($button)] ? ' btn-group-selected' : ''}"
+				class="{$cssClass}{call .selectedClass}{param label: $button.label /}{param selected: $selected /}{/call}"
 				data-index="{index($button)}"
 				data-onclick="handleClick_">
 				<span class="btn-group-label">{$button.label ? $button.label : ''}</span>
@@ -23,4 +23,20 @@
 			</button>
 		{/foreach}
 	</div>
+{/template}
+
+/**
+ * Returns the "btn-group-selected" class if the given button label is present
+ * in the "selected" array param.
+ * @param label
+ * @param selected
+ */
+{template .selectedClass private="true"}
+	{if $selected}
+		{foreach $selectedValue in $selected}
+			{if $selectedValue == $label}
+				{sp}btn-group-selected
+			{/if}
+		{/foreach}
+	{/if}
 {/template}
