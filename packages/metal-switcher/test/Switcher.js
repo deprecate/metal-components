@@ -43,6 +43,7 @@ describe('Switcher', function() {
 
 	it('should decorate', function() {
 		var markup = ComponentRegistry.Templates.Switcher.content({
+			checked: true,
 			id: 'switcher'
 		});
 
@@ -50,6 +51,7 @@ describe('Switcher', function() {
 		var outerHTML = document.getElementById('switcher').outerHTML;
 
 		switcher = new Switcher({
+			checked: true,
 			element: '#switcher'
 		}).decorate();
 
