@@ -1,6 +1,7 @@
 'use strict';
 
 import core from 'bower:metal/src/core';
+import dom from 'bower:metal/src/dom/dom';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import 'bower:steel-dropdown/src/Dropdown';
@@ -27,6 +28,43 @@ class Select extends SoyComponent {
 	}
 
 	/**
+	 * Focuses the option at the given index.
+	 * @param {number} index
+	 * @protected
+	 */
+	focusIndex_(index) {
+		var option = this.element.querySelector('.select-option:nth-child(' + (index + 1) + ') a');
+		if (option) {
+			this.focusedIndex_ = index;
+			option.focus();
+		}
+	}
+
+	/**
+	 * Gets the `Dropdown` instance used by this `Select`.
+	 * @return {!Dropdown}
+	 */
+	getDropdown() {
+		return this.components[this.id + '-dropdown'];
+	}
+
+	/**
+	 * Handles a `attrsSynced` event for the dropdown.
+	 * @param {!Object} data
+	 * @protected
+	 */
+	handleDropdownAttrsSynced_(data) {
+		if (this.openedWithKeyboard_) {
+			// This is done on `attrsSynced` because the items need to have already
+			// been made visible before we try focusing them.
+			this.focusIndex_(0);
+			this.openedWithKeyboard_ = false;
+		} else if (data.changes.expanded) {
+			this.focusedIndex_ = null;
+		}
+	}
+
+	/**
 	 * Handles a `click` event on one of the items. Updates `selectedIndex`
 	 * accordingly.
 	 * @param {!Event} event
@@ -34,10 +72,37 @@ class Select extends SoyComponent {
 	 */
 	handleItemClick_(event) {
 		this.selectedIndex = this.findItemIndex_(event.delegateTarget);
-		this.components[this.id + '-dropdown'].close();
+		this.getDropdown().close();
 		event.preventDefault();
 	}
 
+	/**
+	 * Handles a `keydown` event on this component. Handles keyboard controls.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleKeyDown_(event) {
+		if (this.getDropdown().expanded) {
+			switch (event.keyCode) {
+				case 27:
+					this.getDropdown().close();
+					break;
+				case 38:
+					this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
+					this.focusIndex_(this.focusedIndex_ === 0 ? this.items.length - 1 : this.focusedIndex_ - 1);
+					break;
+				case 40:
+					this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
+					this.focusIndex_(this.focusedIndex_ === this.items.length - 1 ? 0 : this.focusedIndex_ + 1);
+					break;
+			}
+		} else if ((event.keyCode === 13 || event.keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
+			this.openedWithKeyboard_ = true;
+			this.getDropdown().open();
+			event.preventDefault();
+			return;
+		}
+	}
 }
 
 /**

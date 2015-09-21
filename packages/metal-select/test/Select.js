@@ -113,6 +113,22 @@ describe('Select', function() {
 		}).render();
 
 		assert.ok(select.components[select.id + '-dropdown'] instanceof Dropdown);
+		assert.ok(select.components[select.id + '-dropdown'], select.getDropdown());
+	});
+
+	it('should open/close dropdown when button is clicked', function() {
+		select = new Select({
+			items: ['First', 'Second', 'Third']
+		}).render();
+
+		var dropdown = select.getDropdown();
+		assert.ok(!dropdown.expanded);
+
+		dom.triggerEvent(select.element.querySelector('button'), 'click');
+		assert.ok(dropdown.expanded);
+
+		dom.triggerEvent(select.element.querySelector('button'), 'click');
+		assert.ok(!dropdown.expanded);
 	});
 
 	it('should update button text when item is selected', function(done) {
@@ -148,6 +164,171 @@ describe('Select', function() {
 		select.components[select.id + '-dropdown'].once('attrsChanged', function() {
 			assert.strictEqual(1, select.selectedIndex);
 			done();
+		});
+	});
+
+	describe('Keyboard', function() {
+		it('should close the dropdown when ESC key is pressed', function() {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+
+			dom.triggerEvent(select.element.querySelector('button'), 'click');
+			dom.triggerEvent(select.element, 'keydown', {
+				keyCode: 27
+			});
+			assert.ok(!select.getDropdown().expanded);
+		});
+
+		it('should automatically open dropdown and focus first option if "ENTER" key is pressed on button', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+
+			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
+				keyCode: 13
+			});
+			select.getDropdown().once('attrsChanged', function() {
+				assert.ok(select.getDropdown().expanded);
+				assert.strictEqual(document.activeElement, select.element.querySelector('.select-option a'));
+				done();
+			});
+		});
+
+		it('should automatically open dropdown and focus first option if "SPACE" key is pressed on button', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+
+			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
+				keyCode: 32
+			});
+			assert.ok(select.getDropdown().expanded);
+			select.getDropdown().once('attrsChanged', function() {
+				assert.strictEqual(document.activeElement, select.element.querySelector('.select-option a'));
+				done();
+			});
+		});
+
+		it('should not automatically open dropdown if "ENTER" key is pressed on non button element', function() {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+
+			dom.triggerEvent(select.element, 'keydown', {
+				keyCode: 13
+			});
+			assert.ok(!select.getDropdown().expanded);
+		});
+
+		it('should not throw error when trying to automatically focus first option when there are no items', function(done) {
+			select = new Select().render();
+
+			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
+				keyCode: 13
+			});
+			select.getDropdown().once('attrsChanged', function() {
+				assert.ok(select.getDropdown().expanded);
+				done();
+			});
+		});
+
+		it('should focus next items when the down arrow key is pressed after dropdown is open via keyboard', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
+
+			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
+				keyCode: 13
+			});
+			select.getDropdown().once('attrsChanged', function() {
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 40
+				});
+				assert.strictEqual(document.activeElement, options[1]);
+
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 40
+				});
+				assert.strictEqual(document.activeElement, options[2]);
+
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 40
+				});
+				assert.strictEqual(document.activeElement, options[0]);
+				done();
+			});
+		});
+
+		it('should focus next items when the down arrow key is pressed after dropdown is not open via keyboard', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
+
+			dom.triggerEvent(select.element.querySelector('button'), 'click');
+			select.getDropdown().once('attrsChanged', function() {
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 40
+				});
+				assert.strictEqual(document.activeElement, options[0]);
+
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 40
+				});
+				assert.strictEqual(document.activeElement, options[1]);
+				done();
+			});
+		});
+
+		it('should focus previous items when the up arrow key is pressed after dropdown is open via keyboard', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
+
+			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
+				keyCode: 13
+			});
+			select.getDropdown().once('attrsChanged', function() {
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 38
+				});
+				assert.strictEqual(document.activeElement, options[2]);
+
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 38
+				});
+				assert.strictEqual(document.activeElement, options[1]);
+
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 38
+				});
+				assert.strictEqual(document.activeElement, options[0]);
+				done();
+			});
+		});
+
+		it('should focus previous items when the up arrow key is pressed after dropdown is not open via keyboard', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third']
+			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
+
+			dom.triggerEvent(select.element.querySelector('button'), 'click');
+			select.getDropdown().once('attrsChanged', function() {
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 38
+				});
+				assert.strictEqual(document.activeElement, options[0]);
+
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 38
+				});
+				assert.strictEqual(document.activeElement, options[2]);
+				done();
+			});
 		});
 	});
 
