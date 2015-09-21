@@ -6,30 +6,49 @@ import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Dropdown from '../src/Dropdown';
 
 describe('Dropdown', function() {
-	it('should open dropdown', function() {
+	it('should open dropdown', function(done) {
 		var component = new Dropdown().render();
+		assert.ok(!component.expanded);
 		assert.ok(!dom.hasClass(component.element, 'open'));
 		component.open();
-		assert.ok(dom.hasClass(component.element, 'open'));
-		component.dispose();
+		component.once('attrsChanged', function() {
+			assert.ok(component.expanded);
+			assert.ok(dom.hasClass(component.element, 'open'));
+			component.dispose();
+			done();
+		});
 	});
 
-	it('should close dropdown', function() {
-		var component = new Dropdown().render();
-		assert.ok(!dom.hasClass(component.element, 'open'));
+	it('should close dropdown', function(done) {
+		var component = new Dropdown({
+			expanded: true
+		}).render();
+		assert.ok(dom.hasClass(component.element, 'open'));
 		component.close();
-		assert.ok(!dom.hasClass(component.element, 'open'));
-		component.dispose();
+		component.once('attrsChanged', function() {
+			assert.ok(!component.expanded);
+			assert.ok(!dom.hasClass(component.element, 'open'));
+			component.dispose();
+			done();
+		});
 	});
 
-	it('should toggle dropdown', function() {
+	it('should toggle dropdown', function(done) {
 		var component = new Dropdown().render();
+		assert.ok(!component.expanded);
 		assert.ok(!dom.hasClass(component.element, 'open'));
 		component.toggle();
-		assert.ok(dom.hasClass(component.element, 'open'));
-		component.toggle();
-		assert.ok(!dom.hasClass(component.element, 'open'));
-		component.dispose();
+		component.once('attrsChanged', function() {
+			assert.ok(component.expanded);
+			assert.ok(dom.hasClass(component.element, 'open'));
+			component.toggle();
+			component.once('attrsChanged', function() {
+				assert.ok(!component.expanded);
+				assert.ok(!dom.hasClass(component.element, 'open'));
+				component.dispose();
+				done();
+			});
+		});
 	});
 
 	it('should change dropdown position', function(done) {

@@ -38,7 +38,7 @@ class Dropdown extends SoyComponent {
 	 * Closes the dropdown.
 	 */
 	close() {
-		dom.removeClasses(this.element, 'open');
+		this.expanded = false;
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Dropdown extends SoyComponent {
 	 * @return {boolean}
 	 */
 	isOpen() {
-		return dom.hasClass(this.element, 'open');
+		return this.expanded;
 	}
 
 	/**
@@ -65,7 +65,19 @@ class Dropdown extends SoyComponent {
 	 * Opens the dropdown.
 	 */
 	open() {
-		dom.addClasses(this.element, 'open');
+		this.expanded = true;
+	}
+
+	/**
+	 * Synchronization logic for `expanded` attribute.
+	 * @param {boolean} expanded
+	 */
+	syncExpanded(expanded) {
+		if (expanded) {
+			dom.addClasses(this.element, 'open');
+		} else {
+			dom.removeClasses(this.element, 'open');
+		}
 	}
 
 	/**
@@ -84,7 +96,7 @@ class Dropdown extends SoyComponent {
 	 * Toggles the dropdown, closing it when open or opening it when closed.
 	 */
 	toggle() {
-		dom.toggleClasses(this.element, 'open');
+		this.expanded = !this.expanded;
 	}
 
 	/**
@@ -121,6 +133,15 @@ Dropdown.ATTRS = {
 	 * @type {string}
 	 */
 	header: {},
+
+	/**
+	 * Flag indicating if the dropdown is expanded (open) or not.
+	 * @type {boolean}
+	 * @default false
+	 */
+	expanded: {
+		value: false
+	},
 
 	/**
 	 * The position of the dropdown (either 'up' or 'down').
