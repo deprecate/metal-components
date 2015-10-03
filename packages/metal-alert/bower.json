@@ -13,6 +13,7 @@
 	"ignore": [
 		"*",
 		"!test/**/*",
+		"!build/**/*",
 		"!src/**/*"
 	],
 	"dependencies": {
