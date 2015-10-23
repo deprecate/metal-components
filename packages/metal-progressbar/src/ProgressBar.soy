@@ -1,0 +1,12 @@
+{namespace Templates.ProgressBar}
+
+/**
+ * This renders the main element.
+ * @param? elementClasses
+ * @param id
+ * @skipUpdates elementClasses
+ */
+{template .content}
+	<div id="{$id}" class="progress component{$elementClasses ? ' ' + $elementClasses : ''}">
+	</div>
+{/template}
