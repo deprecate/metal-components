@@ -39,6 +39,17 @@ class ProgressBar extends SoyComponent {
 	}
 
 	/**
+	 * Synchronization logic for the `barClass` attribute.
+	 * @param {string} barClass
+	 * @param {string} prevBarClass
+	 */
+	syncBarClass(barClass, prevBarClass) {
+		var barElement = this.getBarElement();
+		dom.removeClasses(barElement, prevBarClass);
+		dom.addClasses(barElement, barClass);
+	}
+
+	/**
 	 * Synchronization logic for the `label` attribute.
 	 */
 	syncLabel() {
@@ -98,6 +109,15 @@ class ProgressBar extends SoyComponent {
  * @static
  */
 ProgressBar.ATTRS = {
+	/**
+	 * Optional CSS classes to be added to the inner progress bar element,
+	 * like 'progress-bar-danger'.
+	 * @type {string}
+	 */
+	barClass: {
+		validator: core.isString
+	},
+
 	/**
 	 * An optional label to be rendered inside the progress bar.
 	 * @type {string}

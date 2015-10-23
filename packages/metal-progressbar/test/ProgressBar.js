@@ -1,5 +1,6 @@
 'use strict';
 
+import dom from 'bower:metal/src/dom/dom';
 import ProgressBar from '../src/ProgressBar';
 
 describe('ProgressBar', function() {
@@ -141,6 +142,28 @@ describe('ProgressBar', function() {
 
 			progressBar.value = 400;
 			assert.strictEqual(350, progressBar.value);
+		});
+	});
+
+	describe('Bar Class', function() {
+		it('should add the specified class to the inner bar element', function() {
+			progressBar = new ProgressBar({
+				barClass: 'progress-bar-danger'
+			}).render();
+			assert.ok(dom.hasClass(progressBar.getBarElement(), 'progress-bar-danger'));
+		});
+
+		it('should update the inner bar element\'s class when `barClass` changes', function(done) {
+			progressBar = new ProgressBar({
+				barClass: 'progress-bar-danger'
+			}).render();
+
+			progressBar.barClass = 'progress-bar-info';
+			progressBar.once('attrsSynced', function() {
+				assert.ok(!dom.hasClass(progressBar.getBarElement(), 'progress-bar-danger'));
+				assert.ok(dom.hasClass(progressBar.getBarElement(), 'progress-bar-info'));
+				done();
+			});
 		});
 	});
 });
