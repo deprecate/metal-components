@@ -19,7 +19,7 @@ if (typeof Templates.ProgressBar == 'undefined') { Templates.ProgressBar = {}; }
  * @suppress {checkTypes}
  */
 Templates.ProgressBar.content = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '"></div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '"><div class="progress-bar"></div></div>');
 };
 if (goog.DEBUG) {
   Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';

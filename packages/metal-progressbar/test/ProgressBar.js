@@ -3,7 +3,144 @@
 import ProgressBar from '../src/ProgressBar';
 
 describe('ProgressBar', function() {
-	it('should be tested', function() {
-		assert.fail('No tests for this module yet.');
+	var progressBar;
+
+	afterEach(function() {
+		progressBar.dispose();
+	});
+
+	describe('Label', function() {
+		it('should render specified label', function() {
+			progressBar = new ProgressBar({
+				label: 'My Label'
+			}).render();
+			assert.strictEqual('My Label', progressBar.element.textContent);
+		});
+
+		it('should not render any text if no label is specified', function() {
+			progressBar = new ProgressBar().render();
+			assert.strictEqual('', progressBar.element.textContent);
+		});
+
+		it('should update the rendered label when the attribute changes', function(done) {
+			progressBar = new ProgressBar().render();
+
+			progressBar.label = 'My Label';
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('My Label', progressBar.element.textContent);
+				done();
+			});
+		});
+	});
+
+	describe('Size', function() {
+		it('should render bar with 0% width by default', function() {
+			progressBar = new ProgressBar().render();
+			assert.strictEqual('0%', progressBar.getBarElement().style.width);
+		});
+
+		it('should render bar with the correct width according to `value`', function() {
+			progressBar = new ProgressBar({
+				value: 60
+			}).render();
+			assert.strictEqual('60%', progressBar.getBarElement().style.width);
+		});
+
+		it('should render bar with the correct width according to `min`, `max` and `value`', function() {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 250
+			}).render();
+			assert.strictEqual('50%', progressBar.getBarElement().style.width);
+		});
+
+		it('should render bar with the correct width after `value` changes', function(done) {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 250
+			}).render();
+
+			progressBar.value = 300;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('75%', progressBar.getBarElement().style.width);
+				done();
+			});
+		});
+
+		it('should render bar with the correct width after `min` changes', function(done) {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 250
+			}).render();
+
+			progressBar.min = 200;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('33%', progressBar.getBarElement().style.width);
+				done();
+			});
+		});
+
+		it('should render bar with the correct width after `max` changes', function(done) {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 250
+			}).render();
+
+			progressBar.max = 300;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('66%', progressBar.getBarElement().style.width);
+				done();
+			});
+		});
+
+		it('should update `value` if it becomes bigger than `max` after `max` changes', function(done) {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 250
+			}).render();
+
+			progressBar.max = 200;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual(200, progressBar.value);
+				progressBar.once('attrsSynced', function() {
+					assert.strictEqual('100%', progressBar.getBarElement().style.width);
+					done();
+				});
+			});
+		});
+
+		it('should update `value` if it becomes smaller than `min` after `min` changes', function(done) {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 250
+			}).render();
+
+			progressBar.min = 300;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual(300, progressBar.value);
+				progressBar.once('attrsSynced', function() {
+					assert.strictEqual('0%', progressBar.getBarElement().style.width);
+					done();
+				});
+			});
+		});
+
+		it('should update specified value to be within specified min and max', function() {
+			progressBar = new ProgressBar({
+				max: 350,
+				min: 150,
+				value: 100
+			}).render();
+			assert.strictEqual(150, progressBar.value);
+
+			progressBar.value = 400;
+			assert.strictEqual(350, progressBar.value);
+		});
 	});
 });
