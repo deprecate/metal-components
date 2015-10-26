@@ -166,4 +166,50 @@ describe('ProgressBar', function() {
 			});
 		});
 	});
+
+	describe('ARIA', function() {
+		it('should have the progressbar role', function() {
+			progressBar = new ProgressBar().render();
+			assert.strictEqual('progressbar', progressBar.element.getAttribute('role'));
+		});
+
+		it('should set and update the aria-valuenow ARIA attribute', function(done) {
+			progressBar = new ProgressBar({
+				value: 20
+			}).render();
+			assert.strictEqual('20', progressBar.element.getAttribute('aria-valuenow'));
+
+			progressBar.value = 40;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('40', progressBar.element.getAttribute('aria-valuenow'));
+				done();
+			});
+		});
+
+		it('should set and update the aria-valuemin ARIA attribute', function(done) {
+			progressBar = new ProgressBar({
+				min: 20
+			}).render();
+			assert.strictEqual('20', progressBar.element.getAttribute('aria-valuemin'));
+
+			progressBar.min = 40;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('40', progressBar.element.getAttribute('aria-valuemin'));
+				done();
+			});
+		});
+
+		it('should set and update the aria-valuemax ARIA attribute', function(done) {
+			progressBar = new ProgressBar({
+				max: 20
+			}).render();
+			assert.strictEqual('20', progressBar.element.getAttribute('aria-valuemax'));
+
+			progressBar.max = 40;
+			progressBar.once('attrsSynced', function() {
+				assert.strictEqual('40', progressBar.element.getAttribute('aria-valuemax'));
+				done();
+			});
+		});
+	});
 });
