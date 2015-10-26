@@ -70,6 +70,7 @@ class ProgressBar extends SoyComponent {
 		} else {
 			this.updateBar_();
 		}
+		this.element.setAttribute('aria-valuemax', this.max);
 	}
 
 	/**
@@ -82,6 +83,7 @@ class ProgressBar extends SoyComponent {
 		} else {
 			this.updateBar_();
 		}
+		this.element.setAttribute('aria-valuemin', this.min);
 	}
 
 	/**
@@ -90,6 +92,7 @@ class ProgressBar extends SoyComponent {
 	 */
 	syncValue() {
 		this.updateBar_();
+		this.element.setAttribute('aria-valuenow', this.value);
 	}
 
 	/**

@@ -7,7 +7,11 @@
  * @skipUpdates elementClasses
  */
 {template .content}
-	<div id="{$id}" class="progress component{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div
+		id="{$id}"
+		class="progress component{$elementClasses ? ' ' + $elementClasses : ''}"
+		role="progressbar"
+		tabindex="0">
 		<div class="progress-bar"></div>
 	</div>
 {/template}
