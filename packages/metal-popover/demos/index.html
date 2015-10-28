@@ -11,8 +11,15 @@
 </head>
 <body>
 	<h1>Popover</h1>
+	<button type="button" id="PopoverButton">Popover Button</button>
 	<script type="text/javascript">
-		new crystal.Popover().render();
+		window.popover = new crystal.Popover({
+			content: 'My cool popover',
+			delay: [300, 150],
+			selector: '#PopoverButton',
+			title: 'Title',
+			visible: false
+		}).render();
 	</script>
 </body>
 </html>
