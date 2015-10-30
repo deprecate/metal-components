@@ -15,7 +15,10 @@
   ],
   "dependencies": {
     "crystal-affix": "metal/crystal-affix#master",
+    "crystal-dropdown": "metal/crystal-dropdown#master",
     "crystal-modal": "metal/crystal-modal#master",
+    "crystal-popover": "metal/crystal-popover#master",
+    "crystal-progressbar": "metal/crystal-progressbar#master",
     "crystal-scrollspy": "metal/crystal-scrollspy#master",
     "crystal-slider": "metal/crystal-slider#master",
     "crystal-tooltip": "metal/crystal-tooltip#master",
