@@ -2,15 +2,13 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import EventHandler from 'bower:metal/src/events/EventHandler';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import './Modal.soy';
+import ModalBase from './Modal.soy';
 
 /**
  * Modal component.
  */
-class Modal extends SoyComponent {
+class Modal extends ModalBase {
 	/**
 	 * @inheritDoc
 	 */
@@ -253,7 +251,7 @@ Modal.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('Modal', Modal);
+ModalBase.setImpl(Modal);
 
 export default Modal;
 

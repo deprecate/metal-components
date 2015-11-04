@@ -2,9 +2,9 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Modal from '../src/Modal';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 
 var modal;
 
@@ -213,7 +213,7 @@ describe('Modal', function() {
 		it('should automatically focus internal element that matches selector specified by "autoFocus" attr', function() {
 			modal = new Modal({
 				autoFocus: '.body-btn',
-				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>')
+				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>')
 			}).render();
 			assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
 		});
@@ -222,7 +222,7 @@ describe('Modal', function() {
 			var prevActiveElement = document.activeElement;
 			modal = new Modal({
 				autoFocus: '.body-btn',
-				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>'),
 				visible: false
 			}).render();
 			assert.strictEqual(prevActiveElement, document.activeElement);
@@ -233,7 +233,7 @@ describe('Modal', function() {
 			dom.enterDocument(element);
 			modal = new Modal({
 				autoFocus: '.body-btn',
-				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>'),
 				visible: false
 			}).render();
 
@@ -335,7 +335,7 @@ describe('Modal', function() {
 
 		it('should not restrict focusing inside modal', function() {
 			modal = new Modal({
-				body: SoyComponent.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>'),
 			}).render();
 
 			var element = modal.element.querySelector('.body-btn');
@@ -346,7 +346,7 @@ describe('Modal', function() {
 	});
 
 	it('should modal progressive enchance always as hidden', function() {
-		var markup = ComponentRegistry.Templates.Modal.content({
+		var markup = SoyTemplates.get('Modal', 'content')({
 			id: 'modal',
 			elementClasses: 'centered',
 			header: 'header',
@@ -371,7 +371,7 @@ describe('Modal', function() {
 	});
 
 	it('should change to visible when decorated and visible is true', function() {
-		var markup = ComponentRegistry.Templates.Modal.content({
+		var markup = SoyTemplates.get('Modal', 'content')({
 			id: 'modal',
 			elementClasses: 'centered',
 			header: 'header',
@@ -394,7 +394,7 @@ describe('Modal', function() {
 	});
 
 	it('should handle calling template without passing "elementClasses"', function() {
-		var markup = ComponentRegistry.Templates.Modal.content({
+		var markup = SoyTemplates.get('Modal', 'content')({
 			id: 'modal',
 			header: 'header',
 			body: 'body',

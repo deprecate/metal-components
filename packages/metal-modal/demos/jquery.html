@@ -16,9 +16,9 @@
 	<div id="Modal"></div>
 	<script type="text/javascript">
 		$('#Modal').modal({
-			header: crystal.SoyComponent.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+			header: crystal.SoyRenderer.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
 			body: 'One fine body...',
-			footer: crystal.SoyComponent.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+			footer: crystal.SoyRenderer.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
 		});
 	</script>
 </body>
