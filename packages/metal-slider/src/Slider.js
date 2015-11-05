@@ -1,16 +1,14 @@
 'use strict';
 
 import core from 'bower:metal/src/core';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Drag from 'bower:metal-drag-drop/src/Drag';
 import Position from 'bower:metal-position/src/Position';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import './Slider.soy';
+import SliderBase from './Slider.soy';
 
 /**
  * Slider component.
  */
-class Slider extends SoyComponent {
+class Slider extends SliderBase {
 	/**
 	 * @inheritDoc
 	 */
@@ -215,6 +213,6 @@ Slider.ATTRS = {
  */
 Slider.ELEMENT_CLASSES = 'slider';
 
-ComponentRegistry.register('Slider', Slider);
+SliderBase.setImpl(Slider);
 
 export default Slider;
