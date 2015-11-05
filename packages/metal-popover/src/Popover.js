@@ -1,9 +1,8 @@
 'use strict';
 
 import core from 'bower:metal/src/core';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import TooltipBase from 'bower:crystal-tooltip/src/TooltipBase';
-import './Popover.soy';
+import PopoverBase from './Popover.soy';
 
 /**
  * Popover component. Extends the behavior from `TooltipBase`, adding
@@ -52,6 +51,6 @@ Popover.Align = TooltipBase.Align;
 
 Popover.ELEMENT_CLASSES = 'popover';
 
-ComponentRegistry.register('Popover', Popover);
+PopoverBase.setImpl(Popover);
 
 export default Popover;

@@ -1,7 +1,7 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 import Popover from '../src/Popover';
 
 describe('Popover', function() {
@@ -60,7 +60,7 @@ describe('Popover', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = ComponentRegistry.Templates.Popover.content({
+		var markup = SoyTemplates.get('Popover', 'content')({
 			id: 'popover',
 			content: 'content',
 			title: 'title'

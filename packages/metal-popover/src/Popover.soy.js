@@ -1,6 +1,10 @@
 /* jshint ignore:start */
+import Component from 'bower:metal/src/component/Component';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-var Templates = ComponentRegistry.Templates;
+import SoyAop from 'bower:metal/src/soy/SoyAop';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+var Templates = SoyTemplates.get();
 // This file was automatically generated from Popover.soy.
 // Please don't edit this file by hand.
 
@@ -62,5 +66,14 @@ if (goog.DEBUG) {
 Templates.Popover.content.params = ["id"];
 Templates.Popover.title.params = ["id","title"];
 Templates.Popover.innerContent.params = ["content","id"];
-export default Templates.Popover;
+
+class Popover extends Component {
+  static setImpl(ctor) {
+    ComponentRegistry.register(ctor, 'Popover');
+  }
+}
+Popover.RENDERER = SoyRenderer;
+Popover.setImpl(Popover);
+SoyAop.registerTemplates('Popover');
+export default Popover;
 /* jshint ignore:end */
