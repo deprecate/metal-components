@@ -2,14 +2,12 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import './ProgressBar.soy';
+import ProgressBarBase from './ProgressBar.soy';
 
 /**
  * UI Component that renders a progress bar.
  */
-class ProgressBar extends SoyComponent {
+class ProgressBar extends ProgressBarBase {
 	/**
 	 * Get the inner element that represents the bar.
 	 * @return {!Element}
@@ -169,6 +167,6 @@ ProgressBar.ATTRS = {
  */
 ProgressBar.ELEMENT_CLASSES = 'progress';
 
-ComponentRegistry.register('ProgressBar', ProgressBar);
+ProgressBarBase.setImpl(ProgressBar);
 
 export default ProgressBar;
