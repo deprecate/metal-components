@@ -2,21 +2,12 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import './Switcher.soy.js';
+import SwitcherBase from './Switcher.soy.js';
 
 /**
  * Switcher component.
  */
-class Switcher extends SoyComponent {
-	/**
-	 * @inheritDoc
-	 */
-	constructor(opt_config) {
-		super(opt_config);
-	}
-
+class Switcher extends SwitcherBase {
 	/**
 	 * @inheritDoc
 	 */
@@ -65,6 +56,6 @@ Switcher.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('Switcher', Switcher);
+SwitcherBase.setImpl(Switcher);
 
 export default Switcher;

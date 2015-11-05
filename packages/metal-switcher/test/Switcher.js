@@ -2,7 +2,7 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 import Switcher from '../src/Switcher';
 
 var switcher;
@@ -42,7 +42,7 @@ describe('Switcher', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = ComponentRegistry.Templates.Switcher.content({
+		var markup = SoyTemplates.get('Switcher', 'content')({
 			checked: true,
 			id: 'switcher'
 		});
