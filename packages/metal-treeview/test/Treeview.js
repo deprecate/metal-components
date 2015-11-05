@@ -2,7 +2,7 @@
 
 import dom from 'bower:metal/src/dom/dom';
 import object from 'bower:metal/src/object/object';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 import Treeview from '../src/Treeview';
 
 var treeview;
@@ -298,7 +298,7 @@ describe('Treeview', function() {
 				}
 			]
 		};
-		dom.append(document.body, ComponentRegistry.Templates.Treeview.content(data).content);
+		dom.append(document.body, SoyTemplates.get('Treeview', 'content')(data).content);
 
 		var element = document.getElementById('decorated');
 		var soyRenderedContent = element.innerHTML;

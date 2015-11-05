@@ -1,14 +1,12 @@
 'use strict';
 
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
 import dom from 'bower:metal/src/dom/dom';
-import './Treeview.soy';
+import TreeviewBase from './Treeview.soy';
 
 /**
  * Treeview component.
  */
-class Treeview extends SoyComponent {
+class Treeview extends TreeviewBase {
 	/**
 	 * Called after this component has been attached to the dom.
 	 */
@@ -138,6 +136,6 @@ Treeview.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('Treeview', Treeview);
+TreeviewBase.setImpl(Treeview);
 
 export default Treeview;
