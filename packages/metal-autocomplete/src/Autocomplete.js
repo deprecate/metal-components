@@ -172,6 +172,6 @@ Autocomplete.ATTRS = {
  */
 Autocomplete.ELEMENT_CLASSES = 'autocomplete autocomplete-list';
 
-ComponentRegistry.register('Autocomplete', Autocomplete);
+ComponentRegistry.register(Autocomplete);
 
 export default Autocomplete;

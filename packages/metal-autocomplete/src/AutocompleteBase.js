@@ -1,17 +1,15 @@
 'use strict';
 
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import EventHandler from 'bower:metal/src/events/EventHandler';
 import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
-// TODO: Autocomplete must not be a SoyComponent, remove this extension when we have mixins ability.
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
+import Component from 'bower:metal/src/component/Component';
+import EventHandler from 'bower:metal/src/events/EventHandler';
 
 /*
  * AutocompleteBase component.
  */
-class AutocompleteBase extends SoyComponent {
+class AutocompleteBase extends Component {
 	/**
 	 * @inheritDoc
 	 */
@@ -150,7 +148,5 @@ AutocompleteBase.ATTRS = {
 		value: false
 	}
 };
-
-ComponentRegistry.register('AutocompleteBase', AutocompleteBase);
 
 export default AutocompleteBase;
