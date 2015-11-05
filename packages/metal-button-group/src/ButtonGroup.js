@@ -2,14 +2,12 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import './ButtonGroup.soy';
+import ButtonGroupBase from './ButtonGroup.soy';
 
 /**
  * Responsible for handling groups of buttons.
  */
-class ButtonGroup extends SoyComponent {
+class ButtonGroup extends ButtonGroupBase {
 	/**
 	 * @inheritDoc
 	 */
@@ -145,6 +143,6 @@ ButtonGroup.ELEMENT_CLASSES = 'btn-group';
  */
 ButtonGroup.SELECTED_CLASS = 'btn-group-selected';
 
-ComponentRegistry.register('ButtonGroup', ButtonGroup);
+ButtonGroupBase.setImpl(ButtonGroup);
 
 export default ButtonGroup;

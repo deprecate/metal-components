@@ -1,6 +1,10 @@
 /* jshint ignore:start */
+import Component from 'bower:metal/src/component/Component';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-var Templates = ComponentRegistry.Templates;
+import SoyAop from 'bower:metal/src/soy/SoyAop';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+var Templates = SoyTemplates.get();
 // This file was automatically generated from ButtonGroup.soy.
 // Please don't edit this file by hand.
 
@@ -61,5 +65,14 @@ if (goog.DEBUG) {
 
 Templates.ButtonGroup.content.params = ["buttons","id"];
 Templates.ButtonGroup.selectedClass.private = true;
-export default Templates.ButtonGroup;
+
+class ButtonGroup extends Component {
+  static setImpl(ctor) {
+    ComponentRegistry.register(ctor, 'ButtonGroup');
+  }
+}
+ButtonGroup.RENDERER = SoyRenderer;
+ButtonGroup.setImpl(ButtonGroup);
+SoyAop.registerTemplates('ButtonGroup');
+export default ButtonGroup;
 /* jshint ignore:end */
