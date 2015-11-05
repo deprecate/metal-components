@@ -2,17 +2,15 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import AlertBase from './Alert.soy.js';
 import Anim from 'bower:metal-anim/src/Anim';
 import EventHandler from 'bower:metal/src/events/EventHandler';
 import 'bower:metal/src/dom/events';
-import './Alert.soy.js';
 
 /**
  * Alert component.
  */
-class Alert extends SoyComponent {
+class Alert extends AlertBase {
 	constructor(opt_config) {
 		super(opt_config);
 		this.eventHandler_ = new EventHandler();
@@ -174,6 +172,6 @@ Alert.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('Alert', Alert);
+AlertBase.setImpl(Alert);
 
 export default Alert;

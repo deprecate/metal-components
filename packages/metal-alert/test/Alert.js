@@ -1,8 +1,8 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Alert from '../src/Alert';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 import 'bower:metal/src/dom/events';
 
 describe('Alert', function() {
@@ -86,7 +86,7 @@ describe('Alert', function() {
 			dismissible: true
 		};
 
-		var markup = ComponentRegistry.Templates.Alert.content(config);
+		var markup = SoyTemplates.get('Alert', 'content')(config);
 		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('alert').outerHTML;
 		var component = new Alert(config).decorate();

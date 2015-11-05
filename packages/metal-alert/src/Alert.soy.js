@@ -1,6 +1,10 @@
 /* jshint ignore:start */
+import Component from 'bower:metal/src/component/Component';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-var Templates = ComponentRegistry.Templates;
+import SoyAop from 'bower:metal/src/soy/SoyAop';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+var Templates = SoyTemplates.get();
 // This file was automatically generated from Alert.soy.
 // Please don't edit this file by hand.
 
@@ -58,5 +62,14 @@ if (goog.DEBUG) {
 Templates.Alert.content.params = ["id"];
 Templates.Alert.body.params = ["body","id"];
 Templates.Alert.dismiss.params = ["dismissible","id"];
-export default Templates.Alert;
+
+class Alert extends Component {
+  static setImpl(ctor) {
+    ComponentRegistry.register(ctor, 'Alert');
+  }
+}
+Alert.RENDERER = SoyRenderer;
+Alert.setImpl(Alert);
+SoyAop.registerTemplates('Alert');
+export default Alert;
 /* jshint ignore:end */
