@@ -2,8 +2,8 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Dropdown from '../src/Dropdown';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 
 describe('Dropdown', function() {
 	it('should open dropdown', function(done) {
@@ -96,7 +96,7 @@ describe('Dropdown', function() {
 			header: 'header'
 		};
 
-		var markup = ComponentRegistry.Templates.Dropdown.content(config);
+		var markup = SoyTemplates.get('Dropdown', 'content')(config);
 		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('dropdown').outerHTML;
 		var component = new Dropdown(config).decorate();

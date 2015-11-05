@@ -1,15 +1,13 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import EventHandler from 'bower:metal/src/events/EventHandler';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import './Dropdown.soy';
+import DropdownBase from './Dropdown.soy';
 
 /**
  * Dropdown component.
  */
-class Dropdown extends SoyComponent {
+class Dropdown extends DropdownBase {
 	/**
 	 * @inheritDoc
 	 */
@@ -162,6 +160,6 @@ Dropdown.ATTRS = {
  */
 Dropdown.ELEMENT_CLASSES = 'dropdown';
 
-ComponentRegistry.register('Dropdown', Dropdown);
+DropdownBase.setImpl(Dropdown);
 
 export default Dropdown;
