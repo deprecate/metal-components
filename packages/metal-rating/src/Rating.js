@@ -1,17 +1,9 @@
 'use strict';
 
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import './Rating.soy';
+import RatingBase from './Rating.soy';
 
-class Rating extends SoyComponent {
-	constructor(opt_config) {
-		super(opt_config);
-	}
+class Rating extends RatingBase {
 }
-
-Rating.ELEMENT_CLASSES = 'rating';
-
-ComponentRegistry.register('Rating', Rating);
+RatingBase.setImpl(Rating);
 
 export default Rating;
