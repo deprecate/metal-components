@@ -1,15 +1,13 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
+import ListBase from './List.soy.js';
 import './ListItem.js';
-import './List.soy.js';
 
 /**
  * List component.
  */
-class List extends SoyComponent {
+class List extends ListBase {
 	/**
 	 * @inheritDoc
 	 */
@@ -74,6 +72,6 @@ List.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('List', List);
+ListBase.setImpl(List);
 
 export default List;

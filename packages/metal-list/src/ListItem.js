@@ -1,13 +1,11 @@
 'use strict';
 
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import './ListItem.soy.js';
+import ListItemBase from './ListItem.soy.js';
 
 /**
  * List component.
  */
-class ListItem extends SoyComponent {
+class ListItem extends ListItemBase {
 	constructor(opt_config) {
 		super(opt_config);
 	}
@@ -35,6 +33,6 @@ ListItem.ATTRS = {
 	}
 };
 
-ComponentRegistry.register('ListItem', ListItem);
+ListItemBase.setImpl(ListItem);
 
 export default ListItem;

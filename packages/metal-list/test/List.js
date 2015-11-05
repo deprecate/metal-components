@@ -2,7 +2,7 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import List from '../src/List';
 
 var list;
@@ -36,7 +36,7 @@ describe('List', function() {
 		list = new List({
 			items: [{
 				avatar: {
-					content: SoyComponent.sanitizeHtml('<img src="myImageSrc">'),
+					content: SoyRenderer.sanitizeHtml('<img src="myImageSrc">'),
 					class: 'myImageClass'
 				}
 			}]
