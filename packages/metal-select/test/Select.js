@@ -1,9 +1,9 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import Dropdown from 'bower:steel-dropdown/src/Dropdown';
 import Select from '../src/Select';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 
 describe('Select', function() {
 	var select;
@@ -334,7 +334,7 @@ describe('Select', function() {
 
 	describe('Soy', function() {
 		it('should render correct selected item if `selectedIndex` is given', function() {
-			var templateFn = ComponentRegistry.Templates.Select.content;
+			var templateFn = SoyTemplates.get('Select', 'content');
 			var content = templateFn({
 				id: 'select',
 				items: ['First', 'Second', 'Third'],
@@ -346,7 +346,7 @@ describe('Select', function() {
 		});
 
 		it('should automatically render first item as selected if `selectedIndex` is not given', function() {
-			var templateFn = ComponentRegistry.Templates.Select.content;
+			var templateFn = SoyTemplates.get('Select', 'content');
 			var content = templateFn({
 				id: 'select',
 				items: ['First', 'Second', 'Third']
@@ -357,7 +357,7 @@ describe('Select', function() {
 		});
 
 		it('should not select any item if `label` is given but `selectedIndex` is not', function() {
-			var templateFn = ComponentRegistry.Templates.Select.content;
+			var templateFn = SoyTemplates.get('Select', 'content');
 			var content = templateFn({
 				id: 'select',
 				items: ['First', 'Second', 'Third'],

@@ -2,16 +2,14 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-import SoyComponent from 'bower:metal/src/soy/SoyComponent';
+import SelectBase from './Select.soy';
 import 'bower:steel-dropdown/src/Dropdown';
-import './Select.soy';
 
 /**
  * Responsible for rendering and handling a custom select component, based
  * on `Dropdown`.
  */
-class Select extends SoyComponent {
+class Select extends SelectBase {
 	/**
 	 * Finds the index of the given element in the items array.
 	 * @param {!Element} element
@@ -174,6 +172,6 @@ Select.ATTRS = {
  */
 Select.ELEMENT_CLASSES = 'select';
 
-ComponentRegistry.register('Select', Select);
+SelectBase.setImpl(Select);
 
 export default Select;

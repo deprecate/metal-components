@@ -1,6 +1,10 @@
 /* jshint ignore:start */
+import Component from 'bower:metal/src/component/Component';
 import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
-var Templates = ComponentRegistry.Templates;
+import SoyAop from 'bower:metal/src/soy/SoyAop';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
+import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+var Templates = SoyTemplates.get();
 // This file was automatically generated from Select.soy.
 // Please don't edit this file by hand.
 
@@ -38,5 +42,14 @@ if (goog.DEBUG) {
 }
 
 Templates.Select.content.params = ["buttonClass","hiddenInputName","id","items","label","selectedIndex"];
-export default Templates.Select;
+
+class Select extends Component {
+  static setImpl(ctor) {
+    ComponentRegistry.register(ctor, 'Select');
+  }
+}
+Select.RENDERER = SoyRenderer;
+Select.setImpl(Select);
+SoyAop.registerTemplates('Select');
+export default Select;
 /* jshint ignore:end */
