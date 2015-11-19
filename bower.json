@@ -11,7 +11,8 @@
     "metaljs"
   ],
   "ignore": [
-    "*"
+    "*",
+    "!build/**/*"
   ],
   "dependencies": {
     "crystal-affix": "metal/crystal-affix#master",
