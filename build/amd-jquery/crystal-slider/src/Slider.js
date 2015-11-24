@@ -29,24 +29,6 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -54,31 +36,6 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 
 		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
-
-	var _get = function get(object, property, receiver) {
-		if (object === null) object = Function.prototype;
-		var desc = Object.getOwnPropertyDescriptor(object, property);
-
-		if (desc === undefined) {
-			var parent = Object.getPrototypeOf(object);
-
-			if (parent === null) {
-				return undefined;
-			} else {
-				return get(parent, property, receiver);
-			}
-		} else if ("value" in desc) {
-			return desc.value;
-		} else {
-			var getter = desc.get;
-
-			if (getter === undefined) {
-				return undefined;
-			}
-
-			return getter.call(receiver);
-		}
-	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -102,102 +59,89 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 		function Slider(opt_config) {
 			_classCallCheck(this, Slider);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Slider).call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _SliderBase.call(this, opt_config));
 
 			_this.elements_ = new Map();
 			return _this;
 		}
 
-		_createClass(Slider, [{
-			key: 'attached',
-			value: function attached() {
-				this.drag_ = new _Drag2.default({
-					constrain: this.getElement_('.rail'),
-					handles: this.getElement_('.handle'),
-					sources: this.getElement_('.rail-handle')
-				});
-				this.elementRegion_ = _Position2.default.getRegion(this.element);
-				this.attachDragEvents_();
-			}
-		}, {
-			key: 'attachDragEvents_',
-			value: function attachDragEvents_() {
-				this.drag_.on(_Drag2.default.Events.DRAG, this.updateValueFromDragData_.bind(this));
-				this.drag_.on(_Drag2.default.Events.END, this.updateValueFromDragData_.bind(this));
-			}
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				_get(Object.getPrototypeOf(Slider.prototype), 'disposeInternal', this).call(this);
+		Slider.prototype.attached = function attached() {
+			this.drag_ = new _Drag2.default({
+				constrain: this.getElement_('.rail'),
+				handles: this.getElement_('.handle'),
+				sources: this.getElement_('.rail-handle')
+			});
+			this.elementRegion_ = _Position2.default.getRegion(this.element);
+			this.attachDragEvents_();
+		};
 
-				this.drag_.dispose();
-				this.elements_ = null;
-				this.elementRegion_ = null;
-			}
-		}, {
-			key: 'getElement_',
-			value: function getElement_(query) {
-				var element = this.elements_.get(query);
+		Slider.prototype.attachDragEvents_ = function attachDragEvents_() {
+			this.drag_.on(_Drag2.default.Events.DRAG, this.updateValueFromDragData_.bind(this));
+			this.drag_.on(_Drag2.default.Events.END, this.updateValueFromDragData_.bind(this));
+		};
 
-				if (!element) {
-					element = this.element.querySelector(query);
-					this.elements_.set(query, element);
-				}
+		Slider.prototype.disposeInternal = function disposeInternal() {
+			_SliderBase.prototype.disposeInternal.call(this);
 
-				return element;
+			this.drag_.dispose();
+			this.elements_ = null;
+			this.elementRegion_ = null;
+		};
+
+		Slider.prototype.getElement_ = function getElement_(query) {
+			var element = this.elements_.get(query);
+
+			if (!element) {
+				element = this.element.querySelector(query);
+				this.elements_.set(query, element);
 			}
-		}, {
-			key: 'onRailMouseDown_',
-			value: function onRailMouseDown_(event) {
-				if (event.target === this.getElement_('.rail') || event.target === this.getElement_('.rail-active')) {
-					this.updateValue_(event.offsetX, 0);
-				}
+
+			return element;
+		};
+
+		Slider.prototype.onRailMouseDown_ = function onRailMouseDown_(event) {
+			if (event.target === this.getElement_('.rail') || event.target === this.getElement_('.rail-active')) {
+				this.updateValue_(event.offsetX, 0);
 			}
-		}, {
-			key: 'syncMax',
-			value: function syncMax(newVal) {
-				if (newVal < this.value) {
-					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
-				}
-			}
-		}, {
-			key: 'syncMin',
-			value: function syncMin(newVal) {
-				if (newVal > this.value) {
-					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
-				}
-			}
-		}, {
-			key: 'syncValue',
-			value: function syncValue() {
+		};
+
+		Slider.prototype.syncMax = function syncMax(newVal) {
+			if (newVal < this.value) {
+				this.value = newVal;
+			} else {
 				this.updateHandlePosition_();
 			}
-		}, {
-			key: 'updateHandlePosition_',
-			value: function updateHandlePosition_() {
-				var positionValue = 100 * (this.value - this.min) / (this.max - this.min) + '%';
+		};
 
-				if (!(this.drag_ && this.drag_.isDragging())) {
-					this.getElement_('.rail-handle').style.left = positionValue;
-				}
+		Slider.prototype.syncMin = function syncMin(newVal) {
+			if (newVal > this.value) {
+				this.value = newVal;
+			} else {
+				this.updateHandlePosition_();
+			}
+		};
 
-				this.getElement_('.rail-active').style.width = positionValue;
+		Slider.prototype.syncValue = function syncValue() {
+			this.updateHandlePosition_();
+		};
+
+		Slider.prototype.updateHandlePosition_ = function updateHandlePosition_() {
+			var positionValue = 100 * (this.value - this.min) / (this.max - this.min) + '%';
+
+			if (!(this.drag_ && this.drag_.isDragging())) {
+				this.getElement_('.rail-handle').style.left = positionValue;
 			}
-		}, {
-			key: 'updateValue_',
-			value: function updateValue_(handlePosition, offset) {
-				this.value = Math.round(offset + handlePosition / this.elementRegion_.width * (this.max - this.min));
-			}
-		}, {
-			key: 'updateValueFromDragData_',
-			value: function updateValueFromDragData_(data) {
-				this.updateValue_(data.relativeX, this.min);
-			}
-		}]);
+
+			this.getElement_('.rail-active').style.width = positionValue;
+		};
+
+		Slider.prototype.updateValue_ = function updateValue_(handlePosition, offset) {
+			this.value = Math.round(offset + handlePosition / this.elementRegion_.width * (this.max - this.min));
+		};
+
+		Slider.prototype.updateValueFromDragData_ = function updateValueFromDragData_(data) {
+			this.updateValue_(data.relativeX, this.min);
+		};
 
 		return Slider;
 	})(_Slider2.default);

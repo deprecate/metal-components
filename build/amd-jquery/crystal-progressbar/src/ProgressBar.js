@@ -27,24 +27,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'crystal-progressbar/s
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -75,87 +57,77 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'crystal-progressbar/s
 		function ProgressBar() {
 			_classCallCheck(this, ProgressBar);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ProgressBar).apply(this, arguments));
+			return _possibleConstructorReturn(this, _ProgressBarBase.apply(this, arguments));
 		}
 
-		_createClass(ProgressBar, [{
-			key: 'getBarElement',
-			value: function getBarElement() {
-				if (!this.barElement_) {
-					this.barElement_ = this.element.childNodes[0];
-				}
-
-				return this.barElement_;
+		ProgressBar.prototype.getBarElement = function getBarElement() {
+			if (!this.barElement_) {
+				this.barElement_ = this.element.childNodes[0];
 			}
-		}, {
-			key: 'setterValueFn_',
-			value: function setterValueFn_(value) {
-				if (value < this.min) {
-					value = this.min;
-				}
 
-				if (value > this.max) {
-					value = this.max;
-				}
+			return this.barElement_;
+		};
 
-				return value;
+		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
+			if (value < this.min) {
+				value = this.min;
 			}
-		}, {
-			key: 'syncBarClass',
-			value: function syncBarClass(barClass, prevBarClass) {
-				var barElement = this.getBarElement();
 
-				_dom2.default.removeClasses(barElement, prevBarClass);
-
-				_dom2.default.addClasses(barElement, barClass);
+			if (value > this.max) {
+				value = this.max;
 			}
-		}, {
-			key: 'syncLabel',
-			value: function syncLabel() {
-				var barElement = this.getBarElement();
 
-				_dom2.default.removeChildren(barElement);
+			return value;
+		};
 
-				if (this.label) {
-					_dom2.default.append(barElement, this.label);
-				}
+		ProgressBar.prototype.syncBarClass = function syncBarClass(barClass, prevBarClass) {
+			var barElement = this.getBarElement();
+
+			_dom2.default.removeClasses(barElement, prevBarClass);
+
+			_dom2.default.addClasses(barElement, barClass);
+		};
+
+		ProgressBar.prototype.syncLabel = function syncLabel() {
+			var barElement = this.getBarElement();
+
+			_dom2.default.removeChildren(barElement);
+
+			if (this.label) {
+				_dom2.default.append(barElement, this.label);
 			}
-		}, {
-			key: 'syncMax',
-			value: function syncMax(max) {
-				if (max < this.value) {
-					this.value = max;
-				} else {
-					this.updateBar_();
-				}
+		};
 
-				this.element.setAttribute('aria-valuemax', this.max);
-			}
-		}, {
-			key: 'syncMin',
-			value: function syncMin(min) {
-				if (min > this.value) {
-					this.value = min;
-				} else {
-					this.updateBar_();
-				}
-
-				this.element.setAttribute('aria-valuemin', this.min);
-			}
-		}, {
-			key: 'syncValue',
-			value: function syncValue() {
+		ProgressBar.prototype.syncMax = function syncMax(max) {
+			if (max < this.value) {
+				this.value = max;
+			} else {
 				this.updateBar_();
-				this.element.setAttribute('aria-valuenow', this.value);
 			}
-		}, {
-			key: 'updateBar_',
-			value: function updateBar_() {
-				var barElement = this.getBarElement();
-				var percentage = Math.floor((this.value - this.min) * 100 / (this.max - this.min));
-				barElement.style.width = percentage + '%';
+
+			this.element.setAttribute('aria-valuemax', this.max);
+		};
+
+		ProgressBar.prototype.syncMin = function syncMin(min) {
+			if (min > this.value) {
+				this.value = min;
+			} else {
+				this.updateBar_();
 			}
-		}]);
+
+			this.element.setAttribute('aria-valuemin', this.min);
+		};
+
+		ProgressBar.prototype.syncValue = function syncValue() {
+			this.updateBar_();
+			this.element.setAttribute('aria-valuenow', this.value);
+		};
+
+		ProgressBar.prototype.updateBar_ = function updateBar_() {
+			var barElement = this.getBarElement();
+			var percentage = Math.floor((this.value - this.min) * 100 / (this.max - this.min));
+			barElement.style.width = percentage + '%';
+		};
 
 		return ProgressBar;
 	})(_ProgressBar2.default);

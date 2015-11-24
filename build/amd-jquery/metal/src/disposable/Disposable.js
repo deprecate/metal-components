@@ -19,24 +19,6 @@ define(['exports'], function (exports) {
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	var Disposable = (function () {
 		function Disposable() {
 			_classCallCheck(this, Disposable);
@@ -44,23 +26,18 @@ define(['exports'], function (exports) {
 			this.disposed_ = false;
 		}
 
-		_createClass(Disposable, [{
-			key: 'dispose',
-			value: function dispose() {
-				if (!this.disposed_) {
-					this.disposeInternal();
-					this.disposed_ = true;
-				}
+		Disposable.prototype.dispose = function dispose() {
+			if (!this.disposed_) {
+				this.disposeInternal();
+				this.disposed_ = true;
 			}
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {}
-		}, {
-			key: 'isDisposed',
-			value: function isDisposed() {
-				return this.disposed_;
-			}
-		}]);
+		};
+
+		Disposable.prototype.disposeInternal = function disposeInternal() {};
+
+		Disposable.prototype.isDisposed = function isDisposed() {
+			return this.disposed_;
+		};
 
 		return Disposable;
 	})();

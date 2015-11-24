@@ -27,24 +27,6 @@ define(['exports', 'metal/src/core', 'metal/src/component/ComponentCollector', '
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -75,7 +57,7 @@ define(['exports', 'metal/src/core', 'metal/src/component/ComponentCollector', '
 		function EventsCollector(component) {
 			_classCallCheck(this, EventsCollector);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(EventsCollector).call(this));
+			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
 			if (!component) {
 				throw new Error('The component instance is mandatory');
@@ -87,124 +69,113 @@ define(['exports', 'metal/src/core', 'metal/src/component/ComponentCollector', '
 			return _this;
 		}
 
-		_createClass(EventsCollector, [{
-			key: 'attachListener_',
-			value: function attachListener_(eventType, fnNamesString, groupName) {
-				var selector = '[data-on' + eventType + '="' + fnNamesString + '"]';
-				this.groupHasListener_[groupName][selector] = true;
+		EventsCollector.prototype.attachListener_ = function attachListener_(eventType, fnNamesString, groupName) {
+			var selector = '[data-on' + eventType + '="' + fnNamesString + '"]';
+			this.groupHasListener_[groupName][selector] = true;
 
-				if (!this.eventHandles_[selector]) {
-					this.eventHandles_[selector] = new _EventHandler2.default();
-					var fnNames = fnNamesString.split(',');
+			if (!this.eventHandles_[selector]) {
+				this.eventHandles_[selector] = new _EventHandler2.default();
+				var fnNames = fnNamesString.split(',');
 
-					for (var i = 0; i < fnNames.length; i++) {
-						var fn = this.getListenerFn(fnNames[i]);
+				for (var i = 0; i < fnNames.length; i++) {
+					var fn = this.getListenerFn(fnNames[i]);
 
-						if (fn) {
-							this.eventHandles_[selector].add(this.component_.delegate(eventType, selector, this.onEvent_.bind(this, fn)));
-						}
+					if (fn) {
+						this.eventHandles_[selector].add(this.component_.delegate(eventType, selector, this.onEvent_.bind(this, fn)));
 					}
 				}
 			}
-		}, {
-			key: 'attachListeners',
-			value: function attachListeners(content, groupName) {
-				this.groupHasListener_[groupName] = {};
-				this.attachListenersFromHtml_(content, groupName);
-			}
-		}, {
-			key: 'attachListenersFromHtml_',
-			value: function attachListenersFromHtml_(content, groupName) {
-				if (content.indexOf('data-on') === -1) {
-					return;
-				}
+		};
 
-				var regex = /data-on([a-z]+)=['"]([^'"]+)['"]/g;
-				var match = regex.exec(content);
+		EventsCollector.prototype.attachListeners = function attachListeners(content, groupName) {
+			this.groupHasListener_[groupName] = {};
+			this.attachListenersFromHtml_(content, groupName);
+		};
 
-				while (match) {
-					this.attachListener_(match[1], match[2], groupName);
-					match = regex.exec(content);
+		EventsCollector.prototype.attachListenersFromHtml_ = function attachListenersFromHtml_(content, groupName) {
+			if (content.indexOf('data-on') === -1) {
+				return;
+			}
+
+			var regex = /data-on([a-z]+)=['"]([^'"]+)['"]/g;
+			var match = regex.exec(content);
+
+			while (match) {
+				this.attachListener_(match[1], match[2], groupName);
+				match = regex.exec(content);
+			}
+		};
+
+		EventsCollector.prototype.detachAllListeners = function detachAllListeners() {
+			for (var selector in this.eventHandles_) {
+				if (this.eventHandles_[selector]) {
+					this.eventHandles_[selector].removeAllListeners();
 				}
 			}
-		}, {
-			key: 'detachAllListeners',
-			value: function detachAllListeners() {
-				for (var selector in this.eventHandles_) {
-					if (this.eventHandles_[selector]) {
+
+			this.eventHandles_ = {};
+			this.listenerCounts_ = {};
+		};
+
+		EventsCollector.prototype.detachUnusedListeners = function detachUnusedListeners() {
+			for (var selector in this.eventHandles_) {
+				if (this.eventHandles_[selector]) {
+					var unused = true;
+
+					for (var groupName in this.groupHasListener_) {
+						if (this.groupHasListener_[groupName][selector]) {
+							unused = false;
+							break;
+						}
+					}
+
+					if (unused) {
 						this.eventHandles_[selector].removeAllListeners();
-					}
-				}
-
-				this.eventHandles_ = {};
-				this.listenerCounts_ = {};
-			}
-		}, {
-			key: 'detachUnusedListeners',
-			value: function detachUnusedListeners() {
-				for (var selector in this.eventHandles_) {
-					if (this.eventHandles_[selector]) {
-						var unused = true;
-
-						for (var groupName in this.groupHasListener_) {
-							if (this.groupHasListener_[groupName][selector]) {
-								unused = false;
-								break;
-							}
-						}
-
-						if (unused) {
-							this.eventHandles_[selector].removeAllListeners();
-							this.eventHandles_[selector] = null;
-						}
+						this.eventHandles_[selector] = null;
 					}
 				}
 			}
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.detachAllListeners();
-				this.component_ = null;
-			}
-		}, {
-			key: 'getListenerFn',
-			value: function getListenerFn(fnName) {
-				var fnComponent;
-				var split = fnName.split(':');
+		};
 
-				if (split.length === 2) {
-					fnName = split[1];
-					fnComponent = _ComponentCollector2.default.components[split[0]];
+		EventsCollector.prototype.disposeInternal = function disposeInternal() {
+			this.detachAllListeners();
+			this.component_ = null;
+		};
 
-					if (!fnComponent) {
-						console.error('No component with the id "' + split[0] + '" has been collected' + 'yet. Make sure that you specify an id for an existing component when ' + 'adding inline listeners.');
-					}
-				}
+		EventsCollector.prototype.getListenerFn = function getListenerFn(fnName) {
+			var fnComponent;
+			var split = fnName.split(':');
 
-				fnComponent = fnComponent || this.component_;
+			if (split.length === 2) {
+				fnName = split[1];
+				fnComponent = _ComponentCollector2.default.components[split[0]];
 
-				if (_core2.default.isFunction(fnComponent[fnName])) {
-					return fnComponent[fnName].bind(fnComponent);
-				} else {
-					console.error('No function named "' + fnName + '" was found in the component with id "' + fnComponent.id + '". Make sure that you specify valid function names when adding ' + 'inline listeners.');
+				if (!fnComponent) {
+					console.error('No component with the id "' + split[0] + '" has been collected' + 'yet. Make sure that you specify an id for an existing component when ' + 'adding inline listeners.');
 				}
 			}
-		}, {
-			key: 'hasAttachedForGroup',
-			value: function hasAttachedForGroup(group) {
-				return !!this.groupHasListener_.hasOwnProperty(group);
-			}
-		}, {
-			key: 'onEvent_',
-			value: function onEvent_(fn, event) {
-				var eventComp = event.handledByComponent;
 
-				if (!eventComp || eventComp === this.component_ || event.delegateTarget.contains(eventComp.element)) {
-					event.handledByComponent = this.component_;
-					return fn(event);
-				}
+			fnComponent = fnComponent || this.component_;
+
+			if (_core2.default.isFunction(fnComponent[fnName])) {
+				return fnComponent[fnName].bind(fnComponent);
+			} else {
+				console.error('No function named "' + fnName + '" was found in the component with id "' + fnComponent.id + '". Make sure that you specify valid function names when adding ' + 'inline listeners.');
 			}
-		}]);
+		};
+
+		EventsCollector.prototype.hasAttachedForGroup = function hasAttachedForGroup(group) {
+			return !!this.groupHasListener_.hasOwnProperty(group);
+		};
+
+		EventsCollector.prototype.onEvent_ = function onEvent_(fn, event) {
+			var eventComp = event.handledByComponent;
+
+			if (!eventComp || eventComp === this.component_ || event.delegateTarget.contains(eventComp.element)) {
+				event.handledByComponent = this.component_;
+				return fn(event);
+			}
+		};
 
 		return EventsCollector;
 	})(_Disposable3.default);

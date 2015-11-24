@@ -29,24 +29,6 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     }
   }
 
-  var _createClass = (function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  })();
-
   function _possibleConstructorReturn(self, call) {
     if (!self) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -102,15 +84,12 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     function Dropdown() {
       _classCallCheck(this, Dropdown);
 
-      return _possibleConstructorReturn(this, Object.getPrototypeOf(Dropdown).apply(this, arguments));
+      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    _createClass(Dropdown, null, [{
-      key: 'setImpl',
-      value: function setImpl(ctor) {
-        _ComponentRegistry2.default.register(ctor, 'Dropdown');
-      }
-    }]);
+    Dropdown.setImpl = function setImpl(ctor) {
+      _ComponentRegistry2.default.register(ctor, 'Dropdown');
+    };
 
     return Dropdown;
   })(_Component3.default);

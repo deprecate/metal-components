@@ -23,24 +23,6 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'metal/src/disposabl
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -71,47 +53,41 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'metal/src/disposabl
 		function ComponentCollector() {
 			_classCallCheck(this, ComponentCollector);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(ComponentCollector).apply(this, arguments));
+			return _possibleConstructorReturn(this, _Disposable.apply(this, arguments));
 		}
 
-		_createClass(ComponentCollector, [{
-			key: 'addComponent',
-			value: function addComponent(component) {
-				ComponentCollector.components[component.id] = component;
+		ComponentCollector.prototype.addComponent = function addComponent(component) {
+			ComponentCollector.components[component.id] = component;
+		};
+
+		ComponentCollector.prototype.createComponent = function createComponent(componentName, id, opt_data) {
+			var component = ComponentCollector.components[id];
+
+			if (!component) {
+				var ConstructorFn = _ComponentRegistry2.default.getConstructor(componentName);
+
+				var data = opt_data || {};
+				data.id = id;
+				data.element = '#' + id;
+				component = new ConstructorFn(data);
 			}
-		}, {
-			key: 'createComponent',
-			value: function createComponent(componentName, id, opt_data) {
-				var component = ComponentCollector.components[id];
 
-				if (!component) {
-					var ConstructorFn = _ComponentRegistry2.default.getConstructor(componentName);
+			return component;
+		};
 
-					var data = opt_data || {};
-					data.id = id;
-					data.element = '#' + id;
-					component = new ConstructorFn(data);
-				}
+		ComponentCollector.prototype.removeComponent = function removeComponent(component) {
+			delete ComponentCollector.components[component.id];
+		};
 
-				return component;
+		ComponentCollector.prototype.updateComponent = function updateComponent(id, opt_data) {
+			var component = ComponentCollector.components[id];
+
+			if (component && opt_data) {
+				component.setAttrs(opt_data);
 			}
-		}, {
-			key: 'removeComponent',
-			value: function removeComponent(component) {
-				delete ComponentCollector.components[component.id];
-			}
-		}, {
-			key: 'updateComponent',
-			value: function updateComponent(id, opt_data) {
-				var component = ComponentCollector.components[id];
 
-				if (component && opt_data) {
-					component.setAttrs(opt_data);
-				}
-
-				return component;
-			}
-		}]);
+			return component;
+		};
 
 		return ComponentCollector;
 	})(_Disposable3.default);

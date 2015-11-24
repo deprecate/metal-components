@@ -23,24 +23,6 @@ define(['exports', 'metal/src/object/object', 'metal/src/disposable/Disposable']
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -71,48 +53,40 @@ define(['exports', 'metal/src/object/object', 'metal/src/disposable/Disposable']
 		function SurfaceCollector() {
 			_classCallCheck(this, SurfaceCollector);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SurfaceCollector).call(this));
+			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
 			_this.surfaces_ = {};
 			return _this;
 		}
 
-		_createClass(SurfaceCollector, [{
-			key: 'addSurface',
-			value: function addSurface(surfaceElementId, opt_data) {
-				if (this.surfaces_[surfaceElementId]) {
-					this.updateSurface(surfaceElementId, opt_data);
-				} else {
-					this.surfaces_[surfaceElementId] = opt_data || {};
-					this.surfaces_[surfaceElementId].surfaceElementId = surfaceElementId;
-				}
+		SurfaceCollector.prototype.addSurface = function addSurface(surfaceElementId, opt_data) {
+			if (this.surfaces_[surfaceElementId]) {
+				this.updateSurface(surfaceElementId, opt_data);
+			} else {
+				this.surfaces_[surfaceElementId] = opt_data || {};
+				this.surfaces_[surfaceElementId].surfaceElementId = surfaceElementId;
 			}
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.surfaces_ = null;
-			}
-		}, {
-			key: 'getSurface',
-			value: function getSurface(surfaceElementId) {
-				return this.surfaces_[surfaceElementId] ? this.surfaces_[surfaceElementId] : null;
-			}
-		}, {
-			key: 'removeAllSurfaces',
-			value: function removeAllSurfaces() {
-				this.surfaces_ = [];
-			}
-		}, {
-			key: 'removeSurface',
-			value: function removeSurface(surfaceElementId) {
-				this.surfaces_[surfaceElementId] = null;
-			}
-		}, {
-			key: 'updateSurface',
-			value: function updateSurface(surfaceElementId, opt_data) {
-				_object2.default.mixin(this.surfaces_[surfaceElementId], opt_data);
-			}
-		}]);
+		};
+
+		SurfaceCollector.prototype.disposeInternal = function disposeInternal() {
+			this.surfaces_ = null;
+		};
+
+		SurfaceCollector.prototype.getSurface = function getSurface(surfaceElementId) {
+			return this.surfaces_[surfaceElementId] ? this.surfaces_[surfaceElementId] : null;
+		};
+
+		SurfaceCollector.prototype.removeAllSurfaces = function removeAllSurfaces() {
+			this.surfaces_ = [];
+		};
+
+		SurfaceCollector.prototype.removeSurface = function removeSurface(surfaceElementId) {
+			this.surfaces_[surfaceElementId] = null;
+		};
+
+		SurfaceCollector.prototype.updateSurface = function updateSurface(surfaceElementId, opt_data) {
+			_object2.default.mixin(this.surfaces_[surfaceElementId], opt_data);
+		};
 
 		return SurfaceCollector;
 	})(_Disposable3.default);

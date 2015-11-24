@@ -25,24 +25,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -73,7 +55,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/
 		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
 			_classCallCheck(this, EventEmitterProxy);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(EventEmitterProxy).call(this));
+			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
 			_this.blacklist_ = opt_blacklist || {};
 			_this.originEmitter_ = originEmitter;
@@ -86,58 +68,52 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/
 			return _this;
 		}
 
-		_createClass(EventEmitterProxy, [{
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
+		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
+			var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
 
-				for (var event in this.proxiedEvents_) {
-					this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
-				}
-
-				this.proxiedEvents_ = null;
-				this.originEmitter_ = null;
-				this.targetEmitter_ = null;
+			for (var event in this.proxiedEvents_) {
+				this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
 			}
-		}, {
-			key: 'proxyEvent_',
-			value: function proxyEvent_(event) {
-				if (!this.shouldProxyEvent_(event)) {
-					return;
-				}
 
-				var self = this;
+			this.proxiedEvents_ = null;
+			this.originEmitter_ = null;
+			this.targetEmitter_ = null;
+		};
 
-				this.proxiedEvents_[event] = function () {
-					var args = [event].concat(Array.prototype.slice.call(arguments, 0));
-					self.targetEmitter_.emit.apply(self.targetEmitter_, args);
-				};
-
-				if (_core2.default.isElement(this.originEmitter_) || _core2.default.isDocument(this.originEmitter_)) {
-					_dom2.default.on(this.originEmitter_, event, this.proxiedEvents_[event]);
-				} else {
-					this.originEmitter_.on(event, this.proxiedEvents_[event]);
-				}
+		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
+			if (!this.shouldProxyEvent_(event)) {
+				return;
 			}
-		}, {
-			key: 'shouldProxyEvent_',
-			value: function shouldProxyEvent_(event) {
-				if (this.whitelist_ && !this.whitelist_[event]) {
-					return false;
-				}
 
-				if (this.blacklist_[event]) {
-					return false;
-				}
+			var self = this;
 
-				return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || _dom2.default.supportsEvent(this.originEmitter_, event));
+			this.proxiedEvents_[event] = function () {
+				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
+				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
+			};
+
+			if (_core2.default.isElement(this.originEmitter_) || _core2.default.isDocument(this.originEmitter_)) {
+				_dom2.default.on(this.originEmitter_, event, this.proxiedEvents_[event]);
+			} else {
+				this.originEmitter_.on(event, this.proxiedEvents_[event]);
 			}
-		}, {
-			key: 'startProxy_',
-			value: function startProxy_() {
-				this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+		};
+
+		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
+			if (this.whitelist_ && !this.whitelist_[event]) {
+				return false;
 			}
-		}]);
+
+			if (this.blacklist_[event]) {
+				return false;
+			}
+
+			return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || _dom2.default.supportsEvent(this.originEmitter_, event));
+		};
+
+		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
+			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+		};
 
 		return EventEmitterProxy;
 	})(_Disposable3.default);

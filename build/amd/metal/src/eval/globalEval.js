@@ -19,66 +19,43 @@ define(['exports', 'metal/src/dom/dom'], function (exports, _dom) {
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	var globalEval = (function () {
 		function globalEval() {
 			_classCallCheck(this, globalEval);
 		}
 
-		_createClass(globalEval, null, [{
-			key: 'run',
-			value: function run(text) {
-				var script = document.createElement('script');
-				script.text = text;
-				document.head.appendChild(script).parentNode.removeChild(script);
+		globalEval.run = function run(text) {
+			var script = document.createElement('script');
+			script.text = text;
+			document.head.appendChild(script).parentNode.removeChild(script);
+		};
+
+		globalEval.runFile = function runFile(src) {
+			var script = document.createElement('script');
+			script.src = src;
+
+			_dom2.default.on(script, 'load', function () {
+				script.parentNode.removeChild(script);
+			});
+
+			_dom2.default.on(script, 'error', function () {
+				script.parentNode.removeChild(script);
+			});
+
+			document.head.appendChild(script);
+		};
+
+		globalEval.runScript = function runScript(script) {
+			if (script.parentNode) {
+				script.parentNode.removeChild(script);
 			}
-		}, {
-			key: 'runFile',
-			value: function runFile(src) {
-				var script = document.createElement('script');
-				script.src = src;
 
-				_dom2.default.on(script, 'load', function () {
-					script.parentNode.removeChild(script);
-				});
-
-				_dom2.default.on(script, 'error', function () {
-					script.parentNode.removeChild(script);
-				});
-
-				document.head.appendChild(script);
+			if (script.src) {
+				globalEval.runFile(script.src);
+			} else {
+				globalEval.run(script.text);
 			}
-		}, {
-			key: 'runScript',
-			value: function runScript(script) {
-				if (script.parentNode) {
-					script.parentNode.removeChild(script);
-				}
-
-				if (script.src) {
-					globalEval.runFile(script.src);
-				} else {
-					globalEval.run(script.text);
-				}
-			}
-		}]);
+		};
 
 		return globalEval;
 	})();

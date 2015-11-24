@@ -27,24 +27,6 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -52,31 +34,6 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 
 		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
-
-	var _get = function get(object, property, receiver) {
-		if (object === null) object = Function.prototype;
-		var desc = Object.getOwnPropertyDescriptor(object, property);
-
-		if (desc === undefined) {
-			var parent = Object.getPrototypeOf(object);
-
-			if (parent === null) {
-				return undefined;
-			} else {
-				return get(parent, property, receiver);
-			}
-		} else if ("value" in desc) {
-			return desc.value;
-		} else {
-			var getter = desc.get;
-
-			if (getter === undefined) {
-				return undefined;
-			}
-
-			return getter.call(receiver);
-		}
-	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -100,60 +57,54 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 		function DragScrollDelta() {
 			_classCallCheck(this, DragScrollDelta);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(DragScrollDelta).call(this));
+			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.handler_ = new _EventHandler2.default();
 			_this.scrollPositions_ = [];
 			return _this;
 		}
 
-		_createClass(DragScrollDelta, [{
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				_get(Object.getPrototypeOf(DragScrollDelta.prototype), 'disposeInternal', this).call(this);
+		DragScrollDelta.prototype.disposeInternal = function disposeInternal() {
+			_EventEmitter.prototype.disposeInternal.call(this);
 
-				this.stop();
-				this.handler_ = null;
-			}
-		}, {
-			key: 'handleScroll_',
-			value: function handleScroll_(index, event) {
-				var newPosition = {
-					scrollLeft: _Position2.default.getScrollLeft(event.currentTarget),
-					scrollTop: _Position2.default.getScrollTop(event.currentTarget)
-				};
-				var position = this.scrollPositions_[index];
-				this.scrollPositions_[index] = newPosition;
-				this.emit('scrollDelta', {
-					deltaX: newPosition.scrollLeft - position.scrollLeft,
-					deltaY: newPosition.scrollTop - position.scrollTop
-				});
-			}
-		}, {
-			key: 'start',
-			value: function start(dragNode, scrollContainers) {
-				if (getComputedStyle(dragNode).position === 'fixed') {
-					return;
-				}
+			this.stop();
+			this.handler_ = null;
+		};
 
-				for (var i = 0; i < scrollContainers.length; i++) {
-					if (_dom2.default.contains(scrollContainers[i], dragNode)) {
-						this.scrollPositions_.push({
-							scrollLeft: _Position2.default.getScrollLeft(scrollContainers[i]),
-							scrollTop: _Position2.default.getScrollTop(scrollContainers[i])
-						});
-						var index = this.scrollPositions_.length - 1;
-						this.handler_.add(_dom2.default.on(scrollContainers[i], 'scroll', this.handleScroll_.bind(this, index)));
-					}
+		DragScrollDelta.prototype.handleScroll_ = function handleScroll_(index, event) {
+			var newPosition = {
+				scrollLeft: _Position2.default.getScrollLeft(event.currentTarget),
+				scrollTop: _Position2.default.getScrollTop(event.currentTarget)
+			};
+			var position = this.scrollPositions_[index];
+			this.scrollPositions_[index] = newPosition;
+			this.emit('scrollDelta', {
+				deltaX: newPosition.scrollLeft - position.scrollLeft,
+				deltaY: newPosition.scrollTop - position.scrollTop
+			});
+		};
+
+		DragScrollDelta.prototype.start = function start(dragNode, scrollContainers) {
+			if (getComputedStyle(dragNode).position === 'fixed') {
+				return;
+			}
+
+			for (var i = 0; i < scrollContainers.length; i++) {
+				if (_dom2.default.contains(scrollContainers[i], dragNode)) {
+					this.scrollPositions_.push({
+						scrollLeft: _Position2.default.getScrollLeft(scrollContainers[i]),
+						scrollTop: _Position2.default.getScrollTop(scrollContainers[i])
+					});
+					var index = this.scrollPositions_.length - 1;
+					this.handler_.add(_dom2.default.on(scrollContainers[i], 'scroll', this.handleScroll_.bind(this, index)));
 				}
 			}
-		}, {
-			key: 'stop',
-			value: function stop() {
-				this.handler_.removeAllListeners();
-				this.scrollPositions_ = [];
-			}
-		}]);
+		};
+
+		DragScrollDelta.prototype.stop = function stop() {
+			this.handler_.removeAllListeners();
+			this.scrollPositions_ = [];
+		};
 
 		return DragScrollDelta;
 	})(_EventEmitter3.default);

@@ -29,24 +29,6 @@ define(['exports', 'metal/src/array/array', 'metal/src/core', 'metal/src/object/
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -54,31 +36,6 @@ define(['exports', 'metal/src/array/array', 'metal/src/core', 'metal/src/object/
 
 		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
-
-	var _get = function get(object, property, receiver) {
-		if (object === null) object = Function.prototype;
-		var desc = Object.getOwnPropertyDescriptor(object, property);
-
-		if (desc === undefined) {
-			var parent = Object.getPrototypeOf(object);
-
-			if (parent === null) {
-				return undefined;
-			} else {
-				return get(parent, property, receiver);
-			}
-		} else if ("value" in desc) {
-			return desc.value;
-		} else {
-			var getter = desc.get;
-
-			if (getter === undefined) {
-				return undefined;
-			}
-
-			return getter.call(receiver);
-		}
-	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -102,7 +59,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/core', 'metal/src/object/
 		function Attribute(opt_config) {
 			_classCallCheck(this, Attribute);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Attribute).call(this));
+			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.scheduledBatchData_ = null;
 			_this.attrsInfo_ = {};
@@ -116,308 +73,275 @@ define(['exports', 'metal/src/array/array', 'metal/src/core', 'metal/src/object/
 			return _this;
 		}
 
-		_createClass(Attribute, [{
-			key: 'addAttr',
-			value: function addAttr(name, config, initialValue) {
-				this.buildAttrInfo_(name, config, initialValue);
-				Object.defineProperty(this, name, this.buildAttrPropertyDef_(name));
-			}
-		}, {
-			key: 'addAttrs',
-			value: function addAttrs(configs, initialValues, opt_defineContext) {
-				initialValues = initialValues || {};
-				var names = Object.keys(configs);
-				var props = {};
+		Attribute.prototype.addAttr = function addAttr(name, config, initialValue) {
+			this.buildAttrInfo_(name, config, initialValue);
+			Object.defineProperty(this, name, this.buildAttrPropertyDef_(name));
+		};
 
-				for (var i = 0; i < names.length; i++) {
-					var name = names[i];
-					this.buildAttrInfo_(name, configs[name], initialValues[name]);
-					props[name] = this.buildAttrPropertyDef_(name);
+		Attribute.prototype.addAttrs = function addAttrs(configs, initialValues, opt_defineContext) {
+			initialValues = initialValues || {};
+			var names = Object.keys(configs);
+			var props = {};
+
+			for (var i = 0; i < names.length; i++) {
+				var name = names[i];
+				this.buildAttrInfo_(name, configs[name], initialValues[name]);
+				props[name] = this.buildAttrPropertyDef_(name);
+			}
+
+			if (opt_defineContext !== false) {
+				Object.defineProperties(opt_defineContext || this, props);
+			}
+		};
+
+		Attribute.prototype.addAttrsFromStaticHint_ = function addAttrsFromStaticHint_(config) {
+			var ctor = this.constructor;
+			var defineContext = false;
+
+			if (Attribute.mergeAttrsStatic(ctor)) {
+				defineContext = ctor.prototype;
+			}
+
+			this.addAttrs(ctor.ATTRS_MERGED, config, defineContext);
+		};
+
+		Attribute.prototype.assertValidAttrName_ = function assertValidAttrName_(name) {
+			if (this.constructor.INVALID_ATTRS_MERGED[name]) {
+				throw new Error('It\'s not allowed to create an attribute with the name "' + name + '".');
+			}
+		};
+
+		Attribute.prototype.buildAttrInfo_ = function buildAttrInfo_(name, config, initialValue) {
+			this.assertValidAttrName_(name);
+			this.attrsInfo_[name] = {
+				config: config || {},
+				initialValue: initialValue,
+				state: Attribute.States.UNINITIALIZED
+			};
+		};
+
+		Attribute.prototype.buildAttrPropertyDef_ = function buildAttrPropertyDef_(name) {
+			return {
+				configurable: true,
+				enumerable: true,
+				get: function get() {
+					return this.getAttrValue_(name);
+				},
+				set: function set(val) {
+					this.setAttrValue_(name, val);
 				}
+			};
+		};
 
-				if (opt_defineContext !== false) {
-					Object.defineProperties(opt_defineContext || this, props);
-				}
+		Attribute.prototype.callFunction_ = function callFunction_(fn, args) {
+			if (_core2.default.isString(fn)) {
+				return this[fn].apply(this, args);
+			} else if (_core2.default.isFunction(fn)) {
+				return fn.apply(this, args);
 			}
-		}, {
-			key: 'addAttrsFromStaticHint_',
-			value: function addAttrsFromStaticHint_(config) {
-				var ctor = this.constructor;
-				var defineContext = false;
+		};
 
-				if (Attribute.mergeAttrsStatic(ctor)) {
-					defineContext = ctor.prototype;
-				}
+		Attribute.prototype.callSetter_ = function callSetter_(name, value) {
+			var info = this.attrsInfo_[name];
+			var config = info.config;
 
-				this.addAttrs(ctor.ATTRS_MERGED, config, defineContext);
+			if (config.setter) {
+				value = this.callFunction_(config.setter, [value]);
 			}
-		}, {
-			key: 'assertValidAttrName_',
-			value: function assertValidAttrName_(name) {
-				if (this.constructor.INVALID_ATTRS_MERGED[name]) {
-					throw new Error('It\'s not allowed to create an attribute with the name "' + name + '".');
-				}
-			}
-		}, {
-			key: 'buildAttrInfo_',
-			value: function buildAttrInfo_(name, config, initialValue) {
-				this.assertValidAttrName_(name);
-				this.attrsInfo_[name] = {
-					config: config || {},
-					initialValue: initialValue,
-					state: Attribute.States.UNINITIALIZED
-				};
-			}
-		}, {
-			key: 'buildAttrPropertyDef_',
-			value: function buildAttrPropertyDef_(name) {
-				return {
-					configurable: true,
-					enumerable: true,
-					get: function get() {
-						return this.getAttrValue_(name);
-					},
-					set: function set(val) {
-						this.setAttrValue_(name, val);
-					}
-				};
-			}
-		}, {
-			key: 'callFunction_',
-			value: function callFunction_(fn, args) {
-				if (_core2.default.isString(fn)) {
-					return this[fn].apply(this, args);
-				} else if (_core2.default.isFunction(fn)) {
-					return fn.apply(this, args);
-				}
-			}
-		}, {
-			key: 'callSetter_',
-			value: function callSetter_(name, value) {
-				var info = this.attrsInfo_[name];
-				var config = info.config;
 
-				if (config.setter) {
-					value = this.callFunction_(config.setter, [value]);
-				}
+			return value;
+		};
 
-				return value;
+		Attribute.prototype.callValidator_ = function callValidator_(name, value) {
+			var info = this.attrsInfo_[name];
+			var config = info.config;
+
+			if (config.validator) {
+				return this.callFunction_(config.validator, [value]);
 			}
-		}, {
-			key: 'callValidator_',
-			value: function callValidator_(name, value) {
-				var info = this.attrsInfo_[name];
-				var config = info.config;
 
-				if (config.validator) {
-					return this.callFunction_(config.validator, [value]);
-				}
+			return true;
+		};
 
-				return true;
-			}
-		}, {
-			key: 'canSetAttribute',
-			value: function canSetAttribute(name) {
-				var info = this.attrsInfo_[name];
-				return !info.config.writeOnce || !info.written;
-			}
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				_get(Object.getPrototypeOf(Attribute.prototype), 'disposeInternal', this).call(this);
+		Attribute.prototype.canSetAttribute = function canSetAttribute(name) {
+			var info = this.attrsInfo_[name];
+			return !info.config.writeOnce || !info.written;
+		};
 
-				this.attrsInfo_ = null;
+		Attribute.prototype.disposeInternal = function disposeInternal() {
+			_EventEmitter.prototype.disposeInternal.call(this);
+
+			this.attrsInfo_ = null;
+			this.scheduledBatchData_ = null;
+		};
+
+		Attribute.prototype.emitBatchEvent_ = function emitBatchEvent_() {
+			if (!this.isDisposed()) {
+				var data = this.scheduledBatchData_;
 				this.scheduledBatchData_ = null;
+				this.emit('attrsChanged', data);
 			}
-		}, {
-			key: 'emitBatchEvent_',
-			value: function emitBatchEvent_() {
-				if (!this.isDisposed()) {
-					var data = this.scheduledBatchData_;
-					this.scheduledBatchData_ = null;
-					this.emit('attrsChanged', data);
-				}
-			}
-		}, {
-			key: 'get',
-			value: function get(name) {
-				return this[name];
-			}
-		}, {
-			key: 'getAttrConfig',
-			value: function getAttrConfig(name) {
-				return (this.attrsInfo_[name] || {}).config;
-			}
-		}, {
-			key: 'getAttrs',
-			value: function getAttrs(opt_names) {
-				var attrsMap = {};
-				var names = opt_names || this.getAttrNames();
+		};
 
-				for (var i = 0; i < names.length; i++) {
-					attrsMap[names[i]] = this[names[i]];
-				}
+		Attribute.prototype.get = function get(name) {
+			return this[name];
+		};
 
-				return attrsMap;
+		Attribute.prototype.getAttrConfig = function getAttrConfig(name) {
+			return (this.attrsInfo_[name] || {}).config;
+		};
+
+		Attribute.prototype.getAttrs = function getAttrs(opt_names) {
+			var attrsMap = {};
+			var names = opt_names || this.getAttrNames();
+
+			for (var i = 0; i < names.length; i++) {
+				attrsMap[names[i]] = this[names[i]];
 			}
-		}, {
-			key: 'getAttrNames',
-			value: function getAttrNames() {
-				return Object.keys(this.attrsInfo_);
+
+			return attrsMap;
+		};
+
+		Attribute.prototype.getAttrNames = function getAttrNames() {
+			return Object.keys(this.attrsInfo_);
+		};
+
+		Attribute.prototype.getAttrValue_ = function getAttrValue_(name) {
+			this.initAttr_(name);
+			return this.attrsInfo_[name].value;
+		};
+
+		Attribute.prototype.informChange_ = function informChange_(name, prevVal) {
+			if (this.shouldInformChange_(name, prevVal)) {
+				var data = {
+					attrName: name,
+					newVal: this[name],
+					prevVal: prevVal
+				};
+				this.emit(name + 'Changed', data);
+				this.scheduleBatchEvent_(data);
 			}
-		}, {
-			key: 'getAttrValue_',
-			value: function getAttrValue_(name) {
-				this.initAttr_(name);
-				return this.attrsInfo_[name].value;
+		};
+
+		Attribute.prototype.initAttr_ = function initAttr_(name) {
+			var info = this.attrsInfo_[name];
+
+			if (info.state !== Attribute.States.UNINITIALIZED) {
+				return;
 			}
-		}, {
-			key: 'informChange_',
-			value: function informChange_(name, prevVal) {
-				if (this.shouldInformChange_(name, prevVal)) {
-					var data = {
-						attrName: name,
-						newVal: this[name],
-						prevVal: prevVal
-					};
-					this.emit(name + 'Changed', data);
-					this.scheduleBatchEvent_(data);
-				}
+
+			info.state = Attribute.States.INITIALIZING;
+			this.setInitialValue_(name);
+
+			if (!info.written) {
+				info.state = Attribute.States.INITIALIZING_DEFAULT;
+				this.setDefaultValue_(name);
 			}
-		}, {
-			key: 'initAttr_',
-			value: function initAttr_(name) {
-				var info = this.attrsInfo_[name];
 
-				if (info.state !== Attribute.States.UNINITIALIZED) {
-					return;
-				}
+			info.state = Attribute.States.INITIALIZED;
+		};
 
-				info.state = Attribute.States.INITIALIZING;
-				this.setInitialValue_(name);
+		Attribute.mergeAttrs_ = function mergeAttrs_(values) {
+			return _object2.default.mixin.apply(null, [{}].concat(values.reverse()));
+		};
 
-				if (!info.written) {
-					info.state = Attribute.States.INITIALIZING_DEFAULT;
-					this.setDefaultValue_(name);
-				}
+		Attribute.mergeAttrsStatic = function mergeAttrsStatic(ctor) {
+			return _core2.default.mergeSuperClassesProperty(ctor, 'ATTRS', Attribute.mergeAttrs_);
+		};
 
+		Attribute.prototype.mergeInvalidAttrs_ = function mergeInvalidAttrs_() {
+			_core2.default.mergeSuperClassesProperty(this.constructor, 'INVALID_ATTRS', function (values) {
+				return _array2.default.flatten(values).reduce(function (merged, val) {
+					if (val) {
+						merged[val] = true;
+					}
+
+					return merged;
+				}, {});
+			});
+		};
+
+		Attribute.prototype.removeAttr = function removeAttr(name) {
+			this.attrsInfo_[name] = null;
+			delete this[name];
+		};
+
+		Attribute.prototype.scheduleBatchEvent_ = function scheduleBatchEvent_(attrChangeData) {
+			if (!this.scheduledBatchData_) {
+				_async2.default.nextTick(this.emitBatchEvent_, this);
+
+				this.scheduledBatchData_ = {
+					changes: {}
+				};
+			}
+
+			var name = attrChangeData.attrName;
+			var changes = this.scheduledBatchData_.changes;
+
+			if (changes[name]) {
+				changes[name].newVal = attrChangeData.newVal;
+			} else {
+				changes[name] = attrChangeData;
+			}
+		};
+
+		Attribute.prototype.set = function set(name, value) {
+			this[name] = value;
+		};
+
+		Attribute.prototype.setAttrs = function setAttrs(values) {
+			var names = Object.keys(values);
+
+			for (var i = 0; i < names.length; i++) {
+				this[names[i]] = values[names[i]];
+			}
+		};
+
+		Attribute.prototype.setAttrValue_ = function setAttrValue_(name, value) {
+			if (!this.canSetAttribute(name) || !this.validateAttrValue_(name, value)) {
+				return;
+			}
+
+			var info = this.attrsInfo_[name];
+
+			if (info.initialValue === undefined && info.state === Attribute.States.UNINITIALIZED) {
 				info.state = Attribute.States.INITIALIZED;
 			}
-		}, {
-			key: 'mergeInvalidAttrs_',
-			value: function mergeInvalidAttrs_() {
-				_core2.default.mergeSuperClassesProperty(this.constructor, 'INVALID_ATTRS', function (values) {
-					return _array2.default.flatten(values).reduce(function (merged, val) {
-						if (val) {
-							merged[val] = true;
-						}
 
-						return merged;
-					}, {});
-				});
-			}
-		}, {
-			key: 'removeAttr',
-			value: function removeAttr(name) {
-				this.attrsInfo_[name] = null;
-				delete this[name];
-			}
-		}, {
-			key: 'scheduleBatchEvent_',
-			value: function scheduleBatchEvent_(attrChangeData) {
-				if (!this.scheduledBatchData_) {
-					_async2.default.nextTick(this.emitBatchEvent_, this);
+			var prevVal = this[name];
+			info.value = this.callSetter_(name, value);
+			info.written = true;
+			this.informChange_(name, prevVal);
+		};
 
-					this.scheduledBatchData_ = {
-						changes: {}
-					};
-				}
+		Attribute.prototype.setDefaultValue_ = function setDefaultValue_(name) {
+			var config = this.attrsInfo_[name].config;
 
-				var name = attrChangeData.attrName;
-				var changes = this.scheduledBatchData_.changes;
+			if (config.value !== undefined) {
+				this[name] = config.value;
+			} else {
+				this[name] = this.callFunction_(config.valueFn);
+			}
+		};
 
-				if (changes[name]) {
-					changes[name].newVal = attrChangeData.newVal;
-				} else {
-					changes[name] = attrChangeData;
-				}
-			}
-		}, {
-			key: 'set',
-			value: function set(name, value) {
-				this[name] = value;
-			}
-		}, {
-			key: 'setAttrs',
-			value: function setAttrs(values) {
-				var names = Object.keys(values);
+		Attribute.prototype.setInitialValue_ = function setInitialValue_(name) {
+			var info = this.attrsInfo_[name];
 
-				for (var i = 0; i < names.length; i++) {
-					this[names[i]] = values[names[i]];
-				}
+			if (info.initialValue !== undefined) {
+				this[name] = info.initialValue;
+				info.initialValue = undefined;
 			}
-		}, {
-			key: 'setAttrValue_',
-			value: function setAttrValue_(name, value) {
-				if (!this.canSetAttribute(name) || !this.validateAttrValue_(name, value)) {
-					return;
-				}
+		};
 
-				var info = this.attrsInfo_[name];
+		Attribute.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
+			var info = this.attrsInfo_[name];
+			return info.state === Attribute.States.INITIALIZED && (_core2.default.isObject(prevVal) || prevVal !== this[name]);
+		};
 
-				if (info.initialValue === undefined && info.state === Attribute.States.UNINITIALIZED) {
-					info.state = Attribute.States.INITIALIZED;
-				}
-
-				var prevVal = this[name];
-				info.value = this.callSetter_(name, value);
-				info.written = true;
-				this.informChange_(name, prevVal);
-			}
-		}, {
-			key: 'setDefaultValue_',
-			value: function setDefaultValue_(name) {
-				var config = this.attrsInfo_[name].config;
-
-				if (config.value !== undefined) {
-					this[name] = config.value;
-				} else {
-					this[name] = this.callFunction_(config.valueFn);
-				}
-			}
-		}, {
-			key: 'setInitialValue_',
-			value: function setInitialValue_(name) {
-				var info = this.attrsInfo_[name];
-
-				if (info.initialValue !== undefined) {
-					this[name] = info.initialValue;
-					info.initialValue = undefined;
-				}
-			}
-		}, {
-			key: 'shouldInformChange_',
-			value: function shouldInformChange_(name, prevVal) {
-				var info = this.attrsInfo_[name];
-				return info.state === Attribute.States.INITIALIZED && (_core2.default.isObject(prevVal) || prevVal !== this[name]);
-			}
-		}, {
-			key: 'validateAttrValue_',
-			value: function validateAttrValue_(name, value) {
-				var info = this.attrsInfo_[name];
-				return info.state === Attribute.States.INITIALIZING_DEFAULT || this.callValidator_(name, value);
-			}
-		}], [{
-			key: 'mergeAttrs_',
-			value: function mergeAttrs_(values) {
-				return _object2.default.mixin.apply(null, [{}].concat(values.reverse()));
-			}
-		}, {
-			key: 'mergeAttrsStatic',
-			value: function mergeAttrsStatic(ctor) {
-				return _core2.default.mergeSuperClassesProperty(ctor, 'ATTRS', Attribute.mergeAttrs_);
-			}
-		}]);
+		Attribute.prototype.validateAttrValue_ = function validateAttrValue_(name, value) {
+			var info = this.attrsInfo_[name];
+			return info.state === Attribute.States.INITIALIZING_DEFAULT || this.callValidator_(name, value);
+		};
 
 		return Attribute;
 	})(_EventEmitter3.default);

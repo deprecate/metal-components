@@ -25,24 +25,6 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'crystal-tooltip/src
     }
   }
 
-  var _createClass = (function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  })();
-
   function _possibleConstructorReturn(self, call) {
     if (!self) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -50,31 +32,6 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'crystal-tooltip/src
 
     return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
   }
-
-  var _get = function get(object, property, receiver) {
-    if (object === null) object = Function.prototype;
-    var desc = Object.getOwnPropertyDescriptor(object, property);
-
-    if (desc === undefined) {
-      var parent = Object.getPrototypeOf(object);
-
-      if (parent === null) {
-        return undefined;
-      } else {
-        return get(parent, property, receiver);
-      }
-    } else if ("value" in desc) {
-      return desc.value;
-    } else {
-      var getter = desc.get;
-
-      if (getter === undefined) {
-        return undefined;
-      }
-
-      return getter.call(receiver);
-    }
-  };
 
   function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
@@ -98,17 +55,14 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'crystal-tooltip/src
     function Tooltip() {
       _classCallCheck(this, Tooltip);
 
-      return _possibleConstructorReturn(this, Object.getPrototypeOf(Tooltip).apply(this, arguments));
+      return _possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
     }
 
-    _createClass(Tooltip, [{
-      key: 'syncVisible',
-      value: function syncVisible(visible) {
-        this.element.style.opacity = visible ? 1 : '';
+    Tooltip.prototype.syncVisible = function syncVisible(visible) {
+      this.element.style.opacity = visible ? 1 : '';
 
-        _get(Object.getPrototypeOf(Tooltip.prototype), 'syncVisible', this).call(this, visible);
-      }
-    }]);
+      _TooltipBase.prototype.syncVisible.call(this, visible);
+    };
 
     return Tooltip;
   })(_TooltipBase3.default);

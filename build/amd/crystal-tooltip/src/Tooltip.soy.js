@@ -29,24 +29,6 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     }
   }
 
-  var _createClass = (function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  })();
-
   function _possibleConstructorReturn(self, call) {
     if (!self) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -106,15 +88,12 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     function Tooltip() {
       _classCallCheck(this, Tooltip);
 
-      return _possibleConstructorReturn(this, Object.getPrototypeOf(Tooltip).apply(this, arguments));
+      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    _createClass(Tooltip, null, [{
-      key: 'setImpl',
-      value: function setImpl(ctor) {
-        _ComponentRegistry2.default.register(ctor, 'Tooltip');
-      }
-    }]);
+    Tooltip.setImpl = function setImpl(ctor) {
+      _ComponentRegistry2.default.register(ctor, 'Tooltip');
+    };
 
     return Tooltip;
   })(_Component3.default);

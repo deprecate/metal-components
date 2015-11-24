@@ -19,62 +19,40 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	var object = (function () {
 		function object() {
 			_classCallCheck(this, object);
 		}
 
-		_createClass(object, null, [{
-			key: 'mixin',
-			value: function mixin(target) {
-				var key, source;
+		object.mixin = function mixin(target) {
+			var key, source;
 
-				for (var i = 1; i < arguments.length; i++) {
-					source = arguments[i];
+			for (var i = 1; i < arguments.length; i++) {
+				source = arguments[i];
 
-					for (key in source) {
-						target[key] = source[key];
-					}
+				for (key in source) {
+					target[key] = source[key];
 				}
-
-				return target;
 			}
-		}, {
-			key: 'getObjectByName',
-			value: function getObjectByName(name, opt_obj) {
-				var parts = name.split('.');
-				var cur = opt_obj || window;
-				var part;
 
-				while (part = parts.shift()) {
-					if (_core2.default.isDefAndNotNull(cur[part])) {
-						cur = cur[part];
-					} else {
-						return null;
-					}
+			return target;
+		};
+
+		object.getObjectByName = function getObjectByName(name, opt_obj) {
+			var parts = name.split('.');
+			var cur = opt_obj || window;
+			var part;
+
+			while (part = parts.shift()) {
+				if (_core2.default.isDefAndNotNull(cur[part])) {
+					cur = cur[part];
+				} else {
+					return null;
 				}
-
-				return cur;
 			}
-		}]);
+
+			return cur;
+		};
 
 		return object;
 	})();

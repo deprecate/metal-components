@@ -37,24 +37,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -62,31 +44,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 
 		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
 	}
-
-	var _get = function get(object, property, receiver) {
-		if (object === null) object = Function.prototype;
-		var desc = Object.getOwnPropertyDescriptor(object, property);
-
-		if (desc === undefined) {
-			var parent = Object.getPrototypeOf(object);
-
-			if (parent === null) {
-				return undefined;
-			} else {
-				return get(parent, property, receiver);
-			}
-		} else if ("value" in desc) {
-			return desc.value;
-		} else {
-			var getter = desc.get;
-
-			if (getter === undefined) {
-				return undefined;
-			}
-
-			return getter.call(receiver);
-		}
-	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -110,7 +67,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 		function Drag(opt_config) {
 			_classCallCheck(this, Drag);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Drag).call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
 
 			_this.activeDragPlaceholder_ = null;
 			_this.activeDragSource_ = null;
@@ -139,430 +96,392 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 			return _this;
 		}
 
-		_createClass(Drag, [{
-			key: 'attachSourceEvents_',
-			value: function attachSourceEvents_() {
-				var toAttach = {
-					keydown: this.handleSourceKeyDown_.bind(this),
-					mousedown: this.handleDragStartEvent_.bind(this),
-					touchstart: this.handleDragStartEvent_.bind(this)
+		Drag.prototype.attachSourceEvents_ = function attachSourceEvents_() {
+			var toAttach = {
+				keydown: this.handleSourceKeyDown_.bind(this),
+				mousedown: this.handleDragStartEvent_.bind(this),
+				touchstart: this.handleDragStartEvent_.bind(this)
+			};
+			var eventTypes = Object.keys(toAttach);
+
+			for (var i = 0; i < eventTypes.length; i++) {
+				var listenerFn = toAttach[eventTypes[i]];
+
+				if (_core2.default.isString(this.sources)) {
+					this.sourceHandler_.add(_dom2.default.delegate(this.container, eventTypes[i], this.sources, listenerFn));
+				} else {
+					this.sourceHandler_.add(_dom2.default.on(this.sources, eventTypes[i], listenerFn));
+				}
+			}
+		};
+
+		Drag.prototype.buildEventObject_ = function buildEventObject_() {
+			return {
+				placeholder: this.activeDragPlaceholder_,
+				source: this.activeDragSource_,
+				relativeX: this.sourceRelativePos_.x,
+				relativeY: this.sourceRelativePos_.y,
+				x: this.sourceRegion_.left,
+				y: this.sourceRegion_.top
+			};
+		};
+
+		Drag.prototype.calculateInitialPosition_ = function calculateInitialPosition_(event) {
+			this.sourceRegion_ = _object2.default.mixin({}, _Position2.default.getRegion(this.activeDragSource_, true));
+			this.sourceRelativePos_ = {
+				x: this.activeDragSource_.offsetLeft,
+				y: this.activeDragSource_.offsetTop
+			};
+
+			if (_core2.default.isDef(event.clientX)) {
+				this.mousePos_ = {
+					x: event.clientX,
+					y: event.clientY
 				};
-				var eventTypes = Object.keys(toAttach);
-
-				for (var i = 0; i < eventTypes.length; i++) {
-					var listenerFn = toAttach[eventTypes[i]];
-
-					if (_core2.default.isString(this.sources)) {
-						this.sourceHandler_.add(_dom2.default.delegate(this.container, eventTypes[i], this.sources, listenerFn));
-					} else {
-						this.sourceHandler_.add(_dom2.default.on(this.sources, eventTypes[i], listenerFn));
-					}
-				}
-			}
-		}, {
-			key: 'buildEventObject_',
-			value: function buildEventObject_() {
-				return {
-					placeholder: this.activeDragPlaceholder_,
-					source: this.activeDragSource_,
-					relativeX: this.sourceRelativePos_.x,
-					relativeY: this.sourceRelativePos_.y,
-					x: this.sourceRegion_.left,
-					y: this.sourceRegion_.top
+				this.mouseSourceDelta_ = {
+					x: this.sourceRegion_.left - this.mousePos_.x,
+					y: this.sourceRegion_.top - this.mousePos_.y
 				};
 			}
-		}, {
-			key: 'calculateInitialPosition_',
-			value: function calculateInitialPosition_(event) {
-				this.sourceRegion_ = _object2.default.mixin({}, _Position2.default.getRegion(this.activeDragSource_, true));
-				this.sourceRelativePos_ = {
-					x: this.activeDragSource_.offsetLeft,
-					y: this.activeDragSource_.offsetTop
-				};
+		};
 
-				if (_core2.default.isDef(event.clientX)) {
-					this.mousePos_ = {
-						x: event.clientX,
-						y: event.clientY
-					};
-					this.mouseSourceDelta_ = {
-						x: this.sourceRegion_.left - this.mousePos_.x,
-						y: this.sourceRegion_.top - this.mousePos_.y
-					};
+		Drag.prototype.canStartDrag_ = function canStartDrag_(event) {
+			return !this.disabled && (!_core2.default.isDef(event.button) || event.button === 0) && !this.isDragging() && this.isWithinHandle_(event.target);
+		};
+
+		Drag.prototype.cleanUpAfterDragging_ = function cleanUpAfterDragging_() {
+			if (this.activeDragPlaceholder_) {
+				this.activeDragPlaceholder_.setAttribute('aria-grabbed', 'false');
+
+				_dom2.default.removeClasses(this.activeDragPlaceholder_, this.draggingClass);
+
+				if (this.dragPlaceholder === Drag.Placeholder.CLONE) {
+					_dom2.default.exitDocument(this.activeDragPlaceholder_);
 				}
 			}
-		}, {
-			key: 'canStartDrag_',
-			value: function canStartDrag_(event) {
-				return !this.disabled && (!_core2.default.isDef(event.button) || event.button === 0) && !this.isDragging() && this.isWithinHandle_(event.target);
+
+			this.activeDragPlaceholder_ = null;
+			this.activeDragSource_ = null;
+			this.sourceRegion_ = null;
+			this.sourceRelativePos_ = null;
+			this.mousePos_ = null;
+			this.mouseSourceDelta_ = null;
+			this.dragging_ = false;
+			this.dragHandler_.removeAllListeners();
+		};
+
+		Drag.prototype.cloneActiveDrag_ = function cloneActiveDrag_() {
+			var placeholder = this.activeDragSource_.cloneNode(true);
+			placeholder.style.position = 'absolute';
+			placeholder.style.left = this.sourceRelativePos_.x + 'px';
+			placeholder.style.top = this.sourceRelativePos_.y + 'px';
+
+			_dom2.default.append(this.activeDragSource_.parentNode, placeholder);
+
+			return placeholder;
+		};
+
+		Drag.prototype.constrain_ = function constrain_(region) {
+			this.constrainToAxis_(region);
+			this.constrainToSteps_(region);
+			this.constrainToRegion_(region);
+		};
+
+		Drag.prototype.constrainToAxis_ = function constrainToAxis_(region) {
+			if (this.axis === 'x') {
+				region.top = this.sourceRegion_.top;
+				region.bottom = this.sourceRegion_.bottom;
+			} else if (this.axis === 'y') {
+				region.left = this.sourceRegion_.left;
+				region.right = this.sourceRegion_.right;
 			}
-		}, {
-			key: 'cleanUpAfterDragging_',
-			value: function cleanUpAfterDragging_() {
-				if (this.activeDragPlaceholder_) {
-					this.activeDragPlaceholder_.setAttribute('aria-grabbed', 'false');
+		};
 
-					_dom2.default.removeClasses(this.activeDragPlaceholder_, this.draggingClass);
+		Drag.prototype.constrainToRegion_ = function constrainToRegion_(region) {
+			var constrain = this.constrain;
 
-					if (this.dragPlaceholder === Drag.Placeholder.CLONE) {
-						_dom2.default.exitDocument(this.activeDragPlaceholder_);
-					}
+			if (constrain) {
+				if (_core2.default.isElement(constrain)) {
+					constrain = _Position2.default.getRegion(constrain, true);
 				}
 
-				this.activeDragPlaceholder_ = null;
-				this.activeDragSource_ = null;
-				this.sourceRegion_ = null;
-				this.sourceRelativePos_ = null;
-				this.mousePos_ = null;
-				this.mouseSourceDelta_ = null;
-				this.dragging_ = false;
-				this.dragHandler_.removeAllListeners();
-			}
-		}, {
-			key: 'cloneActiveDrag_',
-			value: function cloneActiveDrag_() {
-				var placeholder = this.activeDragSource_.cloneNode(true);
-				placeholder.style.position = 'absolute';
-				placeholder.style.left = this.sourceRelativePos_.x + 'px';
-				placeholder.style.top = this.sourceRelativePos_.y + 'px';
-
-				_dom2.default.append(this.activeDragSource_.parentNode, placeholder);
-
-				return placeholder;
-			}
-		}, {
-			key: 'constrain_',
-			value: function constrain_(region) {
-				this.constrainToAxis_(region);
-				this.constrainToSteps_(region);
-				this.constrainToRegion_(region);
-			}
-		}, {
-			key: 'constrainToAxis_',
-			value: function constrainToAxis_(region) {
-				if (this.axis === 'x') {
-					region.top = this.sourceRegion_.top;
-					region.bottom = this.sourceRegion_.bottom;
-				} else if (this.axis === 'y') {
-					region.left = this.sourceRegion_.left;
-					region.right = this.sourceRegion_.right;
+				if (region.left < constrain.left) {
+					region.left = constrain.left;
+				} else if (region.right > constrain.right) {
+					region.left -= region.right - constrain.right;
 				}
-			}
-		}, {
-			key: 'constrainToRegion_',
-			value: function constrainToRegion_(region) {
-				var constrain = this.constrain;
 
-				if (constrain) {
-					if (_core2.default.isElement(constrain)) {
-						constrain = _Position2.default.getRegion(constrain, true);
-					}
-
-					if (region.left < constrain.left) {
-						region.left = constrain.left;
-					} else if (region.right > constrain.right) {
-						region.left -= region.right - constrain.right;
-					}
-
-					if (region.top < constrain.top) {
-						region.top = constrain.top;
-					} else if (region.bottom > constrain.bottom) {
-						region.top -= region.bottom - constrain.bottom;
-					}
-
-					region.right = region.left + region.width;
-					region.bottom = region.top + region.height;
+				if (region.top < constrain.top) {
+					region.top = constrain.top;
+				} else if (region.bottom > constrain.bottom) {
+					region.top -= region.bottom - constrain.bottom;
 				}
-			}
-		}, {
-			key: 'constrainToSteps_',
-			value: function constrainToSteps_(region) {
-				var deltaX = region.left - this.sourceRegion_.left;
-				var deltaY = region.top - this.sourceRegion_.top;
-				region.left -= deltaX % this.steps.x;
+
 				region.right = region.left + region.width;
-				region.top -= deltaY % this.steps.y;
 				region.bottom = region.top + region.height;
 			}
-		}, {
-			key: 'createActiveDragPlaceholder_',
-			value: function createActiveDragPlaceholder_() {
-				var dragPlaceholder = this.dragPlaceholder;
+		};
 
-				if (dragPlaceholder === Drag.Placeholder.CLONE) {
-					this.activeDragPlaceholder_ = this.cloneActiveDrag_();
-				} else if (_core2.default.isElement(dragPlaceholder)) {
-					this.activeDragPlaceholder_ = dragPlaceholder;
+		Drag.prototype.constrainToSteps_ = function constrainToSteps_(region) {
+			var deltaX = region.left - this.sourceRegion_.left;
+			var deltaY = region.top - this.sourceRegion_.top;
+			region.left -= deltaX % this.steps.x;
+			region.right = region.left + region.width;
+			region.top -= deltaY % this.steps.y;
+			region.bottom = region.top + region.height;
+		};
+
+		Drag.prototype.createActiveDragPlaceholder_ = function createActiveDragPlaceholder_() {
+			var dragPlaceholder = this.dragPlaceholder;
+
+			if (dragPlaceholder === Drag.Placeholder.CLONE) {
+				this.activeDragPlaceholder_ = this.cloneActiveDrag_();
+			} else if (_core2.default.isElement(dragPlaceholder)) {
+				this.activeDragPlaceholder_ = dragPlaceholder;
+			} else {
+				this.activeDragPlaceholder_ = this.activeDragSource_;
+			}
+		};
+
+		Drag.prototype.defaultDragFn_ = function defaultDragFn_() {
+			this.moveToPosition_(this.activeDragPlaceholder_);
+		};
+
+		Drag.prototype.defaultEndFn_ = function defaultEndFn_() {
+			this.moveToPosition_(this.activeDragSource_);
+		};
+
+		Drag.prototype.disposeInternal = function disposeInternal() {
+			this.cleanUpAfterDragging_();
+			this.dragHandler_ = null;
+			this.dragScrollDelta_.dispose();
+			this.dragScrollDelta_ = null;
+			this.sourceHandler_.removeAllListeners();
+			this.sourceHandler_ = null;
+
+			_Attribute.prototype.disposeInternal.call(this);
+		};
+
+		Drag.prototype.getActiveDrag = function getActiveDrag() {
+			return this.activeDragSource_;
+		};
+
+		Drag.prototype.handleDragEndEvent_ = function handleDragEndEvent_() {
+			if (this.autoScroll) {
+				this.autoScroll.stop();
+			}
+
+			this.dragScrollDelta_.stop();
+
+			_DragShim2.default.hideDocShim();
+
+			this.emit(Drag.Events.END, this.buildEventObject_());
+			this.cleanUpAfterDragging_();
+		};
+
+		Drag.prototype.handleDragMoveEvent_ = function handleDragMoveEvent_(event) {
+			var position = event.targetTouches ? event.targetTouches[0] : event;
+			var distanceX = position.clientX - this.mousePos_.x;
+			var distanceY = position.clientY - this.mousePos_.y;
+			this.mousePos_.x = position.clientX;
+			this.mousePos_.y = position.clientY;
+
+			if (!this.isDragging() && !this.hasReachedMinimumDistance_(distanceX, distanceY)) {
+				return;
+			}
+
+			if (!this.isDragging()) {
+				this.startDragging_();
+				this.dragScrollDelta_.start(this.activeDragPlaceholder_, this.scrollContainers);
+			}
+
+			if (this.autoScroll) {
+				this.autoScroll.scroll(this.scrollContainers, this.mousePos_.x, this.mousePos_.y);
+			}
+
+			this.updatePositionFromMouse();
+		};
+
+		Drag.prototype.handleDragStartEvent_ = function handleDragStartEvent_(event) {
+			this.activeDragSource_ = event.delegateTarget || event.currentTarget;
+
+			if (this.canStartDrag_(event)) {
+				this.calculateInitialPosition_(event.targetTouches ? event.targetTouches[0] : event);
+				event.preventDefault();
+
+				if (event.type === 'keydown') {
+					this.startDragging_();
 				} else {
-					this.activeDragPlaceholder_ = this.activeDragSource_;
+					this.dragHandler_.add.apply(this.dragHandler_, _DragShim2.default.attachDocListeners(this.useShim, {
+						mousemove: this.handleDragMoveEvent_.bind(this),
+						touchmove: this.handleDragMoveEvent_.bind(this),
+						mouseup: this.handleDragEndEvent_.bind(this),
+						touchend: this.handleDragEndEvent_.bind(this)
+					}));
+					this.distanceDragged_ = 0;
 				}
 			}
-		}, {
-			key: 'defaultDragFn_',
-			value: function defaultDragFn_() {
-				this.moveToPosition_(this.activeDragPlaceholder_);
-			}
-		}, {
-			key: 'defaultEndFn_',
-			value: function defaultEndFn_() {
-				this.moveToPosition_(this.activeDragSource_);
-			}
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.cleanUpAfterDragging_();
-				this.dragHandler_ = null;
-				this.dragScrollDelta_.dispose();
-				this.dragScrollDelta_ = null;
-				this.sourceHandler_.removeAllListeners();
-				this.sourceHandler_ = null;
+		};
 
-				_get(Object.getPrototypeOf(Drag.prototype), 'disposeInternal', this).call(this);
+		Drag.prototype.handleKeyDown_ = function handleKeyDown_(event) {
+			if (event.keyCode === 27 && this.isDragging()) {
+				this.handleDragEndEvent_();
 			}
-		}, {
-			key: 'getActiveDrag',
-			value: function getActiveDrag() {
-				return this.activeDragSource_;
-			}
-		}, {
-			key: 'handleDragEndEvent_',
-			value: function handleDragEndEvent_() {
-				if (this.autoScroll) {
-					this.autoScroll.stop();
-				}
+		};
 
-				this.dragScrollDelta_.stop();
+		Drag.prototype.handleScrollDelta_ = function handleScrollDelta_(event) {
+			this.mouseSourceDelta_.x += event.deltaX;
+			this.mouseSourceDelta_.y += event.deltaY;
+			this.updatePositionFromMouse();
+		};
 
-				_DragShim2.default.hideDocShim();
+		Drag.prototype.handleSourceKeyDown_ = function handleSourceKeyDown_(event) {
+			if (this.isDragging()) {
+				var currentTarget = event.delegateTarget || event.currentTarget;
 
-				this.emit(Drag.Events.END, this.buildEventObject_());
-				this.cleanUpAfterDragging_();
-			}
-		}, {
-			key: 'handleDragMoveEvent_',
-			value: function handleDragMoveEvent_(event) {
-				var position = event.targetTouches ? event.targetTouches[0] : event;
-				var distanceX = position.clientX - this.mousePos_.x;
-				var distanceY = position.clientY - this.mousePos_.y;
-				this.mousePos_.x = position.clientX;
-				this.mousePos_.y = position.clientY;
-
-				if (!this.isDragging() && !this.hasReachedMinimumDistance_(distanceX, distanceY)) {
+				if (currentTarget !== this.activeDragSource_) {
 					return;
 				}
 
-				if (!this.isDragging()) {
-					this.startDragging_();
-					this.dragScrollDelta_.start(this.activeDragPlaceholder_, this.scrollContainers);
-				}
+				if (event.keyCode >= 37 && event.keyCode <= 40) {
+					var deltaX = 0;
+					var deltaY = 0;
+					var speedX = this.keyboardSpeed >= this.steps.x ? this.keyboardSpeed : this.steps.x;
+					var speedY = this.keyboardSpeed >= this.steps.y ? this.keyboardSpeed : this.steps.y;
 
-				if (this.autoScroll) {
-					this.autoScroll.scroll(this.scrollContainers, this.mousePos_.x, this.mousePos_.y);
-				}
-
-				this.updatePositionFromMouse();
-			}
-		}, {
-			key: 'handleDragStartEvent_',
-			value: function handleDragStartEvent_(event) {
-				this.activeDragSource_ = event.delegateTarget || event.currentTarget;
-
-				if (this.canStartDrag_(event)) {
-					this.calculateInitialPosition_(event.targetTouches ? event.targetTouches[0] : event);
-					event.preventDefault();
-
-					if (event.type === 'keydown') {
-						this.startDragging_();
+					if (event.keyCode === 37) {
+						deltaX -= speedX;
+					} else if (event.keyCode === 38) {
+						deltaY -= speedY;
+					} else if (event.keyCode === 39) {
+						deltaX += speedX;
 					} else {
-						this.dragHandler_.add.apply(this.dragHandler_, _DragShim2.default.attachDocListeners(this.useShim, {
-							mousemove: this.handleDragMoveEvent_.bind(this),
-							touchmove: this.handleDragMoveEvent_.bind(this),
-							mouseup: this.handleDragEndEvent_.bind(this),
-							touchend: this.handleDragEndEvent_.bind(this)
-						}));
-						this.distanceDragged_ = 0;
+						deltaY += speedY;
 					}
-				}
-			}
-		}, {
-			key: 'handleKeyDown_',
-			value: function handleKeyDown_(event) {
-				if (event.keyCode === 27 && this.isDragging()) {
+
+					this.updatePositionFromDelta(deltaX, deltaY);
+					event.preventDefault();
+				} else if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 27) {
 					this.handleDragEndEvent_();
 				}
+			} else if (event.keyCode === 13 || event.keyCode === 32) {
+				this.handleDragStartEvent_(event);
 			}
-		}, {
-			key: 'handleScrollDelta_',
-			value: function handleScrollDelta_(event) {
-				this.mouseSourceDelta_.x += event.deltaX;
-				this.mouseSourceDelta_.y += event.deltaY;
-				this.updatePositionFromMouse();
-			}
-		}, {
-			key: 'handleSourceKeyDown_',
-			value: function handleSourceKeyDown_(event) {
-				if (this.isDragging()) {
-					var currentTarget = event.delegateTarget || event.currentTarget;
+		};
 
-					if (currentTarget !== this.activeDragSource_) {
-						return;
-					}
+		Drag.prototype.handleSourcesChanged_ = function handleSourcesChanged_() {
+			this.sourceHandler_.removeAllListeners();
+			this.attachSourceEvents_();
+		};
 
-					if (event.keyCode >= 37 && event.keyCode <= 40) {
-						var deltaX = 0;
-						var deltaY = 0;
-						var speedX = this.keyboardSpeed >= this.steps.x ? this.keyboardSpeed : this.steps.x;
-						var speedY = this.keyboardSpeed >= this.steps.y ? this.keyboardSpeed : this.steps.y;
+		Drag.prototype.hasReachedMinimumDistance_ = function hasReachedMinimumDistance_(distanceX, distanceY) {
+			this.distanceDragged_ += Math.abs(distanceX) + Math.abs(distanceY);
+			return this.distanceDragged_ >= this.minimumDragDistance;
+		};
 
-						if (event.keyCode === 37) {
-							deltaX -= speedX;
-						} else if (event.keyCode === 38) {
-							deltaY -= speedY;
-						} else if (event.keyCode === 39) {
-							deltaX += speedX;
-						} else {
-							deltaY += speedY;
-						}
+		Drag.prototype.isDragging = function isDragging() {
+			return this.dragging_;
+		};
 
-						this.updatePositionFromDelta(deltaX, deltaY);
-						event.preventDefault();
-					} else if (event.keyCode === 13 || event.keyCode === 32 || event.keyCode === 27) {
-						this.handleDragEndEvent_();
-					}
-				} else if (event.keyCode === 13 || event.keyCode === 32) {
-					this.handleDragStartEvent_(event);
-				}
-			}
-		}, {
-			key: 'handleSourcesChanged_',
-			value: function handleSourcesChanged_() {
-				this.sourceHandler_.removeAllListeners();
-				this.attachSourceEvents_();
-			}
-		}, {
-			key: 'hasReachedMinimumDistance_',
-			value: function hasReachedMinimumDistance_(distanceX, distanceY) {
-				this.distanceDragged_ += Math.abs(distanceX) + Math.abs(distanceY);
-				return this.distanceDragged_ >= this.minimumDragDistance;
-			}
-		}, {
-			key: 'isDragging',
-			value: function isDragging() {
-				return this.dragging_;
-			}
-		}, {
-			key: 'isWithinHandle_',
-			value: function isWithinHandle_(element) {
-				var handles = this.handles;
+		Drag.prototype.isWithinHandle_ = function isWithinHandle_(element) {
+			var handles = this.handles;
 
-				if (!handles) {
-					return true;
-				} else if (_core2.default.isString(handles)) {
-					return _dom2.default.match(element, handles + ', ' + handles + ' *');
-				} else {
-					return _dom2.default.contains(handles, element);
-				}
+			if (!handles) {
+				return true;
+			} else if (_core2.default.isString(handles)) {
+				return _dom2.default.match(element, handles + ', ' + handles + ' *');
+			} else {
+				return _dom2.default.contains(handles, element);
 			}
-		}, {
-			key: 'moveToPosition_',
-			value: function moveToPosition_(element) {
-				element.style.left = this.sourceRelativePos_.x + 'px';
-				element.style.top = this.sourceRelativePos_.y + 'px';
-			}
-		}, {
-			key: 'setterAutoScrollFn_',
-			value: function setterAutoScrollFn_(val) {
-				if (val !== false) {
-					return new _DragAutoScroll2.default(val);
-				}
-			}
-		}, {
-			key: 'setterConstrainFn',
-			value: function setterConstrainFn(val) {
-				if (_core2.default.isString(val)) {
-					val = _dom2.default.toElement(val);
-				}
+		};
 
-				return val;
-			}
-		}, {
-			key: 'setterScrollContainersFn_',
-			value: function setterScrollContainersFn_(scrollContainers) {
-				var elements = this.toElements_(scrollContainers);
-				elements.push(document);
-				return elements;
-			}
-		}, {
-			key: 'startDragging_',
-			value: function startDragging_() {
-				this.dragging_ = true;
-				this.createActiveDragPlaceholder_();
+		Drag.prototype.moveToPosition_ = function moveToPosition_(element) {
+			element.style.left = this.sourceRelativePos_.x + 'px';
+			element.style.top = this.sourceRelativePos_.y + 'px';
+		};
 
-				_dom2.default.addClasses(this.activeDragPlaceholder_, this.draggingClass);
+		Drag.prototype.setterAutoScrollFn_ = function setterAutoScrollFn_(val) {
+			if (val !== false) {
+				return new _DragAutoScroll2.default(val);
+			}
+		};
 
-				this.activeDragPlaceholder_.setAttribute('aria-grabbed', 'true');
+		Drag.prototype.setterConstrainFn = function setterConstrainFn(val) {
+			if (_core2.default.isString(val)) {
+				val = _dom2.default.toElement(val);
 			}
-		}, {
-			key: 'toElements_',
-			value: function toElements_(elementOrSelector) {
-				if (_core2.default.isString(elementOrSelector)) {
-					var matched = this.container.querySelectorAll(elementOrSelector);
-					return Array.prototype.slice.call(matched, 0);
-				} else if (elementOrSelector) {
-					return [elementOrSelector];
-				} else {
-					return [];
-				}
-			}
-		}, {
-			key: 'updatePosition',
-			value: function updatePosition(newRegion) {
-				this.constrain_(newRegion);
-				var deltaX = newRegion.left - this.sourceRegion_.left;
-				var deltaY = newRegion.top - this.sourceRegion_.top;
 
-				if (deltaX !== 0 || deltaY !== 0) {
-					this.sourceRegion_ = newRegion;
-					this.sourceRelativePos_.x += deltaX;
-					this.sourceRelativePos_.y += deltaY;
-					this.emit(Drag.Events.DRAG, this.buildEventObject_());
-				}
-			}
-		}, {
-			key: 'updatePositionFromDelta',
-			value: function updatePositionFromDelta(deltaX, deltaY) {
-				var newRegion = _object2.default.mixin({}, this.sourceRegion_);
+			return val;
+		};
 
-				newRegion.left += deltaX;
-				newRegion.right += deltaX;
-				newRegion.top += deltaY;
-				newRegion.bottom += deltaY;
-				this.updatePosition(newRegion);
+		Drag.prototype.setterScrollContainersFn_ = function setterScrollContainersFn_(scrollContainers) {
+			var elements = this.toElements_(scrollContainers);
+			elements.push(document);
+			return elements;
+		};
+
+		Drag.prototype.startDragging_ = function startDragging_() {
+			this.dragging_ = true;
+			this.createActiveDragPlaceholder_();
+
+			_dom2.default.addClasses(this.activeDragPlaceholder_, this.draggingClass);
+
+			this.activeDragPlaceholder_.setAttribute('aria-grabbed', 'true');
+		};
+
+		Drag.prototype.toElements_ = function toElements_(elementOrSelector) {
+			if (_core2.default.isString(elementOrSelector)) {
+				var matched = this.container.querySelectorAll(elementOrSelector);
+				return Array.prototype.slice.call(matched, 0);
+			} else if (elementOrSelector) {
+				return [elementOrSelector];
+			} else {
+				return [];
 			}
-		}, {
-			key: 'updatePositionFromMouse',
-			value: function updatePositionFromMouse() {
-				var newRegion = {
-					height: this.sourceRegion_.height,
-					left: this.mousePos_.x + this.mouseSourceDelta_.x,
-					top: this.mousePos_.y + this.mouseSourceDelta_.y,
-					width: this.sourceRegion_.width
-				};
-				newRegion.right = newRegion.left + newRegion.width;
-				newRegion.bottom = newRegion.top + newRegion.height;
-				this.updatePosition(newRegion);
+		};
+
+		Drag.prototype.updatePosition = function updatePosition(newRegion) {
+			this.constrain_(newRegion);
+			var deltaX = newRegion.left - this.sourceRegion_.left;
+			var deltaY = newRegion.top - this.sourceRegion_.top;
+
+			if (deltaX !== 0 || deltaY !== 0) {
+				this.sourceRegion_ = newRegion;
+				this.sourceRelativePos_.x += deltaX;
+				this.sourceRelativePos_.y += deltaY;
+				this.emit(Drag.Events.DRAG, this.buildEventObject_());
 			}
-		}, {
-			key: 'validateElementOrString_',
-			value: function validateElementOrString_(val) {
-				return _core2.default.isString(val) || _core2.default.isElement(val);
-			}
-		}, {
-			key: 'validatorConstrainFn',
-			value: function validatorConstrainFn(val) {
-				return _core2.default.isString(val) || _core2.default.isObject(val);
-			}
-		}]);
+		};
+
+		Drag.prototype.updatePositionFromDelta = function updatePositionFromDelta(deltaX, deltaY) {
+			var newRegion = _object2.default.mixin({}, this.sourceRegion_);
+
+			newRegion.left += deltaX;
+			newRegion.right += deltaX;
+			newRegion.top += deltaY;
+			newRegion.bottom += deltaY;
+			this.updatePosition(newRegion);
+		};
+
+		Drag.prototype.updatePositionFromMouse = function updatePositionFromMouse() {
+			var newRegion = {
+				height: this.sourceRegion_.height,
+				left: this.mousePos_.x + this.mouseSourceDelta_.x,
+				top: this.mousePos_.y + this.mouseSourceDelta_.y,
+				width: this.sourceRegion_.width
+			};
+			newRegion.right = newRegion.left + newRegion.width;
+			newRegion.bottom = newRegion.top + newRegion.height;
+			this.updatePosition(newRegion);
+		};
+
+		Drag.prototype.validateElementOrString_ = function validateElementOrString_(val) {
+			return _core2.default.isString(val) || _core2.default.isElement(val);
+		};
+
+		Drag.prototype.validatorConstrainFn = function validatorConstrainFn(val) {
+			return _core2.default.isString(val) || _core2.default.isObject(val);
+		};
 
 		return Drag;
 	})(_Attribute3.default);

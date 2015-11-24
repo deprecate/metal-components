@@ -23,24 +23,6 @@ define(['exports', 'metal/src/dom/dom', 'crystal-treeview/src/Treeview.soy'], fu
 		}
 	}
 
-	var _createClass = (function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
-
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	})();
-
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -71,77 +53,67 @@ define(['exports', 'metal/src/dom/dom', 'crystal-treeview/src/Treeview.soy'], fu
 		function Treeview() {
 			_classCallCheck(this, Treeview);
 
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(Treeview).apply(this, arguments));
+			return _possibleConstructorReturn(this, _TreeviewBase.apply(this, arguments));
 		}
 
-		_createClass(Treeview, [{
-			key: 'attached',
-			value: function attached() {
-				this.on('nodesChanged', this.onNodesChanged_);
-				this.on('renderSurface', this.handleRenderSurface_);
-			}
-		}, {
-			key: 'getNodeObj',
-			value: function getNodeObj(path) {
-				var obj = this.nodes[path[0]];
+		Treeview.prototype.attached = function attached() {
+			this.on('nodesChanged', this.onNodesChanged_);
+			this.on('renderSurface', this.handleRenderSurface_);
+		};
 
-				for (var i = 1; i < path.length; i++) {
-					obj = obj.children[path[i]];
-				}
+		Treeview.prototype.getNodeObj = function getNodeObj(path) {
+			var obj = this.nodes[path[0]];
 
-				return obj;
+			for (var i = 1; i < path.length; i++) {
+				obj = obj.children[path[i]];
 			}
-		}, {
-			key: 'getNodeObjFromId_',
-			value: function getNodeObjFromId_(id) {
-				var path = id.substr(this.id.length + 1).split('-');
-				return this.getNodeObj(path);
-			}
-		}, {
-			key: 'handleNodeClicked_',
-			value: function handleNodeClicked_(event) {
+
+			return obj;
+		};
+
+		Treeview.prototype.getNodeObjFromId_ = function getNodeObjFromId_(id) {
+			var path = id.substr(this.id.length + 1).split('-');
+			return this.getNodeObj(path);
+		};
+
+		Treeview.prototype.handleNodeClicked_ = function handleNodeClicked_(event) {
+			this.toggleExpandedState_(event.delegateTarget);
+		};
+
+		Treeview.prototype.handleNodeKeyUp_ = function handleNodeKeyUp_(event) {
+			if (event.keyCode === 13 || event.keyCode === 32) {
 				this.toggleExpandedState_(event.delegateTarget);
 			}
-		}, {
-			key: 'handleNodeKeyUp_',
-			value: function handleNodeKeyUp_(event) {
-				if (event.keyCode === 13 || event.keyCode === 32) {
-					this.toggleExpandedState_(event.delegateTarget);
-				}
-			}
-		}, {
-			key: 'handleRenderSurface_',
-			value: function handleRenderSurface_(data, event) {
-				if (this.ignoreSurfaceUpdate_) {
-					event.preventDefault();
-					this.ignoreSurfaceUpdate_ = false;
-				}
-			}
-		}, {
-			key: 'onNodesChanged_',
-			value: function onNodesChanged_() {
+		};
+
+		Treeview.prototype.handleRenderSurface_ = function handleRenderSurface_(data, event) {
+			if (this.ignoreSurfaceUpdate_) {
+				event.preventDefault();
 				this.ignoreSurfaceUpdate_ = false;
 			}
-		}, {
-			key: 'toggleExpandedState_',
-			value: function toggleExpandedState_(node) {
-				var nodeObj = this.getNodeObjFromId_(node.parentNode.parentNode.id);
-				nodeObj.expanded = !nodeObj.expanded;
+		};
 
-				if (nodeObj.expanded) {
-					_dom2.default.addClasses(node.parentNode, 'expanded');
+		Treeview.prototype.onNodesChanged_ = function onNodesChanged_() {
+			this.ignoreSurfaceUpdate_ = false;
+		};
 
-					node.setAttribute('aria-expanded', 'true');
-				} else {
-					_dom2.default.removeClasses(node.parentNode, 'expanded');
+		Treeview.prototype.toggleExpandedState_ = function toggleExpandedState_(node) {
+			var nodeObj = this.getNodeObjFromId_(node.parentNode.parentNode.id);
+			nodeObj.expanded = !nodeObj.expanded;
 
-					node.setAttribute('aria-expanded', 'false');
-				}
+			if (nodeObj.expanded) {
+				_dom2.default.addClasses(node.parentNode, 'expanded');
 
-				this.nodes = this.nodes;
-				this.ignoreSurfaceUpdate_ = true;
+				node.setAttribute('aria-expanded', 'true');
+			} else {
+				_dom2.default.removeClasses(node.parentNode, 'expanded');
+
+				node.setAttribute('aria-expanded', 'false');
 			}
-		}]);
+
+			this.nodes = this.nodes;
+			this.ignoreSurfaceUpdate_ = true;
+		};
 
 		return Treeview;
 	})(_Treeview2.default);
