@@ -17,10 +17,10 @@
 	    baseUrl: '../build/amd'
 		});
 		requirejs(['crystal-modal/src/Modal', 'metal/src/soy/SoyRenderer'], function(Modal, SoyRenderer) {
-			window.modal = new Modal({
-				header: SoyRenderer.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+			window.modal = new Modal.default({
+				header: SoyRenderer.default.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
 				body: 'One fine body...',
-				footer: SoyRenderer.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+				footer: SoyRenderer.default.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
 			}).render();
 		});
 	</script>
