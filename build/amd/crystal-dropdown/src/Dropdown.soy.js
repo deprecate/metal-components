@@ -94,6 +94,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return Dropdown;
   })(_Component3.default);
 
+  Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
   Dropdown.RENDERER = _SoyRenderer2.default;
   Dropdown.setImpl(Dropdown);
 

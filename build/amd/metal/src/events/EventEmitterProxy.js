@@ -118,6 +118,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/
 		return EventEmitterProxy;
 	})(_Disposable3.default);
 
+	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
 	exports.default = EventEmitterProxy;
 });
 //# sourceMappingURL=EventEmitterProxy.js.map

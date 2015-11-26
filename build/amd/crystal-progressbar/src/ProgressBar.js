@@ -130,6 +130,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'crystal-progressbar/s
 		return ProgressBar;
 	})(_ProgressBar2.default);
 
+	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
 	ProgressBar.ATTRS = {
 		barClass: {
 			validator: _core2.default.isString

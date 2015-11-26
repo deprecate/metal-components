@@ -138,6 +138,12 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 			}
 
 			if (alignElement) {
+				var dataTitle = alignElement.getAttribute('data-title');
+
+				if (dataTitle) {
+					this.content = dataTitle;
+				}
+
 				if (this.visible) {
 					alignElement.setAttribute('aria-describedby', this.id);
 				} else {
@@ -193,6 +199,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 		return TooltipBase;
 	})(_Component3.default);
 
+	TooltipBase.prototype.registerMetalComponent && TooltipBase.prototype.registerMetalComponent(TooltipBase, 'TooltipBase')
 	TooltipBase.Align = _Align2.default;
 	TooltipBase.ATTRS = {
 		alignElement: {

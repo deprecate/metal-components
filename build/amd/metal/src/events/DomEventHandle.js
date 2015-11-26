@@ -64,6 +64,7 @@ define(['exports', 'metal/src/events/EventHandle'], function (exports, _EventHan
 		return DomEventHandle;
 	})(_EventHandle3.default);
 
+	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
 	exports.default = DomEventHandle;
 });
 //# sourceMappingURL=DomEventHandle.js.map

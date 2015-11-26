@@ -163,6 +163,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 		return Modal;
 	})(_Modal2.default);
 
+	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
 	Modal.ELEMENT_CLASSES = 'modal';
 	Modal.ATTRS = {
 		autoFocus: {

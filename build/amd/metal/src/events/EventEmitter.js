@@ -251,6 +251,7 @@ define(['exports', 'metal/src/core', 'metal/src/array/array', 'metal/src/disposa
 		return EventEmitter;
 	})(_Disposable3.default);
 
+	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	exports.default = EventEmitter;
 });
 //# sourceMappingURL=EventEmitter.js.map

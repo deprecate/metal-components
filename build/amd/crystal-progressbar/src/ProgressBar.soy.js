@@ -85,6 +85,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return ProgressBar;
   })(_Component3.default);
 
+  ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
   ProgressBar.RENDERER = _SoyRenderer2.default;
   ProgressBar.setImpl(ProgressBar);
 

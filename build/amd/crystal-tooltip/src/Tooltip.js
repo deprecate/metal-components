@@ -65,6 +65,7 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'crystal-tooltip/src
     return Tooltip;
   })(_TooltipBase3.default);
 
+  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
   Tooltip.Align = _TooltipBase3.default.Align;
   Tooltip.ELEMENT_CLASSES = 'tooltip';
 

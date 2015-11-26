@@ -107,6 +107,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return Popover;
   })(_Component3.default);
 
+  Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
   Popover.RENDERER = _SoyRenderer2.default;
   Popover.setImpl(Popover);
 

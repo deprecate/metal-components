@@ -180,6 +180,7 @@ define(['exports', 'metal/src/core', 'metal/src/component/ComponentCollector', '
 		return EventsCollector;
 	})(_Disposable3.default);
 
+	EventsCollector.prototype.registerMetalComponent && EventsCollector.prototype.registerMetalComponent(EventsCollector, 'EventsCollector')
 	exports.default = EventsCollector;
 });
 //# sourceMappingURL=EventsCollector.js.map

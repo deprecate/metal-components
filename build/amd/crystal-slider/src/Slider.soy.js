@@ -112,6 +112,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return Slider;
   })(_Component3.default);
 
+  Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
   Slider.RENDERER = _SoyRenderer2.default;
   Slider.setImpl(Slider);
 

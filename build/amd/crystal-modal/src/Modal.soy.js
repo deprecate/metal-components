@@ -112,6 +112,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return Modal;
   })(_Component3.default);
 
+  Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
   Modal.RENDERER = _SoyRenderer2.default;
   Modal.setImpl(Modal);
 

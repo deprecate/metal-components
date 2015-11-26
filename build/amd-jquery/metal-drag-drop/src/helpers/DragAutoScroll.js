@@ -133,6 +133,7 @@ define(['exports', 'metal/src/core', 'metal/src/attribute/Attribute', 'metal-pos
 		return DragAutoScroll;
 	})(_Attribute3.default);
 
+	DragAutoScroll.prototype.registerMetalComponent && DragAutoScroll.prototype.registerMetalComponent(DragAutoScroll, 'DragAutoScroll')
 	DragAutoScroll.ATTRS = {
 		delay: {
 			validator: _core2.default.isNumber,

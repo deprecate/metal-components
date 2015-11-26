@@ -69,6 +69,7 @@ define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'crystal
 		return Popover;
 	})(_TooltipBase3.default);
 
+	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 	Popover.ATTRS = {
 		title: {
 			validator: _core2.default.isString

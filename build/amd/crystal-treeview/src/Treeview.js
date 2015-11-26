@@ -118,6 +118,7 @@ define(['exports', 'metal/src/dom/dom', 'crystal-treeview/src/Treeview.soy'], fu
 		return Treeview;
 	})(_Treeview2.default);
 
+	Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
 	Treeview.ELEMENT_CLASSES = 'treeview';
 	Treeview.ATTRS = {
 		nodes: {

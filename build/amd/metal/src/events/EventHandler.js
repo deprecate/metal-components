@@ -78,6 +78,7 @@ define(['exports', 'metal/src/disposable/Disposable'], function (exports, _Dispo
 		return EventHandler;
 	})(_Disposable3.default);
 
+	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
 	exports.default = EventHandler;
 });
 //# sourceMappingURL=EventHandler.js.map

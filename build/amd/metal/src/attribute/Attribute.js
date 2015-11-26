@@ -346,6 +346,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/core', 'metal/src/object/
 		return Attribute;
 	})(_EventEmitter3.default);
 
+	Attribute.prototype.registerMetalComponent && Attribute.prototype.registerMetalComponent(Attribute, 'Attribute')
 	Attribute.INVALID_ATTRS = ['attrs'];
 	Attribute.States = {
 		UNINITIALIZED: 0,

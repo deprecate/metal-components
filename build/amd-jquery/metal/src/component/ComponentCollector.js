@@ -92,6 +92,7 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'metal/src/disposabl
 		return ComponentCollector;
 	})(_Disposable3.default);
 
+	ComponentCollector.prototype.registerMetalComponent && ComponentCollector.prototype.registerMetalComponent(ComponentCollector, 'ComponentCollector')
 	ComponentCollector.components = {};
 	exports.default = ComponentCollector;
 });

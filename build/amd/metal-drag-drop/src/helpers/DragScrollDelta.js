@@ -109,6 +109,7 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 		return DragScrollDelta;
 	})(_EventEmitter3.default);
 
+	DragScrollDelta.prototype.registerMetalComponent && DragScrollDelta.prototype.registerMetalComponent(DragScrollDelta, 'DragScrollDelta')
 	exports.default = DragScrollDelta;
 });
 //# sourceMappingURL=DragScrollDelta.js.map

@@ -98,6 +98,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return Tooltip;
   })(_Component3.default);
 
+  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
   Tooltip.RENDERER = _SoyRenderer2.default;
   Tooltip.setImpl(Tooltip);
 

@@ -486,6 +486,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 		return Drag;
 	})(_Attribute3.default);
 
+	Drag.prototype.registerMetalComponent && Drag.prototype.registerMetalComponent(Drag, 'Drag')
 	Drag.ATTRS = {
 		autoScroll: {
 			setter: 'setterAutoScrollFn_',

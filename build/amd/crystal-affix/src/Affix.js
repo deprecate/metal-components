@@ -135,6 +135,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/attribute/A
 		return Affix;
 	})(_Attribute3.default);
 
+	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
 	Affix.Position = {
 		Top: 'affix-top',
 		Bottom: 'affix-bottom',

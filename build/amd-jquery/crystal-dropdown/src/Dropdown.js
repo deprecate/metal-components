@@ -129,6 +129,7 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'crysta
 		return Dropdown;
 	})(_Dropdown2.default);
 
+	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 	Dropdown.ATTRS = {
 		body: {},
 		header: {},

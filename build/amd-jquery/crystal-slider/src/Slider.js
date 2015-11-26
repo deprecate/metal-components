@@ -146,6 +146,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 		return Slider;
 	})(_Slider2.default);
 
+	Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
 	Slider.ATTRS = {
 		inputName: {
 			validator: _core2.default.isString

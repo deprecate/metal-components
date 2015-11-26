@@ -202,6 +202,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/attribute/A
 		return Scrollspy;
 	})(_Attribute3.default);
 
+	Scrollspy.prototype.registerMetalComponent && Scrollspy.prototype.registerMetalComponent(Scrollspy, 'Scrollspy')
 	Scrollspy.ATTRS = {
 		activeClass: {
 			validator: _core2.default.isString,

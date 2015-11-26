@@ -125,6 +125,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/component/Compone
     return Treeview;
   })(_Component3.default);
 
+  Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
   Treeview.RENDERER = _SoyRenderer2.default;
   Treeview.setImpl(Treeview);
 
