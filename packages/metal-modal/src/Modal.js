@@ -251,7 +251,5 @@ Modal.ATTRS = {
 	}
 };
 
-ModalBase.setImpl(Modal);
-
 export default Modal;
 

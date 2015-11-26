@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -79,13 +78,8 @@ Templates.Modal.body.params = ["id","body"];
 Templates.Modal.footer.params = ["footer","id"];
 Templates.Modal.header.params = ["header","id"];
 
-class Modal extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'Modal');
-  }
-}
+class Modal extends Component {}
 Modal.RENDERER = SoyRenderer;
-Modal.setImpl(Modal);
 SoyAop.registerTemplates('Modal');
 export default Modal;
 /* jshint ignore:end */
