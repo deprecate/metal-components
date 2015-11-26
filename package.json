@@ -1,6 +1,6 @@
 {
   "name": "crystal-components",
-  "version": "0.0.1",
+  "version": "1.0.0-rc",
   "description": "A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "license": "MIT",
   "repository": "metal/crystal-components",
