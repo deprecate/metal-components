@@ -160,6 +160,4 @@ Dropdown.ATTRS = {
  */
 Dropdown.ELEMENT_CLASSES = 'dropdown';
 
-DropdownBase.setImpl(Dropdown);
-
 export default Dropdown;
