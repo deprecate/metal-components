@@ -136,6 +136,4 @@ Treeview.ATTRS = {
 	}
 };
 
-TreeviewBase.setImpl(Treeview);
-
 export default Treeview;
