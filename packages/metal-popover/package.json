@@ -2,7 +2,7 @@
 	"name": "crystal-popover",
 	"version": "0.0.0",
 	"description": "Crystal's popover component",
-	"license": "MIT",
+	"license": "BSD",
 	"repository": "metal/crystal-popover",
 	"engines": {
 		"node": ">=0.12.0"
