@@ -2,7 +2,7 @@
 	"name": "crystal-dropdown",
 	"version": "0.0.0",
 	"description": "Crystal's dropdown component",
-	"license": "MIT",
+	"license": "BSD",
 	"repository": "metal/crystal-dropdown",
 	"engines": {
 		"node": ">=0.12.0"
