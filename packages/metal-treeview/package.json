@@ -2,7 +2,7 @@
   "name": "crystal-treeview",
   "version": "0.0.1",
   "description": "Crystal's tree view component",
-  "license": "MIT",
+  "license": "BSD",
   "repository": "metal/crystal-treeview",
   "engines": {
     "node": ">=0.12.0"
