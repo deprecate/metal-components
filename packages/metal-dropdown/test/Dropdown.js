@@ -26,6 +26,32 @@ describe('Dropdown', function() {
 		assert.ok(component.element.querySelector('.myBody'));
 	});
 
+	it('should get header content from existing html', function() {
+		var element = document.createElement('div');
+		dom.append(
+			element,
+			'<div class="myHeader"></div><div class="dropdown-menu"><div class="myBody"></div></div>'
+		);
+		component = new Dropdown({
+			element: element
+		}).render();
+
+		assert.strictEqual('<div class="myHeader"></div>', component.header.content);
+	});
+
+	it('should get body content from existing html', function() {
+		var element = document.createElement('div');
+		dom.append(
+			element,
+			'<div class="myHeader"></div><div class="dropdown-menu"><div class="myBody"></div></div>'
+		);
+		component = new Dropdown({
+			element: element
+		}).render();
+
+		assert.strictEqual('<div class="myBody"></div>', component.body.content);
+	});
+
 	it('should open dropdown', function(done) {
 		component = new Dropdown().render();
 		assert.ok(!component.expanded);

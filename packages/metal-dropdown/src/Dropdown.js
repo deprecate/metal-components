@@ -123,6 +123,25 @@ class Dropdown extends DropdownBase {
 		var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
 		return dropdownMenu ? dropdownMenu.innerHTML : '';
 	}
+
+	/**
+	 * Gets the default value for the `header` attribute. Retrieves existing
+	 * html for the header from the element, if there is any.
+	 * @return {?string}
+	 */
+	valueHeaderFn_() {
+		if (this.element) {
+			var wrapper = document.createElement('div');
+			for (var i = 0; i < this.element.childNodes.length; i++) {
+				if (dom.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
+					break;
+				}
+				wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
+			}
+			return wrapper.innerHTML;
+		}
+		return '';
+	}
 }
 
 /**
@@ -145,7 +164,8 @@ Dropdown.ATTRS = {
 	 * @type {string}
 	 */
 	header: {
-		setter: SoyRenderer.sanitizeHtml
+		setter: SoyRenderer.sanitizeHtml,
+		valueFn: 'valueHeaderFn_'
 	},
 
 	/**
