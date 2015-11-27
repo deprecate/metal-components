@@ -128,9 +128,6 @@ define(['exports', 'metal/src/dom/dom', 'crystal-treeview/src/Treeview.soy'], fu
 			}
 		}
 	};
-
-	_Treeview2.default.setImpl(Treeview);
-
 	exports.default = Treeview;
 });
 //# sourceMappingURL=Treeview.js.map

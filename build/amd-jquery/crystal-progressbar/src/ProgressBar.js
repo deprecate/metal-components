@@ -157,9 +157,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'crystal-progressbar/s
 		}
 	};
 	ProgressBar.ELEMENT_CLASSES = 'progress';
-
-	_ProgressBar2.default.setImpl(ProgressBar);
-
 	exports.default = ProgressBar;
 
 	_JQueryAdapter2.default.register('progressBar', ProgressBar);

@@ -165,9 +165,6 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 		}
 	};
 	Slider.ELEMENT_CLASSES = 'slider';
-
-	_Slider2.default.setImpl(Slider);
-
 	exports.default = Slider;
 
 	_JQueryAdapter2.default.register('slider', Slider);

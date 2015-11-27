@@ -192,9 +192,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 			value: 'dialog'
 		}
 	};
-
-	_Modal2.default.setImpl(Modal);
-
 	exports.default = Modal;
 });
 //# sourceMappingURL=Modal.js.map

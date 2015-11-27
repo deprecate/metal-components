@@ -2,7 +2,7 @@
 
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'crystal-popover/src/Popover.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _TooltipBase2, _Popover, _JQueryAdapter) {
+define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', 'crystal-popover/src/Popover.soy'], function (exports, _core, _TooltipBase2, _JQueryAdapter) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -10,8 +10,6 @@ define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'crystal
 	var _core2 = _interopRequireDefault(_core);
 
 	var _TooltipBase3 = _interopRequireDefault(_TooltipBase2);
-
-	var _Popover2 = _interopRequireDefault(_Popover);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -81,9 +79,6 @@ define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'crystal
 	};
 	Popover.Align = _TooltipBase3.default.Align;
 	Popover.ELEMENT_CLASSES = 'popover';
-
-	_Popover2.default.setImpl(Popover);
-
 	exports.default = Popover;
 
 	_JQueryAdapter2.default.register('popover', Popover);

@@ -2,12 +2,10 @@
 
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-define(['exports', 'metal/src/component/ComponentRegistry', 'crystal-tooltip/src/TooltipBase', 'crystal-tooltip/src/Tooltip.soy'], function (exports, _ComponentRegistry, _TooltipBase2) {
+define(['exports', 'crystal-tooltip/src/TooltipBase', 'crystal-tooltip/src/Tooltip.soy'], function (exports, _TooltipBase2) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-
-  var _ComponentRegistry2 = _interopRequireDefault(_ComponentRegistry);
 
   var _TooltipBase3 = _interopRequireDefault(_TooltipBase2);
 
@@ -68,9 +66,6 @@ define(['exports', 'metal/src/component/ComponentRegistry', 'crystal-tooltip/src
   Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
   Tooltip.Align = _TooltipBase3.default.Align;
   Tooltip.ELEMENT_CLASSES = 'tooltip';
-
-  _ComponentRegistry2.default.register(Tooltip);
-
   exports.default = Tooltip;
 });
 //# sourceMappingURL=Tooltip.js.map

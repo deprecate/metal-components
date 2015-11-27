@@ -142,9 +142,6 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'crysta
 		}
 	};
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
-
-	_Dropdown2.default.setImpl(Dropdown);
-
 	exports.default = Dropdown;
 
 	_JQueryAdapter2.default.register('dropdown', Dropdown);

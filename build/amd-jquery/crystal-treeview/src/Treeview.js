@@ -130,9 +130,6 @@ define(['exports', 'metal/src/dom/dom', 'crystal-treeview/src/Treeview.soy', 'me
 			}
 		}
 	};
-
-	_Treeview2.default.setImpl(Treeview);
-
 	exports.default = Treeview;
 
 	_JQueryAdapter2.default.register('treeview', Treeview);

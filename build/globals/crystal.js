@@ -1112,76 +1112,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Disposable = this.crystal.Disposable;
-
-	/**
-  * EventHandler utility. It's useful for easily removing a group of
-  * listeners from different EventEmitter instances.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventHandler = (function (_Disposable) {
-		babelHelpers.inherits(EventHandler, _Disposable);
-
-		function EventHandler() {
-			babelHelpers.classCallCheck(this, EventHandler);
-
-			/**
-    * An array that holds the added event handles, so the listeners can be
-    * removed later.
-    * @type {Array.<EventHandle>}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.eventHandles_ = [];
-			return _this;
-		}
-
-		/**
-   * Adds event handles to be removed later through the `removeAllListeners`
-   * method.
-   * @param {...(!EventHandle)} var_args
-   */
-
-		EventHandler.prototype.add = function add() {
-			for (var i = 0; i < arguments.length; i++) {
-				this.eventHandles_.push(arguments[i]);
-			}
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-		EventHandler.prototype.disposeInternal = function disposeInternal() {
-			this.eventHandles_ = null;
-		};
-
-		/**
-   * Removes all listeners that have been added through the `add` method.
-   */
-
-		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
-			for (var i = 0; i < this.eventHandles_.length; i++) {
-				this.eventHandles_[i].removeListener();
-			}
-
-			this.eventHandles_ = [];
-		};
-
-		return EventHandler;
-	})(Disposable);
-
-	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
-	this.crystal.EventHandler = EventHandler;
-}).call(this);
-'use strict';
-
-(function () {
 	var core = this.crystal.core;
 
 	var array = (function () {
@@ -1290,526 +1220,6 @@ babelHelpers;
 	})();
 
 	this.crystal.array = array;
-}).call(this);
-'use strict';
-
-(function () {
-	var string = (function () {
-		function string() {
-			babelHelpers.classCallCheck(this, string);
-		}
-
-		/**
-   * Removes the breaking spaces from the left and right of the string and
-   * collapses the sequences of breaking spaces in the middle into single spaces.
-   * The original and the result strings render the same way in HTML.
-   * @param {string} str A string in which to collapse spaces.
-   * @return {string} Copy of the string with normalized breaking spaces.
-   */
-
-		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
-			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
-		};
-
-		/**
-   * Calculates the hashcode for a string. The hashcode value is computed by
-   * the sum algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]. A nice
-   * property of using 31 prime is that the multiplication can be replaced by
-   * a shift and a subtraction for better performance: 31*i == (i<<5)-i.
-   * Modern VMs do this sort of optimization automatically.
-   * @param {String} val Target string.
-   * @return {Number} Returns the string hashcode.
-   */
-
-		string.hashCode = function hashCode(val) {
-			var hash = 0;
-			for (var i = 0, len = val.length; i < len; i++) {
-				hash = 31 * hash + val.charCodeAt(i);
-				hash %= 0x100000000;
-			}
-			return hash;
-		};
-
-		/**
-   * Replaces interval into the string with specified value, e.g.
-   * `replaceInterval("abcde", 1, 4, "")` returns "ae".
-   * @param {string} str The input string.
-   * @param {Number} start Start interval position to be replaced.
-   * @param {Number} end End interval position to be replaced.
-   * @param {string} value The value that replaces the specified interval.
-   * @return {string}
-   */
-
-		string.replaceInterval = function replaceInterval(str, start, end, value) {
-			return str.substring(0, start) + value + str.substring(end);
-		};
-
-		return string;
-	})();
-
-	this.crystal.string = string;
-}).call(this);
-'use strict';
-
-(function () {
-	var dom = this.crystal.dom;
-	var string = this.crystal.string;
-
-	/**
-  * Class with static methods responsible for doing browser feature checks.
-  */
-
-	var features = (function () {
-		function features() {
-			babelHelpers.classCallCheck(this, features);
-		}
-
-		/**
-   * Some browsers still supports prefixed animation events. This method can
-   * be used to retrieve the current browser event name for both, animation
-   * and transition.
-   * @return {object}
-   */
-
-		features.checkAnimationEventName = function checkAnimationEventName() {
-			if (features.animationEventName_ === undefined) {
-				features.animationEventName_ = {
-					animation: features.checkAnimationEventName_('animation'),
-					transition: features.checkAnimationEventName_('transition')
-				};
-			}
-			return features.animationEventName_;
-		};
-
-		/**
-   * @protected
-   * @param {string} type Type to test: animation, transition.
-   * @return {string} Browser event name.
-   */
-
-		features.checkAnimationEventName_ = function checkAnimationEventName_(type) {
-			var prefixes = ['Webkit', 'MS', 'O', ''];
-			var typeTitleCase = string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
-			var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
-			for (var i = 0; i < prefixes.length; i++) {
-				if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
-					return prefixes[i].toLowerCase() + suffixes[i];
-				}
-			}
-			return type + 'end';
-		};
-
-		/**
-   * Some browsers (like IE9) change the order of element attributes, when html
-   * is rendered. This method can be used to check if this behavior happens on
-   * the current browser.
-   * @return {boolean}
-   */
-
-		features.checkAttrOrderChange = function checkAttrOrderChange() {
-			if (features.attrOrderChange_ === undefined) {
-				var originalContent = '<div data-component="" data-ref=""></div>';
-				var element = document.createElement('div');
-				dom.append(element, originalContent);
-				features.attrOrderChange_ = originalContent !== element.innerHTML;
-			}
-			return features.attrOrderChange_;
-		};
-
-		return features;
-	})();
-
-	features.animationElement_ = document.createElement('div');
-	features.animationEventName_ = undefined;
-	features.attrOrderChange_ = undefined;
-
-	this.crystal.features = features;
-}).call(this);
-'use strict';
-
-(function () {
-	var dom = this.crystal.dom;
-
-	/**
-  * Utility functions for running javascript code in the global scope.
-  */
-
-	var globalEval = (function () {
-		function globalEval() {
-			babelHelpers.classCallCheck(this, globalEval);
-		}
-
-		/**
-   * Evaluates the given string in the global scope.
-   * @param {string} text
-   */
-
-		globalEval.run = function run(text) {
-			var script = document.createElement('script');
-			script.text = text;
-			document.head.appendChild(script).parentNode.removeChild(script);
-		};
-
-		/**
-   * Evaluates the given javascript file in the global scope.
-   * @param {string} src The file's path.
-   */
-
-		globalEval.runFile = function runFile(src) {
-			var script = document.createElement('script');
-			script.src = src;
-			dom.on(script, 'load', function () {
-				script.parentNode.removeChild(script);
-			});
-			dom.on(script, 'error', function () {
-				script.parentNode.removeChild(script);
-			});
-			document.head.appendChild(script);
-		};
-
-		/**
-   * Evaluates the code referenced by the given script element.
-   * @param {!Element} script
-   */
-
-		globalEval.runScript = function runScript(script) {
-			if (script.parentNode) {
-				script.parentNode.removeChild(script);
-			}
-			if (script.src) {
-				globalEval.runFile(script.src);
-			} else {
-				globalEval.run(script.text);
-			}
-		};
-
-		return globalEval;
-	})();
-
-	this.crystal.globalEval = globalEval;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var string = this.crystal.string;
-
-	var html = (function () {
-		function html() {
-			babelHelpers.classCallCheck(this, html);
-		}
-
-		/**
-   * Minifies given HTML source by removing extra white spaces, comments and
-   * other unneeded characters without breaking the content structure. As a
-   * result HTML become smaller in size.
-   * - Contents within <code>, <pre>, <script>, <style>, <textarea> and
-   *   conditional comments tags are preserved.
-   * - Comments are removed.
-   * - Conditional comments are preserved.
-   * - Breaking spaces are collapsed into a single space.
-   * - Unneeded spaces inside tags (around = and before />) are removed.
-   * - Spaces between tags are removed, even from inline-block elements.
-   * - Spaces surrounding tags are removed.
-   * - DOCTYPE declaration is simplified to <!DOCTYPE html>.
-   * - Does not remove default attributes from <script>, <style>, <link>,
-   *   <form>, <input>.
-   * - Does not remove values from boolean tag attributes.
-   * - Does not remove "javascript:" from in-line event handlers.
-   * - Does not remove http:// and https:// protocols.
-   * @param {string} htmlString Input HTML to be compressed.
-   * @return {string} Compressed version of the HTML.
-   */
-
-		html.compress = function compress(htmlString) {
-			var preserved = {};
-			htmlString = html.preserveBlocks_(htmlString, preserved);
-			htmlString = html.simplifyDoctype_(htmlString);
-			htmlString = html.removeComments_(htmlString);
-			htmlString = html.removeIntertagSpaces_(htmlString);
-			htmlString = html.collapseBreakingSpaces_(htmlString);
-			htmlString = html.removeSpacesInsideTags_(htmlString);
-			htmlString = html.removeSurroundingSpaces_(htmlString);
-			htmlString = html.returnBlocks_(htmlString, preserved);
-			return htmlString.trim();
-		};
-
-		/**
-   * Collapses breaking spaces into a single space.
-   * @param {string} htmlString
-   * @return {string}
-   * @protected
-   */
-
-		html.collapseBreakingSpaces_ = function collapseBreakingSpaces_(htmlString) {
-			return string.collapseBreakingSpaces(htmlString);
-		};
-
-		/**
-   * Searches for first occurrence of the specified open tag string pattern
-   * and from that point finds next ">" position, identified as possible tag
-   * end position.
-   * @param {string} htmlString
-   * @param {string} openTag Open tag string pattern without open tag ending
-   *     character, e.g. "<textarea" or "<code".
-   * @return {string}
-   * @protected
-   */
-
-		html.lookupPossibleTagBoundary_ = function lookupPossibleTagBoundary_(htmlString, openTag) {
-			var tagPos = htmlString.indexOf(openTag);
-			if (tagPos > -1) {
-				tagPos += htmlString.substring(tagPos).indexOf('>') + 1;
-			}
-			return tagPos;
-		};
-
-		/**
-   * Preserves contents inside any <code>, <pre>, <script>, <style>,
-   * <textarea> and conditional comment tags. When preserved, original content
-   * are replaced with an unique generated block id and stored into
-   * `preserved` map.
-   * @param {string} htmlString
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {html} The preserved HTML.
-   * @protected
-   */
-
-		html.preserveBlocks_ = function preserveBlocks_(htmlString, preserved) {
-			htmlString = html.preserveOuterHtml_(htmlString, '<!--[if', '<![endif]-->', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<code', '</code', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<pre', '</pre', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<script', '</script', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<style', '</style', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<textarea', '</textarea', preserved);
-			return htmlString;
-		};
-
-		/**
-   * Preserves inner contents inside the specified tag. When preserved,
-   * original content are replaced with an unique generated block id and
-   * stored into `preserved` map.
-   * @param {string} htmlString
-   * @param {string} openTag Open tag string pattern without open tag ending
-   *     character, e.g. "<textarea" or "<code".
-   * @param {string} closeTag Close tag string pattern without close tag
-   *     ending character, e.g. "</textarea" or "</code".
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {html} The preserved HTML.
-   * @protected
-   */
-
-		html.preserveInnerHtml_ = function preserveInnerHtml_(htmlString, openTag, closeTag, preserved) {
-			var tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
-			while (tagPosEnd > -1) {
-				var tagEndPos = htmlString.indexOf(closeTag);
-				htmlString = html.preserveInterval_(htmlString, tagPosEnd, tagEndPos, preserved);
-				htmlString = htmlString.replace(openTag, '%%%~1~%%%');
-				htmlString = htmlString.replace(closeTag, '%%%~2~%%%');
-				tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
-			}
-			htmlString = htmlString.replace(/%%%~1~%%%/g, openTag);
-			htmlString = htmlString.replace(/%%%~2~%%%/g, closeTag);
-			return htmlString;
-		};
-
-		/**
-   * Preserves interval of the specified HTML into the preserved map replacing
-   * original contents with an unique generated id.
-   * @param {string} htmlString
-   * @param {Number} start Start interval position to be replaced.
-   * @param {Number} end End interval position to be replaced.
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {string} The HTML with replaced interval.
-   * @protected
-   */
-
-		html.preserveInterval_ = function preserveInterval_(htmlString, start, end, preserved) {
-			var blockId = '%%%~BLOCK~' + core.getUid() + '~%%%';
-			preserved[blockId] = htmlString.substring(start, end);
-			return string.replaceInterval(htmlString, start, end, blockId);
-		};
-
-		/**
-   * Preserves outer contents inside the specified tag. When preserved,
-   * original content are replaced with an unique generated block id and
-   * stored into `preserved` map.
-   * @param {string} htmlString
-   * @param {string} openTag Open tag string pattern without open tag ending
-   *     character, e.g. "<textarea" or "<code".
-   * @param {string} closeTag Close tag string pattern without close tag
-   *     ending character, e.g. "</textarea" or "</code".
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {html} The preserved HTML.
-   * @protected
-   */
-
-		html.preserveOuterHtml_ = function preserveOuterHtml_(htmlString, openTag, closeTag, preserved) {
-			var tagPos = htmlString.indexOf(openTag);
-			while (tagPos > -1) {
-				var tagEndPos = htmlString.indexOf(closeTag) + closeTag.length;
-				htmlString = html.preserveInterval_(htmlString, tagPos, tagEndPos, preserved);
-				tagPos = htmlString.indexOf(openTag);
-			}
-			return htmlString;
-		};
-
-		/**
-   * Removes all comments of the HTML. Including conditional comments and
-   * "<![CDATA[" blocks.
-   * @param {string} htmlString
-   * @return {string} The HTML without comments.
-   * @protected
-   */
-
-		html.removeComments_ = function removeComments_(htmlString) {
-			var preserved = {};
-			htmlString = html.preserveOuterHtml_(htmlString, '<![CDATA[', ']]>', preserved);
-			htmlString = html.preserveOuterHtml_(htmlString, '<!--', '-->', preserved);
-			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '');
-			return htmlString;
-		};
-
-		/**
-   * Removes spaces between tags, even from inline-block elements.
-   * @param {string} htmlString
-   * @return {string} The HTML without spaces between tags.
-   * @protected
-   */
-
-		html.removeIntertagSpaces_ = function removeIntertagSpaces_(htmlString) {
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_CUSTOM, '~%%%%%%~');
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_TAG, '~%%%<');
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG, '><');
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG_CUSTOM, '>%%%~');
-			return htmlString;
-		};
-
-		/**
-   * Removes spaces inside tags.
-   * @param {string} htmlString
-   * @return {string} The HTML without spaces inside tags.
-   * @protected
-   */
-
-		html.removeSpacesInsideTags_ = function removeSpacesInsideTags_(htmlString) {
-			htmlString = htmlString.replace(html.Patterns.TAG_END_SPACES, '$1$2');
-			htmlString = htmlString.replace(html.Patterns.TAG_QUOTE_SPACES, '=$1$2$3');
-			return htmlString;
-		};
-
-		/**
-   * Removes spaces surrounding tags.
-   * @param {string} htmlString
-   * @return {string} The HTML without spaces surrounding tags.
-   * @protected
-   */
-
-		html.removeSurroundingSpaces_ = function removeSurroundingSpaces_(htmlString) {
-			return htmlString.replace(html.Patterns.SURROUNDING_SPACES, '$1');
-		};
-
-		/**
-   * Restores preserved map keys inside the HTML. Note that the passed HTML
-   * should contain the unique generated block ids to be replaced.
-   * @param {string} htmlString
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @param {string} replaceValue The value to replace any block id inside the
-   * HTML.
-   * @return {string}
-   * @protected
-   */
-
-		html.replacePreservedBlocks_ = function replacePreservedBlocks_(htmlString, preserved, replaceValue) {
-			for (var blockId in preserved) {
-				htmlString = htmlString.replace(blockId, replaceValue);
-			}
-			return htmlString;
-		};
-
-		/**
-   * Simplifies DOCTYPE declaration to <!DOCTYPE html>.
-   * @param {string} htmlString
-   * @return {string}
-   * @protected
-   */
-
-		html.simplifyDoctype_ = function simplifyDoctype_(htmlString) {
-			var preserved = {};
-			htmlString = html.preserveOuterHtml_(htmlString, '<!DOCTYPE', '>', preserved);
-			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '<!DOCTYPE html>');
-			return htmlString;
-		};
-
-		/**
-   * Restores preserved map original contents inside the HTML. Note that the
-   * passed HTML should contain the unique generated block ids to be restored.
-   * @param {string} htmlString
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {string}
-   * @protected
-   */
-
-		html.returnBlocks_ = function returnBlocks_(htmlString, preserved) {
-			for (var blockId in preserved) {
-				htmlString = htmlString.replace(blockId, preserved[blockId]);
-			}
-			return htmlString;
-		};
-
-		return html;
-	})();
-
-	/**
-  * HTML regex patterns.
-  * @enum {RegExp}
-  * @protected
-  */
-
-	html.Patterns = {
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_CUSTOM_CUSTOM: /~%%%\s+%%%~/g,
-
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_TAG_CUSTOM: />\s+%%%~/g,
-
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_CUSTOM_TAG: /~%%%\s+</g,
-
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_TAG: />\s+</g,
-
-		/**
-   * @type {RegExp}
-   */
-		SURROUNDING_SPACES: /\s*(<[^>]+>)\s*/g,
-
-		/**
-   * @type {RegExp}
-   */
-		TAG_END_SPACES: /(<(?:[^>]+?))(?:\s+?)(\/?>)/g,
-
-		/**
-   * @type {RegExp}
-   */
-		TAG_QUOTE_SPACES: /\s*=\s*(["']?)\s*(.*?)\s*(\1)/g
-	};
-
-	this.crystal.html = html;
 }).call(this);
 'use strict';
 
@@ -2996,6 +2406,1301 @@ babelHelpers;
 
 (function () {
 	var core = this.crystal.core;
+	var dom = this.crystal.dom;
+	var Disposable = this.crystal.Disposable;
+
+	/**
+  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
+  * instances together, emitting events from the first emitter through the
+  * second one. That means that listening to a supported event on the target
+  * emitter will mean listening to it on the origin emitter as well.
+  * @param {EventEmitter | Element} originEmitter Events originated on this emitter
+  *   will be fired for the target emitter's listeners as well. Can be either a real
+  *   EventEmitter instance or a DOM element.
+  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
+  *   will also be triggered when the event is fired by the origin emitter.
+  * @param {Object} opt_blacklist Optional blacklist of events that should not be
+  *   proxied.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventEmitterProxy = (function (_Disposable) {
+		babelHelpers.inherits(EventEmitterProxy, _Disposable);
+
+		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
+			babelHelpers.classCallCheck(this, EventEmitterProxy);
+
+			/**
+    * Map of events that should not be proxied.
+    * @type {Object}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.blacklist_ = opt_blacklist || {};
+
+			/**
+    * The origin emitter. This emitter's events will be proxied through the
+    * target emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.originEmitter_ = originEmitter;
+
+			/**
+    * Holds a map of events from the origin emitter that are already being proxied.
+    * @type {Object}
+    * @protected
+    */
+			_this.proxiedEvents_ = {};
+
+			/**
+    * The target emitter. This emitter will emit all events that come from
+    * the origin emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.targetEmitter_ = targetEmitter;
+
+			/**
+    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
+    * @type {Object}
+    * @protected
+    */
+			_this.whitelist_ = opt_whitelist;
+
+			_this.startProxy_();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
+			var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
+			for (var event in this.proxiedEvents_) {
+				this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
+			}
+
+			this.proxiedEvents_ = null;
+			this.originEmitter_ = null;
+			this.targetEmitter_ = null;
+		};
+
+		/**
+   * Proxies the given event from the origin to the target emitter.
+   * @param {string} event
+   */
+
+		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
+			if (!this.shouldProxyEvent_(event)) {
+				return;
+			}
+
+			var self = this;
+			this.proxiedEvents_[event] = function () {
+				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
+				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
+			};
+
+			if (core.isElement(this.originEmitter_) || core.isDocument(this.originEmitter_)) {
+				dom.on(this.originEmitter_, event, this.proxiedEvents_[event]);
+			} else {
+				this.originEmitter_.on(event, this.proxiedEvents_[event]);
+			}
+		};
+
+		/**
+   * Checks if the given event should be proxied.
+   * @param {string} event
+   * @return {boolean}
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
+			if (this.whitelist_ && !this.whitelist_[event]) {
+				return false;
+			}
+			if (this.blacklist_[event]) {
+				return false;
+			}
+			return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || dom.supportsEvent(this.originEmitter_, event));
+		};
+
+		/**
+   * Starts proxying all events from the origin to the target emitter.
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
+			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+		};
+
+		return EventEmitterProxy;
+	})(Disposable);
+
+	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
+	this.crystal.EventEmitterProxy = EventEmitterProxy;
+}).call(this);
+'use strict';
+
+(function () {
+	var Geometry = (function () {
+		function Geometry() {
+			babelHelpers.classCallCheck(this, Geometry);
+		}
+
+		/**
+     * Tests if a rectangle intersects with another.
+     *
+     * <pre>
+     *  x0y0 --------       x2y2 --------
+     *      |       |           |       |
+     *      -------- x1y1       -------- x3y3
+     * </pre>
+     *
+     * Note that coordinates starts from top to down (y), left to right (x):
+     *
+     * <pre>
+     *      ------> (x)
+     *      |
+     *      |
+     *     (y)
+     * </pre>
+     *
+     * @param {number} x0 Horizontal coordinate of P0.
+     * @param {number} y0 Vertical coordinate of P0.
+     * @param {number} x1 Horizontal coordinate of P1.
+     * @param {number} y1 Vertical coordinate of P1.
+     * @param {number} x2 Horizontal coordinate of P2.
+     * @param {number} y2 Vertical coordinate of P2.
+     * @param {number} x3 Horizontal coordinate of P3.
+     * @param {number} y3 Vertical coordinate of P3.
+     * @return {boolean}
+     */
+
+		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
+			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
+		};
+
+		return Geometry;
+	})();
+
+	this.crystal.Geometry = Geometry;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var Geometry = this.crystal.Geometry;
+
+	/**
+  * Class with static methods responsible for doing browser position checks.
+  */
+
+	var Position = (function () {
+		function Position() {
+			babelHelpers.classCallCheck(this, Position);
+		}
+
+		/**
+   * Gets the client height of the specified node. Scroll height is not
+   * included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getClientHeight = function getClientHeight(node) {
+			return this.getClientSize_(node, 'Height');
+		};
+
+		/**
+   * Gets the client height or width of the specified node. Scroll height is
+   * not included.
+   * @param {Element|Document|Window=} node
+   * @param {string} `Width` or `Height` property.
+   * @return {number}
+   * @protected
+   */
+
+		Position.getClientSize_ = function getClientSize_(node, prop) {
+			var el = node;
+			if (core.isWindow(node)) {
+				el = node.document.documentElement;
+			}
+			if (core.isDocument(node)) {
+				el = node.documentElement;
+			}
+			return el['client' + prop];
+		};
+
+		/**
+   * Gets the client width of the specified node. Scroll width is not
+   * included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getClientWidth = function getClientWidth(node) {
+			return this.getClientSize_(node, 'Width');
+		};
+
+		/**
+   * Gets the region of the element, document or window.
+   * @param {Element|Document|Window=} opt_element Optional element to test.
+   * @return {!DOMRect} The returned value is a simulated DOMRect object which
+   *     is the union of the rectangles returned by getClientRects() for the
+   *     element, i.e., the CSS border-boxes associated with the element.
+   * @protected
+   */
+
+		Position.getDocumentRegion_ = function getDocumentRegion_(opt_element) {
+			var height = this.getHeight(opt_element);
+			var width = this.getWidth(opt_element);
+			return this.makeRegion(height, height, 0, width, 0, width);
+		};
+
+		/**
+   * Gets the height of the specified node. Scroll height is included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getHeight = function getHeight(node) {
+			return this.getSize_(node, 'Height');
+		};
+
+		/**
+   * Gets the top offset position of the given node. This fixes the `offsetLeft` value of
+   * nodes that were translated, which don't take that into account at all. That makes
+   * the calculation more expensive though, so if you don't want that to be considered
+   * either pass `opt_ignoreTransform` as true or call `offsetLeft` directly on the node.
+   * @param {!Element} node
+   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
+   *   when calculating the position. Defaults to false.
+   * @return {number}
+   */
+
+		Position.getOffsetLeft = function getOffsetLeft(node, opt_ignoreTransform) {
+			return node.offsetLeft + (opt_ignoreTransform ? 0 : Position.getTranslation(node).left);
+		};
+
+		/**
+   * Gets the top offset position of the given node. This fixes the `offsetTop` value of
+   * nodes that were translated, which don't take that into account at all. That makes
+   * the calculation more expensive though, so if you don't want that to be considered
+   * either pass `opt_ignoreTransform` as true or call `offsetTop` directly on the node.
+   * @param {!Element} node
+   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
+   *   when calculating the position. Defaults to false.
+   * @return {number}
+   */
+
+		Position.getOffsetTop = function getOffsetTop(node, opt_ignoreTransform) {
+			return node.offsetTop + (opt_ignoreTransform ? 0 : Position.getTranslation(node).top);
+		};
+
+		/**
+   * Gets the size of an element and its position relative to the viewport.
+   * @param {!Document|Element|Window} node
+   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
+   *   position should be considered in the element's region coordinates. Defaults
+   *   to false.
+   * @return {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   */
+
+		Position.getRegion = function getRegion(node, opt_includeScroll) {
+			if (core.isDocument(node) || core.isWindow(node)) {
+				return this.getDocumentRegion_(node);
+			}
+			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
+		};
+
+		/**
+   * Gets the scroll left position of the specified node.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getScrollLeft = function getScrollLeft(node) {
+			if (core.isWindow(node)) {
+				return node.pageXOffset;
+			}
+			if (core.isDocument(node)) {
+				return node.defaultView.pageXOffset;
+			}
+			return node.scrollLeft;
+		};
+
+		/**
+   * Gets the scroll top position of the specified node.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getScrollTop = function getScrollTop(node) {
+			if (core.isWindow(node)) {
+				return node.pageYOffset;
+			}
+			if (core.isDocument(node)) {
+				return node.defaultView.pageYOffset;
+			}
+			return node.scrollTop;
+		};
+
+		/**
+   * Gets the height or width of the specified node. Scroll height is
+   * included.
+   * @param {Element|Document|Window=} node
+   * @param {string} `Width` or `Height` property.
+   * @return {number}
+   * @protected
+   */
+
+		Position.getSize_ = function getSize_(node, prop) {
+			if (core.isWindow(node)) {
+				return this.getClientSize_(node, prop);
+			}
+			if (core.isDocument(node)) {
+				var docEl = node.documentElement;
+				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
+			}
+			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
+		};
+
+		/**
+   * Gets the transform matrix values for the given node.
+   * @param {!Element} node
+   * @return {Array<number>}
+   */
+
+		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
+			var style = getComputedStyle(node);
+			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
+			if (transform !== 'none') {
+				var values = [];
+				var regex = /([\d-\.\s]+)/g;
+				var matches = regex.exec(transform);
+				while (matches) {
+					values.push(matches[1]);
+					matches = regex.exec(transform);
+				}
+				return values;
+			}
+		};
+
+		/**
+   * Gets the number of translated pixels for the given node, for both the top and
+   * left positions.
+   * @param {!Element} node
+   * @return {number}
+   */
+
+		Position.getTranslation = function getTranslation(node) {
+			var values = Position.getTransformMatrixValues(node);
+			var translation = {
+				left: 0,
+				top: 0
+			};
+			if (values) {
+				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
+				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
+			}
+			return translation;
+		};
+
+		/**
+   * Gets the width of the specified node. Scroll width is included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getWidth = function getWidth(node) {
+			return this.getSize_(node, 'Width');
+		};
+
+		/**
+   * Tests if a region intersects with another.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {boolean}
+   */
+
+		Position.intersectRegion = function intersectRegion(r1, r2) {
+			return Geometry.intersectRect(r1.top, r1.left, r1.bottom, r1.right, r2.top, r2.left, r2.bottom, r2.right);
+		};
+
+		/**
+   * Tests if a region is inside another.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {boolean}
+   */
+
+		Position.insideRegion = function insideRegion(r1, r2) {
+			return r2.top >= r1.top && r2.bottom <= r1.bottom && r2.right <= r1.right && r2.left >= r1.left;
+		};
+
+		/**
+   * Tests if a region is inside viewport region.
+   * @param {DOMRect} region
+   * @return {boolean}
+   */
+
+		Position.insideViewport = function insideViewport(region) {
+			return this.insideRegion(this.getRegion(window), region);
+		};
+
+		/**
+   * Computes the intersection region between two regions.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {?DOMRect} Intersection region or null if regions doesn't
+   *     intersects.
+   */
+
+		Position.intersection = function intersection(r1, r2) {
+			if (!this.intersectRegion(r1, r2)) {
+				return null;
+			}
+			var bottom = Math.min(r1.bottom, r2.bottom);
+			var right = Math.min(r1.right, r2.right);
+			var left = Math.max(r1.left, r2.left);
+			var top = Math.max(r1.top, r2.top);
+			return this.makeRegion(bottom, bottom - top, left, right, top, right - left);
+		};
+
+		/**
+   * Makes a region object. It's a writable version of DOMRect.
+   * @param {number} bottom
+   * @param {number} height
+   * @param {number} left
+   * @param {number} right
+   * @param {number} top
+   * @param {number} width
+   * @return {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   */
+
+		Position.makeRegion = function makeRegion(bottom, height, left, right, top, width) {
+			return {
+				bottom: bottom,
+				height: height,
+				left: left,
+				right: right,
+				top: top,
+				width: width
+			};
+		};
+
+		/**
+   * Makes a region from a DOMRect result from `getBoundingClientRect`.
+   * @param  {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
+   *   position should be considered in the element's region coordinates. Defaults
+   *   to false.
+   * @return {DOMRect} Writable version of DOMRect.
+   * @protected
+   */
+
+		Position.makeRegionFromBoundingRect_ = function makeRegionFromBoundingRect_(rect, opt_includeScroll) {
+			var deltaX = opt_includeScroll ? Position.getScrollLeft(document) : 0;
+			var deltaY = opt_includeScroll ? Position.getScrollTop(document) : 0;
+			return this.makeRegion(rect.bottom + deltaY, rect.height, rect.left + deltaX, rect.right + deltaX, rect.top + deltaY, rect.width);
+		};
+
+		/**
+   * Checks if the given point coordinates are inside a region.
+   * @param {number} x
+   * @param {number} y
+   * @param {!Object} region
+   * @return {boolean}
+   */
+
+		Position.pointInsideRegion = function pointInsideRegion(x, y, region) {
+			return Position.insideRegion(region, Position.makeRegion(y, 0, x, x, y, 0));
+		};
+
+		return Position;
+	})();
+
+	this.crystal.Position = Position;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var dom = this.crystal.dom;
+	var Attribute = this.crystal.Attribute;
+	var EventEmitter = this.crystal.EventEmitter;
+	var EventEmitterProxy = this.crystal.EventEmitterProxy;
+	var Position = this.crystal.Position;
+
+	/**
+  * Affix utility.
+  */
+
+	var Affix = (function (_Attribute) {
+		babelHelpers.inherits(Affix, _Attribute);
+
+		/**
+   * @inheritDoc
+   */
+
+		function Affix(opt_config) {
+			babelHelpers.classCallCheck(this, Affix);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+
+			if (!Affix.emitter_) {
+				Affix.emitter_ = new EventEmitter();
+				Affix.proxy_ = new EventEmitterProxy(document, Affix.emitter_, null, {
+					scroll: true
+				});
+			}
+
+			/**
+    * Holds the last position.
+    * @type {Position.Bottom|Position.Default|Position.Top}
+    * @private
+    */
+			_this.lastPosition_ = null;
+
+			/**
+    * Holds event handle that listens scroll shared event emitter proxy.
+    * @type {EventHandle}
+    * @protected
+    */
+			_this.scrollHandle_ = Affix.emitter_.on('scroll', _this.checkPosition.bind(_this));
+
+			_this.on('elementChanged', _this.checkPosition);
+			_this.on('offsetTopChanged', _this.checkPosition);
+			_this.on('offsetBottomChanged', _this.checkPosition);
+			_this.checkPosition();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Affix.prototype.disposeInternal = function disposeInternal() {
+			dom.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
+			this.scrollHandle_.dispose();
+			_Attribute.prototype.disposeInternal.call(this);
+		};
+
+		/**
+   * Synchronize bottom, top and element regions and checks if position has
+   * changed. If position has changed syncs position.
+   */
+
+		Affix.prototype.checkPosition = function checkPosition() {
+			if (this.intersectTopRegion()) {
+				this.syncPosition(Affix.Position.Top);
+			} else if (this.intersectBottomRegion()) {
+				this.syncPosition(Affix.Position.Bottom);
+			} else {
+				this.syncPosition(Affix.Position.Default);
+			}
+		};
+
+		/**
+   * Whether the element is intersecting with bottom region defined by
+   * offsetBottom.
+   * @return {boolean}
+   */
+
+		Affix.prototype.intersectBottomRegion = function intersectBottomRegion() {
+			if (!core.isDef(this.offsetBottom)) {
+				return false;
+			}
+			var clientHeight = Position.getHeight(this.scrollElement);
+			var scrollElementClientHeight = Position.getClientHeight(this.scrollElement);
+			return Position.getScrollTop(this.scrollElement) + scrollElementClientHeight >= clientHeight - this.offsetBottom;
+		};
+
+		/**
+   * Whether the element is intersecting with top region defined by
+   * offsetTop.
+   * @return {boolean}
+   */
+
+		Affix.prototype.intersectTopRegion = function intersectTopRegion() {
+			if (!core.isDef(this.offsetTop)) {
+				return false;
+			}
+			return Position.getScrollTop(this.scrollElement) <= this.offsetTop;
+		};
+
+		/**
+   * Synchronizes element css classes to match with the specified position.
+   * @param {Position.Bottom|Position.Default|Position.Top} position
+   */
+
+		Affix.prototype.syncPosition = function syncPosition(position) {
+			if (this.lastPosition_ !== position) {
+				dom.addClasses(this.element, position);
+				dom.removeClasses(this.element, this.lastPosition_);
+				this.lastPosition_ = position;
+			}
+		};
+
+		return Affix;
+	})(Attribute);
+
+	/**
+  * Holds positions enum.
+  * @enum {string}
+  */
+
+	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
+	Affix.Position = {
+		Top: 'affix-top',
+		Bottom: 'affix-bottom',
+		Default: 'affix-default'
+	};
+
+	Affix.ATTRS = {
+		/**
+   * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
+   * where the scroll event is listened from.
+   * @type {Element|Window}
+   */
+		scrollElement: {
+			setter: dom.toElement,
+			value: document
+		},
+
+		/**
+   * Defines the offset bottom that triggers affix.
+   * @type {number}
+   */
+		offsetTop: {
+			validator: core.isNumber
+		},
+
+		/**
+   * Defines the offset top that triggers affix.
+   * @type {number}
+   */
+		offsetBottom: {
+			validator: core.isNumber
+		},
+
+		/**
+   * Element to be used as alignment reference of affix.
+   * @type {Element}
+   */
+		element: {
+			setter: dom.toElement
+		}
+	};
+
+	this.crystal.Affix = Affix;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.crystal.Disposable;
+
+	/**
+  * EventHandler utility. It's useful for easily removing a group of
+  * listeners from different EventEmitter instances.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventHandler = (function (_Disposable) {
+		babelHelpers.inherits(EventHandler, _Disposable);
+
+		function EventHandler() {
+			babelHelpers.classCallCheck(this, EventHandler);
+
+			/**
+    * An array that holds the added event handles, so the listeners can be
+    * removed later.
+    * @type {Array.<EventHandle>}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.eventHandles_ = [];
+			return _this;
+		}
+
+		/**
+   * Adds event handles to be removed later through the `removeAllListeners`
+   * method.
+   * @param {...(!EventHandle)} var_args
+   */
+
+		EventHandler.prototype.add = function add() {
+			for (var i = 0; i < arguments.length; i++) {
+				this.eventHandles_.push(arguments[i]);
+			}
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+		EventHandler.prototype.disposeInternal = function disposeInternal() {
+			this.eventHandles_ = null;
+		};
+
+		/**
+   * Removes all listeners that have been added through the `add` method.
+   */
+
+		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
+			for (var i = 0; i < this.eventHandles_.length; i++) {
+				this.eventHandles_[i].removeListener();
+			}
+
+			this.eventHandles_ = [];
+		};
+
+		return EventHandler;
+	})(Disposable);
+
+	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
+	this.crystal.EventHandler = EventHandler;
+}).call(this);
+'use strict';
+
+(function () {
+	var string = (function () {
+		function string() {
+			babelHelpers.classCallCheck(this, string);
+		}
+
+		/**
+   * Removes the breaking spaces from the left and right of the string and
+   * collapses the sequences of breaking spaces in the middle into single spaces.
+   * The original and the result strings render the same way in HTML.
+   * @param {string} str A string in which to collapse spaces.
+   * @return {string} Copy of the string with normalized breaking spaces.
+   */
+
+		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
+			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
+		};
+
+		/**
+   * Calculates the hashcode for a string. The hashcode value is computed by
+   * the sum algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]. A nice
+   * property of using 31 prime is that the multiplication can be replaced by
+   * a shift and a subtraction for better performance: 31*i == (i<<5)-i.
+   * Modern VMs do this sort of optimization automatically.
+   * @param {String} val Target string.
+   * @return {Number} Returns the string hashcode.
+   */
+
+		string.hashCode = function hashCode(val) {
+			var hash = 0;
+			for (var i = 0, len = val.length; i < len; i++) {
+				hash = 31 * hash + val.charCodeAt(i);
+				hash %= 0x100000000;
+			}
+			return hash;
+		};
+
+		/**
+   * Replaces interval into the string with specified value, e.g.
+   * `replaceInterval("abcde", 1, 4, "")` returns "ae".
+   * @param {string} str The input string.
+   * @param {Number} start Start interval position to be replaced.
+   * @param {Number} end End interval position to be replaced.
+   * @param {string} value The value that replaces the specified interval.
+   * @return {string}
+   */
+
+		string.replaceInterval = function replaceInterval(str, start, end, value) {
+			return str.substring(0, start) + value + str.substring(end);
+		};
+
+		return string;
+	})();
+
+	this.crystal.string = string;
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.crystal.dom;
+	var string = this.crystal.string;
+
+	/**
+  * Class with static methods responsible for doing browser feature checks.
+  */
+
+	var features = (function () {
+		function features() {
+			babelHelpers.classCallCheck(this, features);
+		}
+
+		/**
+   * Some browsers still supports prefixed animation events. This method can
+   * be used to retrieve the current browser event name for both, animation
+   * and transition.
+   * @return {object}
+   */
+
+		features.checkAnimationEventName = function checkAnimationEventName() {
+			if (features.animationEventName_ === undefined) {
+				features.animationEventName_ = {
+					animation: features.checkAnimationEventName_('animation'),
+					transition: features.checkAnimationEventName_('transition')
+				};
+			}
+			return features.animationEventName_;
+		};
+
+		/**
+   * @protected
+   * @param {string} type Type to test: animation, transition.
+   * @return {string} Browser event name.
+   */
+
+		features.checkAnimationEventName_ = function checkAnimationEventName_(type) {
+			var prefixes = ['Webkit', 'MS', 'O', ''];
+			var typeTitleCase = string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
+			var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
+			for (var i = 0; i < prefixes.length; i++) {
+				if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
+					return prefixes[i].toLowerCase() + suffixes[i];
+				}
+			}
+			return type + 'end';
+		};
+
+		/**
+   * Some browsers (like IE9) change the order of element attributes, when html
+   * is rendered. This method can be used to check if this behavior happens on
+   * the current browser.
+   * @return {boolean}
+   */
+
+		features.checkAttrOrderChange = function checkAttrOrderChange() {
+			if (features.attrOrderChange_ === undefined) {
+				var originalContent = '<div data-component="" data-ref=""></div>';
+				var element = document.createElement('div');
+				dom.append(element, originalContent);
+				features.attrOrderChange_ = originalContent !== element.innerHTML;
+			}
+			return features.attrOrderChange_;
+		};
+
+		return features;
+	})();
+
+	features.animationElement_ = document.createElement('div');
+	features.animationEventName_ = undefined;
+	features.attrOrderChange_ = undefined;
+
+	this.crystal.features = features;
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.crystal.dom;
+
+	/**
+  * Utility functions for running javascript code in the global scope.
+  */
+
+	var globalEval = (function () {
+		function globalEval() {
+			babelHelpers.classCallCheck(this, globalEval);
+		}
+
+		/**
+   * Evaluates the given string in the global scope.
+   * @param {string} text
+   */
+
+		globalEval.run = function run(text) {
+			var script = document.createElement('script');
+			script.text = text;
+			document.head.appendChild(script).parentNode.removeChild(script);
+		};
+
+		/**
+   * Evaluates the given javascript file in the global scope.
+   * @param {string} src The file's path.
+   */
+
+		globalEval.runFile = function runFile(src) {
+			var script = document.createElement('script');
+			script.src = src;
+			dom.on(script, 'load', function () {
+				script.parentNode.removeChild(script);
+			});
+			dom.on(script, 'error', function () {
+				script.parentNode.removeChild(script);
+			});
+			document.head.appendChild(script);
+		};
+
+		/**
+   * Evaluates the code referenced by the given script element.
+   * @param {!Element} script
+   */
+
+		globalEval.runScript = function runScript(script) {
+			if (script.parentNode) {
+				script.parentNode.removeChild(script);
+			}
+			if (script.src) {
+				globalEval.runFile(script.src);
+			} else {
+				globalEval.run(script.text);
+			}
+		};
+
+		return globalEval;
+	})();
+
+	this.crystal.globalEval = globalEval;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var string = this.crystal.string;
+
+	var html = (function () {
+		function html() {
+			babelHelpers.classCallCheck(this, html);
+		}
+
+		/**
+   * Minifies given HTML source by removing extra white spaces, comments and
+   * other unneeded characters without breaking the content structure. As a
+   * result HTML become smaller in size.
+   * - Contents within <code>, <pre>, <script>, <style>, <textarea> and
+   *   conditional comments tags are preserved.
+   * - Comments are removed.
+   * - Conditional comments are preserved.
+   * - Breaking spaces are collapsed into a single space.
+   * - Unneeded spaces inside tags (around = and before />) are removed.
+   * - Spaces between tags are removed, even from inline-block elements.
+   * - Spaces surrounding tags are removed.
+   * - DOCTYPE declaration is simplified to <!DOCTYPE html>.
+   * - Does not remove default attributes from <script>, <style>, <link>,
+   *   <form>, <input>.
+   * - Does not remove values from boolean tag attributes.
+   * - Does not remove "javascript:" from in-line event handlers.
+   * - Does not remove http:// and https:// protocols.
+   * @param {string} htmlString Input HTML to be compressed.
+   * @return {string} Compressed version of the HTML.
+   */
+
+		html.compress = function compress(htmlString) {
+			var preserved = {};
+			htmlString = html.preserveBlocks_(htmlString, preserved);
+			htmlString = html.simplifyDoctype_(htmlString);
+			htmlString = html.removeComments_(htmlString);
+			htmlString = html.removeIntertagSpaces_(htmlString);
+			htmlString = html.collapseBreakingSpaces_(htmlString);
+			htmlString = html.removeSpacesInsideTags_(htmlString);
+			htmlString = html.removeSurroundingSpaces_(htmlString);
+			htmlString = html.returnBlocks_(htmlString, preserved);
+			return htmlString.trim();
+		};
+
+		/**
+   * Collapses breaking spaces into a single space.
+   * @param {string} htmlString
+   * @return {string}
+   * @protected
+   */
+
+		html.collapseBreakingSpaces_ = function collapseBreakingSpaces_(htmlString) {
+			return string.collapseBreakingSpaces(htmlString);
+		};
+
+		/**
+   * Searches for first occurrence of the specified open tag string pattern
+   * and from that point finds next ">" position, identified as possible tag
+   * end position.
+   * @param {string} htmlString
+   * @param {string} openTag Open tag string pattern without open tag ending
+   *     character, e.g. "<textarea" or "<code".
+   * @return {string}
+   * @protected
+   */
+
+		html.lookupPossibleTagBoundary_ = function lookupPossibleTagBoundary_(htmlString, openTag) {
+			var tagPos = htmlString.indexOf(openTag);
+			if (tagPos > -1) {
+				tagPos += htmlString.substring(tagPos).indexOf('>') + 1;
+			}
+			return tagPos;
+		};
+
+		/**
+   * Preserves contents inside any <code>, <pre>, <script>, <style>,
+   * <textarea> and conditional comment tags. When preserved, original content
+   * are replaced with an unique generated block id and stored into
+   * `preserved` map.
+   * @param {string} htmlString
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {html} The preserved HTML.
+   * @protected
+   */
+
+		html.preserveBlocks_ = function preserveBlocks_(htmlString, preserved) {
+			htmlString = html.preserveOuterHtml_(htmlString, '<!--[if', '<![endif]-->', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<code', '</code', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<pre', '</pre', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<script', '</script', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<style', '</style', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<textarea', '</textarea', preserved);
+			return htmlString;
+		};
+
+		/**
+   * Preserves inner contents inside the specified tag. When preserved,
+   * original content are replaced with an unique generated block id and
+   * stored into `preserved` map.
+   * @param {string} htmlString
+   * @param {string} openTag Open tag string pattern without open tag ending
+   *     character, e.g. "<textarea" or "<code".
+   * @param {string} closeTag Close tag string pattern without close tag
+   *     ending character, e.g. "</textarea" or "</code".
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {html} The preserved HTML.
+   * @protected
+   */
+
+		html.preserveInnerHtml_ = function preserveInnerHtml_(htmlString, openTag, closeTag, preserved) {
+			var tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
+			while (tagPosEnd > -1) {
+				var tagEndPos = htmlString.indexOf(closeTag);
+				htmlString = html.preserveInterval_(htmlString, tagPosEnd, tagEndPos, preserved);
+				htmlString = htmlString.replace(openTag, '%%%~1~%%%');
+				htmlString = htmlString.replace(closeTag, '%%%~2~%%%');
+				tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
+			}
+			htmlString = htmlString.replace(/%%%~1~%%%/g, openTag);
+			htmlString = htmlString.replace(/%%%~2~%%%/g, closeTag);
+			return htmlString;
+		};
+
+		/**
+   * Preserves interval of the specified HTML into the preserved map replacing
+   * original contents with an unique generated id.
+   * @param {string} htmlString
+   * @param {Number} start Start interval position to be replaced.
+   * @param {Number} end End interval position to be replaced.
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {string} The HTML with replaced interval.
+   * @protected
+   */
+
+		html.preserveInterval_ = function preserveInterval_(htmlString, start, end, preserved) {
+			var blockId = '%%%~BLOCK~' + core.getUid() + '~%%%';
+			preserved[blockId] = htmlString.substring(start, end);
+			return string.replaceInterval(htmlString, start, end, blockId);
+		};
+
+		/**
+   * Preserves outer contents inside the specified tag. When preserved,
+   * original content are replaced with an unique generated block id and
+   * stored into `preserved` map.
+   * @param {string} htmlString
+   * @param {string} openTag Open tag string pattern without open tag ending
+   *     character, e.g. "<textarea" or "<code".
+   * @param {string} closeTag Close tag string pattern without close tag
+   *     ending character, e.g. "</textarea" or "</code".
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {html} The preserved HTML.
+   * @protected
+   */
+
+		html.preserveOuterHtml_ = function preserveOuterHtml_(htmlString, openTag, closeTag, preserved) {
+			var tagPos = htmlString.indexOf(openTag);
+			while (tagPos > -1) {
+				var tagEndPos = htmlString.indexOf(closeTag) + closeTag.length;
+				htmlString = html.preserveInterval_(htmlString, tagPos, tagEndPos, preserved);
+				tagPos = htmlString.indexOf(openTag);
+			}
+			return htmlString;
+		};
+
+		/**
+   * Removes all comments of the HTML. Including conditional comments and
+   * "<![CDATA[" blocks.
+   * @param {string} htmlString
+   * @return {string} The HTML without comments.
+   * @protected
+   */
+
+		html.removeComments_ = function removeComments_(htmlString) {
+			var preserved = {};
+			htmlString = html.preserveOuterHtml_(htmlString, '<![CDATA[', ']]>', preserved);
+			htmlString = html.preserveOuterHtml_(htmlString, '<!--', '-->', preserved);
+			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '');
+			return htmlString;
+		};
+
+		/**
+   * Removes spaces between tags, even from inline-block elements.
+   * @param {string} htmlString
+   * @return {string} The HTML without spaces between tags.
+   * @protected
+   */
+
+		html.removeIntertagSpaces_ = function removeIntertagSpaces_(htmlString) {
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_CUSTOM, '~%%%%%%~');
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_TAG, '~%%%<');
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG, '><');
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG_CUSTOM, '>%%%~');
+			return htmlString;
+		};
+
+		/**
+   * Removes spaces inside tags.
+   * @param {string} htmlString
+   * @return {string} The HTML without spaces inside tags.
+   * @protected
+   */
+
+		html.removeSpacesInsideTags_ = function removeSpacesInsideTags_(htmlString) {
+			htmlString = htmlString.replace(html.Patterns.TAG_END_SPACES, '$1$2');
+			htmlString = htmlString.replace(html.Patterns.TAG_QUOTE_SPACES, '=$1$2$3');
+			return htmlString;
+		};
+
+		/**
+   * Removes spaces surrounding tags.
+   * @param {string} htmlString
+   * @return {string} The HTML without spaces surrounding tags.
+   * @protected
+   */
+
+		html.removeSurroundingSpaces_ = function removeSurroundingSpaces_(htmlString) {
+			return htmlString.replace(html.Patterns.SURROUNDING_SPACES, '$1');
+		};
+
+		/**
+   * Restores preserved map keys inside the HTML. Note that the passed HTML
+   * should contain the unique generated block ids to be replaced.
+   * @param {string} htmlString
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @param {string} replaceValue The value to replace any block id inside the
+   * HTML.
+   * @return {string}
+   * @protected
+   */
+
+		html.replacePreservedBlocks_ = function replacePreservedBlocks_(htmlString, preserved, replaceValue) {
+			for (var blockId in preserved) {
+				htmlString = htmlString.replace(blockId, replaceValue);
+			}
+			return htmlString;
+		};
+
+		/**
+   * Simplifies DOCTYPE declaration to <!DOCTYPE html>.
+   * @param {string} htmlString
+   * @return {string}
+   * @protected
+   */
+
+		html.simplifyDoctype_ = function simplifyDoctype_(htmlString) {
+			var preserved = {};
+			htmlString = html.preserveOuterHtml_(htmlString, '<!DOCTYPE', '>', preserved);
+			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '<!DOCTYPE html>');
+			return htmlString;
+		};
+
+		/**
+   * Restores preserved map original contents inside the HTML. Note that the
+   * passed HTML should contain the unique generated block ids to be restored.
+   * @param {string} htmlString
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {string}
+   * @protected
+   */
+
+		html.returnBlocks_ = function returnBlocks_(htmlString, preserved) {
+			for (var blockId in preserved) {
+				htmlString = htmlString.replace(blockId, preserved[blockId]);
+			}
+			return htmlString;
+		};
+
+		return html;
+	})();
+
+	/**
+  * HTML regex patterns.
+  * @enum {RegExp}
+  * @protected
+  */
+
+	html.Patterns = {
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_CUSTOM_CUSTOM: /~%%%\s+%%%~/g,
+
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_TAG_CUSTOM: />\s+%%%~/g,
+
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_CUSTOM_TAG: /~%%%\s+</g,
+
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_TAG: />\s+</g,
+
+		/**
+   * @type {RegExp}
+   */
+		SURROUNDING_SPACES: /\s*(<[^>]+>)\s*/g,
+
+		/**
+   * @type {RegExp}
+   */
+		TAG_END_SPACES: /(<(?:[^>]+?))(?:\s+?)(\/?>)/g,
+
+		/**
+   * @type {RegExp}
+   */
+		TAG_QUOTE_SPACES: /\s*=\s*(["']?)\s*(.*?)\s*(\1)/g
+	};
+
+	this.crystal.html = html;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
 
 	/**
   * The component registry is used to register components, so they can
@@ -3172,149 +3877,6 @@ babelHelpers;
 	})();
 
 	this.crystal.ComponentRenderer = ComponentRenderer;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var dom = this.crystal.dom;
-	var Disposable = this.crystal.Disposable;
-
-	/**
-  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
-  * instances together, emitting events from the first emitter through the
-  * second one. That means that listening to a supported event on the target
-  * emitter will mean listening to it on the origin emitter as well.
-  * @param {EventEmitter | Element} originEmitter Events originated on this emitter
-  *   will be fired for the target emitter's listeners as well. Can be either a real
-  *   EventEmitter instance or a DOM element.
-  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
-  *   will also be triggered when the event is fired by the origin emitter.
-  * @param {Object} opt_blacklist Optional blacklist of events that should not be
-  *   proxied.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventEmitterProxy = (function (_Disposable) {
-		babelHelpers.inherits(EventEmitterProxy, _Disposable);
-
-		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
-			babelHelpers.classCallCheck(this, EventEmitterProxy);
-
-			/**
-    * Map of events that should not be proxied.
-    * @type {Object}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.blacklist_ = opt_blacklist || {};
-
-			/**
-    * The origin emitter. This emitter's events will be proxied through the
-    * target emitter.
-    * @type {EventEmitter}
-    * @protected
-    */
-			_this.originEmitter_ = originEmitter;
-
-			/**
-    * Holds a map of events from the origin emitter that are already being proxied.
-    * @type {Object}
-    * @protected
-    */
-			_this.proxiedEvents_ = {};
-
-			/**
-    * The target emitter. This emitter will emit all events that come from
-    * the origin emitter.
-    * @type {EventEmitter}
-    * @protected
-    */
-			_this.targetEmitter_ = targetEmitter;
-
-			/**
-    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
-    * @type {Object}
-    * @protected
-    */
-			_this.whitelist_ = opt_whitelist;
-
-			_this.startProxy_();
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
-			var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
-			for (var event in this.proxiedEvents_) {
-				this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
-			}
-
-			this.proxiedEvents_ = null;
-			this.originEmitter_ = null;
-			this.targetEmitter_ = null;
-		};
-
-		/**
-   * Proxies the given event from the origin to the target emitter.
-   * @param {string} event
-   */
-
-		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
-			if (!this.shouldProxyEvent_(event)) {
-				return;
-			}
-
-			var self = this;
-			this.proxiedEvents_[event] = function () {
-				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
-				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
-			};
-
-			if (core.isElement(this.originEmitter_) || core.isDocument(this.originEmitter_)) {
-				dom.on(this.originEmitter_, event, this.proxiedEvents_[event]);
-			} else {
-				this.originEmitter_.on(event, this.proxiedEvents_[event]);
-			}
-		};
-
-		/**
-   * Checks if the given event should be proxied.
-   * @param {string} event
-   * @return {boolean}
-   * @protected
-   */
-
-		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
-			if (this.whitelist_ && !this.whitelist_[event]) {
-				return false;
-			}
-			if (this.blacklist_[event]) {
-				return false;
-			}
-			return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || dom.supportsEvent(this.originEmitter_, event));
-		};
-
-		/**
-   * Starts proxying all events from the origin to the target emitter.
-   * @protected
-   */
-
-		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
-			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
-		};
-
-		return EventEmitterProxy;
-	})(Disposable);
-
-	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
-	this.crystal.EventEmitterProxy = EventEmitterProxy;
 }).call(this);
 'use strict';
 
@@ -5994,15 +6556,15 @@ babelHelpers;
   var SoyTemplates = this.crystal.SoyTemplates;
 
   var Templates = SoyTemplates.get();
-  // This file was automatically generated from Modal.soy.
+  // This file was automatically generated from Dropdown.soy.
   // Please don't edit this file by hand.
 
   /**
-   * @fileoverview Templates in namespace Templates.Modal.
+   * @fileoverview Templates in namespace Templates.Dropdown.
    */
 
-  if (typeof Templates.Modal == 'undefined') {
-    Templates.Modal = {};
+  if (typeof Templates.Dropdown == 'undefined') {
+    Templates.Dropdown = {};
   }
 
   /**
@@ -6012,11 +6574,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Modal.content = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="' + soy.$$escapeHtmlAttribute(opt_data.role ? opt_data.role : 'dialog') + '" aria-labelledby="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header"><div class="modal-dialog" tabindex="0"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
+  Templates.Dropdown.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="dropdown component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.expanded ? ' open' : '') + '">' + (opt_data.header ? soy.$$escapeHtml(opt_data.header) : '') + Templates.Dropdown.body(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.Modal.content.soyTemplateName = 'Templates.Modal.content';
+    Templates.Dropdown.content.soyTemplateName = 'Templates.Dropdown.content';
   }
 
   /**
@@ -6026,92 +6588,61 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Modal.body = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body" class="modal-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</section>');
+  Templates.Dropdown.body = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body" class="dropdown-menu">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</ul>');
   };
   if (goog.DEBUG) {
-    Templates.Modal.body.soyTemplateName = 'Templates.Modal.body';
+    Templates.Dropdown.body.soyTemplateName = 'Templates.Dropdown.body';
   }
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Modal.footer = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<footer id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-footer" class="modal-footer">' + (opt_data.footer ? soy.$$escapeHtml(opt_data.footer) : '') + '</footer>');
-  };
-  if (goog.DEBUG) {
-    Templates.Modal.footer.soyTemplateName = 'Templates.Modal.footer';
-  }
+  Templates.Dropdown.content.params = ["header", "id"];
+  Templates.Dropdown.body.params = ["body", "id"];
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Modal.header = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<header id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header" class="modal-header">' + (opt_data.header ? '<button type="button" class="close" data-onclick="hide" aria-label="Close"><span aria-hidden="true">×</span></button>' + soy.$$escapeHtml(opt_data.header) : '') + '</header>');
-  };
-  if (goog.DEBUG) {
-    Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
-  }
+  var Dropdown = (function (_Component) {
+    babelHelpers.inherits(Dropdown, _Component);
 
-  Templates.Modal.content.params = ["id", "role"];
-  Templates.Modal.body.params = ["id", "body"];
-  Templates.Modal.footer.params = ["footer", "id"];
-  Templates.Modal.header.params = ["header", "id"];
-
-  var Modal = (function (_Component) {
-    babelHelpers.inherits(Modal, _Component);
-
-    function Modal() {
-      babelHelpers.classCallCheck(this, Modal);
+    function Dropdown() {
+      babelHelpers.classCallCheck(this, Dropdown);
       return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    Modal.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Modal');
+    Dropdown.setImpl = function setImpl(ctor) {
+      ComponentRegistry.register(ctor, 'Dropdown');
     };
 
-    return Modal;
+    return Dropdown;
   })(Component);
 
-  Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
+  Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 
-  Modal.RENDERER = SoyRenderer;
-  Modal.setImpl(Modal);
-  SoyAop.registerTemplates('Modal');
-  this.crystal.Modal = Modal;
+  Dropdown.RENDERER = SoyRenderer;
+  Dropdown.setImpl(Dropdown);
+  SoyAop.registerTemplates('Dropdown');
+  this.crystal.Dropdown = Dropdown;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.crystal.core;
 	var dom = this.crystal.dom;
 	var EventHandler = this.crystal.EventHandler;
-	var ModalBase = this.crystal.Modal;
+	var DropdownBase = this.crystal.Dropdown;
 
 	/**
-  * Modal component.
+  * Dropdown component.
   */
 
-	var Modal = (function (_ModalBase) {
-		babelHelpers.inherits(Modal, _ModalBase);
+	var Dropdown = (function (_DropdownBase) {
+		babelHelpers.inherits(Dropdown, _DropdownBase);
 
 		/**
    * @inheritDoc
    */
 
-		function Modal(opt_config) {
-			babelHelpers.classCallCheck(this, Modal);
+		function Dropdown(opt_config) {
+			babelHelpers.classCallCheck(this, Dropdown);
 
-			var _this = babelHelpers.possibleConstructorReturn(this, _ModalBase.call(this, opt_config));
+			var _this = babelHelpers.possibleConstructorReturn(this, _DropdownBase.call(this, opt_config));
 
 			_this.eventHandler_ = new EventHandler();
 			return _this;
@@ -6121,646 +6652,161 @@ babelHelpers;
    * @inheritDoc
    */
 
-		Modal.prototype.attached = function attached() {
-			this.autoFocus_(this.autoFocus);
-		};
-
-		/**
-   * Automatically focuses the element specified by the given selector.
-   * @param {boolean|string} autoFocusSelector The selector, or false if no
-   *   element should be automatically focused.
-   * @protected
-   */
-
-		Modal.prototype.autoFocus_ = function autoFocus_(autoFocusSelector) {
-			if (this.inDocument && this.visible && autoFocusSelector) {
-				var element = this.element.querySelector(autoFocusSelector);
-				if (element) {
-					element.focus();
-				}
-			}
+		Dropdown.prototype.attached = function attached() {
+			_DropdownBase.prototype.attached.call(this);
+			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		};
 
 		/**
    * @inheritDoc
    */
 
-		Modal.prototype.detached = function detached() {
-			_ModalBase.prototype.detached.call(this);
+		Dropdown.prototype.detached = function detached() {
+			_DropdownBase.prototype.detached.call(this);
 			this.eventHandler_.removeAllListeners();
 		};
 
 		/**
-   * @inheritDoc
+   * Closes the dropdown.
    */
 
-		Modal.prototype.disposeInternal = function disposeInternal() {
-			dom.exitDocument(this.overlayElement);
-			this.unrestrictFocus_();
-			_ModalBase.prototype.disposeInternal.call(this);
+		Dropdown.prototype.close = function close() {
+			this.expanded = false;
 		};
 
 		/**
-   * Handles a `focus` event on the document. If the focused element is
-   * outside the modal and an overlay is being used, focuses the modal back.
+   * Checks if the dropdown is currently open.
+   * @return {boolean}
+   */
+
+		Dropdown.prototype.isOpen = function isOpen() {
+			return this.expanded;
+		};
+
+		/**
+   * Handles document click in order to hide menu.
    * @param {!Event} event
    * @protected
    */
 
-		Modal.prototype.handleDocumentFocus_ = function handleDocumentFocus_(event) {
-			if (this.overlay && !this.element.contains(event.target)) {
-				this.autoFocus_('.modal-dialog');
+		Dropdown.prototype.handleDocClick_ = function handleDocClick_(event) {
+			if (this.element.contains(event.target)) {
+				return;
 			}
+			this.close();
 		};
 
 		/**
-   * Handles document click in order to close the alert.
-   * @param {!Event} event
-   * @protected
+   * Opens the dropdown.
    */
 
-		Modal.prototype.handleKeyup_ = function handleKeyup_(event) {
-			if (event.keyCode === 27) {
-				this.hide();
-			}
+		Dropdown.prototype.open = function open() {
+			this.expanded = true;
 		};
 
 		/**
-   * Hides the modal, setting its `visible` attribute to false.
+   * Synchronization logic for `expanded` attribute.
+   * @param {boolean} expanded
    */
 
-		Modal.prototype.hide = function hide() {
-			this.visible = false;
-		};
-
-		/**
-   * Restricts focus to the modal while it's visible.
-   * @protected
-   */
-
-		Modal.prototype.restrictFocus_ = function restrictFocus_() {
-			this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
-		};
-
-		/**
-   * Shifts the focus back to the last element that had been focused before the
-   * modal was shown.
-   * @protected
-   */
-
-		Modal.prototype.shiftFocusBack_ = function shiftFocusBack_() {
-			if (this.lastFocusedElement_) {
-				this.lastFocusedElement_.focus();
-				this.lastFocusedElement_ = null;
-			}
-		};
-
-		/**
-   * Shows the modal, setting its `visible` attribute to true.
-   */
-
-		Modal.prototype.show = function show() {
-			this.visible = true;
-		};
-
-		/**
-   * Syncs the component according to the value of the `hideOnEscape` attribute.
-   * @param {boolean} hideOnEscape
-   */
-
-		Modal.prototype.syncHideOnEscape = function syncHideOnEscape(hideOnEscape) {
-			if (hideOnEscape) {
-				this.eventHandler_.add(dom.on(document, 'keyup', this.handleKeyup_.bind(this)));
+		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
+			if (expanded) {
+				dom.addClasses(this.element, 'open');
 			} else {
-				this.eventHandler_.removeAllListeners();
+				dom.removeClasses(this.element, 'open');
 			}
 		};
 
 		/**
-   * Syncs the component according to the value of the `overlay` attribute.
-   * @param {boolean} overlay
+   * Synchronization logic for `position` attribute.
+   * @param {string} position
+   * @param {string} oldPosition
    */
 
-		Modal.prototype.syncOverlay = function syncOverlay(overlay) {
-			var willShowOverlay = overlay && this.visible;
-			dom[willShowOverlay ? 'enterDocument' : 'exitDocument'](this.overlayElement);
-		};
-
-		/**
-   * Syncs the component according to the value of the `visible` attribute.
-   * @param {boolean} visible
-   */
-
-		Modal.prototype.syncVisible = function syncVisible(visible) {
-			this.element.style.display = visible ? 'block' : '';
-			this.syncOverlay(this.overlay);
-			if (this.visible) {
-				this.lastFocusedElement_ = document.activeElement;
-				this.autoFocus_(this.autoFocus);
-				this.restrictFocus_();
-			} else {
-				this.unrestrictFocus_();
-				this.shiftFocusBack_();
+		Dropdown.prototype.syncPosition = function syncPosition(position, oldPosition) {
+			if (oldPosition) {
+				dom.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
 			}
+			dom.addClasses(this.element, 'drop' + position.toLowerCase());
 		};
 
 		/**
-   * Removes the handler that restricts focus to elements inside the modal.
+   * Toggles the dropdown, closing it when open or opening it when closed.
+   */
+
+		Dropdown.prototype.toggle = function toggle() {
+			this.expanded = !this.expanded;
+		};
+
+		/**
+   * Validator for the `position` attribute.
+   * @param {string} position
+   * @return {boolean}
    * @protected
    */
 
-		Modal.prototype.unrestrictFocus_ = function unrestrictFocus_() {
-			if (this.restrictFocusHandle_) {
-				this.restrictFocusHandle_.removeListener();
+		Dropdown.prototype.validatePosition_ = function validatePosition_(position) {
+			switch (position.toLowerCase()) {
+				case 'up':
+				case 'down':
+					return true;
+				default:
+					return false;
 			}
 		};
 
-		/**
-   * Defines the default value for the `overlayElement` attribute.
-   * @protected
-   */
-
-		Modal.prototype.valueOverlayElementFn_ = function valueOverlayElementFn_() {
-			return dom.buildFragment('<div class="modal-backdrop fade in"></div>').firstChild;
-		};
-
-		return Modal;
-	})(ModalBase);
+		return Dropdown;
+	})(DropdownBase);
 
 	/**
-  * Default modal elementClasses.
-  * @default modal
-  * @type {string}
+  * Attrbutes definition.
+  * @type {!Object}
   * @static
   */
 
-	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
-	Modal.ELEMENT_CLASSES = 'modal';
-
-	Modal.ATTRS = {
+	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
+	Dropdown.ATTRS = {
 		/**
-   * A selector for the element that should be automatically focused when the modal
-   * becomes visible, or `false` if no auto focus should happen. Defaults to the
-   * modal's close button.
-   * @type {boolean|string}
-   */
-		autoFocus: {
-			validator: function validator(val) {
-				return val === false || core.isString(val);
-			},
-			value: '.close'
-		},
-
-		/**
-   * Content to be placed inside modal body.
-   * @type {string|SanitizedHtml}
+   * The dropdown's body content.
+   * @type {string}
    */
 		body: {},
 
 		/**
-   * Content to be placed inside modal footer.
-   * @type {string|SanitizedHtml}
-   */
-		footer: {},
-
-		/**
-   * Content to be placed inside modal header.
-   * @type {string|SanitizedHtml}
+   * The dropdown's header content.
+   * @type {string}
    */
 		header: {},
 
 		/**
-   * Whether modal should hide on esc.
+   * Flag indicating if the dropdown is expanded (open) or not.
    * @type {boolean}
-   * @default true
+   * @default false
    */
-		hideOnEscape: {
-			validator: core.isBoolean,
-			value: true
+		expanded: {
+			value: false
 		},
 
 		/**
-   * Whether overlay should be visible when modal is visible.
-   * @type {boolean}
-   * @default true
-   */
-		overlay: {
-			validator: core.isBoolean,
-			value: true
-		},
-
-		/**
-   * Element to be used as overlay.
-   * @type {Element}
-   */
-		overlayElement: {
-			initOnly: true,
-			valueFn: 'valueOverlayElementFn_'
-		},
-
-		/**
-   * The ARIA role to be used for this modal.
+   * The position of the dropdown (either 'up' or 'down').
    * @type {string}
-   * @default 'dialog'
+   * @default 'down'
    */
-		role: {
-			validator: core.isString,
-			value: 'dialog'
+		position: {
+			value: 'down',
+			validator: 'validatePosition_'
 		}
 	};
 
-	ModalBase.setImpl(Modal);
-
-	this.crystal.Modal = Modal;
-}).call(this);
-'use strict';
-
-(function () {
-	var Geometry = (function () {
-		function Geometry() {
-			babelHelpers.classCallCheck(this, Geometry);
-		}
-
-		/**
-     * Tests if a rectangle intersects with another.
-     *
-     * <pre>
-     *  x0y0 --------       x2y2 --------
-     *      |       |           |       |
-     *      -------- x1y1       -------- x3y3
-     * </pre>
-     *
-     * Note that coordinates starts from top to down (y), left to right (x):
-     *
-     * <pre>
-     *      ------> (x)
-     *      |
-     *      |
-     *     (y)
-     * </pre>
-     *
-     * @param {number} x0 Horizontal coordinate of P0.
-     * @param {number} y0 Vertical coordinate of P0.
-     * @param {number} x1 Horizontal coordinate of P1.
-     * @param {number} y1 Vertical coordinate of P1.
-     * @param {number} x2 Horizontal coordinate of P2.
-     * @param {number} y2 Vertical coordinate of P2.
-     * @param {number} x3 Horizontal coordinate of P3.
-     * @param {number} y3 Vertical coordinate of P3.
-     * @return {boolean}
-     */
-
-		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
-			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
-		};
-
-		return Geometry;
-	})();
-
-	this.crystal.Geometry = Geometry;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var Geometry = this.crystal.Geometry;
-
 	/**
-  * Class with static methods responsible for doing browser position checks.
+  * Default dropdown elementClasses.
+  * @default dropdown
+  * @type {string}
+  * @static
   */
+	Dropdown.ELEMENT_CLASSES = 'dropdown';
 
-	var Position = (function () {
-		function Position() {
-			babelHelpers.classCallCheck(this, Position);
-		}
-
-		/**
-   * Gets the client height of the specified node. Scroll height is not
-   * included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getClientHeight = function getClientHeight(node) {
-			return this.getClientSize_(node, 'Height');
-		};
-
-		/**
-   * Gets the client height or width of the specified node. Scroll height is
-   * not included.
-   * @param {Element|Document|Window=} node
-   * @param {string} `Width` or `Height` property.
-   * @return {number}
-   * @protected
-   */
-
-		Position.getClientSize_ = function getClientSize_(node, prop) {
-			var el = node;
-			if (core.isWindow(node)) {
-				el = node.document.documentElement;
-			}
-			if (core.isDocument(node)) {
-				el = node.documentElement;
-			}
-			return el['client' + prop];
-		};
-
-		/**
-   * Gets the client width of the specified node. Scroll width is not
-   * included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getClientWidth = function getClientWidth(node) {
-			return this.getClientSize_(node, 'Width');
-		};
-
-		/**
-   * Gets the region of the element, document or window.
-   * @param {Element|Document|Window=} opt_element Optional element to test.
-   * @return {!DOMRect} The returned value is a simulated DOMRect object which
-   *     is the union of the rectangles returned by getClientRects() for the
-   *     element, i.e., the CSS border-boxes associated with the element.
-   * @protected
-   */
-
-		Position.getDocumentRegion_ = function getDocumentRegion_(opt_element) {
-			var height = this.getHeight(opt_element);
-			var width = this.getWidth(opt_element);
-			return this.makeRegion(height, height, 0, width, 0, width);
-		};
-
-		/**
-   * Gets the height of the specified node. Scroll height is included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getHeight = function getHeight(node) {
-			return this.getSize_(node, 'Height');
-		};
-
-		/**
-   * Gets the top offset position of the given node. This fixes the `offsetLeft` value of
-   * nodes that were translated, which don't take that into account at all. That makes
-   * the calculation more expensive though, so if you don't want that to be considered
-   * either pass `opt_ignoreTransform` as true or call `offsetLeft` directly on the node.
-   * @param {!Element} node
-   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
-   *   when calculating the position. Defaults to false.
-   * @return {number}
-   */
-
-		Position.getOffsetLeft = function getOffsetLeft(node, opt_ignoreTransform) {
-			return node.offsetLeft + (opt_ignoreTransform ? 0 : Position.getTranslation(node).left);
-		};
-
-		/**
-   * Gets the top offset position of the given node. This fixes the `offsetTop` value of
-   * nodes that were translated, which don't take that into account at all. That makes
-   * the calculation more expensive though, so if you don't want that to be considered
-   * either pass `opt_ignoreTransform` as true or call `offsetTop` directly on the node.
-   * @param {!Element} node
-   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
-   *   when calculating the position. Defaults to false.
-   * @return {number}
-   */
-
-		Position.getOffsetTop = function getOffsetTop(node, opt_ignoreTransform) {
-			return node.offsetTop + (opt_ignoreTransform ? 0 : Position.getTranslation(node).top);
-		};
-
-		/**
-   * Gets the size of an element and its position relative to the viewport.
-   * @param {!Document|Element|Window} node
-   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
-   *   position should be considered in the element's region coordinates. Defaults
-   *   to false.
-   * @return {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   */
-
-		Position.getRegion = function getRegion(node, opt_includeScroll) {
-			if (core.isDocument(node) || core.isWindow(node)) {
-				return this.getDocumentRegion_(node);
-			}
-			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
-		};
-
-		/**
-   * Gets the scroll left position of the specified node.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getScrollLeft = function getScrollLeft(node) {
-			if (core.isWindow(node)) {
-				return node.pageXOffset;
-			}
-			if (core.isDocument(node)) {
-				return node.defaultView.pageXOffset;
-			}
-			return node.scrollLeft;
-		};
-
-		/**
-   * Gets the scroll top position of the specified node.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getScrollTop = function getScrollTop(node) {
-			if (core.isWindow(node)) {
-				return node.pageYOffset;
-			}
-			if (core.isDocument(node)) {
-				return node.defaultView.pageYOffset;
-			}
-			return node.scrollTop;
-		};
-
-		/**
-   * Gets the height or width of the specified node. Scroll height is
-   * included.
-   * @param {Element|Document|Window=} node
-   * @param {string} `Width` or `Height` property.
-   * @return {number}
-   * @protected
-   */
-
-		Position.getSize_ = function getSize_(node, prop) {
-			if (core.isWindow(node)) {
-				return this.getClientSize_(node, prop);
-			}
-			if (core.isDocument(node)) {
-				var docEl = node.documentElement;
-				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
-			}
-			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
-		};
-
-		/**
-   * Gets the transform matrix values for the given node.
-   * @param {!Element} node
-   * @return {Array<number>}
-   */
-
-		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
-			var style = getComputedStyle(node);
-			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
-			if (transform !== 'none') {
-				var values = [];
-				var regex = /([\d-\.\s]+)/g;
-				var matches = regex.exec(transform);
-				while (matches) {
-					values.push(matches[1]);
-					matches = regex.exec(transform);
-				}
-				return values;
-			}
-		};
-
-		/**
-   * Gets the number of translated pixels for the given node, for both the top and
-   * left positions.
-   * @param {!Element} node
-   * @return {number}
-   */
-
-		Position.getTranslation = function getTranslation(node) {
-			var values = Position.getTransformMatrixValues(node);
-			var translation = {
-				left: 0,
-				top: 0
-			};
-			if (values) {
-				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
-				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
-			}
-			return translation;
-		};
-
-		/**
-   * Gets the width of the specified node. Scroll width is included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getWidth = function getWidth(node) {
-			return this.getSize_(node, 'Width');
-		};
-
-		/**
-   * Tests if a region intersects with another.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {boolean}
-   */
-
-		Position.intersectRegion = function intersectRegion(r1, r2) {
-			return Geometry.intersectRect(r1.top, r1.left, r1.bottom, r1.right, r2.top, r2.left, r2.bottom, r2.right);
-		};
-
-		/**
-   * Tests if a region is inside another.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {boolean}
-   */
-
-		Position.insideRegion = function insideRegion(r1, r2) {
-			return r2.top >= r1.top && r2.bottom <= r1.bottom && r2.right <= r1.right && r2.left >= r1.left;
-		};
-
-		/**
-   * Tests if a region is inside viewport region.
-   * @param {DOMRect} region
-   * @return {boolean}
-   */
-
-		Position.insideViewport = function insideViewport(region) {
-			return this.insideRegion(this.getRegion(window), region);
-		};
-
-		/**
-   * Computes the intersection region between two regions.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {?DOMRect} Intersection region or null if regions doesn't
-   *     intersects.
-   */
-
-		Position.intersection = function intersection(r1, r2) {
-			if (!this.intersectRegion(r1, r2)) {
-				return null;
-			}
-			var bottom = Math.min(r1.bottom, r2.bottom);
-			var right = Math.min(r1.right, r2.right);
-			var left = Math.max(r1.left, r2.left);
-			var top = Math.max(r1.top, r2.top);
-			return this.makeRegion(bottom, bottom - top, left, right, top, right - left);
-		};
-
-		/**
-   * Makes a region object. It's a writable version of DOMRect.
-   * @param {number} bottom
-   * @param {number} height
-   * @param {number} left
-   * @param {number} right
-   * @param {number} top
-   * @param {number} width
-   * @return {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   */
-
-		Position.makeRegion = function makeRegion(bottom, height, left, right, top, width) {
-			return {
-				bottom: bottom,
-				height: height,
-				left: left,
-				right: right,
-				top: top,
-				width: width
-			};
-		};
-
-		/**
-   * Makes a region from a DOMRect result from `getBoundingClientRect`.
-   * @param  {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
-   *   position should be considered in the element's region coordinates. Defaults
-   *   to false.
-   * @return {DOMRect} Writable version of DOMRect.
-   * @protected
-   */
-
-		Position.makeRegionFromBoundingRect_ = function makeRegionFromBoundingRect_(rect, opt_includeScroll) {
-			var deltaX = opt_includeScroll ? Position.getScrollLeft(document) : 0;
-			var deltaY = opt_includeScroll ? Position.getScrollTop(document) : 0;
-			return this.makeRegion(rect.bottom + deltaY, rect.height, rect.left + deltaX, rect.right + deltaX, rect.top + deltaY, rect.width);
-		};
-
-		/**
-   * Checks if the given point coordinates are inside a region.
-   * @param {number} x
-   * @param {number} y
-   * @param {!Object} region
-   * @return {boolean}
-   */
-
-		Position.pointInsideRegion = function pointInsideRegion(x, y, region) {
-			return Position.insideRegion(region, Position.makeRegion(y, 0, x, x, y, 0));
-		};
-
-		return Position;
-	})();
-
-	this.crystal.Position = Position;
+	this.crystal.Dropdown = Dropdown;
 }).call(this);
 'use strict';
 
@@ -7334,7 +7380,6 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
   var SoyAop = this.crystal.SoyAop;
   var SoyRenderer = this.crystal.SoyRenderer;
   var SoyTemplates = this.crystal.SoyTemplates;
@@ -7409,17 +7454,12 @@ babelHelpers;
       return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    Popover.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Popover');
-    };
-
     return Popover;
   })(Component);
 
   Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 
   Popover.RENDERER = SoyRenderer;
-  Popover.setImpl(Popover);
   SoyAop.registerTemplates('Popover');
   this.crystal.Popover = Popover;
   /* jshint ignore:end */
@@ -7429,7 +7469,6 @@ babelHelpers;
 (function () {
 	var core = this.crystal.core;
 	var TooltipBase = this.crystal.TooltipBase;
-	var PopoverBase = this.crystal.Popover;
 
 	/**
   * Popover component. Extends the behavior from `TooltipBase`, adding
@@ -7491,203 +7530,27 @@ babelHelpers;
 
 	Popover.ELEMENT_CLASSES = 'popover';
 
-	PopoverBase.setImpl(Popover);
-
 	this.crystal.Popover = Popover;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var dom = this.crystal.dom;
-	var Attribute = this.crystal.Attribute;
-	var EventEmitter = this.crystal.EventEmitter;
-	var EventEmitterProxy = this.crystal.EventEmitterProxy;
-	var Position = this.crystal.Position;
-
-	/**
-  * Affix utility.
-  */
-
-	var Affix = (function (_Attribute) {
-		babelHelpers.inherits(Affix, _Attribute);
-
-		/**
-   * @inheritDoc
-   */
-
-		function Affix(opt_config) {
-			babelHelpers.classCallCheck(this, Affix);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
-
-			if (!Affix.emitter_) {
-				Affix.emitter_ = new EventEmitter();
-				Affix.proxy_ = new EventEmitterProxy(document, Affix.emitter_, null, {
-					scroll: true
-				});
-			}
-
-			/**
-    * Holds the last position.
-    * @type {Position.Bottom|Position.Default|Position.Top}
-    * @private
-    */
-			_this.lastPosition_ = null;
-
-			/**
-    * Holds event handle that listens scroll shared event emitter proxy.
-    * @type {EventHandle}
-    * @protected
-    */
-			_this.scrollHandle_ = Affix.emitter_.on('scroll', _this.checkPosition.bind(_this));
-
-			_this.on('elementChanged', _this.checkPosition);
-			_this.on('offsetTopChanged', _this.checkPosition);
-			_this.on('offsetBottomChanged', _this.checkPosition);
-			_this.checkPosition();
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-		Affix.prototype.disposeInternal = function disposeInternal() {
-			dom.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
-			this.scrollHandle_.dispose();
-			_Attribute.prototype.disposeInternal.call(this);
-		};
-
-		/**
-   * Synchronize bottom, top and element regions and checks if position has
-   * changed. If position has changed syncs position.
-   */
-
-		Affix.prototype.checkPosition = function checkPosition() {
-			if (this.intersectTopRegion()) {
-				this.syncPosition(Affix.Position.Top);
-			} else if (this.intersectBottomRegion()) {
-				this.syncPosition(Affix.Position.Bottom);
-			} else {
-				this.syncPosition(Affix.Position.Default);
-			}
-		};
-
-		/**
-   * Whether the element is intersecting with bottom region defined by
-   * offsetBottom.
-   * @return {boolean}
-   */
-
-		Affix.prototype.intersectBottomRegion = function intersectBottomRegion() {
-			if (!core.isDef(this.offsetBottom)) {
-				return false;
-			}
-			var clientHeight = Position.getHeight(this.scrollElement);
-			var scrollElementClientHeight = Position.getClientHeight(this.scrollElement);
-			return Position.getScrollTop(this.scrollElement) + scrollElementClientHeight >= clientHeight - this.offsetBottom;
-		};
-
-		/**
-   * Whether the element is intersecting with top region defined by
-   * offsetTop.
-   * @return {boolean}
-   */
-
-		Affix.prototype.intersectTopRegion = function intersectTopRegion() {
-			if (!core.isDef(this.offsetTop)) {
-				return false;
-			}
-			return Position.getScrollTop(this.scrollElement) <= this.offsetTop;
-		};
-
-		/**
-   * Synchronizes element css classes to match with the specified position.
-   * @param {Position.Bottom|Position.Default|Position.Top} position
-   */
-
-		Affix.prototype.syncPosition = function syncPosition(position) {
-			if (this.lastPosition_ !== position) {
-				dom.addClasses(this.element, position);
-				dom.removeClasses(this.element, this.lastPosition_);
-				this.lastPosition_ = position;
-			}
-		};
-
-		return Affix;
-	})(Attribute);
-
-	/**
-  * Holds positions enum.
-  * @enum {string}
-  */
-
-	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
-	Affix.Position = {
-		Top: 'affix-top',
-		Bottom: 'affix-bottom',
-		Default: 'affix-default'
-	};
-
-	Affix.ATTRS = {
-		/**
-   * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
-   * where the scroll event is listened from.
-   * @type {Element|Window}
-   */
-		scrollElement: {
-			setter: dom.toElement,
-			value: document
-		},
-
-		/**
-   * Defines the offset bottom that triggers affix.
-   * @type {number}
-   */
-		offsetTop: {
-			validator: core.isNumber
-		},
-
-		/**
-   * Defines the offset top that triggers affix.
-   * @type {number}
-   */
-		offsetBottom: {
-			validator: core.isNumber
-		},
-
-		/**
-   * Element to be used as alignment reference of affix.
-   * @type {Element}
-   */
-		element: {
-			setter: dom.toElement
-		}
-	};
-
-	this.crystal.Affix = Affix;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
   var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
   var SoyAop = this.crystal.SoyAop;
   var SoyRenderer = this.crystal.SoyRenderer;
   var SoyTemplates = this.crystal.SoyTemplates;
 
   var Templates = SoyTemplates.get();
-  // This file was automatically generated from Dropdown.soy.
+  // This file was automatically generated from ProgressBar.soy.
   // Please don't edit this file by hand.
 
   /**
-   * @fileoverview Templates in namespace Templates.Dropdown.
+   * @fileoverview Templates in namespace Templates.ProgressBar.
    */
 
-  if (typeof Templates.Dropdown == 'undefined') {
-    Templates.Dropdown = {};
+  if (typeof Templates.ProgressBar == 'undefined') {
+    Templates.ProgressBar = {};
   }
 
   /**
@@ -7697,75 +7560,348 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Dropdown.content = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="dropdown component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.expanded ? ' open' : '') + '">' + (opt_data.header ? soy.$$escapeHtml(opt_data.header) : '') + Templates.Dropdown.body(opt_data, null, opt_ijData) + '</div>');
+  Templates.ProgressBar.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="progressbar" tabindex="0"><div class="progress-bar"></div></div>');
   };
   if (goog.DEBUG) {
-    Templates.Dropdown.content.soyTemplateName = 'Templates.Dropdown.content';
+    Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';
   }
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Dropdown.body = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body" class="dropdown-menu">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</ul>');
-  };
-  if (goog.DEBUG) {
-    Templates.Dropdown.body.soyTemplateName = 'Templates.Dropdown.body';
-  }
+  Templates.ProgressBar.content.params = ["id"];
 
-  Templates.Dropdown.content.params = ["header", "id"];
-  Templates.Dropdown.body.params = ["body", "id"];
+  var ProgressBar = (function (_Component) {
+    babelHelpers.inherits(ProgressBar, _Component);
 
-  var Dropdown = (function (_Component) {
-    babelHelpers.inherits(Dropdown, _Component);
-
-    function Dropdown() {
-      babelHelpers.classCallCheck(this, Dropdown);
+    function ProgressBar() {
+      babelHelpers.classCallCheck(this, ProgressBar);
       return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    Dropdown.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Dropdown');
-    };
-
-    return Dropdown;
+    return ProgressBar;
   })(Component);
 
-  Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
+  ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
 
-  Dropdown.RENDERER = SoyRenderer;
-  Dropdown.setImpl(Dropdown);
-  SoyAop.registerTemplates('Dropdown');
-  this.crystal.Dropdown = Dropdown;
+  ProgressBar.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('ProgressBar');
+  this.crystal.ProgressBar = ProgressBar;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
+	var core = this.crystal.core;
 	var dom = this.crystal.dom;
-	var EventHandler = this.crystal.EventHandler;
-	var DropdownBase = this.crystal.Dropdown;
+	var ProgressBarBase = this.crystal.ProgressBar;
 
 	/**
-  * Dropdown component.
+  * UI Component that renders a progress bar.
   */
 
-	var Dropdown = (function (_DropdownBase) {
-		babelHelpers.inherits(Dropdown, _DropdownBase);
+	var ProgressBar = (function (_ProgressBarBase) {
+		babelHelpers.inherits(ProgressBar, _ProgressBarBase);
+
+		function ProgressBar() {
+			babelHelpers.classCallCheck(this, ProgressBar);
+			return babelHelpers.possibleConstructorReturn(this, _ProgressBarBase.apply(this, arguments));
+		}
+
+		/**
+   * Get the inner element that represents the bar.
+   * @return {!Element}
+   */
+
+		ProgressBar.prototype.getBarElement = function getBarElement() {
+			if (!this.barElement_) {
+				this.barElement_ = this.element.childNodes[0];
+			}
+			return this.barElement_;
+		};
+
+		/**
+   * Setter function for the `value` attribute. Makes sure the value
+   * is between the current `min` and `max` attributes.
+   * @param {number} value
+   * @return {number}
+   * @protected
+   */
+
+		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
+			if (value < this.min) {
+				value = this.min;
+			}
+			if (value > this.max) {
+				value = this.max;
+			}
+			return value;
+		};
+
+		/**
+   * Synchronization logic for the `barClass` attribute.
+   * @param {string} barClass
+   * @param {string} prevBarClass
+   */
+
+		ProgressBar.prototype.syncBarClass = function syncBarClass(barClass, prevBarClass) {
+			var barElement = this.getBarElement();
+			dom.removeClasses(barElement, prevBarClass);
+			dom.addClasses(barElement, barClass);
+		};
+
+		/**
+   * Synchronization logic for the `label` attribute.
+   */
+
+		ProgressBar.prototype.syncLabel = function syncLabel() {
+			var barElement = this.getBarElement();
+			dom.removeChildren(barElement);
+			if (this.label) {
+				dom.append(barElement, this.label);
+			}
+		};
+
+		/**
+   * Synchronization logic for the `max` attribute.
+   * @param {number} max
+   */
+
+		ProgressBar.prototype.syncMax = function syncMax(max) {
+			if (max < this.value) {
+				this.value = max;
+			} else {
+				this.updateBar_();
+			}
+			this.element.setAttribute('aria-valuemax', this.max);
+		};
+
+		/**
+   * Synchronization logic for the `min` attribute.
+   * @param {number} min
+   */
+
+		ProgressBar.prototype.syncMin = function syncMin(min) {
+			if (min > this.value) {
+				this.value = min;
+			} else {
+				this.updateBar_();
+			}
+			this.element.setAttribute('aria-valuemin', this.min);
+		};
+
+		/**
+   * Synchronization logic for the `value` attribute.
+   * @param {number} value
+   */
+
+		ProgressBar.prototype.syncValue = function syncValue() {
+			this.updateBar_();
+			this.element.setAttribute('aria-valuenow', this.value);
+		};
+
+		/**
+   * Updates the bar according to the `min`, `max` and `value` attributes.
+   * @protected
+   */
+
+		ProgressBar.prototype.updateBar_ = function updateBar_() {
+			var barElement = this.getBarElement();
+			var percentage = Math.floor((this.value - this.min) * 100 / (this.max - this.min));
+			barElement.style.width = percentage + '%';
+		};
+
+		return ProgressBar;
+	})(ProgressBarBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
+	ProgressBar.ATTRS = {
+		/**
+   * Optional CSS classes to be added to the inner progress bar element,
+   * like 'progress-bar-danger'.
+   * @type {string}
+   */
+		barClass: {
+			validator: core.isString
+		},
+
+		/**
+   * An optional label to be rendered inside the progress bar.
+   * @type {string}
+   */
+		label: {
+			validator: function validator(label) {
+				return !core.isDefAndNotNull(label) || core.isString(label);
+			}
+		},
+
+		/**
+   * The maximum value of the progress bar. When the value is at its
+   * max, the bar will be fully extended.
+   * @type {number}
+   */
+		max: {
+			validator: core.isNumber,
+			value: 100
+		},
+
+		/**
+   * The minimum value of the progress bar. When the value is at its
+   * max, the bar will be fully collapsed.
+   * @type {number}
+   */
+		min: {
+			validator: core.isNumber,
+			value: 0
+		},
+
+		/**
+   * The current value of the progress bar.
+   * @type {number}
+   */
+		value: {
+			setter: 'setterValueFn_',
+			validator: core.isNumber,
+			value: 0
+		}
+	};
+
+	/**
+  * Default modal elementClasses.
+  * @type {string}
+  * @static
+  */
+	ProgressBar.ELEMENT_CLASSES = 'progress';
+
+	this.crystal.ProgressBar = ProgressBar;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.crystal.Component;
+  var SoyAop = this.crystal.SoyAop;
+  var SoyRenderer = this.crystal.SoyRenderer;
+  var SoyTemplates = this.crystal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Modal.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Modal.
+   */
+
+  if (typeof Templates.Modal == 'undefined') {
+    Templates.Modal = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Modal.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="' + soy.$$escapeHtmlAttribute(opt_data.role ? opt_data.role : 'dialog') + '" aria-labelledby="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header"><div class="modal-dialog" tabindex="0"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Modal.content.soyTemplateName = 'Templates.Modal.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Modal.body = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body" class="modal-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</section>');
+  };
+  if (goog.DEBUG) {
+    Templates.Modal.body.soyTemplateName = 'Templates.Modal.body';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Modal.footer = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<footer id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-footer" class="modal-footer">' + (opt_data.footer ? soy.$$escapeHtml(opt_data.footer) : '') + '</footer>');
+  };
+  if (goog.DEBUG) {
+    Templates.Modal.footer.soyTemplateName = 'Templates.Modal.footer';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Modal.header = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<header id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header" class="modal-header">' + (opt_data.header ? '<button type="button" class="close" data-onclick="hide" aria-label="Close"><span aria-hidden="true">×</span></button>' + soy.$$escapeHtml(opt_data.header) : '') + '</header>');
+  };
+  if (goog.DEBUG) {
+    Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
+  }
+
+  Templates.Modal.content.params = ["id", "role"];
+  Templates.Modal.body.params = ["id", "body"];
+  Templates.Modal.footer.params = ["footer", "id"];
+  Templates.Modal.header.params = ["header", "id"];
+
+  var Modal = (function (_Component) {
+    babelHelpers.inherits(Modal, _Component);
+
+    function Modal() {
+      babelHelpers.classCallCheck(this, Modal);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Modal;
+  })(Component);
+
+  Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
+
+  Modal.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Modal');
+  this.crystal.Modal = Modal;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var dom = this.crystal.dom;
+	var EventHandler = this.crystal.EventHandler;
+	var ModalBase = this.crystal.Modal;
+
+	/**
+  * Modal component.
+  */
+
+	var Modal = (function (_ModalBase) {
+		babelHelpers.inherits(Modal, _ModalBase);
 
 		/**
    * @inheritDoc
    */
 
-		function Dropdown(opt_config) {
-			babelHelpers.classCallCheck(this, Dropdown);
+		function Modal(opt_config) {
+			babelHelpers.classCallCheck(this, Modal);
 
-			var _this = babelHelpers.possibleConstructorReturn(this, _DropdownBase.call(this, opt_config));
+			var _this = babelHelpers.possibleConstructorReturn(this, _ModalBase.call(this, opt_config));
 
 			_this.eventHandler_ = new EventHandler();
 			return _this;
@@ -7775,297 +7911,255 @@ babelHelpers;
    * @inheritDoc
    */
 
-		Dropdown.prototype.attached = function attached() {
-			_DropdownBase.prototype.attached.call(this);
-			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+		Modal.prototype.attached = function attached() {
+			this.autoFocus_(this.autoFocus);
+		};
+
+		/**
+   * Automatically focuses the element specified by the given selector.
+   * @param {boolean|string} autoFocusSelector The selector, or false if no
+   *   element should be automatically focused.
+   * @protected
+   */
+
+		Modal.prototype.autoFocus_ = function autoFocus_(autoFocusSelector) {
+			if (this.inDocument && this.visible && autoFocusSelector) {
+				var element = this.element.querySelector(autoFocusSelector);
+				if (element) {
+					element.focus();
+				}
+			}
 		};
 
 		/**
    * @inheritDoc
    */
 
-		Dropdown.prototype.detached = function detached() {
-			_DropdownBase.prototype.detached.call(this);
+		Modal.prototype.detached = function detached() {
+			_ModalBase.prototype.detached.call(this);
 			this.eventHandler_.removeAllListeners();
 		};
 
 		/**
-   * Closes the dropdown.
+   * @inheritDoc
    */
 
-		Dropdown.prototype.close = function close() {
-			this.expanded = false;
+		Modal.prototype.disposeInternal = function disposeInternal() {
+			dom.exitDocument(this.overlayElement);
+			this.unrestrictFocus_();
+			_ModalBase.prototype.disposeInternal.call(this);
 		};
 
 		/**
-   * Checks if the dropdown is currently open.
-   * @return {boolean}
-   */
-
-		Dropdown.prototype.isOpen = function isOpen() {
-			return this.expanded;
-		};
-
-		/**
-   * Handles document click in order to hide menu.
+   * Handles a `focus` event on the document. If the focused element is
+   * outside the modal and an overlay is being used, focuses the modal back.
    * @param {!Event} event
    * @protected
    */
 
-		Dropdown.prototype.handleDocClick_ = function handleDocClick_(event) {
-			if (this.element.contains(event.target)) {
-				return;
-			}
-			this.close();
-		};
-
-		/**
-   * Opens the dropdown.
-   */
-
-		Dropdown.prototype.open = function open() {
-			this.expanded = true;
-		};
-
-		/**
-   * Synchronization logic for `expanded` attribute.
-   * @param {boolean} expanded
-   */
-
-		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
-			if (expanded) {
-				dom.addClasses(this.element, 'open');
-			} else {
-				dom.removeClasses(this.element, 'open');
+		Modal.prototype.handleDocumentFocus_ = function handleDocumentFocus_(event) {
+			if (this.overlay && !this.element.contains(event.target)) {
+				this.autoFocus_('.modal-dialog');
 			}
 		};
 
 		/**
-   * Synchronization logic for `position` attribute.
-   * @param {string} position
-   * @param {string} oldPosition
-   */
-
-		Dropdown.prototype.syncPosition = function syncPosition(position, oldPosition) {
-			if (oldPosition) {
-				dom.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
-			}
-			dom.addClasses(this.element, 'drop' + position.toLowerCase());
-		};
-
-		/**
-   * Toggles the dropdown, closing it when open or opening it when closed.
-   */
-
-		Dropdown.prototype.toggle = function toggle() {
-			this.expanded = !this.expanded;
-		};
-
-		/**
-   * Validator for the `position` attribute.
-   * @param {string} position
-   * @return {boolean}
+   * Handles document click in order to close the alert.
+   * @param {!Event} event
    * @protected
    */
 
-		Dropdown.prototype.validatePosition_ = function validatePosition_(position) {
-			switch (position.toLowerCase()) {
-				case 'up':
-				case 'down':
-					return true;
-				default:
-					return false;
+		Modal.prototype.handleKeyup_ = function handleKeyup_(event) {
+			if (event.keyCode === 27) {
+				this.hide();
 			}
 		};
 
-		return Dropdown;
-	})(DropdownBase);
+		/**
+   * Hides the modal, setting its `visible` attribute to false.
+   */
+
+		Modal.prototype.hide = function hide() {
+			this.visible = false;
+		};
+
+		/**
+   * Restricts focus to the modal while it's visible.
+   * @protected
+   */
+
+		Modal.prototype.restrictFocus_ = function restrictFocus_() {
+			this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+		};
+
+		/**
+   * Shifts the focus back to the last element that had been focused before the
+   * modal was shown.
+   * @protected
+   */
+
+		Modal.prototype.shiftFocusBack_ = function shiftFocusBack_() {
+			if (this.lastFocusedElement_) {
+				this.lastFocusedElement_.focus();
+				this.lastFocusedElement_ = null;
+			}
+		};
+
+		/**
+   * Shows the modal, setting its `visible` attribute to true.
+   */
+
+		Modal.prototype.show = function show() {
+			this.visible = true;
+		};
+
+		/**
+   * Syncs the component according to the value of the `hideOnEscape` attribute.
+   * @param {boolean} hideOnEscape
+   */
+
+		Modal.prototype.syncHideOnEscape = function syncHideOnEscape(hideOnEscape) {
+			if (hideOnEscape) {
+				this.eventHandler_.add(dom.on(document, 'keyup', this.handleKeyup_.bind(this)));
+			} else {
+				this.eventHandler_.removeAllListeners();
+			}
+		};
+
+		/**
+   * Syncs the component according to the value of the `overlay` attribute.
+   * @param {boolean} overlay
+   */
+
+		Modal.prototype.syncOverlay = function syncOverlay(overlay) {
+			var willShowOverlay = overlay && this.visible;
+			dom[willShowOverlay ? 'enterDocument' : 'exitDocument'](this.overlayElement);
+		};
+
+		/**
+   * Syncs the component according to the value of the `visible` attribute.
+   * @param {boolean} visible
+   */
+
+		Modal.prototype.syncVisible = function syncVisible(visible) {
+			this.element.style.display = visible ? 'block' : '';
+			this.syncOverlay(this.overlay);
+			if (this.visible) {
+				this.lastFocusedElement_ = document.activeElement;
+				this.autoFocus_(this.autoFocus);
+				this.restrictFocus_();
+			} else {
+				this.unrestrictFocus_();
+				this.shiftFocusBack_();
+			}
+		};
+
+		/**
+   * Removes the handler that restricts focus to elements inside the modal.
+   * @protected
+   */
+
+		Modal.prototype.unrestrictFocus_ = function unrestrictFocus_() {
+			if (this.restrictFocusHandle_) {
+				this.restrictFocusHandle_.removeListener();
+			}
+		};
+
+		/**
+   * Defines the default value for the `overlayElement` attribute.
+   * @protected
+   */
+
+		Modal.prototype.valueOverlayElementFn_ = function valueOverlayElementFn_() {
+			return dom.buildFragment('<div class="modal-backdrop fade in"></div>').firstChild;
+		};
+
+		return Modal;
+	})(ModalBase);
 
 	/**
-  * Attrbutes definition.
-  * @type {!Object}
+  * Default modal elementClasses.
+  * @default modal
+  * @type {string}
   * @static
   */
 
-	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
-	Dropdown.ATTRS = {
+	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
+	Modal.ELEMENT_CLASSES = 'modal';
+
+	Modal.ATTRS = {
 		/**
-   * The dropdown's body content.
-   * @type {string}
+   * A selector for the element that should be automatically focused when the modal
+   * becomes visible, or `false` if no auto focus should happen. Defaults to the
+   * modal's close button.
+   * @type {boolean|string}
+   */
+		autoFocus: {
+			validator: function validator(val) {
+				return val === false || core.isString(val);
+			},
+			value: '.close'
+		},
+
+		/**
+   * Content to be placed inside modal body.
+   * @type {string|SanitizedHtml}
    */
 		body: {},
 
 		/**
-   * The dropdown's header content.
-   * @type {string}
+   * Content to be placed inside modal footer.
+   * @type {string|SanitizedHtml}
+   */
+		footer: {},
+
+		/**
+   * Content to be placed inside modal header.
+   * @type {string|SanitizedHtml}
    */
 		header: {},
 
 		/**
-   * Flag indicating if the dropdown is expanded (open) or not.
+   * Whether modal should hide on esc.
    * @type {boolean}
-   * @default false
+   * @default true
    */
-		expanded: {
-			value: false
+		hideOnEscape: {
+			validator: core.isBoolean,
+			value: true
 		},
 
 		/**
-   * The position of the dropdown (either 'up' or 'down').
-   * @type {string}
-   * @default 'down'
+   * Whether overlay should be visible when modal is visible.
+   * @type {boolean}
+   * @default true
    */
-		position: {
-			value: 'down',
-			validator: 'validatePosition_'
+		overlay: {
+			validator: core.isBoolean,
+			value: true
+		},
+
+		/**
+   * Element to be used as overlay.
+   * @type {Element}
+   */
+		overlayElement: {
+			initOnly: true,
+			valueFn: 'valueOverlayElementFn_'
+		},
+
+		/**
+   * The ARIA role to be used for this modal.
+   * @type {string}
+   * @default 'dialog'
+   */
+		role: {
+			validator: core.isString,
+			value: 'dialog'
 		}
 	};
 
-	/**
-  * Default dropdown elementClasses.
-  * @default dropdown
-  * @type {string}
-  * @static
-  */
-	Dropdown.ELEMENT_CLASSES = 'dropdown';
-
-	DropdownBase.setImpl(Dropdown);
-
-	this.crystal.Dropdown = Dropdown;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
-  var SoyAop = this.crystal.SoyAop;
-  var SoyRenderer = this.crystal.SoyRenderer;
-  var SoyTemplates = this.crystal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from Tooltip.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.Tooltip.
-   */
-
-  if (typeof Templates.Tooltip == 'undefined') {
-    Templates.Tooltip = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Tooltip.content = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '';
-    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
-    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
-    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="tooltip component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="tooltip-arrow"></div>' + Templates.Tooltip.inner(opt_data, null, opt_ijData) + '</div>';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.Tooltip.content.soyTemplateName = 'Templates.Tooltip.content';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</section>');
-  };
-  if (goog.DEBUG) {
-    Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
-  }
-
-  Templates.Tooltip.content.params = ["id"];
-  Templates.Tooltip.inner.params = ["content", "id"];
-
-  var Tooltip = (function (_Component) {
-    babelHelpers.inherits(Tooltip, _Component);
-
-    function Tooltip() {
-      babelHelpers.classCallCheck(this, Tooltip);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    Tooltip.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Tooltip');
-    };
-
-    return Tooltip;
-  })(Component);
-
-  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
-
-  Tooltip.RENDERER = SoyRenderer;
-  Tooltip.setImpl(Tooltip);
-  SoyAop.registerTemplates('Tooltip');
-  this.crystal.Tooltip = Tooltip;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-  var ComponentRegistry = this.crystal.ComponentRegistry;
-  var TooltipBase = this.crystal.TooltipBase;
-
-  /**
-   * Tooltip component.
-   */
-
-  var Tooltip = (function (_TooltipBase) {
-    babelHelpers.inherits(Tooltip, _TooltipBase);
-
-    function Tooltip() {
-      babelHelpers.classCallCheck(this, Tooltip);
-      return babelHelpers.possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
-    }
-
-    /**
-     * Attribute synchronization logic for `visible` attribute. Updates the
-     * element's opacity, since bootstrap uses opacity instead of display
-     * for tooltip visibility.
-     * @param {boolean} visible
-     */
-
-    Tooltip.prototype.syncVisible = function syncVisible(visible) {
-      this.element.style.opacity = visible ? 1 : '';
-      _TooltipBase.prototype.syncVisible.call(this, visible);
-    };
-
-    return Tooltip;
-  })(TooltipBase);
-
-  /**
-   * @inheritDoc
-   * @see `Align` class.
-   * @static
-   */
-
-  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
-  Tooltip.Align = TooltipBase.Align;
-
-  /**
-   * Default tooltip elementClasses.
-   * @default tooltip
-   * @type {string}
-   * @static
-   */
-  Tooltip.ELEMENT_CLASSES = 'tooltip';
-
-  ComponentRegistry.register(Tooltip);
-
-  this.crystal.Tooltip = Tooltip;
+	this.crystal.Modal = Modal;
 }).call(this);
 'use strict';
 
@@ -8354,261 +8448,6 @@ babelHelpers;
 	};
 
 	this.crystal.Scrollspy = Scrollspy;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
-  var SoyAop = this.crystal.SoyAop;
-  var SoyRenderer = this.crystal.SoyRenderer;
-  var SoyTemplates = this.crystal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from ProgressBar.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.ProgressBar.
-   */
-
-  if (typeof Templates.ProgressBar == 'undefined') {
-    Templates.ProgressBar = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ProgressBar.content = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="progressbar" tabindex="0"><div class="progress-bar"></div></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';
-  }
-
-  Templates.ProgressBar.content.params = ["id"];
-
-  var ProgressBar = (function (_Component) {
-    babelHelpers.inherits(ProgressBar, _Component);
-
-    function ProgressBar() {
-      babelHelpers.classCallCheck(this, ProgressBar);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    ProgressBar.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'ProgressBar');
-    };
-
-    return ProgressBar;
-  })(Component);
-
-  ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
-
-  ProgressBar.RENDERER = SoyRenderer;
-  ProgressBar.setImpl(ProgressBar);
-  SoyAop.registerTemplates('ProgressBar');
-  this.crystal.ProgressBar = ProgressBar;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var dom = this.crystal.dom;
-	var ProgressBarBase = this.crystal.ProgressBar;
-
-	/**
-  * UI Component that renders a progress bar.
-  */
-
-	var ProgressBar = (function (_ProgressBarBase) {
-		babelHelpers.inherits(ProgressBar, _ProgressBarBase);
-
-		function ProgressBar() {
-			babelHelpers.classCallCheck(this, ProgressBar);
-			return babelHelpers.possibleConstructorReturn(this, _ProgressBarBase.apply(this, arguments));
-		}
-
-		/**
-   * Get the inner element that represents the bar.
-   * @return {!Element}
-   */
-
-		ProgressBar.prototype.getBarElement = function getBarElement() {
-			if (!this.barElement_) {
-				this.barElement_ = this.element.childNodes[0];
-			}
-			return this.barElement_;
-		};
-
-		/**
-   * Setter function for the `value` attribute. Makes sure the value
-   * is between the current `min` and `max` attributes.
-   * @param {number} value
-   * @return {number}
-   * @protected
-   */
-
-		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
-			if (value < this.min) {
-				value = this.min;
-			}
-			if (value > this.max) {
-				value = this.max;
-			}
-			return value;
-		};
-
-		/**
-   * Synchronization logic for the `barClass` attribute.
-   * @param {string} barClass
-   * @param {string} prevBarClass
-   */
-
-		ProgressBar.prototype.syncBarClass = function syncBarClass(barClass, prevBarClass) {
-			var barElement = this.getBarElement();
-			dom.removeClasses(barElement, prevBarClass);
-			dom.addClasses(barElement, barClass);
-		};
-
-		/**
-   * Synchronization logic for the `label` attribute.
-   */
-
-		ProgressBar.prototype.syncLabel = function syncLabel() {
-			var barElement = this.getBarElement();
-			dom.removeChildren(barElement);
-			if (this.label) {
-				dom.append(barElement, this.label);
-			}
-		};
-
-		/**
-   * Synchronization logic for the `max` attribute.
-   * @param {number} max
-   */
-
-		ProgressBar.prototype.syncMax = function syncMax(max) {
-			if (max < this.value) {
-				this.value = max;
-			} else {
-				this.updateBar_();
-			}
-			this.element.setAttribute('aria-valuemax', this.max);
-		};
-
-		/**
-   * Synchronization logic for the `min` attribute.
-   * @param {number} min
-   */
-
-		ProgressBar.prototype.syncMin = function syncMin(min) {
-			if (min > this.value) {
-				this.value = min;
-			} else {
-				this.updateBar_();
-			}
-			this.element.setAttribute('aria-valuemin', this.min);
-		};
-
-		/**
-   * Synchronization logic for the `value` attribute.
-   * @param {number} value
-   */
-
-		ProgressBar.prototype.syncValue = function syncValue() {
-			this.updateBar_();
-			this.element.setAttribute('aria-valuenow', this.value);
-		};
-
-		/**
-   * Updates the bar according to the `min`, `max` and `value` attributes.
-   * @protected
-   */
-
-		ProgressBar.prototype.updateBar_ = function updateBar_() {
-			var barElement = this.getBarElement();
-			var percentage = Math.floor((this.value - this.min) * 100 / (this.max - this.min));
-			barElement.style.width = percentage + '%';
-		};
-
-		return ProgressBar;
-	})(ProgressBarBase);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
-	ProgressBar.ATTRS = {
-		/**
-   * Optional CSS classes to be added to the inner progress bar element,
-   * like 'progress-bar-danger'.
-   * @type {string}
-   */
-		barClass: {
-			validator: core.isString
-		},
-
-		/**
-   * An optional label to be rendered inside the progress bar.
-   * @type {string}
-   */
-		label: {
-			validator: function validator(label) {
-				return !core.isDefAndNotNull(label) || core.isString(label);
-			}
-		},
-
-		/**
-   * The maximum value of the progress bar. When the value is at its
-   * max, the bar will be fully extended.
-   * @type {number}
-   */
-		max: {
-			validator: core.isNumber,
-			value: 100
-		},
-
-		/**
-   * The minimum value of the progress bar. When the value is at its
-   * max, the bar will be fully collapsed.
-   * @type {number}
-   */
-		min: {
-			validator: core.isNumber,
-			value: 0
-		},
-
-		/**
-   * The current value of the progress bar.
-   * @type {number}
-   */
-		value: {
-			setter: 'setterValueFn_',
-			validator: core.isNumber,
-			value: 0
-		}
-	};
-
-	/**
-  * Default modal elementClasses.
-  * @type {string}
-  * @static
-  */
-	ProgressBar.ELEMENT_CLASSES = 'progress';
-
-	ProgressBarBase.setImpl(ProgressBar);
-
-	this.crystal.ProgressBar = ProgressBar;
 }).call(this);
 'use strict';
 
@@ -9903,7 +9742,6 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
   var SoyAop = this.crystal.SoyAop;
   var SoyRenderer = this.crystal.SoyRenderer;
   var SoyTemplates = this.crystal.SoyTemplates;
@@ -9989,17 +9827,12 @@ babelHelpers;
       return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    Slider.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Slider');
-    };
-
     return Slider;
   })(Component);
 
   Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
 
   Slider.RENDERER = SoyRenderer;
-  Slider.setImpl(Slider);
   SoyAop.registerTemplates('Slider');
   this.crystal.Slider = Slider;
   /* jshint ignore:end */
@@ -10243,8 +10076,6 @@ babelHelpers;
   */
 	Slider.ELEMENT_CLASSES = 'slider';
 
-	SliderBase.setImpl(Slider);
-
 	this.crystal.Slider = Slider;
 }).call(this);
 'use strict';
@@ -10252,7 +10083,131 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
+  var SoyAop = this.crystal.SoyAop;
+  var SoyRenderer = this.crystal.SoyRenderer;
+  var SoyTemplates = this.crystal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Tooltip.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Tooltip.
+   */
+
+  if (typeof Templates.Tooltip == 'undefined') {
+    Templates.Tooltip = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Tooltip.content = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '';
+    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
+    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
+    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="tooltip component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="tooltip-arrow"></div>' + Templates.Tooltip.inner(opt_data, null, opt_ijData) + '</div>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.Tooltip.content.soyTemplateName = 'Templates.Tooltip.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</section>');
+  };
+  if (goog.DEBUG) {
+    Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
+  }
+
+  Templates.Tooltip.content.params = ["id"];
+  Templates.Tooltip.inner.params = ["content", "id"];
+
+  var Tooltip = (function (_Component) {
+    babelHelpers.inherits(Tooltip, _Component);
+
+    function Tooltip() {
+      babelHelpers.classCallCheck(this, Tooltip);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Tooltip;
+  })(Component);
+
+  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
+
+  Tooltip.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Tooltip');
+  this.crystal.Tooltip = Tooltip;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  var TooltipBase = this.crystal.TooltipBase;
+
+  /**
+   * Tooltip component.
+   */
+
+  var Tooltip = (function (_TooltipBase) {
+    babelHelpers.inherits(Tooltip, _TooltipBase);
+
+    function Tooltip() {
+      babelHelpers.classCallCheck(this, Tooltip);
+      return babelHelpers.possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
+    }
+
+    /**
+     * Attribute synchronization logic for `visible` attribute. Updates the
+     * element's opacity, since bootstrap uses opacity instead of display
+     * for tooltip visibility.
+     * @param {boolean} visible
+     */
+
+    Tooltip.prototype.syncVisible = function syncVisible(visible) {
+      this.element.style.opacity = visible ? 1 : '';
+      _TooltipBase.prototype.syncVisible.call(this, visible);
+    };
+
+    return Tooltip;
+  })(TooltipBase);
+
+  /**
+   * @inheritDoc
+   * @see `Align` class.
+   * @static
+   */
+
+  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
+  Tooltip.Align = TooltipBase.Align;
+
+  /**
+   * Default tooltip elementClasses.
+   * @default tooltip
+   * @type {string}
+   * @static
+   */
+  Tooltip.ELEMENT_CLASSES = 'tooltip';
+
+  this.crystal.Tooltip = Tooltip;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.crystal.Component;
   var SoyAop = this.crystal.SoyAop;
   var SoyRenderer = this.crystal.SoyRenderer;
   var SoyTemplates = this.crystal.SoyTemplates;
@@ -10334,17 +10289,12 @@ babelHelpers;
       return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    Treeview.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Treeview');
-    };
-
     return Treeview;
   })(Component);
 
   Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
 
   Treeview.RENDERER = SoyRenderer;
-  Treeview.setImpl(Treeview);
   SoyAop.registerTemplates('Treeview');
   this.crystal.Treeview = Treeview;
   /* jshint ignore:end */
@@ -10507,8 +10457,6 @@ babelHelpers;
 			}
 		}
 	};
-
-	TreeviewBase.setImpl(Treeview);
 
 	this.crystal.Treeview = Treeview;
 }).call(this);
