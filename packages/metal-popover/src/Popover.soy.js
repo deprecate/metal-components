@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -67,13 +66,8 @@ Templates.Popover.content.params = ["id"];
 Templates.Popover.title.params = ["id","title"];
 Templates.Popover.innerContent.params = ["content","id"];
 
-class Popover extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'Popover');
-  }
-}
+class Popover extends Component {}
 Popover.RENDERER = SoyRenderer;
-Popover.setImpl(Popover);
 SoyAop.registerTemplates('Popover');
 export default Popover;
 /* jshint ignore:end */

@@ -2,7 +2,7 @@
 
 import core from 'bower:metal/src/core';
 import TooltipBase from 'bower:crystal-tooltip/src/TooltipBase';
-import PopoverBase from './Popover.soy';
+import './Popover.soy';
 
 /**
  * Popover component. Extends the behavior from `TooltipBase`, adding
@@ -50,7 +50,5 @@ Popover.ATTRS = {
 Popover.Align = TooltipBase.Align;
 
 Popover.ELEMENT_CLASSES = 'popover';
-
-PopoverBase.setImpl(Popover);
 
 export default Popover;
