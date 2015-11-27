@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -79,13 +78,8 @@ Templates.Slider.input.params = ["id","inputName","value"];
 Templates.Slider.label.params = ["id","value"];
 Templates.Slider.rail.params = ["id"];
 
-class Slider extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'Slider');
-  }
-}
+class Slider extends Component {}
 Slider.RENDERER = SoyRenderer;
-Slider.setImpl(Slider);
 SoyAop.registerTemplates('Slider');
 export default Slider;
 /* jshint ignore:end */

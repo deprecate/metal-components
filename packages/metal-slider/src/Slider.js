@@ -213,6 +213,4 @@ Slider.ATTRS = {
  */
 Slider.ELEMENT_CLASSES = 'slider';
 
-SliderBase.setImpl(Slider);
-
 export default Slider;

@@ -1,38 +1,17 @@
-var metal = require('gulp-metal');
-
-var babelOptions = {
-	resolveModuleSource: metal.renameAlias,
-	sourceMap: 'both'
-};
-
-var scssOptions = {
-	sourceMap: true
-};
+var metalKarmaConfig = require('metal-karma-config');
 
 module.exports = function (config) {
-	config.set({
-		frameworks: ['mocha', 'chai', 'source-map-support', 'commonjs'],
+	metalKarmaConfig(config);
 
-		files: [
-			'bower_components/soyutils/soyutils.js',
-			'bower_components/metal*/src/**/*.js',
-			'bower_components/metal-drag-drop/test/fixtures/DragTestHelper.js',
-			'src/**/*.js',
-			'src/**/*.scss',
-			'test/**/*.js'
-		],
-
-		preprocessors: {
-			'src/**/*.js': ['babel', 'commonjs'],
-			'src/**/*.scss': ['scss'],
-			'bower_components/metal*/**/*.js': ['babel', 'commonjs'],
-			'test/**/*.js': ['babel', 'commonjs']
-		},
-
-		browsers: ['Chrome'],
-
-		babelPreprocessor: {options: babelOptions},
-
-		scssPreprocessor: {options: scssOptions}
-	});
+	config.plugins.push('karma-scss-preprocessor');
+	config.files.push(
+		'bower_components/metal-drag-drop/test/fixtures/DragTestHelper.js',
+		'src/**/*.scss'
+	);
+	config.preprocessors['src/**/*.scss'] = ['scss'];
+	config.scssPreprocessor = {
+		options: {
+			sourceMap: true
+		}
+	};
 }
