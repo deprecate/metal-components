@@ -14,12 +14,22 @@
 	}
 
 	.dropup {
-		margin-top: 500px;
+		margin-top: 300px;
 	}
 	</style>
 </head>
 <body>
 	<h1>Dropdown</h1>
+
+	<h3>From HTML</h3>
+	<div id="htmlDropdown" class="dropdown">
+		<div class="dropdown-menu">
+			<li><a href="#">HTML Content</a></li>
+		</div>
+	</div>
+
+	<h3>From JS</h3>
+
 	<script type="text/javascript">
 		window.dropdown = new crystal.Dropdown({
 			header: '<button data-onclick="toggle" class="btn btn-primary">Dropdown <span class="caret"></span></button>',
@@ -30,6 +40,11 @@
 			position: 'up',
 			header: '<button data-onclick="toggle" class="btn btn-primary">Dropup <span class="caret"></span></button>',
 			body: '<li><a href="#">Sign out</a></li>'
+		}).render();
+
+		new crystal.Dropdown({
+			element: '#htmlDropdown',
+			header: '<button data-onclick="toggle" class="btn btn-primary">HTML <span class="caret"></span></button>'
 		}).render();
 	</script>
 </body>

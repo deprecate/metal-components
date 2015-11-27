@@ -113,6 +113,16 @@ class Dropdown extends DropdownBase {
 				return false;
 		}
 	}
+
+	/**
+	 * Gets the default value for the `body` attribute. Retrieves existing
+	 * html for the body from the element, if there is any.
+	 * @return {?string}
+	 */
+	valueBodyFn_() {
+		var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
+		return dropdownMenu ? dropdownMenu.innerHTML : '';
+	}
 }
 
 /**
@@ -126,7 +136,8 @@ Dropdown.ATTRS = {
 	 * @type {string}
 	 */
 	body: {
-		setter: SoyRenderer.sanitizeHtml
+		setter: SoyRenderer.sanitizeHtml,
+		valueFn: 'valueBodyFn_'
 	},
 
 	/**
