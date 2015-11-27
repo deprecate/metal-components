@@ -2,7 +2,7 @@
 	"name": "crystal-progressbar",
 	"version": "0.0.0",
 	"description": "Crystal's progress bar component",
-	"license": "MIT",
+	"license": "BSD",
 	"repository": "metal/crystal-progressbar",
 	"engines": {
 		"node": ">=0.12.0"
