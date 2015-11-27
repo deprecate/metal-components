@@ -2,7 +2,7 @@
   "name": "crystal-modal",
   "version": "0.1.0",
   "description": "Crystal's modal component",
-  "license": "MIT",
+  "license": "BSD",
   "repository": "metal/crystal-modal",
   "author": {
     "name": "Maira Bello",
