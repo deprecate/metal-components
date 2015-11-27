@@ -3,6 +3,7 @@
 import dom from 'bower:metal/src/dom/dom';
 import EventHandler from 'bower:metal/src/events/EventHandler';
 import DropdownBase from './Dropdown.soy';
+import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 
 /**
  * Dropdown component.
@@ -124,13 +125,17 @@ Dropdown.ATTRS = {
 	 * The dropdown's body content.
 	 * @type {string}
 	 */
-	body: {},
+	body: {
+		setter: SoyRenderer.sanitizeHtml
+	},
 
 	/**
 	 * The dropdown's header content.
 	 * @type {string}
 	 */
-	header: {},
+	header: {
+		setter: SoyRenderer.sanitizeHtml
+	},
 
 	/**
 	 * Flag indicating if the dropdown is expanded (open) or not.

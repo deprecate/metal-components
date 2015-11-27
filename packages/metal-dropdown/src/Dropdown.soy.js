@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -47,13 +46,8 @@ if (goog.DEBUG) {
 Templates.Dropdown.content.params = ["header","id"];
 Templates.Dropdown.body.params = ["body","id"];
 
-class Dropdown extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'Dropdown');
-  }
-}
+class Dropdown extends Component {}
 Dropdown.RENDERER = SoyRenderer;
-Dropdown.setImpl(Dropdown);
 SoyAop.registerTemplates('Dropdown');
 export default Dropdown;
 /* jshint ignore:end */

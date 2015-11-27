@@ -21,15 +21,15 @@
 <body>
 	<h1>Dropdown</h1>
 	<script type="text/javascript">
-		new crystal.Dropdown({
-			header: crystal.SoyRenderer.sanitizeHtml('<button data-onclick="toggle" class="btn btn-primary">Dropdown <span class="caret"></span></button>'),
-			body: crystal.SoyRenderer.sanitizeHtml('<li><a href="#">Action</a></li><li><a href="#">Another action</a></li><li><a href="#">Something else here</a></li><li><a href="#">Separated link</a></li>')
+		window.dropdown = new crystal.Dropdown({
+			header: '<button data-onclick="toggle" class="btn btn-primary">Dropdown <span class="caret"></span></button>',
+			body: '<li><a href="#">Action</a></li><li><a href="#">Another action</a></li><li><a href="#">Something else here</a></li><li><a href="#">Separated link</a></li>'
 		}).render();
 
 		new crystal.Dropdown({
 			position: 'up',
-			header: crystal.SoyRenderer.sanitizeHtml('<button data-onclick="toggle" class="btn btn-primary">Dropup <span class="caret"></span></button>'),
-			body: crystal.SoyRenderer.sanitizeHtml('<li><a href="#">Sign out</a></li>')
+			header: '<button data-onclick="toggle" class="btn btn-primary">Dropup <span class="caret"></span></button>',
+			body: '<li><a href="#">Sign out</a></li>'
 		}).render();
 	</script>
 </body>
