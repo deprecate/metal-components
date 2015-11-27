@@ -167,6 +167,4 @@ ProgressBar.ATTRS = {
  */
 ProgressBar.ELEMENT_CLASSES = 'progress';
 
-ProgressBarBase.setImpl(ProgressBar);
-
 export default ProgressBar;

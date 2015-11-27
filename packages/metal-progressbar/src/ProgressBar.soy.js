@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -31,13 +30,8 @@ if (goog.DEBUG) {
 
 Templates.ProgressBar.content.params = ["id"];
 
-class ProgressBar extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'ProgressBar');
-  }
-}
+class ProgressBar extends Component {}
 ProgressBar.RENDERER = SoyRenderer;
-ProgressBar.setImpl(ProgressBar);
 SoyAop.registerTemplates('ProgressBar');
 export default ProgressBar;
 /* jshint ignore:end */
