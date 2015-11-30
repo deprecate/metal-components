@@ -195,6 +195,7 @@ Modal.ATTRS = {
 	 * @type {string|SanitizedHtml}
 	 */
 	body: {
+		isHtml: true
 	},
 
 	/**
@@ -202,6 +203,7 @@ Modal.ATTRS = {
 	 * @type {string|SanitizedHtml}
 	 */
 	footer: {
+		isHtml: true
 	},
 
 	/**
@@ -209,6 +211,7 @@ Modal.ATTRS = {
 	 * @type {string|SanitizedHtml}
 	 */
 	header: {
+		isHtml: true
 	},
 
 	/**
@@ -252,4 +255,3 @@ Modal.ATTRS = {
 };
 
 export default Modal;
-

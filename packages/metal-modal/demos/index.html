@@ -16,9 +16,9 @@
 	<button type="button" class="btn btn-primary openModal">Open Modal</button>
 	<script type="text/javascript">
 		window.modal = new crystal.Modal({
-			header: crystal.SoyRenderer.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
+			header: '<h4 class="modal-title">Modal header</h4>',
 			body: 'One fine body...',
-			footer: crystal.SoyRenderer.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
+			footer: '<button type="button" class="btn btn-primary">OK</button>'
 		}).render('.container');
 
 		document.querySelector('.openModal').addEventListener('click', function() {

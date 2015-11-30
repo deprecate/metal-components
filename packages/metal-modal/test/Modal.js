@@ -3,7 +3,6 @@
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
 import Modal from '../src/Modal';
-import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 
 var modal;
@@ -213,7 +212,7 @@ describe('Modal', function() {
 		it('should automatically focus internal element that matches selector specified by "autoFocus" attr', function() {
 			modal = new Modal({
 				autoFocus: '.body-btn',
-				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>')
+				body: '<button class="body-btn">Body Button</button>'
 			}).render();
 			assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
 		});
@@ -222,7 +221,7 @@ describe('Modal', function() {
 			var prevActiveElement = document.activeElement;
 			modal = new Modal({
 				autoFocus: '.body-btn',
-				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+				body: '<button class="body-btn">Body Button</button>',
 				visible: false
 			}).render();
 			assert.strictEqual(prevActiveElement, document.activeElement);
@@ -233,7 +232,7 @@ describe('Modal', function() {
 			dom.enterDocument(element);
 			modal = new Modal({
 				autoFocus: '.body-btn',
-				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+				body: '<button class="body-btn">Body Button</button>',
 				visible: false
 			}).render();
 
@@ -335,7 +334,7 @@ describe('Modal', function() {
 
 		it('should not restrict focusing inside modal', function() {
 			modal = new Modal({
-				body: SoyRenderer.sanitizeHtml('<button class="body-btn">Body Button</button>'),
+				body: '<button class="body-btn">Body Button</button>',
 			}).render();
 
 			var element = modal.element.querySelector('.body-btn');
