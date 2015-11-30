@@ -36,7 +36,7 @@ describe('Dropdown', function() {
 			element: element
 		}).render();
 
-		assert.strictEqual('<div class="myHeader"></div>', component.header.content);
+		assert.strictEqual('<div class="myHeader"></div>', component.header);
 	});
 
 	it('should get body content from existing html', function() {
@@ -49,7 +49,7 @@ describe('Dropdown', function() {
 			element: element
 		}).render();
 
-		assert.strictEqual('<div class="myBody"></div>', component.body.content);
+		assert.strictEqual('<div class="myBody"></div>', component.body);
 	});
 
 	it('should open dropdown', function(done) {

@@ -3,7 +3,6 @@
 import dom from 'bower:metal/src/dom/dom';
 import EventHandler from 'bower:metal/src/events/EventHandler';
 import DropdownBase from './Dropdown.soy';
-import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 
 /**
  * Dropdown component.
@@ -155,7 +154,7 @@ Dropdown.ATTRS = {
 	 * @type {string}
 	 */
 	body: {
-		setter: SoyRenderer.sanitizeHtml,
+		isHtml: true,
 		valueFn: 'valueBodyFn_'
 	},
 
@@ -164,7 +163,7 @@ Dropdown.ATTRS = {
 	 * @type {string}
 	 */
 	header: {
-		setter: SoyRenderer.sanitizeHtml,
+		isHtml: true,
 		valueFn: 'valueHeaderFn_'
 	},
 
