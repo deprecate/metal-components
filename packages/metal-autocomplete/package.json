@@ -2,7 +2,7 @@
 	"name": "steel-autocomplete",
 	"version": "0.0.0",
 	"description": "Steel's autocomplete component",
-	"license": "MIT",
+	"license": "BSD",
 	"repository": "metal/steel-autocomplete",
 	"engines": {
 		"node": ">=0.12.0"
