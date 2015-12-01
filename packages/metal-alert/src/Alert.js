@@ -172,6 +172,4 @@ Alert.ATTRS = {
 	}
 };
 
-AlertBase.setImpl(Alert);
-
 export default Alert;
