@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -63,13 +62,8 @@ Templates.Alert.content.params = ["id"];
 Templates.Alert.body.params = ["body","id"];
 Templates.Alert.dismiss.params = ["dismissible","id"];
 
-class Alert extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'Alert');
-  }
-}
+class Alert extends Component {}
 Alert.RENDERER = SoyRenderer;
-Alert.setImpl(Alert);
 SoyAop.registerTemplates('Alert');
 export default Alert;
 /* jshint ignore:end */
