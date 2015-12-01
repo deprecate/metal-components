@@ -172,6 +172,4 @@ Select.ATTRS = {
  */
 Select.ELEMENT_CLASSES = 'select';
 
-SelectBase.setImpl(Select);
-
 export default Select;
