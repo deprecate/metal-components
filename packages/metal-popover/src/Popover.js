@@ -27,7 +27,7 @@ class Popover extends TooltipBase {
  * @static
  */
 Popover.ATTRS = {
-	title: {
+	content: {
 		validator: core.isString
 	},
 
