@@ -18,9 +18,9 @@
 	<h1>Popover</h1>
 	<button type="button" id="PopoverButton">Popover Button</button>
 
-	<h2>Popovers from data-title</h2>
-	<button type="button" data-title="Data Title 1">Data Title 1</button>
-	<button type="button" data-title="Data Title 2">Data Title 2</button>
+	<h2>Popovers from HTML attrs</h2>
+	<button type="button" data-title="Data Title 1" data-content="Data Content 1">Data Title 1</button>
+	<button type="button" data-title="Data Title 2" data-content="Data Content 2">Data Title 2</button>
 	<script type="text/javascript">
 		window.popover = new crystal.Popover({
 			content: 'My cool popover',
@@ -31,7 +31,6 @@
 		}).render();
 
 		new crystal.Popover({
-			content: 'Some content',
 			delay: [300, 150],
 			selector: '[data-title]',
 			position: crystal.Popover.Align.Bottom,

@@ -59,6 +59,24 @@ describe('Popover', function() {
 		}, 25);
 	});
 
+	it('should get content from the align element\'s data-content', function(done) {
+		dom.enterDocument('<div id="trigger" data-content="Test Content">trigger</div>');
+		var trigger = dom.toElement('#trigger');
+
+		popover = new Popover({
+			delay: [0, 0],
+			visible: false,
+			selector: '#trigger',
+		}).render();
+
+		dom.triggerEvent(trigger, 'click');
+		popover.once('contentChanged', function() {
+			assert.strictEqual('Test Content', popover.content);
+			dom.exitDocument(trigger);
+			done();
+		});
+	});
+
 	it('should decorate', function() {
 		var markup = SoyTemplates.get('Popover', 'content')({
 			id: 'popover',

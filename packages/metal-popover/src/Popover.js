@@ -9,6 +9,17 @@ import './Popover.soy';
  * just some UI to it.
  */
 class Popover extends TooltipBase {
+	syncAlignElement(alignElement) {
+		super.syncAlignElement(alignElement);
+
+		if (alignElement) {
+			var dataContent = alignElement.getAttribute('data-content');
+			if (dataContent) {
+				this.content = dataContent;
+			}
+		}
+	}
+
 	/**
 	 * Attribute synchronization logic for `visible` attribute. Updates the
 	 * element's display, since bootstrap makes it 'none' by default, so we
