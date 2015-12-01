@@ -56,6 +56,4 @@ Switcher.ATTRS = {
 	}
 };
 
-SwitcherBase.setImpl(Switcher);
-
 export default Switcher;
