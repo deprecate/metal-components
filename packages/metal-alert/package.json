@@ -2,7 +2,7 @@
 	"name": "steel-alert",
 	"version": "0.0.0",
 	"description": "Steel's alert component",
-	"license": "MIT",
+	"license": "BSD",
 	"repository": "metal/steel-alert",
 	"engines": {
 		"node": ">=0.12.0"
