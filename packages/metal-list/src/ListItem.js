@@ -33,6 +33,4 @@ ListItem.ATTRS = {
 	}
 };
 
-ListItemBase.setImpl(ListItem);
-
 export default ListItem;

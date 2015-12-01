@@ -72,6 +72,4 @@ List.ATTRS = {
 	}
 };
 
-ListBase.setImpl(List);
-
 export default List;

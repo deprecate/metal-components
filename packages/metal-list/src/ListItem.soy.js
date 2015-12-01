@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -69,13 +68,8 @@ if (goog.DEBUG) {
 Templates.ListItem.content.params = ["id","index","item"];
 Templates.ListItem.item.params = ["item"];
 
-class ListItem extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'ListItem');
-  }
-}
+class ListItem extends Component {}
 ListItem.RENDERER = SoyRenderer;
-ListItem.setImpl(ListItem);
 SoyAop.registerTemplates('ListItem');
 export default ListItem;
 /* jshint ignore:end */
