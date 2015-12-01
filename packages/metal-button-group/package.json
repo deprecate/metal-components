@@ -2,7 +2,7 @@
 	"name": "steel-button-group",
 	"version": "0.0.0",
 	"description": "Steel's button group component",
-	"license": "MIT",
+	"license": "BSD",
 	"repository": "metal/steel-button-group",
 	"engines": {
 		"node": ">=0.12.0"
