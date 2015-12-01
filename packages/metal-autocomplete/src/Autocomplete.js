@@ -1,7 +1,6 @@
 'use strict';
 
 import AutocompleteBase from './AutocompleteBase';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
@@ -171,7 +170,5 @@ Autocomplete.ATTRS = {
  * @default 'autocomplete autocomplete-list'
  */
 Autocomplete.ELEMENT_CLASSES = 'autocomplete autocomplete-list';
-
-ComponentRegistry.register(Autocomplete);
 
 export default Autocomplete;
