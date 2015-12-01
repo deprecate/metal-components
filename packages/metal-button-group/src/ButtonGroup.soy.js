@@ -1,6 +1,5 @@
 /* jshint ignore:start */
 import Component from 'bower:metal/src/component/Component';
-import ComponentRegistry from 'bower:metal/src/component/ComponentRegistry';
 import SoyAop from 'bower:metal/src/soy/SoyAop';
 import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
@@ -66,13 +65,8 @@ if (goog.DEBUG) {
 Templates.ButtonGroup.content.params = ["buttons","id"];
 Templates.ButtonGroup.selectedClass.private = true;
 
-class ButtonGroup extends Component {
-  static setImpl(ctor) {
-    ComponentRegistry.register(ctor, 'ButtonGroup');
-  }
-}
+class ButtonGroup extends Component {}
 ButtonGroup.RENDERER = SoyRenderer;
-ButtonGroup.setImpl(ButtonGroup);
 SoyAop.registerTemplates('ButtonGroup');
 export default ButtonGroup;
 /* jshint ignore:end */

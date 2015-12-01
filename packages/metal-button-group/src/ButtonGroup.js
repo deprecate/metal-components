@@ -143,6 +143,4 @@ ButtonGroup.ELEMENT_CLASSES = 'btn-group';
  */
 ButtonGroup.SELECTED_CLASS = 'btn-group-selected';
 
-ButtonGroupBase.setImpl(ButtonGroup);
-
 export default ButtonGroup;
