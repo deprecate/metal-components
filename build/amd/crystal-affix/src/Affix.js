@@ -139,7 +139,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/attribute/A
 	Affix.Position = {
 		Top: 'affix-top',
 		Bottom: 'affix-bottom',
-		Default: 'affix-default'
+		Default: 'affix'
 	};
 	Affix.ATTRS = {
 		scrollElement: {

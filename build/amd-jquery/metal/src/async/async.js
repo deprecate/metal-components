@@ -5,19 +5,10 @@
 
 'use strict';
 
-define(['exports', 'metal/src/core'], function (exports, _core) {
+define(['exports'], function (exports) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _core2 = _interopRequireDefault(_core);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	var async = {};
 
 	async.throwException = function (exception) {
@@ -71,8 +62,8 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 
 		cb = async.nextTick.wrapCallback_(cb);
 
-		if (_core2.default.isFunction(window.setImmediate)) {
-			window.setImmediate(cb);
+		if (typeof setImmediate === 'function') {
+			setImmediate(cb);
 			return;
 		}
 
@@ -86,7 +77,11 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 	async.nextTick.setImmediate_ = null;
 
 	async.nextTick.getSetImmediateEmulator_ = function () {
-		var Channel = window.MessageChannel;
+		var Channel;
+
+		if (typeof MessageChannel === 'function') {
+			Channel = MessageChannel;
+		}
 
 		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
 			Channel = function () {

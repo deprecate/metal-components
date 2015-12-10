@@ -70,7 +70,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   }
 
   Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</section>');
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.title ? opt_data.title : '') + '</section>');
   };
 
   if (goog.DEBUG) {
@@ -78,7 +78,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   }
 
   Templates.Tooltip.content.params = ["id"];
-  Templates.Tooltip.inner.params = ["content", "id"];
+  Templates.Tooltip.inner.params = ["title", "id"];
 
   var Tooltip = (function (_Component) {
     _inherits(Tooltip, _Component);

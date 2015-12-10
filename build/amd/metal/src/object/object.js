@@ -54,6 +54,17 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 			return cur;
 		};
 
+		object.map = function map(obj, fn) {
+			var mappedObj = {};
+			var keys = Object.keys(obj);
+
+			for (var i = 0; i < keys.length; i++) {
+				mappedObj[keys[i]] = fn(keys[i], obj[keys[i]]);
+			}
+
+			return mappedObj;
+		};
+
 		return object;
 	})();
 

@@ -283,7 +283,7 @@ babelHelpers;
   * @protected
   */
 
-	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
 
 	/**
   * Counter for unique id.
@@ -342,6 +342,23 @@ babelHelpers;
 				}
 			}
 			return cur;
+		};
+
+		/**
+   * Returns a new object with the same keys as the given one, but with
+   * their values set to the return values of the specified function.
+   * @param {!Object} obj
+   * @param {!function(string, *)} fn
+   * @return {!Object}
+   */
+
+		object.map = function map(obj, fn) {
+			var mappedObj = {};
+			var keys = Object.keys(obj);
+			for (var i = 0; i < keys.length; i++) {
+				mappedObj[keys[i]] = fn(keys[i], obj[keys[i]]);
+			}
+			return mappedObj;
 		};
 
 		return object;
@@ -1615,8 +1632,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.crystal.core;
-
 	var async = {};
 
 	/**
@@ -1714,8 +1729,12 @@ babelHelpers;
 		}
 		cb = async.nextTick.wrapCallback_(cb);
 		// Introduced and currently only supported by IE10.
-		if (core.isFunction(window.setImmediate)) {
-			window.setImmediate(cb);
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof setImmediate === 'function') {
+			setImmediate(cb);
 			return;
 		}
 		// Look for and cache the custom fallback version of setImmediate.
@@ -1741,7 +1760,16 @@ babelHelpers;
 	async.nextTick.getSetImmediateEmulator_ = function () {
 		// Create a private message channel and use it to postMessage empty messages
 		// to ourselves.
-		var Channel = window.MessageChannel;
+		var Channel;
+
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof MessageChannel === 'function') {
+			Channel = MessageChannel;
+		}
+
 		// If MessageChannel is not available and we are in a browser, implement
 		// an iframe based polyfill in browsers that have postMessage and
 		// document.addEventListener. The latter excludes IE8 because it has a
@@ -3066,7 +3094,7 @@ babelHelpers;
 	Affix.Position = {
 		Top: 'affix-top',
 		Bottom: 'affix-bottom',
-		Default: 'affix-default'
+		Default: 'affix'
 	};
 
 	Affix.ATTRS = {
@@ -6257,7 +6285,14 @@ babelHelpers;
 			});
 			var surface = component.getSurface(component.id);
 			var data = surface && surface.componentData ? surface.componentData : {};
-			return object.mixin(data, component.getAttrs(names));
+			var attrs = object.map(component.getAttrs(names), function (key, value) {
+				if (component.getAttrConfig(key).isHtml && core.isString(value)) {
+					return SoyRenderer.sanitizeHtml(value);
+				} else {
+					return value;
+				}
+			});
+			return object.mixin(data, attrs);
 		};
 
 		/**
@@ -6550,7 +6585,6 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.crystal.Component;
-  var ComponentRegistry = this.crystal.ComponentRegistry;
   var SoyAop = this.crystal.SoyAop;
   var SoyRenderer = this.crystal.SoyRenderer;
   var SoyTemplates = this.crystal.SoyTemplates;
@@ -6606,17 +6640,12 @@ babelHelpers;
       return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
     }
 
-    Dropdown.setImpl = function setImpl(ctor) {
-      ComponentRegistry.register(ctor, 'Dropdown');
-    };
-
     return Dropdown;
   })(Component);
 
   Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 
   Dropdown.RENDERER = SoyRenderer;
-  Dropdown.setImpl(Dropdown);
   SoyAop.registerTemplates('Dropdown');
   this.crystal.Dropdown = Dropdown;
   /* jshint ignore:end */
@@ -6755,6 +6784,37 @@ babelHelpers;
 			}
 		};
 
+		/**
+   * Gets the default value for the `body` attribute. Retrieves existing
+   * html for the body from the element, if there is any.
+   * @return {?string}
+   */
+
+		Dropdown.prototype.valueBodyFn_ = function valueBodyFn_() {
+			var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
+			return dropdownMenu ? dropdownMenu.innerHTML : '';
+		};
+
+		/**
+   * Gets the default value for the `header` attribute. Retrieves existing
+   * html for the header from the element, if there is any.
+   * @return {?string}
+   */
+
+		Dropdown.prototype.valueHeaderFn_ = function valueHeaderFn_() {
+			if (this.element) {
+				var wrapper = document.createElement('div');
+				for (var i = 0; i < this.element.childNodes.length; i++) {
+					if (dom.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
+						break;
+					}
+					wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
+				}
+				return wrapper.innerHTML;
+			}
+			return '';
+		};
+
 		return Dropdown;
 	})(DropdownBase);
 
@@ -6770,13 +6830,19 @@ babelHelpers;
    * The dropdown's body content.
    * @type {string}
    */
-		body: {},
+		body: {
+			isHtml: true,
+			valueFn: 'valueBodyFn_'
+		},
 
 		/**
    * The dropdown's header content.
    * @type {string}
    */
-		header: {},
+		header: {
+			isHtml: true,
+			valueFn: 'valueHeaderFn_'
+		},
 
 		/**
    * Flag indicating if the dropdown is expanded (open) or not.
@@ -6807,977 +6873,6 @@ babelHelpers;
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
 
 	this.crystal.Dropdown = Dropdown;
-}).call(this);
-'use strict';
-
-(function () {
-	var Position = this.crystal.Position;
-
-	/**
-  * Align utility. Computes region or best region to align an element with
-  * another. Regions are relative to viewport, make sure to use element with
-  * position fixed, or position absolute when the element first positioned
-  * parent is the body element.
-  */
-
-	var Align = (function () {
-		function Align() {
-			babelHelpers.classCallCheck(this, Align);
-		}
-
-		/**
-   * Aligns the element with the best region around alignElement. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {string} The final chosen position for the aligned element.
-   * @static
-   */
-
-		Align.align = function align(element, alignElement, position) {
-			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
-			var bestRegion = suggestion.region;
-
-			var computedStyle = window.getComputedStyle(element, null);
-			if (computedStyle.getPropertyValue('position') !== 'fixed') {
-				bestRegion.top += window.pageYOffset;
-				bestRegion.left += window.pageXOffset;
-
-				var offsetParent = element;
-				while (offsetParent = offsetParent.offsetParent) {
-					bestRegion.top -= Position.getOffsetTop(offsetParent);
-					bestRegion.left -= Position.getOffsetLeft(offsetParent);
-				}
-			}
-
-			element.style.top = bestRegion.top + 'px';
-			element.style.left = bestRegion.left + 'px';
-			return suggestion.position;
-		};
-
-		/**
-   * Returns the best region to align element with alignElement. This is similar
-   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
-   * while `Align.suggestAlignBestRegion` also returns the chosen position.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Best region to align element.
-   * @static
-   */
-
-		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
-			return Align.suggestAlignBestRegion(element, alignElement, position).region;
-		};
-
-		/**
-   * Returns the region to align element with alignElement. The element is
-   * always aligned in the middle of alignElement axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The position to align. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Region to align element.
-   * @static
-   */
-
-		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
-			var r1 = Position.getRegion(alignElement);
-			var r2 = Position.getRegion(element);
-			var top = 0;
-			var left = 0;
-
-			switch (position) {
-				case Align.Top:
-					top = r1.top - r2.height;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.Right:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left + r1.width;
-					break;
-				case Align.Bottom:
-					top = r1.bottom;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.Left:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left - r2.width;
-					break;
-			}
-
-			return {
-				bottom: top + r2.height,
-				height: r2.height,
-				left: left,
-				right: left + r2.width,
-				top: top,
-				width: r2.width
-			};
-		};
-
-		/**
-   * Checks if specified value is a valid position. Options `Align.Top`,
-   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
-   * @return {boolean} Returns true if value is a valid position.
-   * @static
-   */
-
-		Align.isValidPosition = function isValidPosition(val) {
-			return 0 <= val && val <= 3;
-		};
-
-		/**
-   * Looks for the best region for aligning the given element. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {{position: string, region: DOMRect}} Best region to align element.
-   * @static
-   */
-
-		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
-			var bestArea = 0;
-			var bestPosition = position;
-			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
-			var tryPosition = bestPosition;
-			var tryRegion = bestRegion;
-			var viewportRegion = Position.getRegion(window);
-
-			for (var i = 0; i < 4;) {
-				if (Position.intersectRegion(viewportRegion, tryRegion)) {
-					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
-					var area = visibleRegion.width * visibleRegion.height;
-					if (area > bestArea) {
-						bestArea = area;
-						bestRegion = tryRegion;
-						bestPosition = tryPosition;
-					}
-					if (Position.insideViewport(tryRegion)) {
-						break;
-					}
-				}
-				tryPosition = (position + ++i) % 4;
-				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
-			}
-
-			return {
-				position: bestPosition,
-				region: bestRegion
-			};
-		};
-
-		return Align;
-	})();
-
-	/**
-  * Represents the `Align.Top` constant.
-  * @type {number}
-  * @default 0
-  * @static
-  */
-
-	Align.Top = 0;
-
-	/**
-  * Represents the `Align.Right` constant.
-  * @type {number}
-  * @default 1
-  * @static
-  */
-	Align.Right = 1;
-
-	/**
-  * Represents the `Align.Bottom` constant.
-  * @type {number}
-  * @default 2
-  * @static
-  */
-	Align.Bottom = 2;
-
-	/**
-  * Represents the `Align.Left` constant.
-  * @type {number}
-  * @default 3
-  * @static
-  */
-	Align.Left = 3;
-
-	this.crystal.Align = Align;
-}).call(this);
-'use strict';
-
-(function () {
-	var dom = this.crystal.dom;
-	var features = this.crystal.features;
-
-	var mouseEventMap = {
-		mouseenter: 'mouseover',
-		mouseleave: 'mouseout',
-		pointerenter: 'pointerover',
-		pointerleave: 'pointerout'
-	};
-	Object.keys(mouseEventMap).forEach(function (eventName) {
-		dom.registerCustomEvent(eventName, {
-			delegate: true,
-			handler: function handler(callback, event) {
-				var related = event.relatedTarget;
-				var target = event.delegateTarget;
-				if (!related || related !== target && !target.contains(related)) {
-					event.customType = eventName;
-					return callback(event);
-				}
-			},
-			originalEvent: mouseEventMap[eventName]
-		});
-	});
-
-	var animationEventMap = {
-		animation: 'animationend',
-		transition: 'transitionend'
-	};
-	Object.keys(animationEventMap).forEach(function (eventType) {
-		var eventName = animationEventMap[eventType];
-		dom.registerCustomEvent(eventName, {
-			event: true,
-			delegate: true,
-			handler: function handler(callback, event) {
-				event.customType = eventName;
-				return callback(event);
-			},
-			originalEvent: features.checkAnimationEventName()[eventType]
-		});
-	});
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var dom = this.crystal.dom;
-	var Align = this.crystal.Align;
-	var Component = this.crystal.Component;
-	var EventHandler = this.crystal.EventHandler;
-	var SoyRenderer = this.crystal.SoyRenderer;
-
-	/**
-  * The base class to be shared between components that have tooltip behavior.
-  * This helps decouple this behavior logic from the UI, which may be different
-  * between components. The Tooltip component itself extends from this, as does
-  * the crystal Popover component, which can be accessed at metal/crystal-popover.
-  */
-
-	var TooltipBase = (function (_Component) {
-		babelHelpers.inherits(TooltipBase, _Component);
-
-		/**
-   * @inheritDoc
-   */
-
-		function TooltipBase(opt_config) {
-			babelHelpers.classCallCheck(this, TooltipBase);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-		TooltipBase.prototype.attached = function attached() {
-			this.align();
-			this.syncTriggerEvents(this.triggerEvents);
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-		TooltipBase.prototype.detached = function detached() {
-			this.eventHandler_.removeAllListeners();
-		};
-
-		/**
-   * Aligns the tooltip with the best region around alignElement. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {Element=} opt_alignElement Optional element to align with.
-   */
-
-		TooltipBase.prototype.align = function align(opt_alignElement) {
-			this.syncAlignElement(opt_alignElement || this.alignElement);
-		};
-
-		/**
-   * @param {!function()} fn
-   * @param {number} delay
-   * @private
-   */
-
-		TooltipBase.prototype.callAsync_ = function callAsync_(fn, delay) {
-			clearTimeout(this.delay_);
-			this.delay_ = setTimeout(fn.bind(this), delay);
-		};
-
-		/**
-   * Handles hide event triggered by `events`.
-   * @param {!Event} event
-   * @protected
-   */
-
-		TooltipBase.prototype.handleHide = function handleHide(event) {
-			var delegateTarget = event.delegateTarget;
-			var interactingWithDifferentTarget = delegateTarget && delegateTarget !== this.alignElement;
-			this.callAsync_(function () {
-				if (this.locked_) {
-					return;
-				}
-				if (interactingWithDifferentTarget) {
-					this.alignElement = delegateTarget;
-				} else {
-					this.visible = false;
-					this.syncVisible(false);
-				}
-			}, this.delay[1]);
-		};
-
-		/**
-   * Handles show event triggered by `events`.
-   * @param {!Event} event
-   * @protected
-   */
-
-		TooltipBase.prototype.handleShow = function handleShow(event) {
-			var delegateTarget = event.delegateTarget;
-			_Component.prototype.syncVisible.call(this, true);
-			this.callAsync_(function () {
-				this.alignElement = delegateTarget;
-				this.visible = true;
-			}, this.delay[0]);
-		};
-
-		/**
-   * Handles toggle event triggered by `events`.
-   * @param {!Event} event
-   * @protected
-   */
-
-		TooltipBase.prototype.handleToggle = function handleToggle(event) {
-			if (this.visible) {
-				this.handleHide(event);
-			} else {
-				this.handleShow(event);
-			}
-		};
-
-		/**
-   * Locks tooltip visibility.
-   * @param {!Event} event
-   */
-
-		TooltipBase.prototype.lock = function lock() {
-			this.locked_ = true;
-		};
-
-		/**
-   * Unlocks tooltip visibility.
-   * @param {!Event} event
-   */
-
-		TooltipBase.prototype.unlock = function unlock(event) {
-			this.locked_ = false;
-			this.handleHide(event);
-		};
-
-		/**
-   * Attribute synchronization logic for `alignElement` attribute.
-   * @param {Element} alignElement
-   * @param {Element} prevAlignElement
-   */
-
-		TooltipBase.prototype.syncAlignElement = function syncAlignElement(alignElement, prevAlignElement) {
-			if (prevAlignElement) {
-				alignElement.removeAttribute('aria-describedby');
-			}
-			if (alignElement) {
-				var dataTitle = alignElement.getAttribute('data-title');
-				if (dataTitle) {
-					this.content = dataTitle;
-				}
-				if (this.visible) {
-					alignElement.setAttribute('aria-describedby', this.id);
-				} else {
-					alignElement.removeAttribute('aria-describedby');
-				}
-				if (this.inDocument) {
-					var finalPosition = TooltipBase.Align.align(this.element, alignElement, this.position);
-					this.updatePositionCSS(finalPosition);
-				}
-			}
-		};
-
-		/**
-   * Attribute synchronization logic for `position` attribute.
-   */
-
-		TooltipBase.prototype.syncPosition = function syncPosition() {
-			this.syncAlignElement(this.alignElement);
-		};
-
-		/**
-   * Attribute synchronization logic for `selector` attribute.
-   */
-
-		TooltipBase.prototype.syncSelector = function syncSelector() {
-			this.syncTriggerEvents(this.triggerEvents);
-		};
-
-		/**
-   * Attribute synchronization logic for `triggerEvents` attribute.
-   * @param {!Array<string>} triggerEvents
-   */
-
-		TooltipBase.prototype.syncTriggerEvents = function syncTriggerEvents(triggerEvents) {
-			if (!this.inDocument) {
-				return;
-			}
-			this.eventHandler_.removeAllListeners();
-			var selector = this.selector;
-			if (!selector) {
-				return;
-			}
-
-			this.eventHandler_.add(this.on('mouseenter', this.lock), this.on('mouseleave', this.unlock));
-
-			if (triggerEvents[0] === triggerEvents[1]) {
-				this.eventHandler_.add(dom.delegate(document, triggerEvents[0], selector, this.handleToggle.bind(this)));
-			} else {
-				this.eventHandler_.add(dom.delegate(document, triggerEvents[0], selector, this.handleShow.bind(this)), dom.delegate(document, triggerEvents[1], selector, this.handleHide.bind(this)));
-			}
-		};
-
-		/**
-   * Attribute synchronization logic for `visible` attribute. Realigns the tooltip.
-   */
-
-		TooltipBase.prototype.syncVisible = function syncVisible() {
-			this.align();
-		};
-
-		/**
-   * Updates the css class for the current position.
-   * @param {number} position
-   */
-
-		TooltipBase.prototype.updatePositionCSS = function updatePositionCSS(position) {
-			dom.removeClasses(this.element, TooltipBase.PositionClasses.join(' '));
-			dom.addClasses(this.element, TooltipBase.PositionClasses[position]);
-		};
-
-		return TooltipBase;
-	})(Component);
-
-	/**
-  * @inheritDoc
-  * @see `Align` class.
-  * @static
-  */
-
-	TooltipBase.prototype.registerMetalComponent && TooltipBase.prototype.registerMetalComponent(TooltipBase, 'TooltipBase')
-	TooltipBase.Align = Align;
-
-	/**
-  * TooltipBase attrbutes definition.
-  * @type {!Object}
-  * @static
-  */
-	TooltipBase.ATTRS = {
-		/**
-   * Element to align tooltip with.
-   * @type {Element}
-   */
-		alignElement: {
-			setter: dom.toElement
-		},
-
-		/**
-   * Delay showing and hiding the tooltip (ms).
-   * @type {!Array<number>}
-   * @default [ 500, 250 ]
-   */
-		delay: {
-			validator: Array.isArray,
-			value: [500, 250]
-		},
-
-		/**
-   * Trigger events used to bind handlers to show and hide tooltip.
-   * @type {!Array<string>}
-   * @default ['mouseenter', 'mouseleave']
-   */
-		triggerEvents: {
-			validator: Array.isArray,
-			value: ['mouseenter', 'mouseleave']
-		},
-
-		/**
-   * If a selector is provided, tooltip objects will be delegated to the
-   * specified targets by setting the `alignElement`.
-   * @type {?string}
-   */
-		selector: {
-			validator: core.isString
-		},
-
-		/**
-   * Content to be placed inside tooltip.
-   * @type {string}
-   */
-		content: {},
-
-		/**
-   * The position to try alignment. If not possible the best position will be
-   * found.
-   * @type {Align.Top|Align.Right|Align.Bottom|Align.Left}
-   * @default Align.Bottom
-   */
-		position: {
-			validator: TooltipBase.Align.isValidPosition,
-			value: TooltipBase.Align.Bottom
-		}
-	};
-
-	/**
-  * CSS classes used for each align position.
-  * @type {!Array}
-  * @static
-  */
-	TooltipBase.PositionClasses = ['top', 'right', 'bottom', 'left'];
-
-	TooltipBase.RENDERER = SoyRenderer;
-
-	this.crystal.TooltipBase = TooltipBase;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.crystal.Component;
-  var SoyAop = this.crystal.SoyAop;
-  var SoyRenderer = this.crystal.SoyRenderer;
-  var SoyTemplates = this.crystal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from Popover.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.Popover.
-   */
-
-  if (typeof Templates.Popover == 'undefined') {
-    Templates.Popover = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Popover.content = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '';
-    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
-    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
-    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="popover component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="arrow"></div>' + Templates.Popover.title(opt_data, null, opt_ijData) + Templates.Popover.innerContent(opt_data, null, opt_ijData) + '</div>';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.Popover.content.soyTemplateName = 'Templates.Popover.content';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Popover.title = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<h3 id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-title" class="popover-title' + soy.$$escapeHtmlAttribute(opt_data.title ? '' : ' hidden') + '">' + soy.$$escapeHtml(opt_data.title) + '</h3>');
-  };
-  if (goog.DEBUG) {
-    Templates.Popover.title.soyTemplateName = 'Templates.Popover.title';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Popover.innerContent = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-innerContent" class="popover-content"><p>' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</p></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Popover.innerContent.soyTemplateName = 'Templates.Popover.innerContent';
-  }
-
-  Templates.Popover.content.params = ["id"];
-  Templates.Popover.title.params = ["id", "title"];
-  Templates.Popover.innerContent.params = ["content", "id"];
-
-  var Popover = (function (_Component) {
-    babelHelpers.inherits(Popover, _Component);
-
-    function Popover() {
-      babelHelpers.classCallCheck(this, Popover);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return Popover;
-  })(Component);
-
-  Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
-
-  Popover.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('Popover');
-  this.crystal.Popover = Popover;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var TooltipBase = this.crystal.TooltipBase;
-
-	/**
-  * Popover component. Extends the behavior from `TooltipBase`, adding
-  * just some UI to it.
-  */
-
-	var Popover = (function (_TooltipBase) {
-		babelHelpers.inherits(Popover, _TooltipBase);
-
-		function Popover() {
-			babelHelpers.classCallCheck(this, Popover);
-			return babelHelpers.possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
-		}
-
-		/**
-   * Attribute synchronization logic for `visible` attribute. Updates the
-   * element's display, since bootstrap makes it 'none' by default, so we
-   * need to change it to 'block' when the popover becomes visible.
-   * @param {boolean} visible
-   */
-
-		Popover.prototype.syncVisible = function syncVisible(visible) {
-			this.element.style.display = visible ? 'block' : '';
-			_TooltipBase.prototype.syncVisible.call(this, visible);
-		};
-
-		return Popover;
-	})(TooltipBase);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
-	Popover.ATTRS = {
-		title: {
-			validator: core.isString
-		},
-
-		/**
-   * Trigger events used to bind handlers to show and hide popover.
-   * @type {!Array<string>}
-   * @default ['click', 'click']
-   */
-		triggerEvents: {
-			validator: Array.isArray,
-			value: ['click', 'click']
-		}
-	};
-
-	/**
-  * @inheritDoc
-  * @see `Align` class.
-  * @static
-  */
-	Popover.Align = TooltipBase.Align;
-
-	Popover.ELEMENT_CLASSES = 'popover';
-
-	this.crystal.Popover = Popover;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.crystal.Component;
-  var SoyAop = this.crystal.SoyAop;
-  var SoyRenderer = this.crystal.SoyRenderer;
-  var SoyTemplates = this.crystal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from ProgressBar.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.ProgressBar.
-   */
-
-  if (typeof Templates.ProgressBar == 'undefined') {
-    Templates.ProgressBar = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ProgressBar.content = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="progressbar" tabindex="0"><div class="progress-bar"></div></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';
-  }
-
-  Templates.ProgressBar.content.params = ["id"];
-
-  var ProgressBar = (function (_Component) {
-    babelHelpers.inherits(ProgressBar, _Component);
-
-    function ProgressBar() {
-      babelHelpers.classCallCheck(this, ProgressBar);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return ProgressBar;
-  })(Component);
-
-  ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
-
-  ProgressBar.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('ProgressBar');
-  this.crystal.ProgressBar = ProgressBar;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.crystal.core;
-	var dom = this.crystal.dom;
-	var ProgressBarBase = this.crystal.ProgressBar;
-
-	/**
-  * UI Component that renders a progress bar.
-  */
-
-	var ProgressBar = (function (_ProgressBarBase) {
-		babelHelpers.inherits(ProgressBar, _ProgressBarBase);
-
-		function ProgressBar() {
-			babelHelpers.classCallCheck(this, ProgressBar);
-			return babelHelpers.possibleConstructorReturn(this, _ProgressBarBase.apply(this, arguments));
-		}
-
-		/**
-   * Get the inner element that represents the bar.
-   * @return {!Element}
-   */
-
-		ProgressBar.prototype.getBarElement = function getBarElement() {
-			if (!this.barElement_) {
-				this.barElement_ = this.element.childNodes[0];
-			}
-			return this.barElement_;
-		};
-
-		/**
-   * Setter function for the `value` attribute. Makes sure the value
-   * is between the current `min` and `max` attributes.
-   * @param {number} value
-   * @return {number}
-   * @protected
-   */
-
-		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
-			if (value < this.min) {
-				value = this.min;
-			}
-			if (value > this.max) {
-				value = this.max;
-			}
-			return value;
-		};
-
-		/**
-   * Synchronization logic for the `barClass` attribute.
-   * @param {string} barClass
-   * @param {string} prevBarClass
-   */
-
-		ProgressBar.prototype.syncBarClass = function syncBarClass(barClass, prevBarClass) {
-			var barElement = this.getBarElement();
-			dom.removeClasses(barElement, prevBarClass);
-			dom.addClasses(barElement, barClass);
-		};
-
-		/**
-   * Synchronization logic for the `label` attribute.
-   */
-
-		ProgressBar.prototype.syncLabel = function syncLabel() {
-			var barElement = this.getBarElement();
-			dom.removeChildren(barElement);
-			if (this.label) {
-				dom.append(barElement, this.label);
-			}
-		};
-
-		/**
-   * Synchronization logic for the `max` attribute.
-   * @param {number} max
-   */
-
-		ProgressBar.prototype.syncMax = function syncMax(max) {
-			if (max < this.value) {
-				this.value = max;
-			} else {
-				this.updateBar_();
-			}
-			this.element.setAttribute('aria-valuemax', this.max);
-		};
-
-		/**
-   * Synchronization logic for the `min` attribute.
-   * @param {number} min
-   */
-
-		ProgressBar.prototype.syncMin = function syncMin(min) {
-			if (min > this.value) {
-				this.value = min;
-			} else {
-				this.updateBar_();
-			}
-			this.element.setAttribute('aria-valuemin', this.min);
-		};
-
-		/**
-   * Synchronization logic for the `value` attribute.
-   * @param {number} value
-   */
-
-		ProgressBar.prototype.syncValue = function syncValue() {
-			this.updateBar_();
-			this.element.setAttribute('aria-valuenow', this.value);
-		};
-
-		/**
-   * Updates the bar according to the `min`, `max` and `value` attributes.
-   * @protected
-   */
-
-		ProgressBar.prototype.updateBar_ = function updateBar_() {
-			var barElement = this.getBarElement();
-			var percentage = Math.floor((this.value - this.min) * 100 / (this.max - this.min));
-			barElement.style.width = percentage + '%';
-		};
-
-		return ProgressBar;
-	})(ProgressBarBase);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
-	ProgressBar.ATTRS = {
-		/**
-   * Optional CSS classes to be added to the inner progress bar element,
-   * like 'progress-bar-danger'.
-   * @type {string}
-   */
-		barClass: {
-			validator: core.isString
-		},
-
-		/**
-   * An optional label to be rendered inside the progress bar.
-   * @type {string}
-   */
-		label: {
-			validator: function validator(label) {
-				return !core.isDefAndNotNull(label) || core.isString(label);
-			}
-		},
-
-		/**
-   * The maximum value of the progress bar. When the value is at its
-   * max, the bar will be fully extended.
-   * @type {number}
-   */
-		max: {
-			validator: core.isNumber,
-			value: 100
-		},
-
-		/**
-   * The minimum value of the progress bar. When the value is at its
-   * max, the bar will be fully collapsed.
-   * @type {number}
-   */
-		min: {
-			validator: core.isNumber,
-			value: 0
-		},
-
-		/**
-   * The current value of the progress bar.
-   * @type {number}
-   */
-		value: {
-			setter: 'setterValueFn_',
-			validator: core.isNumber,
-			value: 0
-		}
-	};
-
-	/**
-  * Default modal elementClasses.
-  * @type {string}
-  * @static
-  */
-	ProgressBar.ELEMENT_CLASSES = 'progress';
-
-	this.crystal.ProgressBar = ProgressBar;
 }).call(this);
 'use strict';
 
@@ -8105,19 +7200,25 @@ babelHelpers;
    * Content to be placed inside modal body.
    * @type {string|SanitizedHtml}
    */
-		body: {},
+		body: {
+			isHtml: true
+		},
 
 		/**
    * Content to be placed inside modal footer.
    * @type {string|SanitizedHtml}
    */
-		footer: {},
+		footer: {
+			isHtml: true
+		},
 
 		/**
    * Content to be placed inside modal header.
    * @type {string|SanitizedHtml}
    */
-		header: {},
+		header: {
+			isHtml: true
+		},
 
 		/**
    * Whether modal should hide on esc.
@@ -8160,6 +7261,253 @@ babelHelpers;
 	};
 
 	this.crystal.Modal = Modal;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.crystal.Component;
+  var SoyAop = this.crystal.SoyAop;
+  var SoyRenderer = this.crystal.SoyRenderer;
+  var SoyTemplates = this.crystal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from ProgressBar.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.ProgressBar.
+   */
+
+  if (typeof Templates.ProgressBar == 'undefined') {
+    Templates.ProgressBar = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ProgressBar.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="progressbar" tabindex="0"><div class="progress-bar"></div></div>');
+  };
+  if (goog.DEBUG) {
+    Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';
+  }
+
+  Templates.ProgressBar.content.params = ["id"];
+
+  var ProgressBar = (function (_Component) {
+    babelHelpers.inherits(ProgressBar, _Component);
+
+    function ProgressBar() {
+      babelHelpers.classCallCheck(this, ProgressBar);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return ProgressBar;
+  })(Component);
+
+  ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
+
+  ProgressBar.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('ProgressBar');
+  this.crystal.ProgressBar = ProgressBar;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var dom = this.crystal.dom;
+	var ProgressBarBase = this.crystal.ProgressBar;
+
+	/**
+  * UI Component that renders a progress bar.
+  */
+
+	var ProgressBar = (function (_ProgressBarBase) {
+		babelHelpers.inherits(ProgressBar, _ProgressBarBase);
+
+		function ProgressBar() {
+			babelHelpers.classCallCheck(this, ProgressBar);
+			return babelHelpers.possibleConstructorReturn(this, _ProgressBarBase.apply(this, arguments));
+		}
+
+		/**
+   * Get the inner element that represents the bar.
+   * @return {!Element}
+   */
+
+		ProgressBar.prototype.getBarElement = function getBarElement() {
+			if (!this.barElement_) {
+				this.barElement_ = this.element.childNodes[0];
+			}
+			return this.barElement_;
+		};
+
+		/**
+   * Setter function for the `value` attribute. Makes sure the value
+   * is between the current `min` and `max` attributes.
+   * @param {number} value
+   * @return {number}
+   * @protected
+   */
+
+		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
+			if (value < this.min) {
+				value = this.min;
+			}
+			if (value > this.max) {
+				value = this.max;
+			}
+			return value;
+		};
+
+		/**
+   * Synchronization logic for the `barClass` attribute.
+   * @param {string} barClass
+   * @param {string} prevBarClass
+   */
+
+		ProgressBar.prototype.syncBarClass = function syncBarClass(barClass, prevBarClass) {
+			var barElement = this.getBarElement();
+			dom.removeClasses(barElement, prevBarClass);
+			dom.addClasses(barElement, barClass);
+		};
+
+		/**
+   * Synchronization logic for the `label` attribute.
+   */
+
+		ProgressBar.prototype.syncLabel = function syncLabel() {
+			var barElement = this.getBarElement();
+			dom.removeChildren(barElement);
+			if (this.label) {
+				dom.append(barElement, this.label);
+			}
+		};
+
+		/**
+   * Synchronization logic for the `max` attribute.
+   * @param {number} max
+   */
+
+		ProgressBar.prototype.syncMax = function syncMax(max) {
+			if (max < this.value) {
+				this.value = max;
+			} else {
+				this.updateBar_();
+			}
+			this.element.setAttribute('aria-valuemax', this.max);
+		};
+
+		/**
+   * Synchronization logic for the `min` attribute.
+   * @param {number} min
+   */
+
+		ProgressBar.prototype.syncMin = function syncMin(min) {
+			if (min > this.value) {
+				this.value = min;
+			} else {
+				this.updateBar_();
+			}
+			this.element.setAttribute('aria-valuemin', this.min);
+		};
+
+		/**
+   * Synchronization logic for the `value` attribute.
+   * @param {number} value
+   */
+
+		ProgressBar.prototype.syncValue = function syncValue() {
+			this.updateBar_();
+			this.element.setAttribute('aria-valuenow', this.value);
+		};
+
+		/**
+   * Updates the bar according to the `min`, `max` and `value` attributes.
+   * @protected
+   */
+
+		ProgressBar.prototype.updateBar_ = function updateBar_() {
+			var barElement = this.getBarElement();
+			var percentage = Math.floor((this.value - this.min) * 100 / (this.max - this.min));
+			barElement.style.width = percentage + '%';
+		};
+
+		return ProgressBar;
+	})(ProgressBarBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
+	ProgressBar.ATTRS = {
+		/**
+   * Optional CSS classes to be added to the inner progress bar element,
+   * like 'progress-bar-danger'.
+   * @type {string}
+   */
+		barClass: {
+			validator: core.isString
+		},
+
+		/**
+   * An optional label to be rendered inside the progress bar.
+   * @type {string}
+   */
+		label: {
+			validator: function validator(label) {
+				return !core.isDefAndNotNull(label) || core.isString(label);
+			}
+		},
+
+		/**
+   * The maximum value of the progress bar. When the value is at its
+   * max, the bar will be fully extended.
+   * @type {number}
+   */
+		max: {
+			validator: core.isNumber,
+			value: 100
+		},
+
+		/**
+   * The minimum value of the progress bar. When the value is at its
+   * max, the bar will be fully collapsed.
+   * @type {number}
+   */
+		min: {
+			validator: core.isNumber,
+			value: 0
+		},
+
+		/**
+   * The current value of the progress bar.
+   * @type {number}
+   */
+		value: {
+			setter: 'setterValueFn_',
+			validator: core.isNumber,
+			value: 0
+		}
+	};
+
+	/**
+  * Default modal elementClasses.
+  * @type {string}
+  * @static
+  */
+	ProgressBar.ELEMENT_CLASSES = 'progress';
+
+	this.crystal.ProgressBar = ProgressBar;
 }).call(this);
 'use strict';
 
@@ -10081,6 +9429,573 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var Position = this.crystal.Position;
+
+	/**
+  * Align utility. Computes region or best region to align an element with
+  * another. Regions are relative to viewport, make sure to use element with
+  * position fixed, or position absolute when the element first positioned
+  * parent is the body element.
+  */
+
+	var Align = (function () {
+		function Align() {
+			babelHelpers.classCallCheck(this, Align);
+		}
+
+		/**
+   * Aligns the element with the best region around alignElement. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {string} The final chosen position for the aligned element.
+   * @static
+   */
+
+		Align.align = function align(element, alignElement, position) {
+			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
+			var bestRegion = suggestion.region;
+
+			var computedStyle = window.getComputedStyle(element, null);
+			if (computedStyle.getPropertyValue('position') !== 'fixed') {
+				bestRegion.top += window.pageYOffset;
+				bestRegion.left += window.pageXOffset;
+
+				var offsetParent = element;
+				while (offsetParent = offsetParent.offsetParent) {
+					bestRegion.top -= Position.getOffsetTop(offsetParent);
+					bestRegion.left -= Position.getOffsetLeft(offsetParent);
+				}
+			}
+
+			element.style.top = bestRegion.top + 'px';
+			element.style.left = bestRegion.left + 'px';
+			return suggestion.position;
+		};
+
+		/**
+   * Returns the best region to align element with alignElement. This is similar
+   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
+   * while `Align.suggestAlignBestRegion` also returns the chosen position.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Best region to align element.
+   * @static
+   */
+
+		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
+			return Align.suggestAlignBestRegion(element, alignElement, position).region;
+		};
+
+		/**
+   * Returns the region to align element with alignElement. The element is
+   * always aligned in the middle of alignElement axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The position to align. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Region to align element.
+   * @static
+   */
+
+		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
+			var r1 = Position.getRegion(alignElement);
+			var r2 = Position.getRegion(element);
+			var top = 0;
+			var left = 0;
+
+			switch (position) {
+				case Align.Top:
+					top = r1.top - r2.height;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.Right:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left + r1.width;
+					break;
+				case Align.Bottom:
+					top = r1.bottom;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.Left:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left - r2.width;
+					break;
+			}
+
+			return {
+				bottom: top + r2.height,
+				height: r2.height,
+				left: left,
+				right: left + r2.width,
+				top: top,
+				width: r2.width
+			};
+		};
+
+		/**
+   * Checks if specified value is a valid position. Options `Align.Top`,
+   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
+   * @return {boolean} Returns true if value is a valid position.
+   * @static
+   */
+
+		Align.isValidPosition = function isValidPosition(val) {
+			return 0 <= val && val <= 3;
+		};
+
+		/**
+   * Looks for the best region for aligning the given element. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {{position: string, region: DOMRect}} Best region to align element.
+   * @static
+   */
+
+		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
+			var bestArea = 0;
+			var bestPosition = position;
+			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
+			var tryPosition = bestPosition;
+			var tryRegion = bestRegion;
+			var viewportRegion = Position.getRegion(window);
+
+			for (var i = 0; i < 4;) {
+				if (Position.intersectRegion(viewportRegion, tryRegion)) {
+					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
+					var area = visibleRegion.width * visibleRegion.height;
+					if (area > bestArea) {
+						bestArea = area;
+						bestRegion = tryRegion;
+						bestPosition = tryPosition;
+					}
+					if (Position.insideViewport(tryRegion)) {
+						break;
+					}
+				}
+				tryPosition = (position + ++i) % 4;
+				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
+			}
+
+			return {
+				position: bestPosition,
+				region: bestRegion
+			};
+		};
+
+		return Align;
+	})();
+
+	/**
+  * Represents the `Align.Top` constant.
+  * @type {number}
+  * @default 0
+  * @static
+  */
+
+	Align.Top = 0;
+
+	/**
+  * Represents the `Align.Right` constant.
+  * @type {number}
+  * @default 1
+  * @static
+  */
+	Align.Right = 1;
+
+	/**
+  * Represents the `Align.Bottom` constant.
+  * @type {number}
+  * @default 2
+  * @static
+  */
+	Align.Bottom = 2;
+
+	/**
+  * Represents the `Align.Left` constant.
+  * @type {number}
+  * @default 3
+  * @static
+  */
+	Align.Left = 3;
+
+	this.crystal.Align = Align;
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.crystal.dom;
+	var features = this.crystal.features;
+
+	var mouseEventMap = {
+		mouseenter: 'mouseover',
+		mouseleave: 'mouseout',
+		pointerenter: 'pointerover',
+		pointerleave: 'pointerout'
+	};
+	Object.keys(mouseEventMap).forEach(function (eventName) {
+		dom.registerCustomEvent(eventName, {
+			delegate: true,
+			handler: function handler(callback, event) {
+				var related = event.relatedTarget;
+				var target = event.delegateTarget;
+				if (!related || related !== target && !target.contains(related)) {
+					event.customType = eventName;
+					return callback(event);
+				}
+			},
+			originalEvent: mouseEventMap[eventName]
+		});
+	});
+
+	var animationEventMap = {
+		animation: 'animationend',
+		transition: 'transitionend'
+	};
+	Object.keys(animationEventMap).forEach(function (eventType) {
+		var eventName = animationEventMap[eventType];
+		dom.registerCustomEvent(eventName, {
+			event: true,
+			delegate: true,
+			handler: function handler(callback, event) {
+				event.customType = eventName;
+				return callback(event);
+			},
+			originalEvent: features.checkAnimationEventName()[eventType]
+		});
+	});
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var dom = this.crystal.dom;
+	var Align = this.crystal.Align;
+	var Component = this.crystal.Component;
+	var EventHandler = this.crystal.EventHandler;
+	var SoyRenderer = this.crystal.SoyRenderer;
+
+	/**
+  * The base class to be shared between components that have tooltip behavior.
+  * This helps decouple this behavior logic from the UI, which may be different
+  * between components. The Tooltip component itself extends from this, as does
+  * the crystal Popover component, which can be accessed at metal/crystal-popover.
+  */
+
+	var TooltipBase = (function (_Component) {
+		babelHelpers.inherits(TooltipBase, _Component);
+
+		/**
+   * @inheritDoc
+   */
+
+		function TooltipBase(opt_config) {
+			babelHelpers.classCallCheck(this, TooltipBase);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
+
+			_this.eventHandler_ = new EventHandler();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		TooltipBase.prototype.attached = function attached() {
+			this.align();
+			this.syncTriggerEvents(this.triggerEvents);
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		TooltipBase.prototype.detached = function detached() {
+			this.eventHandler_.removeAllListeners();
+		};
+
+		/**
+   * Aligns the tooltip with the best region around alignElement. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {Element=} opt_alignElement Optional element to align with.
+   */
+
+		TooltipBase.prototype.align = function align(opt_alignElement) {
+			this.syncAlignElement(opt_alignElement || this.alignElement);
+		};
+
+		/**
+   * @param {!function()} fn
+   * @param {number} delay
+   * @private
+   */
+
+		TooltipBase.prototype.callAsync_ = function callAsync_(fn, delay) {
+			clearTimeout(this.delay_);
+			this.delay_ = setTimeout(fn.bind(this), delay);
+		};
+
+		/**
+   * Handles hide event triggered by `events`.
+   * @param {!Event} event
+   * @protected
+   */
+
+		TooltipBase.prototype.handleHide = function handleHide(event) {
+			var delegateTarget = event.delegateTarget;
+			var interactingWithDifferentTarget = delegateTarget && delegateTarget !== this.alignElement;
+			this.callAsync_(function () {
+				if (this.locked_) {
+					return;
+				}
+				if (interactingWithDifferentTarget) {
+					this.alignElement = delegateTarget;
+				} else {
+					this.visible = false;
+					this.syncVisible(false);
+				}
+			}, this.delay[1]);
+		};
+
+		/**
+   * Handles show event triggered by `events`.
+   * @param {!Event} event
+   * @protected
+   */
+
+		TooltipBase.prototype.handleShow = function handleShow(event) {
+			var delegateTarget = event.delegateTarget;
+			_Component.prototype.syncVisible.call(this, true);
+			this.callAsync_(function () {
+				this.alignElement = delegateTarget;
+				this.visible = true;
+			}, this.delay[0]);
+		};
+
+		/**
+   * Handles toggle event triggered by `events`.
+   * @param {!Event} event
+   * @protected
+   */
+
+		TooltipBase.prototype.handleToggle = function handleToggle(event) {
+			if (this.visible) {
+				this.handleHide(event);
+			} else {
+				this.handleShow(event);
+			}
+		};
+
+		/**
+   * Locks tooltip visibility.
+   * @param {!Event} event
+   */
+
+		TooltipBase.prototype.lock = function lock() {
+			this.locked_ = true;
+		};
+
+		/**
+   * Unlocks tooltip visibility.
+   * @param {!Event} event
+   */
+
+		TooltipBase.prototype.unlock = function unlock(event) {
+			this.locked_ = false;
+			this.handleHide(event);
+		};
+
+		/**
+   * Attribute synchronization logic for `alignElement` attribute.
+   * @param {Element} alignElement
+   * @param {Element} prevAlignElement
+   */
+
+		TooltipBase.prototype.syncAlignElement = function syncAlignElement(alignElement, prevAlignElement) {
+			if (prevAlignElement) {
+				alignElement.removeAttribute('aria-describedby');
+			}
+			if (alignElement) {
+				var dataTitle = alignElement.getAttribute('data-title');
+				if (dataTitle) {
+					this.title = dataTitle;
+				}
+				if (this.visible) {
+					alignElement.setAttribute('aria-describedby', this.id);
+				} else {
+					alignElement.removeAttribute('aria-describedby');
+				}
+				if (this.inDocument) {
+					var finalPosition = TooltipBase.Align.align(this.element, alignElement, this.position);
+					this.updatePositionCSS(finalPosition);
+				}
+			}
+		};
+
+		/**
+   * Attribute synchronization logic for `position` attribute.
+   */
+
+		TooltipBase.prototype.syncPosition = function syncPosition() {
+			this.syncAlignElement(this.alignElement);
+		};
+
+		/**
+   * Attribute synchronization logic for `selector` attribute.
+   */
+
+		TooltipBase.prototype.syncSelector = function syncSelector() {
+			this.syncTriggerEvents(this.triggerEvents);
+		};
+
+		/**
+   * Attribute synchronization logic for `triggerEvents` attribute.
+   * @param {!Array<string>} triggerEvents
+   */
+
+		TooltipBase.prototype.syncTriggerEvents = function syncTriggerEvents(triggerEvents) {
+			if (!this.inDocument) {
+				return;
+			}
+			this.eventHandler_.removeAllListeners();
+			var selector = this.selector;
+			if (!selector) {
+				return;
+			}
+
+			this.eventHandler_.add(this.on('mouseenter', this.lock), this.on('mouseleave', this.unlock));
+
+			if (triggerEvents[0] === triggerEvents[1]) {
+				this.eventHandler_.add(dom.delegate(document, triggerEvents[0], selector, this.handleToggle.bind(this)));
+			} else {
+				this.eventHandler_.add(dom.delegate(document, triggerEvents[0], selector, this.handleShow.bind(this)), dom.delegate(document, triggerEvents[1], selector, this.handleHide.bind(this)));
+			}
+		};
+
+		/**
+   * Attribute synchronization logic for `visible` attribute. Realigns the tooltip.
+   */
+
+		TooltipBase.prototype.syncVisible = function syncVisible() {
+			this.align();
+		};
+
+		/**
+   * Updates the css class for the current position.
+   * @param {number} position
+   */
+
+		TooltipBase.prototype.updatePositionCSS = function updatePositionCSS(position) {
+			dom.removeClasses(this.element, TooltipBase.PositionClasses.join(' '));
+			dom.addClasses(this.element, TooltipBase.PositionClasses[position]);
+		};
+
+		return TooltipBase;
+	})(Component);
+
+	/**
+  * @inheritDoc
+  * @see `Align` class.
+  * @static
+  */
+
+	TooltipBase.prototype.registerMetalComponent && TooltipBase.prototype.registerMetalComponent(TooltipBase, 'TooltipBase')
+	TooltipBase.Align = Align;
+
+	/**
+  * TooltipBase attrbutes definition.
+  * @type {!Object}
+  * @static
+  */
+	TooltipBase.ATTRS = {
+		/**
+   * Element to align tooltip with.
+   * @type {Element}
+   */
+		alignElement: {
+			setter: dom.toElement
+		},
+
+		/**
+   * Delay showing and hiding the tooltip (ms).
+   * @type {!Array<number>}
+   * @default [ 500, 250 ]
+   */
+		delay: {
+			validator: Array.isArray,
+			value: [500, 250]
+		},
+
+		/**
+   * Trigger events used to bind handlers to show and hide tooltip.
+   * @type {!Array<string>}
+   * @default ['mouseenter', 'mouseleave']
+   */
+		triggerEvents: {
+			validator: Array.isArray,
+			value: ['mouseenter', 'mouseleave']
+		},
+
+		/**
+   * If a selector is provided, tooltip objects will be delegated to the
+   * specified targets by setting the `alignElement`.
+   * @type {?string}
+   */
+		selector: {
+			validator: core.isString
+		},
+
+		/**
+   * The position to try alignment. If not possible the best position will be
+   * found.
+   * @type {Align.Top|Align.Right|Align.Bottom|Align.Left}
+   * @default Align.Bottom
+   */
+		position: {
+			validator: TooltipBase.Align.isValidPosition,
+			value: TooltipBase.Align.Bottom
+		},
+
+		/**
+   * Content to be placed inside tooltip.
+   * @type {string}
+   */
+		title: {}
+	};
+
+	/**
+  * CSS classes used for each align position.
+  * @type {!Array}
+  * @static
+  */
+	TooltipBase.PositionClasses = ['top', 'right', 'bottom', 'left'];
+
+	TooltipBase.RENDERER = SoyRenderer;
+
+	this.crystal.TooltipBase = TooltipBase;
+}).call(this);
+'use strict';
+
+(function () {
   /* jshint ignore:start */
   var Component = this.crystal.Component;
   var SoyAop = this.crystal.SoyAop;
@@ -10125,14 +10040,14 @@ babelHelpers;
    * @suppress {checkTypes}
    */
   Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</section>');
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.title ? opt_data.title : '') + '</section>');
   };
   if (goog.DEBUG) {
     Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
   }
 
   Templates.Tooltip.content.params = ["id"];
-  Templates.Tooltip.inner.params = ["content", "id"];
+  Templates.Tooltip.inner.params = ["title", "id"];
 
   var Tooltip = (function (_Component) {
     babelHelpers.inherits(Tooltip, _Component);
@@ -10202,6 +10117,174 @@ babelHelpers;
   Tooltip.ELEMENT_CLASSES = 'tooltip';
 
   this.crystal.Tooltip = Tooltip;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.crystal.Component;
+  var SoyAop = this.crystal.SoyAop;
+  var SoyRenderer = this.crystal.SoyRenderer;
+  var SoyTemplates = this.crystal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Popover.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Popover.
+   */
+
+  if (typeof Templates.Popover == 'undefined') {
+    Templates.Popover = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Popover.content = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '';
+    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
+    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
+    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="popover component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="arrow"></div>' + Templates.Popover.title(opt_data, null, opt_ijData) + Templates.Popover.innerContent(opt_data, null, opt_ijData) + '</div>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.Popover.content.soyTemplateName = 'Templates.Popover.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Popover.title = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<h3 id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-title" class="popover-title' + soy.$$escapeHtmlAttribute(opt_data.title ? '' : ' hidden') + '">' + soy.$$escapeHtml(opt_data.title) + '</h3>');
+  };
+  if (goog.DEBUG) {
+    Templates.Popover.title.soyTemplateName = 'Templates.Popover.title';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Popover.innerContent = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-innerContent" class="popover-content"><p>' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</p></div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Popover.innerContent.soyTemplateName = 'Templates.Popover.innerContent';
+  }
+
+  Templates.Popover.content.params = ["id"];
+  Templates.Popover.title.params = ["id", "title"];
+  Templates.Popover.innerContent.params = ["content", "id"];
+
+  var Popover = (function (_Component) {
+    babelHelpers.inherits(Popover, _Component);
+
+    function Popover() {
+      babelHelpers.classCallCheck(this, Popover);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Popover;
+  })(Component);
+
+  Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
+
+  Popover.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Popover');
+  this.crystal.Popover = Popover;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.crystal.core;
+	var TooltipBase = this.crystal.TooltipBase;
+
+	/**
+  * Popover component. Extends the behavior from `TooltipBase`, adding
+  * just some UI to it.
+  */
+
+	var Popover = (function (_TooltipBase) {
+		babelHelpers.inherits(Popover, _TooltipBase);
+
+		function Popover() {
+			babelHelpers.classCallCheck(this, Popover);
+			return babelHelpers.possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
+		}
+
+		Popover.prototype.syncAlignElement = function syncAlignElement(alignElement) {
+			_TooltipBase.prototype.syncAlignElement.call(this, alignElement);
+
+			if (alignElement) {
+				var dataContent = alignElement.getAttribute('data-content');
+				if (dataContent) {
+					this.content = dataContent;
+				}
+			}
+		};
+
+		/**
+   * Attribute synchronization logic for `visible` attribute. Updates the
+   * element's display, since bootstrap makes it 'none' by default, so we
+   * need to change it to 'block' when the popover becomes visible.
+   * @param {boolean} visible
+   */
+
+		Popover.prototype.syncVisible = function syncVisible(visible) {
+			this.element.style.display = visible ? 'block' : '';
+			_TooltipBase.prototype.syncVisible.call(this, visible);
+		};
+
+		return Popover;
+	})(TooltipBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
+	Popover.ATTRS = {
+		content: {
+			validator: core.isString
+		},
+
+		/**
+   * Trigger events used to bind handlers to show and hide popover.
+   * @type {!Array<string>}
+   * @default ['click', 'click']
+   */
+		triggerEvents: {
+			validator: Array.isArray,
+			value: ['click', 'click']
+		}
+	};
+
+	/**
+  * @inheritDoc
+  * @see `Align` class.
+  * @static
+  */
+	Popover.Align = TooltipBase.Align;
+
+	Popover.ELEMENT_CLASSES = 'popover';
+
+	this.crystal.Popover = Popover;
 }).call(this);
 'use strict';
 

@@ -56,6 +56,18 @@ define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'crystal
 			return _possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
 		}
 
+		Popover.prototype.syncAlignElement = function syncAlignElement(alignElement) {
+			_TooltipBase.prototype.syncAlignElement.call(this, alignElement);
+
+			if (alignElement) {
+				var dataContent = alignElement.getAttribute('data-content');
+
+				if (dataContent) {
+					this.content = dataContent;
+				}
+			}
+		};
+
 		Popover.prototype.syncVisible = function syncVisible(visible) {
 			this.element.style.display = visible ? 'block' : '';
 
@@ -67,7 +79,7 @@ define(['exports', 'metal/src/core', 'crystal-tooltip/src/TooltipBase', 'crystal
 
 	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 	Popover.ATTRS = {
-		title: {
+		content: {
 			validator: _core2.default.isString
 		},
 		triggerEvents: {

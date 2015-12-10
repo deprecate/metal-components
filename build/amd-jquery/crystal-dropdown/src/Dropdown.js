@@ -126,13 +126,42 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'crysta
 			}
 		};
 
+		Dropdown.prototype.valueBodyFn_ = function valueBodyFn_() {
+			var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
+			return dropdownMenu ? dropdownMenu.innerHTML : '';
+		};
+
+		Dropdown.prototype.valueHeaderFn_ = function valueHeaderFn_() {
+			if (this.element) {
+				var wrapper = document.createElement('div');
+
+				for (var i = 0; i < this.element.childNodes.length; i++) {
+					if (_dom2.default.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
+						break;
+					}
+
+					wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
+				}
+
+				return wrapper.innerHTML;
+			}
+
+			return '';
+		};
+
 		return Dropdown;
 	})(_Dropdown2.default);
 
 	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 	Dropdown.ATTRS = {
-		body: {},
-		header: {},
+		body: {
+			isHtml: true,
+			valueFn: 'valueBodyFn_'
+		},
+		header: {
+			isHtml: true,
+			valueFn: 'valueHeaderFn_'
+		},
 		expanded: {
 			value: false
 		},

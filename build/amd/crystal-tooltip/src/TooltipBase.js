@@ -139,7 +139,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 				var dataTitle = alignElement.getAttribute('data-title');
 
 				if (dataTitle) {
-					this.content = dataTitle;
+					this.title = dataTitle;
 				}
 
 				if (this.visible) {
@@ -214,11 +214,11 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 		selector: {
 			validator: _core2.default.isString
 		},
-		content: {},
 		position: {
 			validator: TooltipBase.Align.isValidPosition,
 			value: TooltipBase.Align.Bottom
-		}
+		},
+		title: {}
 	};
 	TooltipBase.PositionClasses = ['top', 'right', 'bottom', 'left'];
 	TooltipBase.RENDERER = _SoyRenderer2.default;

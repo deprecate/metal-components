@@ -174,9 +174,15 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 			},
 			value: '.close'
 		},
-		body: {},
-		footer: {},
-		header: {},
+		body: {
+			isHtml: true
+		},
+		footer: {
+			isHtml: true
+		},
+		header: {
+			isHtml: true
+		},
 		hideOnEscape: {
 			validator: _core2.default.isBoolean,
 			value: true
