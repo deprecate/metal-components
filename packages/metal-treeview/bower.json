@@ -1,13 +1,12 @@
 {
-  "name": "crystal-treeview",
+  "name": "metal-treeview",
   "version": "0.0.1",
-  "description": "Crystal's tree view component",
+  "description": "Metal's tree view component",
   "main": "src/Treeview.js",
   "moduleType": [
     "es6"
   ],
   "keywords": [
-    "crystal",
     "metal",
     "treeview"
   ],

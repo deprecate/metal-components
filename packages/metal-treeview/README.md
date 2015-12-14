@@ -1,6 +1,6 @@
-# Crystal aui-treeview
+# metal-treeview
 
-Crystal's tree view component
+Metal's tree view component
 
 ## Setup
 

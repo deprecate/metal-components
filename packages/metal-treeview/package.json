@@ -1,9 +1,9 @@
 {
-  "name": "crystal-treeview",
+  "name": "metal-treeview",
   "version": "0.0.1",
-  "description": "Crystal's tree view component",
+  "description": "Metal's tree view component",
   "license": "BSD",
-  "repository": "metal/crystal-treeview",
+  "repository": "metal/metal-treeview",
   "engines": {
     "node": ">=0.12.0"
   },
@@ -11,7 +11,6 @@
     "test": "gulp test"
   },
   "keywords": [
-    "crystal",
     "metal",
     "treeview"
   ],
