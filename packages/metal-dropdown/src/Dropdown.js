@@ -1,6 +1,8 @@
 'use strict';
 
+import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
+import Align from 'bower:metal-position/src/Align';
 import EventHandler from 'bower:metal/src/events/EventHandler';
 import DropdownBase from './Dropdown.soy';
 
@@ -73,6 +75,12 @@ class Dropdown extends DropdownBase {
 	syncExpanded(expanded) {
 		if (expanded) {
 			dom.addClasses(this.element, 'open');
+			if (this.alignElementSelector) {
+				var alignElement = this.element.querySelector(this.alignElementSelector);
+				if (alignElement) {
+					Align.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+				}
+			}
 		} else {
 			dom.removeClasses(this.element, 'open');
 		}
@@ -150,6 +158,17 @@ class Dropdown extends DropdownBase {
  */
 Dropdown.ATTRS = {
 	/**
+	 * Optional selector for finding the element that the dropdown should be
+	 * aligned to. If given, the dropdown will automatically find the best position
+	 * to align, when the specified position doesn't work. Otherwise it will
+	 * always just follow the given position, even if it's not ideal.
+	 * @type {string}
+	 */
+	alignElementSelector: {
+		validator: core.isString
+	},
+
+	/**
 	 * The dropdown's body content.
 	 * @type {string}
 	 */
@@ -194,5 +213,13 @@ Dropdown.ATTRS = {
  * @static
  */
 Dropdown.ELEMENT_CLASSES = 'dropdown';
+
+/**
+ * A map from the dropdown supported positions to `Align` positions.
+ */
+Dropdown.POSITION_MAP = {
+	down: Align.BottomLeft,
+	up: Align.TopLeft
+};
 
 export default Dropdown;

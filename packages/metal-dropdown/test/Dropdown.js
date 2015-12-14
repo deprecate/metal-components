@@ -2,6 +2,7 @@
 
 import async from 'bower:metal/src/async/async';
 import dom from 'bower:metal/src/dom/dom';
+import Align from 'bower:metal-position/src/Align';
 import Dropdown from '../src/Dropdown';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 
@@ -112,6 +113,44 @@ describe('Dropdown', function() {
 				assert.ok(dom.hasClass(component.element, 'dropdown'));
 				assert.ok(!dom.hasClass(component.element, 'dropinvalid'));
 				component.dispose();
+				done();
+			});
+		});
+	});
+
+	describe('Align', function() {
+		beforeEach(function() {
+			sinon.spy(Align, 'align');
+		});
+
+		afterEach(function() {
+			Align.align.restore();
+		});
+
+		it('should automatically align through Align.align if alignElementSelector is given', function(done) {
+			component = new Dropdown({
+				alignElementSelector: 'button',
+				header: '<button></button>'
+			}).render();
+
+			assert.strictEqual(0, Align.align.callCount);
+			component.expanded = true;
+			component.once('attrsSynced', function() {
+				assert.strictEqual(1, Align.align.callCount);
+				done();
+			});
+		});
+
+		it('should not automatically align through Align.align if alignElementSelector doesn\'t match anything', function(done) {
+			component = new Dropdown({
+				alignElementSelector: 'nomatch',
+				header: '<button></button>'
+			}).render();
+
+			assert.strictEqual(0, Align.align.callCount);
+			component.expanded = true;
+			component.once('attrsSynced', function() {
+				assert.strictEqual(0, Align.align.callCount);
 				done();
 			});
 		});
