@@ -1,9 +1,9 @@
 {
-  "name": "crystal-components",
+  "name": "metal-components",
   "version": "1.0.0-rc.3",
   "description": "A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "license": "SEE LICENSE IN LICENSE.md",
-  "repository": "metal/crystal-components",
+  "repository": "metal/metal-components",
   "engines": {
     "node": ">=0.12.0"
   },
@@ -11,7 +11,6 @@
     "test": "gulp test"
   },
   "keywords": [
-    "crystal",
     "metal",
     "metaljs"
   ],
@@ -29,7 +28,10 @@
     "karma-coverage": "^0.5.1",
     "karma-mocha": "^0.2.0",
     "karma-scss-preprocessor": "^1.0.0",
+    "karma-sinon": "^1.0.4",
     "karma-source-map-support": "^1.1.0",
-    "mocha": "^2.3.4"
+    "merge": "^1.2.0",
+    "mocha": "^2.3.4",
+    "sinon": "^1.17.2"
   }
 }

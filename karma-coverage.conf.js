@@ -1,4 +1,8 @@
+'use strict';
+
 var isparta = require('isparta');
+var merge = require('merge');
+var utils = require('./utils');
 
 var babelOptions = {
 	presets: ['metal'],
@@ -9,26 +13,27 @@ var scssOptions = {
 	sourceMap: true
 };
 
+var coveragePreprocessors = {};
+utils.getComponentPaths('src', '!(*.soy).js').forEach(function(filepath) {
+	coveragePreprocessors[filepath] = ['coverage'];
+});
+
 module.exports = function (config) {
 	config.set({
-		frameworks: ['mocha', 'chai', 'source-map-support', 'commonjs'],
+		frameworks: ['mocha', 'chai', 'source-map-support', 'commonjs', 'sinon'],
 
 		files: [
 			'bower_components/soyutils/soyutils.js',
 			'bower_components/metal*/src/**/*.js',
 			'bower_components/metal-drag-drop/test/fixtures/DragTestHelper.js',
-			'bower_components/crystal*/src/**/*.js',
-			'bower_components/crystal*/test/**/*.js',
-			'bower_components/crystal*/src/**/*.scss'
-		],
+			'bower_components/metal-*/src/**/*.scss'
+		].concat(utils.getComponentPaths('test')),
 
-		preprocessors: {
-			'bower_components/crystal*/src/**/!(*.soy).js': ['coverage', 'commonjs'],
-			'bower_components/crystal*/src/**/*.soy.js': ['babel', 'commonjs'],
-			'bower_components/metal*/**/*.js': ['babel', 'commonjs'],
-			'bower_components/crystal*/test/**/*.js': ['babel', 'commonjs'],
-			'bower_components/crystal*/src/**/*.scss': ['scss']
-		},
+		preprocessors: merge(coveragePreprocessors, {
+			'bower_components/metal*/src/**/*.js': ['babel', 'commonjs'],
+			'bower_components/metal-*/test/**/*.js': ['babel', 'commonjs'],
+			'bower_components/metal-*/src/**/*.scss': ['scss']
+		}),
 
 		browsers: ['Chrome'],
 
@@ -49,4 +54,4 @@ module.exports = function (config) {
 			]
 		}
 	});
-}
+};

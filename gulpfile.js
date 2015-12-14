@@ -2,17 +2,17 @@
 
 var gulp = require('gulp');
 var metal = require('gulp-metal');
+var utils = require('./utils');
 
 metal.registerTasks({
-	buildSrc: 'bower_components/crystal-*/src/**/*.js',
-	bundleFileName: 'crystal.js',
-	cssSrc: 'bower_components/crystal-*/src/**/*.css',
-	globalName: 'crystal',
-	scssSrc: 'bower_components/crystal-*/src/**/*.scss'
+	buildSrc: utils.getComponentPaths('src'),
+	bundleFileName: 'metal.js',
+	cssSrc: 'bower_components/metal-*/src/**/*.css',
+	scssSrc: 'bower_components/metal-*/src/**/*.scss'
 });
 
 gulp.task('soy:copy', function() {
-	return gulp.src('bower_components/crystal-*/src/**/*.soy')
+	return gulp.src('bower_components/metal-*/src/**/*.soy')
 		.pipe(gulp.dest('build/soy'));
 });
 

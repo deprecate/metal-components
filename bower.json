@@ -1,12 +1,11 @@
 {
-  "name": "crystal-components",
+  "name": "metal-components",
   "version": "1.0.0-rc.3",
   "description": "A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "moduleType": [
     "es6"
   ],
   "keywords": [
-    "crystal",
     "metal",
     "metaljs"
   ],
@@ -15,14 +14,14 @@
     "!build/**/*"
   ],
   "dependencies": {
-    "crystal-affix": "metal/crystal-affix#master",
-    "crystal-dropdown": "metal/crystal-dropdown#master",
-    "crystal-modal": "metal/crystal-modal#master",
-    "crystal-popover": "metal/crystal-popover#master",
-    "crystal-progressbar": "metal/crystal-progressbar#master",
-    "crystal-scrollspy": "metal/crystal-scrollspy#master",
-    "crystal-slider": "metal/crystal-slider#master",
-    "crystal-tooltip": "metal/crystal-tooltip#master",
-    "crystal-treeview": "metal/crystal-treeview#master"
+    "metal-affix": "metal/metal-affix#master",
+    "metal-dropdown": "metal/metal-dropdown#master",
+    "metal-modal": "metal/metal-modal#master",
+    "metal-popover": "metal/metal-popover#master",
+    "metal-progressbar": "metal/metal-progressbar#master",
+    "metal-scrollspy": "metal/metal-scrollspy#master",
+    "metal-slider": "metal/metal-slider#master",
+    "metal-tooltip": "metal/metal-tooltip#master",
+    "metal-treeview": "metal/metal-treeview#master"
   }
 }
