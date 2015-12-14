@@ -193,6 +193,18 @@ define(['exports', 'metal/src/core', 'metal/src/object/object', 'metal/src/event
 			return false;
 		};
 
+		dom.next = function next(element, selector) {
+			do {
+				element = element.nextSibling;
+
+				if (element && dom.match(element, selector)) {
+					return element;
+				}
+			} while (element);
+
+			return null;
+		};
+
 		dom.normalizeDelegateEvent_ = function normalizeDelegateEvent_(event) {
 			event.stopPropagation = dom.stopPropagation_;
 			event.stopImmediatePropagation = dom.stopImmediatePropagation_;
