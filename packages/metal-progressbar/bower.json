@@ -1,14 +1,13 @@
 {
-	"name": "crystal-progressbar",
+	"name": "metal-progressbar",
 	"version": "0.0.0",
-	"description": "Crystal's progress bar component",
+	"description": "Metal's progress bar component",
 	"main": "src/ProgressBar.js",
 	"moduleType": [
 		"es6"
 	],
 	"keywords": [
-		"metal",
-		"crystal"
+		"metal"
 	],
 	"ignore": [
 		"*",

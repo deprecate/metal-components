@@ -1,6 +1,6 @@
-# crystal-progressbar
+# metal-progressbar
 
-Crystal's progress bar component
+Metal's progress bar component
 
 ## Setup
 
