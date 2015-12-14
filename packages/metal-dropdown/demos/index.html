@@ -32,22 +32,20 @@
 	<h3>From JS</h3>
 
 	<script type="text/javascript">
-		window.dropdown = new crystal.Dropdown({
+		window.dropdown = new metal.Dropdown({
 			header: '<button data-onclick="toggle" class="btn btn-primary">Dropdown <span class="caret"></span></button>',
 			body: '<li><a href="#">Action</a></li><li><a href="#">Another action</a></li><li><a href="#">Something else here</a></li><li><a href="#">Separated link</a></li>'
 		}).render();
 
-		new crystal.Dropdown({
+		new metal.Dropdown({
 			position: 'up',
 			header: '<button data-onclick="toggle" class="btn btn-primary">Dropup <span class="caret"></span></button>',
 			body: '<li><a href="#">Sign out</a></li>'
 		}).render();
 
-		new crystal.Dropdown({
+		new metal.Dropdown({
 			element: '#htmlDropdown'
 		}).render();
 	</script>
 </body>
 </html>
-
-

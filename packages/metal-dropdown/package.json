@@ -1,9 +1,9 @@
 {
-	"name": "crystal-dropdown",
+	"name": "metal-dropdown",
 	"version": "0.0.0",
-	"description": "Crystal's dropdown component",
+	"description": "Metal's dropdown component",
 	"license": "BSD",
-	"repository": "metal/crystal-dropdown",
+	"repository": "metal/metal-dropdown",
 	"engines": {
 		"node": ">=0.12.0"
 	},
@@ -11,8 +11,7 @@
 		"test": "gulp test"
 	},
 	"keywords": [
-		"metal",
-		"crystal"
+		"metal"
 	],
 	"devDependencies": {
 		"gulp": "^3.8.11",

@@ -1,14 +1,13 @@
 {
-	"name": "crystal-dropdown",
+	"name": "metal-dropdown",
 	"version": "0.0.0",
-	"description": "Crystal's dropdown component",
+	"description": "Metal's dropdown component",
 	"main": "src/Dropdown.js",
 	"moduleType": [
 		"es6"
 	],
 	"keywords": [
-		"metal",
-		"crystal"
+		"metal"
 	],
 	"ignore": [
 		"*",

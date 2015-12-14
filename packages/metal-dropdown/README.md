@@ -1,6 +1,6 @@
-# crystal-dropdown
+# metal-dropdown
 
-Crystal's dropdown component
+Metal's dropdown component
 
 ## Setup
 
