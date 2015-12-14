@@ -1,14 +1,13 @@
 {
-	"name": "crystal-popover",
+	"name": "metal-popover",
 	"version": "0.0.0",
-	"description": "Crystal's popover component",
+	"description": "Metal's popover component",
 	"main": "src/Popover.js",
 	"moduleType": [
 		"es6"
 	],
 	"keywords": [
-		"metal",
-		"crystal"
+		"metal"
 	],
 	"ignore": [
 		"*",
@@ -17,7 +16,7 @@
 	],
 	"dependencies": {
 		"bootstrap": "~3.3.4",
-		"crystal-tooltip": "metal/crystal-tooltip#master",
+		"metal-tooltip": "metal/metal-tooltip#master",
 		"metal": "metal/metal.js#master",
 		"metal-jquery-adapter": "metal/metal-jquery-adapter#master"
 	}

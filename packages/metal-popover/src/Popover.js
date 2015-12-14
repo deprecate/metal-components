@@ -1,7 +1,7 @@
 'use strict';
 
 import core from 'bower:metal/src/core';
-import TooltipBase from 'bower:crystal-tooltip/src/TooltipBase';
+import TooltipBase from 'bower:metal-tooltip/src/TooltipBase';
 import './Popover.soy';
 
 /**

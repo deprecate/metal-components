@@ -1,6 +1,6 @@
-# crystal-popover
+# metal-popover
 
-Crystal's popover component
+Metal's popover component
 
 ## Setup
 

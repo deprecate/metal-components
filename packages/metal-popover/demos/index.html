@@ -22,7 +22,7 @@
 	<button type="button" data-title="Data Title 1" data-content="Data Content 1">Data Title 1</button>
 	<button type="button" data-title="Data Title 2" data-content="Data Content 2">Data Title 2</button>
 	<script type="text/javascript">
-		window.popover = new crystal.Popover({
+		window.popover = new metal.Popover({
 			content: 'My cool popover',
 			delay: [300, 150],
 			selector: '#PopoverButton',
@@ -30,10 +30,10 @@
 			visible: false
 		}).render();
 
-		new crystal.Popover({
+		new metal.Popover({
 			delay: [300, 150],
 			selector: '[data-title]',
-			position: crystal.Popover.Align.Bottom,
+			position: metal.Popover.Align.Bottom,
 			visible: false
 		}).render();
 	</script>
