@@ -1,6 +1,6 @@
-# crystal-rating
+# metal-rating
 
-Crystal's rating component
+Metal's rating component
 
 ## Setup
 
