@@ -1,7 +1,7 @@
 {
-  "name": "crystal-modal",
+  "name": "metal-modal",
   "version": "0.1.0",
-  "homepage": "https://github.com/metal/crystal-modal",
+  "homepage": "https://github.com/metal/metal-modal",
   "authors": [
     "Maira Bello <maira.araujo@liferay.com>"
   ],
@@ -11,7 +11,6 @@
     "es6"
   ],
   "keywords": [
-    "crystal",
     "metal"
   ],
   "ignore": [

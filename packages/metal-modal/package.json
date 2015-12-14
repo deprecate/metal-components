@@ -1,9 +1,9 @@
 {
-  "name": "crystal-modal",
+  "name": "metal-modal",
   "version": "0.1.0",
-  "description": "Crystal's modal component",
+  "description": "Metal's modal component",
   "license": "BSD",
-  "repository": "metal/crystal-modal",
+  "repository": "metal/metal-modal",
   "author": {
     "name": "Maira Bello",
     "email": "maira.araujo@liferay.com"
@@ -15,7 +15,6 @@
     "test": "gulp test"
   },
   "keywords": [
-    "crystal",
     "metal",
     "modal"
   ],

@@ -1,6 +1,6 @@
-# Crystal Modal
+# metal-modal
 
-Crystal's modal component.
+Metal's modal component.
 
 ## Setup
 

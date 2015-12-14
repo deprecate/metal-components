@@ -16,7 +16,7 @@
 		requirejs.config({
 	    baseUrl: '../build/amd'
 		});
-		requirejs(['crystal-modal/src/Modal', 'metal/src/soy/SoyRenderer'], function(Modal, SoyRenderer) {
+		requirejs(['metal-modal/src/Modal', 'metal/src/soy/SoyRenderer'], function(Modal, SoyRenderer) {
 			window.modal = new Modal.default({
 				header: SoyRenderer.default.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
 				body: 'One fine body...',
