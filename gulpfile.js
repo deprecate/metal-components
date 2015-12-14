@@ -16,4 +16,4 @@ gulp.task('soy:copy', function() {
 		.pipe(gulp.dest('build/soy'));
 });
 
-gulp.task('default', ['build:globals', 'build:amd', 'build:amd:jquery', 'soy:copy']);
+gulp.task('default', ['css', 'build:globals', 'build:amd', 'build:amd:jquery', 'soy:copy']);
