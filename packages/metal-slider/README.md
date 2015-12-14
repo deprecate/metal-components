@@ -1,6 +1,6 @@
-# crystal-slider
+# metal-slider
 
-Crystal's slider component
+Metal's slider component
 
 ## Setup
 

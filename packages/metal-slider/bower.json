@@ -1,14 +1,13 @@
 {
-	"name": "crystal-slider",
+	"name": "metal-slider",
 	"version": "0.0.0",
-	"description": "Crystal's slider component",
+	"description": "Metal's slider component",
 	"main": "src/Slider.js",
 	"moduleType": [
 		"es6"
 	],
 	"keywords": [
-		"metal",
-		"crystal"
+		"metal"
 	],
 	"ignore": [
 		"*",
