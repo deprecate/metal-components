@@ -3155,6 +3155,225 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var Position = this.metal.Position;
+
+	/**
+  * Align utility. Computes region or best region to align an element with
+  * another. Regions are relative to viewport, make sure to use element with
+  * position fixed, or position absolute when the element first positioned
+  * parent is the body element.
+  */
+
+	var Align = (function () {
+		function Align() {
+			babelHelpers.classCallCheck(this, Align);
+		}
+
+		/**
+   * Aligns the element with the best region around alignElement. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {string} The final chosen position for the aligned element.
+   * @static
+   */
+
+		Align.align = function align(element, alignElement, position) {
+			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
+			var bestRegion = suggestion.region;
+
+			var computedStyle = window.getComputedStyle(element, null);
+			if (computedStyle.getPropertyValue('position') !== 'fixed') {
+				bestRegion.top += window.pageYOffset;
+				bestRegion.left += window.pageXOffset;
+
+				var offsetParent = element;
+				while (offsetParent = offsetParent.offsetParent) {
+					bestRegion.top -= Position.getOffsetTop(offsetParent);
+					bestRegion.left -= Position.getOffsetLeft(offsetParent);
+				}
+			}
+
+			element.style.top = bestRegion.top + 'px';
+			element.style.left = bestRegion.left + 'px';
+			return suggestion.position;
+		};
+
+		/**
+   * Returns the best region to align element with alignElement. This is similar
+   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
+   * while `Align.suggestAlignBestRegion` also returns the chosen position.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Best region to align element.
+   * @static
+   */
+
+		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
+			return Align.suggestAlignBestRegion(element, alignElement, position).region;
+		};
+
+		/**
+   * Returns the region to align element with alignElement. The element is
+   * always aligned in the middle of alignElement axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The position to align. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Region to align element.
+   * @static
+   */
+
+		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
+			var r1 = Position.getRegion(alignElement);
+			var r2 = Position.getRegion(element);
+			var top = 0;
+			var left = 0;
+
+			switch (position) {
+				case Align.TopCenter:
+					top = r1.top - r2.height;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.RightCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left + r1.width;
+					break;
+				case Align.BottomCenter:
+					top = r1.bottom;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.LeftCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left - r2.width;
+					break;
+				case Align.TopRight:
+					top = r1.top - r2.height;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomRight:
+					top = r1.bottom;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomLeft:
+					top = r1.bottom;
+					left = r1.left;
+					break;
+				case Align.TopLeft:
+					top = r1.top - r2.height;
+					left = r1.left;
+					break;
+			}
+
+			return {
+				bottom: top + r2.height,
+				height: r2.height,
+				left: left,
+				right: left + r2.width,
+				top: top,
+				width: r2.width
+			};
+		};
+
+		/**
+   * Checks if specified value is a valid position. Options `Align.Top`,
+   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
+   * @return {boolean} Returns true if value is a valid position.
+   * @static
+   */
+
+		Align.isValidPosition = function isValidPosition(val) {
+			return 0 <= val && val <= 8;
+		};
+
+		/**
+   * Looks for the best region for aligning the given element. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {{position: string, region: DOMRect}} Best region to align element.
+   * @static
+   */
+
+		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
+			var bestArea = 0;
+			var bestPosition = position;
+			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
+			var tryPosition = bestPosition;
+			var tryRegion = bestRegion;
+			var viewportRegion = Position.getRegion(window);
+
+			for (var i = 0; i < 8;) {
+				if (Position.intersectRegion(viewportRegion, tryRegion)) {
+					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
+					var area = visibleRegion.width * visibleRegion.height;
+					if (area > bestArea) {
+						bestArea = area;
+						bestRegion = tryRegion;
+						bestPosition = tryPosition;
+					}
+					if (Position.insideViewport(tryRegion)) {
+						break;
+					}
+				}
+				tryPosition = (position + ++i) % 8;
+				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
+			}
+
+			return {
+				position: bestPosition,
+				region: bestRegion
+			};
+		};
+
+		return Align;
+	})();
+
+	/**
+  * Constants that represent the supported positions for `Align`.
+  * @type {number}
+  * @static
+  */
+
+	Align.TopCenter = 0;
+	Align.TopRight = 1;
+	Align.RightCenter = 2;
+	Align.BottomRight = 3;
+	Align.BottomCenter = 4;
+	Align.BottomLeft = 5;
+	Align.LeftCenter = 6;
+	Align.TopLeft = 7;
+
+	/**
+  * Aliases for position constants.
+  * @type {number}
+  * @static
+  */
+	Align.Top = Align.TopCenter;
+	Align.Right = Align.RightCenter;
+	Align.Bottom = Align.BottomCenter;
+	Align.Left = Align.LeftCenter;
+
+	this.metal.Align = Align;
+}).call(this);
+'use strict';
+
+(function () {
 	var Disposable = this.metal.Disposable;
 
 	/**
@@ -6670,7 +6889,9 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var core = this.metal.core;
 	var dom = this.metal.dom;
+	var Align = this.metal.Align;
 	var EventHandler = this.metal.EventHandler;
 	var DropdownBase = this.metal.Dropdown;
 
@@ -6758,6 +6979,12 @@ babelHelpers;
 		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
 			if (expanded) {
 				dom.addClasses(this.element, 'open');
+				if (this.alignElementSelector) {
+					var alignElement = this.element.querySelector(this.alignElementSelector);
+					if (alignElement) {
+						Align.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+					}
+				}
 			} else {
 				dom.removeClasses(this.element, 'open');
 			}
@@ -6844,6 +7071,17 @@ babelHelpers;
 	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 	Dropdown.ATTRS = {
 		/**
+   * Optional selector for finding the element that the dropdown should be
+   * aligned to. If given, the dropdown will automatically find the best position
+   * to align, when the specified position doesn't work. Otherwise it will
+   * always just follow the given position, even if it's not ideal.
+   * @type {string}
+   */
+		alignElementSelector: {
+			validator: core.isString
+		},
+
+		/**
    * The dropdown's body content.
    * @type {string}
    */
@@ -6888,6 +7126,14 @@ babelHelpers;
   * @static
   */
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
+
+	/**
+  * A map from the dropdown supported positions to `Align` positions.
+  */
+	Dropdown.POSITION_MAP = {
+		down: Align.BottomLeft,
+		up: Align.TopLeft
+	};
 
 	this.metal.Dropdown = Dropdown;
 }).call(this);
@@ -7282,217 +7528,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Position = this.metal.Position;
-
-	/**
-  * Align utility. Computes region or best region to align an element with
-  * another. Regions are relative to viewport, make sure to use element with
-  * position fixed, or position absolute when the element first positioned
-  * parent is the body element.
-  */
-
-	var Align = (function () {
-		function Align() {
-			babelHelpers.classCallCheck(this, Align);
-		}
-
-		/**
-   * Aligns the element with the best region around alignElement. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {string} The final chosen position for the aligned element.
-   * @static
-   */
-
-		Align.align = function align(element, alignElement, position) {
-			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
-			var bestRegion = suggestion.region;
-
-			var computedStyle = window.getComputedStyle(element, null);
-			if (computedStyle.getPropertyValue('position') !== 'fixed') {
-				bestRegion.top += window.pageYOffset;
-				bestRegion.left += window.pageXOffset;
-
-				var offsetParent = element;
-				while (offsetParent = offsetParent.offsetParent) {
-					bestRegion.top -= Position.getOffsetTop(offsetParent);
-					bestRegion.left -= Position.getOffsetLeft(offsetParent);
-				}
-			}
-
-			element.style.top = bestRegion.top + 'px';
-			element.style.left = bestRegion.left + 'px';
-			return suggestion.position;
-		};
-
-		/**
-   * Returns the best region to align element with alignElement. This is similar
-   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
-   * while `Align.suggestAlignBestRegion` also returns the chosen position.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Best region to align element.
-   * @static
-   */
-
-		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
-			return Align.suggestAlignBestRegion(element, alignElement, position).region;
-		};
-
-		/**
-   * Returns the region to align element with alignElement. The element is
-   * always aligned in the middle of alignElement axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The position to align. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Region to align element.
-   * @static
-   */
-
-		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
-			var r1 = Position.getRegion(alignElement);
-			var r2 = Position.getRegion(element);
-			var top = 0;
-			var left = 0;
-
-			switch (position) {
-				case Align.Top:
-					top = r1.top - r2.height;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.Right:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left + r1.width;
-					break;
-				case Align.Bottom:
-					top = r1.bottom;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.Left:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left - r2.width;
-					break;
-			}
-
-			return {
-				bottom: top + r2.height,
-				height: r2.height,
-				left: left,
-				right: left + r2.width,
-				top: top,
-				width: r2.width
-			};
-		};
-
-		/**
-   * Checks if specified value is a valid position. Options `Align.Top`,
-   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
-   * @return {boolean} Returns true if value is a valid position.
-   * @static
-   */
-
-		Align.isValidPosition = function isValidPosition(val) {
-			return 0 <= val && val <= 3;
-		};
-
-		/**
-   * Looks for the best region for aligning the given element. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {{position: string, region: DOMRect}} Best region to align element.
-   * @static
-   */
-
-		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
-			var bestArea = 0;
-			var bestPosition = position;
-			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
-			var tryPosition = bestPosition;
-			var tryRegion = bestRegion;
-			var viewportRegion = Position.getRegion(window);
-
-			for (var i = 0; i < 4;) {
-				if (Position.intersectRegion(viewportRegion, tryRegion)) {
-					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
-					var area = visibleRegion.width * visibleRegion.height;
-					if (area > bestArea) {
-						bestArea = area;
-						bestRegion = tryRegion;
-						bestPosition = tryPosition;
-					}
-					if (Position.insideViewport(tryRegion)) {
-						break;
-					}
-				}
-				tryPosition = (position + ++i) % 4;
-				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
-			}
-
-			return {
-				position: bestPosition,
-				region: bestRegion
-			};
-		};
-
-		return Align;
-	})();
-
-	/**
-  * Represents the `Align.Top` constant.
-  * @type {number}
-  * @default 0
-  * @static
-  */
-
-	Align.Top = 0;
-
-	/**
-  * Represents the `Align.Right` constant.
-  * @type {number}
-  * @default 1
-  * @static
-  */
-	Align.Right = 1;
-
-	/**
-  * Represents the `Align.Bottom` constant.
-  * @type {number}
-  * @default 2
-  * @static
-  */
-	Align.Bottom = 2;
-
-	/**
-  * Represents the `Align.Left` constant.
-  * @type {number}
-  * @default 3
-  * @static
-  */
-	Align.Left = 3;
-
-	this.metal.Align = Align;
-}).call(this);
-'use strict';
-
-(function () {
 	var dom = this.metal.dom;
 	var features = this.metal.features;
 
@@ -7759,7 +7794,7 @@ babelHelpers;
 
 		TooltipBase.prototype.updatePositionCSS = function updatePositionCSS(position) {
 			dom.removeClasses(this.element, TooltipBase.PositionClasses.join(' '));
-			dom.addClasses(this.element, TooltipBase.PositionClasses[position]);
+			dom.addClasses(this.element, TooltipBase.PositionToClass[position]);
 		};
 
 		return TooltipBase;
@@ -7841,6 +7876,13 @@ babelHelpers;
   * @static
   */
 	TooltipBase.PositionClasses = ['top', 'right', 'bottom', 'left'];
+
+	/**
+  * A map from each `Align` position to the appropriate tooltip class.
+  * @type {!Array}
+  * @static
+  */
+	TooltipBase.PositionToClass = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
 
 	TooltipBase.RENDERER = SoyRenderer;
 

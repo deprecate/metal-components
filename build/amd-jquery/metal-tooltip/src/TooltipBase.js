@@ -193,7 +193,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 		TooltipBase.prototype.updatePositionCSS = function updatePositionCSS(position) {
 			_dom2.default.removeClasses(this.element, TooltipBase.PositionClasses.join(' '));
 
-			_dom2.default.addClasses(this.element, TooltipBase.PositionClasses[position]);
+			_dom2.default.addClasses(this.element, TooltipBase.PositionToClass[position]);
 		};
 
 		return TooltipBase;
@@ -223,6 +223,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 		title: {}
 	};
 	TooltipBase.PositionClasses = ['top', 'right', 'bottom', 'left'];
+	TooltipBase.PositionToClass = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
 	TooltipBase.RENDERER = _SoyRenderer2.default;
 	exports.default = TooltipBase;
 

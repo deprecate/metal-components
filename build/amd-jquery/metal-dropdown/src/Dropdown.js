@@ -2,12 +2,16 @@
 
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
-define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'metal-dropdown/src/Dropdown.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _dom, _EventHandler, _Dropdown, _JQueryAdapter) {
+define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Align', 'metal/src/events/EventHandler', 'metal-dropdown/src/Dropdown.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Align, _EventHandler, _Dropdown, _JQueryAdapter) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
+	var _core2 = _interopRequireDefault(_core);
+
 	var _dom2 = _interopRequireDefault(_dom);
+
+	var _Align2 = _interopRequireDefault(_Align);
 
 	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 
@@ -98,6 +102,14 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'metal-
 		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
 			if (expanded) {
 				_dom2.default.addClasses(this.element, 'open');
+
+				if (this.alignElementSelector) {
+					var alignElement = this.element.querySelector(this.alignElementSelector);
+
+					if (alignElement) {
+						_Align2.default.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+					}
+				}
 			} else {
 				_dom2.default.removeClasses(this.element, 'open');
 			}
@@ -154,6 +166,9 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'metal-
 
 	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 	Dropdown.ATTRS = {
+		alignElementSelector: {
+			validator: _core2.default.isString
+		},
 		body: {
 			isHtml: true,
 			valueFn: 'valueBodyFn_'
@@ -171,6 +186,10 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'metal-
 		}
 	};
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
+	Dropdown.POSITION_MAP = {
+		down: _Align2.default.BottomLeft,
+		up: _Align2.default.TopLeft
+	};
 	exports.default = Dropdown;
 
 	_JQueryAdapter2.default.register('dropdown', Dropdown);
