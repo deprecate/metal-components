@@ -3,7 +3,7 @@
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
 import SelectBase from './Select.soy';
-import 'bower:steel-dropdown/src/Dropdown';
+import 'bower:metal-dropdown/src/Dropdown';
 
 /**
  * Responsible for rendering and handling a custom select component, based
@@ -111,6 +111,15 @@ class Select extends SelectBase {
  * @static
  */
 Select.ATTRS = {
+	/**
+	 * The CSS class used by the select menu arrow.
+	 * @type {string}
+	 * @default 'caret'
+	 */
+	arrowClass: {
+		value: 'caret'
+	},
+
 	/**
 	 * The CSS class used by the select menu button.
 	 * @type {string}

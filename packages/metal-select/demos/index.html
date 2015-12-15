@@ -4,56 +4,30 @@
 	<meta charset="UTF-8">
 	<title>Demo: Select</title>
 
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-12.css">
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-16.css">
-	<link rel="stylesheet" href="../build/select.css">
+	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
 	<script src="../build/globals/select.js"></script>
-
-	<style>
-		.select {
-			margin-bottom: 10px;
-		}
-	</style>
 </head>
 <body>
 	<div class="col-md-4">
 		<h1>Dropdown + input group left</h1>
-		<div class="input-group">
-			<div id="first" class="input-group-btn"></div>
-			<input type="text" class="form-control" aria-label="...">
-		</div>
+		<div id="first"></div>
 	</div>
 	<div class="col-md-4">
-		<h1>Dropdown + button</h1>
+		<h1>Dropdown + label</h1>
 		<div id="second"></div>
 	</div>
-	<div class="col-md-4">
-		<h1>Dropdown + input group right</h1>
-		<div class="input-group">
-			<input type="text" class="form-control" aria-label="...">
-			<div id="third" class="input-group-btn"></div>
-		</div>
-	</div>
 	<script type="text/javascript">
-		window.select1 = new steel.Select({
+		window.select1 = new metal.Select({
 			items: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE'],
-			buttonClass: 'btn btn-default btn-sm dropdown-select-group-left',
 			hiddenFieldName: 'method'
 		}).render('#first');
 
-		window.select2 = new steel.Select({
+		window.select2 = new metal.Select({
 			items: ['Number', 'String', 'Boolean', 'Array', 'Object'],
 			label: 'Type',
-			buttonClass: 'btn btn-default form-control'
 		}).render('#second');
-
-		window.select3 = new steel.Select({
-			items: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE'],
-			buttonClass: 'btn btn-default btn-sm dropdown-select-group-right'
-		}).render('#third');
 	</script>
 </body>
 </html>

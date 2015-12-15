@@ -2,6 +2,7 @@
 
 /**
  * This renders the main element.
+ * @param arrowClass
  * @param buttonClass
  * @param? elementClasses
  * @param? hiddenInputName
@@ -30,8 +31,7 @@
 			{param events: ['attrsSynced': $id + ':handleDropdownAttrsSynced_'] /}
 			{param header kind="html"}
 				<button class="{$buttonClass} dropdown-select" type="button" data-onclick="toggle">
-					{$currSelectedIndex == -1 ? $label : $items[$currSelectedIndex]}
-					<span class="icon-12-arrow-down-short"></span>
+					{$currSelectedIndex == -1 ? $label : $items[$currSelectedIndex]} <span class="{$arrowClass}"></span>
 				</button>
 			{/param}
 			{param id: $id + '-dropdown' /}

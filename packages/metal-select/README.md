@@ -1,6 +1,6 @@
-# steel-select
+# metal-select
 
-Steel's select component
+Metal's select component
 
 ## Setup
 

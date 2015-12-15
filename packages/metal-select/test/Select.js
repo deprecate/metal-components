@@ -1,7 +1,7 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
-import Dropdown from 'bower:steel-dropdown/src/Dropdown';
+import Dropdown from 'bower:metal-dropdown/src/Dropdown';
 import Select from '../src/Select';
 import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 
@@ -59,7 +59,7 @@ describe('Select', function() {
 			label: 'Foo'
 		}).render();
 
-		assert.strictEqual('Foo', select.element.querySelector('button').textContent);
+		assert.strictEqual('Foo ', select.element.querySelector('button').textContent);
 	});
 
 	it('should render first item inside button if no label is given', function() {
@@ -67,7 +67,7 @@ describe('Select', function() {
 			items: ['First', 'Second', 'Third']
 		}).render();
 
-		assert.strictEqual('First', select.element.querySelector('button').textContent);
+		assert.strictEqual('First ', select.element.querySelector('button').textContent);
 	});
 
 	it('should automatically select first item if no label is given', function() {
@@ -85,7 +85,7 @@ describe('Select', function() {
 			selectedIndex: 1
 		}).render();
 
-		assert.strictEqual('Second', select.element.querySelector('button').textContent);
+		assert.strictEqual('Second ', select.element.querySelector('button').textContent);
 	});
 
 	it('should set the hidden input\'s value as the selected item\'s value', function() {
@@ -138,7 +138,7 @@ describe('Select', function() {
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
 		select.components[select.id + '-dropdown'].once('attrsChanged', function() {
-			assert.strictEqual('Second', select.element.querySelector('button').textContent);
+			assert.strictEqual('Second ', select.element.querySelector('button').textContent);
 			done();
 		});
 	});

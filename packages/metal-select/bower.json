@@ -1,14 +1,14 @@
 {
-	"name": "steel-select",
+	"name": "metal-select",
 	"version": "0.0.0",
-	"description": "Steel's select component",
+	"description": "Metal's select component",
 	"main": "src/Select.js",
 	"moduleType": [
 		"es6"
 	],
 	"keywords": [
 		"metal",
-		"steel"
+		"select"
 	],
 	"ignore": [
 		"*",
@@ -18,7 +18,6 @@
 	"dependencies": {
 		"metal": "metal/metal.js#master",
 		"metal-jquery-adapter": "metal/metal-jquery-adapter#master",
-		"steel-bootstrap": "metal/steel-bootstrap#master",
-		"steel-dropdown": "metal/steel-dropdown#master"
+		"metal-dropdown": "metal/metal-dropdown#master"
 	}
 }
