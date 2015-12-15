@@ -1,9 +1,9 @@
 {
-	"name": "steel-alert",
+	"name": "metal-alert",
 	"version": "0.0.0",
 	"description": "Steel's alert component",
 	"license": "BSD",
-	"repository": "metal/steel-alert",
+	"repository": "metal/metal-alert",
 	"engines": {
 		"node": ">=0.12.0"
 	},
@@ -11,8 +11,8 @@
 		"test": "gulp test"
 	},
 	"keywords": [
-		"metal",
-		"steel"
+		"alert",
+		"metal"
 	],
 	"devDependencies": {
 		"gulp": "^3.8.11",

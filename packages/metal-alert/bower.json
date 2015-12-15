@@ -1,14 +1,14 @@
 {
-	"name": "steel-alert",
+	"name": "metal-alert",
 	"version": "0.0.0",
-	"description": "Steel's alert component",
+	"description": "Metal's alert component",
 	"main": "src/Switcher.js",
 	"moduleType": [
 		"es6"
 	],
 	"keywords": [
-		"metal",
-		"steel"
+		"alert",
+		"metal"
 	],
 	"ignore": [
 		"*",
@@ -19,7 +19,6 @@
 	"dependencies": {
 		"metal": "metal/metal.js#master",
 		"metal-anim": "metal/metal-anim#master",
-		"metal-jquery-adapter": "metal/metal-jquery-adapter#master",
-		"steel-bootstrap": "metal/steel-bootstrap#master"
+		"metal-jquery-adapter": "metal/metal-jquery-adapter#master"
 	}
 }

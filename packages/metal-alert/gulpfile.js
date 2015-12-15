@@ -5,6 +5,5 @@ var metal = require('gulp-metal');
 metal.registerTasks({
 	bundleCssFileName: 'alert.css',
 	bundleFileName: 'alert.js',
-	globalName: 'steel',
-	moduleName: 'steel-alert'
+	moduleName: 'metal-alert'
 });

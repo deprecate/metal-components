@@ -1,6 +1,6 @@
-# steel-alert
+# metal-alert
 
-Steel's alert component
+Metal's alert component
 
 ## Setup
 

@@ -1,6 +1,6 @@
 (function() {
-this.steel = this.steel || {};
-this.steelNamed = this.steelNamed || {};
+this.metal = this.metal || {};
+this.metalNamed = this.metalNamed || {};
 var babelHelpers = {};
 
 babelHelpers.typeof = function (obj) {
@@ -283,7 +283,7 @@ babelHelpers;
   * @protected
   */
 
-	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
 
 	/**
   * Counter for unique id.
@@ -292,12 +292,12 @@ babelHelpers;
   */
 	core.uniqueIdCounter_ = 1;
 
-	this.steel.core = core;
+	this.metal.core = core;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
+	var core = this.metal.core;
 
 	var object = (function () {
 		function object() {
@@ -364,7 +364,7 @@ babelHelpers;
 		return object;
 	})();
 
-	this.steel.object = object;
+	this.metal.object = object;
 }).call(this);
 'use strict'
 
@@ -420,12 +420,12 @@ babelHelpers;
 		return Disposable;
 	})();
 
-	this.steel.Disposable = Disposable;
+	this.metal.Disposable = Disposable;
 }).call(this);
 'use strict';
 
 (function () {
-	var Disposable = this.steel.Disposable;
+	var Disposable = this.metal.Disposable;
 
 	/**
   * EventHandle utility. Holds information about an event subscription, and
@@ -497,12 +497,12 @@ babelHelpers;
 	})(Disposable);
 
 	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
-	this.steel.EventHandle = EventHandle;
+	this.metal.EventHandle = EventHandle;
 }).call(this);
 'use strict';
 
 (function () {
-	var EventHandle = this.steel.EventHandle;
+	var EventHandle = this.metal.EventHandle;
 
 	/**
   * This is a special EventHandle, that is responsible for dom events, instead
@@ -544,14 +544,14 @@ babelHelpers;
 	})(EventHandle);
 
 	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
-	this.steel.DomEventHandle = DomEventHandle;
+	this.metal.DomEventHandle = DomEventHandle;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var object = this.steel.object;
-	var DomEventHandle = this.steel.DomEventHandle;
+	var core = this.metal.core;
+	var object = this.metal.object;
+	var DomEventHandle = this.metal.DomEventHandle;
 
 	var dom = (function () {
 		function dom() {
@@ -835,6 +835,23 @@ babelHelpers;
 				}
 			}
 			return false;
+		};
+
+		/**
+   * Returns the next sibling of the given element that matches the specified
+   * selector, or null if there is none.
+   * @param {!Element} element
+   * @param {?string} selector
+   */
+
+		dom.next = function next(element, selector) {
+			do {
+				element = element.nextSibling;
+				if (element && dom.match(element, selector)) {
+					return element;
+				}
+			} while (element);
+			return null;
 		};
 
 		/**
@@ -1124,12 +1141,12 @@ babelHelpers;
 	var elementsByTag = {};
 	dom.customEvents = {};
 
-	this.steel.dom = dom;
+	this.metal.dom = dom;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
+	var core = this.metal.core;
 
 	var array = (function () {
 		function array() {
@@ -1236,7 +1253,7 @@ babelHelpers;
 		return array;
 	})();
 
-	this.steel.array = array;
+	this.metal.array = array;
 }).call(this);
 'use strict';
 
@@ -1294,13 +1311,13 @@ babelHelpers;
 		return string;
 	})();
 
-	this.steel.string = string;
+	this.metal.string = string;
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.steel.dom;
-	var string = this.steel.string;
+	var dom = this.metal.dom;
+	var string = this.metal.string;
 
 	/**
   * Class with static methods responsible for doing browser feature checks.
@@ -1370,12 +1387,12 @@ babelHelpers;
 	features.animationEventName_ = undefined;
 	features.attrOrderChange_ = undefined;
 
-	this.steel.features = features;
+	this.metal.features = features;
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.steel.dom;
+	var dom = this.metal.dom;
 
 	/**
   * Utility functions for running javascript code in the global scope.
@@ -1433,13 +1450,13 @@ babelHelpers;
 		return globalEval;
 	})();
 
-	this.steel.globalEval = globalEval;
+	this.metal.globalEval = globalEval;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var string = this.steel.string;
+	var core = this.metal.core;
+	var string = this.metal.string;
 
 	var html = (function () {
 		function html() {
@@ -1756,15 +1773,15 @@ babelHelpers;
 		TAG_QUOTE_SPACES: /\s*=\s*(["']?)\s*(.*?)\s*(\1)/g
 	};
 
-	this.steel.html = html;
+	this.metal.html = html;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var array = this.steel.array;
-	var Disposable = this.steel.Disposable;
-	var EventHandle = this.steel.EventHandle;
+	var core = this.metal.core;
+	var array = this.metal.array;
+	var Disposable = this.metal.Disposable;
+	var EventHandle = this.metal.EventHandle;
 
 	/**
   * EventEmitter utility.
@@ -2142,7 +2159,7 @@ babelHelpers;
 	})(Disposable);
 
 	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
-	this.steel.EventEmitter = EventEmitter;
+	this.metal.EventEmitter = EventEmitter;
 }).call(this);
 /*!
  * Polyfill from Google's Closure Library.
@@ -2152,8 +2169,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-
 	var async = {};
 
 	/**
@@ -2251,8 +2266,12 @@ babelHelpers;
 		}
 		cb = async.nextTick.wrapCallback_(cb);
 		// Introduced and currently only supported by IE10.
-		if (core.isFunction(window.setImmediate)) {
-			window.setImmediate(cb);
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof setImmediate === 'function') {
+			setImmediate(cb);
 			return;
 		}
 		// Look for and cache the custom fallback version of setImmediate.
@@ -2278,7 +2297,16 @@ babelHelpers;
 	async.nextTick.getSetImmediateEmulator_ = function () {
 		// Create a private message channel and use it to postMessage empty messages
 		// to ourselves.
-		var Channel = window.MessageChannel;
+		var Channel;
+
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof MessageChannel === 'function') {
+			Channel = MessageChannel;
+		}
+
 		// If MessageChannel is not available and we are in a browser, implement
 		// an iframe based polyfill in browsers that have postMessage and
 		// document.addEventListener. The latter excludes IE8 because it has a
@@ -2368,16 +2396,16 @@ babelHelpers;
 		return opt_returnValue;
 	};
 
-	this.steel.async = async;
+	this.metal.async = async;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.steel.array;
-	var core = this.steel.core;
-	var object = this.steel.object;
-	var EventEmitter = this.steel.EventEmitter;
-	var async = this.steel.async;
+	var array = this.metal.array;
+	var core = this.metal.core;
+	var object = this.metal.object;
+	var EventEmitter = this.metal.EventEmitter;
+	var async = this.metal.async;
 
 	/**
   * Attribute adds support for having object properties that can be watched for
@@ -2937,12 +2965,12 @@ babelHelpers;
 		INITIALIZED: 3
 	};
 
-	this.steel.Attribute = Attribute;
+	this.metal.Attribute = Attribute;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
+	var core = this.metal.core;
 
 	/**
   * The component registry is used to register components, so they can
@@ -3005,13 +3033,13 @@ babelHelpers;
 
 	ComponentRegistry.components_ = {};
 
-	this.steel.ComponentRegistry = ComponentRegistry;
+	this.metal.ComponentRegistry = ComponentRegistry;
 }).call(this);
 'use strict';
 
 (function () {
-	var ComponentRegistry = this.steel.ComponentRegistry;
-	var Disposable = this.steel.Disposable;
+	var ComponentRegistry = this.metal.ComponentRegistry;
+	var Disposable = this.metal.Disposable;
 
 	var ComponentCollector = (function (_Disposable) {
 		babelHelpers.inherits(ComponentCollector, _Disposable);
@@ -3086,7 +3114,7 @@ babelHelpers;
 	ComponentCollector.prototype.registerMetalComponent && ComponentCollector.prototype.registerMetalComponent(ComponentCollector, 'ComponentCollector')
 	ComponentCollector.components = {};
 
-	this.steel.ComponentCollector = ComponentCollector;
+	this.metal.ComponentCollector = ComponentCollector;
 }).call(this);
 'use strict'
 
@@ -3118,14 +3146,14 @@ babelHelpers;
 		return ComponentRenderer;
 	})();
 
-	this.steel.ComponentRenderer = ComponentRenderer;
+	this.metal.ComponentRenderer = ComponentRenderer;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var dom = this.steel.dom;
-	var Disposable = this.steel.Disposable;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var Disposable = this.metal.Disposable;
 
 	/**
   * EventEmitterProxy utility. It's responsible for linking two EventEmitter
@@ -3261,12 +3289,12 @@ babelHelpers;
 	})(Disposable);
 
 	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
-	this.steel.EventEmitterProxy = EventEmitterProxy;
+	this.metal.EventEmitterProxy = EventEmitterProxy;
 }).call(this);
 'use strict';
 
 (function () {
-	var Disposable = this.steel.Disposable;
+	var Disposable = this.metal.Disposable;
 
 	/**
   * EventHandler utility. It's useful for easily removing a group of
@@ -3331,15 +3359,15 @@ babelHelpers;
 	})(Disposable);
 
 	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
-	this.steel.EventHandler = EventHandler;
+	this.metal.EventHandler = EventHandler;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var ComponentCollector = this.steel.ComponentCollector;
-	var Disposable = this.steel.Disposable;
-	var EventHandler = this.steel.EventHandler;
+	var core = this.metal.core;
+	var ComponentCollector = this.metal.ComponentCollector;
+	var Disposable = this.metal.Disposable;
+	var EventHandler = this.metal.EventHandler;
 
 	/**
   * Collects inline events from a passed element, detaching previously
@@ -3548,13 +3576,13 @@ babelHelpers;
 	})(Disposable);
 
 	EventsCollector.prototype.registerMetalComponent && EventsCollector.prototype.registerMetalComponent(EventsCollector, 'EventsCollector')
-	this.steel.EventsCollector = EventsCollector;
+	this.metal.EventsCollector = EventsCollector;
 }).call(this);
 'use strict';
 
 (function () {
-	var object = this.steel.object;
-	var Disposable = this.steel.Disposable;
+	var object = this.metal.object;
+	var Disposable = this.metal.Disposable;
 
 	/**
   * Stores surface data to be used later by Components.
@@ -3642,27 +3670,27 @@ babelHelpers;
 	})(Disposable);
 
 	SurfaceCollector.prototype.registerMetalComponent && SurfaceCollector.prototype.registerMetalComponent(SurfaceCollector, 'SurfaceCollector')
-	this.steel.SurfaceCollector = SurfaceCollector;
+	this.metal.SurfaceCollector = SurfaceCollector;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.steel.array;
-	var core = this.steel.core;
-	var dom = this.steel.dom;
-	var features = this.steel.features;
-	var globalEval = this.steel.globalEval;
-	var html = this.steel.html;
-	var object = this.steel.object;
-	var string = this.steel.string;
-	var Attribute = this.steel.Attribute;
-	var ComponentCollector = this.steel.ComponentCollector;
-	var ComponentRegistry = this.steel.ComponentRegistry;
-	var ComponentRenderer = this.steel.ComponentRenderer;
-	var EventEmitterProxy = this.steel.EventEmitterProxy;
-	var EventHandler = this.steel.EventHandler;
-	var EventsCollector = this.steel.EventsCollector;
-	var SurfaceCollector = this.steel.SurfaceCollector;
+	var array = this.metal.array;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var features = this.metal.features;
+	var globalEval = this.metal.globalEval;
+	var html = this.metal.html;
+	var object = this.metal.object;
+	var string = this.metal.string;
+	var Attribute = this.metal.Attribute;
+	var ComponentCollector = this.metal.ComponentCollector;
+	var ComponentRegistry = this.metal.ComponentRegistry;
+	var ComponentRenderer = this.metal.ComponentRenderer;
+	var EventEmitterProxy = this.metal.EventEmitterProxy;
+	var EventHandler = this.metal.EventHandler;
+	var EventsCollector = this.metal.EventsCollector;
+	var SurfaceCollector = this.metal.SurfaceCollector;
 
 	/**
   * Component collects common behaviors to be followed by UI components, such
@@ -5492,7 +5520,7 @@ babelHelpers;
   */
 	Component.INVALID_ATTRS = ['components', 'elementContent'];
 
-	this.steel.Component = Component;
+	this.metal.Component = Component;
 }).call(this);
 'use strict';
 
@@ -5543,12 +5571,12 @@ babelHelpers;
 		return SoyTemplates;
 	})();
 
-	this.steel.SoyTemplates = SoyTemplates;
+	this.metal.SoyTemplates = SoyTemplates;
 }).call(this);
 'use strict';
 
 (function () {
-	var SoyTemplates = this.steel.SoyTemplates;
+	var SoyTemplates = this.metal.SoyTemplates;
 
 	var SoyAop = {
 		/**
@@ -5620,19 +5648,19 @@ babelHelpers;
 		}
 	};
 
-	this.steel.SoyAop = SoyAop;
+	this.metal.SoyAop = SoyAop;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var dom = this.steel.dom;
-	var object = this.steel.object;
-	var Component = this.steel.Component;
-	var ComponentRegistry = this.steel.ComponentRegistry;
-	var ComponentRenderer = this.steel.ComponentRenderer;
-	var SoyAop = this.steel.SoyAop;
-	var SoyTemplates = this.steel.SoyTemplates;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var object = this.metal.object;
+	var Component = this.metal.Component;
+	var ComponentRegistry = this.metal.ComponentRegistry;
+	var ComponentRenderer = this.metal.ComponentRenderer;
+	var SoyAop = this.metal.SoyAop;
+	var SoyTemplates = this.metal.SoyTemplates;
 
 	// The injected data that will be passed to soy templates.
 
@@ -6005,16 +6033,16 @@ babelHelpers;
 		return originalSanitizedHtmlFromFn(value);
 	};
 
-	this.steel.SoyRenderer = SoyRenderer;
+	this.metal.SoyRenderer = SoyRenderer;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.steel.Component;
-  var SoyAop = this.steel.SoyAop;
-  var SoyRenderer = this.steel.SoyRenderer;
-  var SoyTemplates = this.steel.SoyTemplates;
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Alert.soy.
@@ -6089,14 +6117,14 @@ babelHelpers;
 
   Alert.RENDERER = SoyRenderer;
   SoyAop.registerTemplates('Alert');
-  this.steel.Alert = Alert;
+  this.metal.Alert = Alert;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.steel.dom;
-	var features = this.steel.features;
+	var dom = this.metal.dom;
+	var features = this.metal.features;
 
 	var mouseEventMap = {
 		mouseenter: 'mouseover',
@@ -6139,9 +6167,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var dom = this.steel.dom;
-	var features = this.steel.features;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var features = this.metal.features;
 
 	var Anim = (function () {
 		function Anim() {
@@ -6233,16 +6261,16 @@ babelHelpers;
 		return Anim;
 	})();
 
-	this.steel.Anim = Anim;
+	this.metal.Anim = Anim;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.steel.core;
-	var dom = this.steel.dom;
-	var AlertBase = this.steel.Alert;
-	var Anim = this.steel.Anim;
-	var EventHandler = this.steel.EventHandler;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var AlertBase = this.metal.Alert;
+	var Anim = this.metal.Anim;
+	var EventHandler = this.metal.EventHandler;
 
 	/**
   * Alert component.
@@ -6427,7 +6455,7 @@ babelHelpers;
 		}
 	};
 
-	this.steel.Alert = Alert;
+	this.metal.Alert = Alert;
 }).call(this);
 }).call(this);
 //# sourceMappingURL=alert.js.map
