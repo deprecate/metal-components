@@ -6,6 +6,10 @@ import ButtonGroup from '../src/ButtonGroup';
 describe('ButtonGroup', function() {
 	var buttonGroup;
 
+	afterEach(function() {
+		buttonGroup.dispose();
+	});
+
 	it('should render the requested buttons', function() {
 		buttonGroup = new ButtonGroup({
 			buttons: [
