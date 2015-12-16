@@ -4,11 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Demo: List</title>
 
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-12.css">
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-16.css">
-	<link rel="stylesheet" href="../bower_components/steel-avatar/build/avatar.css">
-	<link rel="stylesheet" href="../build/list.css">
+	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
 	<script src="../build/globals/list.js"></script>
@@ -16,7 +12,7 @@
 <body>
 	<h1>List</h1>
 	<script type="text/javascript">
-		new steel.List({
+		new metal.List({
 			events: {
 				itemSelected: function(event) {
 					console.log(event);
@@ -27,27 +23,25 @@
 					textPrimary: 'Maira Bello',
 					textSecondary: 'maira.bello@liferay.com',
 					avatar: {
-						class: 'avatar-photo',
-						content: steel.SoyRenderer.sanitizeHtml('<img src="https://avatars0.githubusercontent.com/u/5216049?v=3&s=96"/>')
+						content: metal.SoyRenderer.sanitizeHtml('<img src="https://avatars0.githubusercontent.com/u/5216049?v=3&s=96"/>')
 					},
 					label: {
 						class: 'label-primary',
 						content: 'Owner'
 					},
-					icons: ['icon-16-ellipsis']
+					icons: ['glyphicon glyphicon-option-horizontal']
 				},
 				{
 					textPrimary: 'Eduardo Lundgren',
 					textSecondary: 'eduardo.lundgren@liferay.com',
 					avatar: {
-						class: 'avatar-initials',
-						content: 'e'
+						content: metal.SoyRenderer.sanitizeHtml('<img src="http://www.gravatar.com/avatar/42327de520e674a6d1686845b30778d0?d=blank&s=100"/>')
 					},
 					label: {
 						class: 'label-default',
 						content: 'Pending'
 					},
-					icons: ['icon-16-ellipsis']
+					icons: ['glyphicon glyphicon-option-horizontal']
 				}
 			]
 		}).render();

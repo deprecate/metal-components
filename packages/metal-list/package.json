@@ -1,9 +1,9 @@
 {
-	"name": "steel-list",
+	"name": "metal-list",
 	"version": "0.0.0",
-	"description": "Steel's list component",
+	"description": "Metal's list component",
 	"license": "BSD",
-	"repository": "metal/steel-list",
+	"repository": "metal/metal-list",
 	"engines": {
 		"node": ">=0.12.0"
 	},
@@ -11,8 +11,7 @@
 		"test": "gulp test"
 	},
 	"keywords": [
-		"metal",
-		"steel"
+		"metal"
 	],
 	"devDependencies": {
 		"gulp": "^3.8.11",

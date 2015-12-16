@@ -1,6 +1,6 @@
-# steel-list
+# metal-list
 
-Steel's list component
+Metal's list component
 
 ## Setup
 

@@ -8,7 +8,7 @@
  * @skipUpdates elementClasses
  */
 {template .content}
-	<li id="{$id}" class="listitem component{$elementClasses ? ' ' + $elementClasses : ''} clearfix" data-index="{$index}">
+	<li id="{$id}" class="listitem list-group-item component{$elementClasses ? ' ' + $elementClasses : ''} clearfix" data-index="{$index}">
 		{call .item data="all" /}
 	</li>
 {/template}

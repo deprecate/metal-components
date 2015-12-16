@@ -19,7 +19,7 @@
  * @param itemsHtml
  */
 {template .items}
-	<ul id="{$id}-items" data-onclick="handleClick">
+	<ul id="{$id}-items" class="list-group" data-onclick="handleClick">
 		{if isNonnull($itemsHtml)}
 			{$itemsHtml}
 		{else}

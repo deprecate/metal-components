@@ -37,7 +37,7 @@ if (goog.DEBUG) {
  * @suppress {checkTypes}
  */
 Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
-  var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" data-onclick="handleClick">';
+  var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" class="list-group" data-onclick="handleClick">';
   if (opt_data.itemsHtml != null) {
     output += soy.$$escapeHtml(opt_data.itemsHtml);
   } else {
