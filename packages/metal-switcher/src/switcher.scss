@@ -1,12 +1,11 @@
-@import "steel-bootstrap/src/variables";
-@import "steel-bootstrap/src/mixins";
+@import "bootstrap-sass/assets/stylesheets/bootstrap/mixins";
 
 /* Switcher - Off
 	 ========================================================================== */
 
 .switcher {
 	@include user-select(none);
-	background: rgba($primary, .4);
+	background: rgba(#0e141a, .4);
 	border-radius: 12px;
 	cursor: pointer;
 	height: 23px;
@@ -14,7 +13,7 @@
 }
 
 .switcher-control {
-	background: rgba($primary, .7);
+	background: rgba(#0e141a, .7);
 	border-radius: 50%;
 	float: left;
 	height: 25px;
@@ -33,11 +32,11 @@
 	 ========================================================================== */
 
 .switcher-on {
-	background: rgba($brand-success, .4);
+	background: rgba(#77d55a, .4);
 }
 
 .switcher-on .switcher-control {
-	background: $brand-success;
+	background: #77d55a;
 	float: right;
 }
 

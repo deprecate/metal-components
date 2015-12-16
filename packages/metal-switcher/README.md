@@ -1,6 +1,6 @@
-# steel-switcher
+# metal-switcher
 
-Steel's switcher component
+Metal's switcher component
 
 ## Setup
 
