@@ -5,7 +5,7 @@ import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/P
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
 import Align from 'bower:metal-position/src/Align';
-import List from 'bower:steel-list/src/List';
+import List from 'bower:metal-list/src/List';
 
 /*
  * Autocomplete component.

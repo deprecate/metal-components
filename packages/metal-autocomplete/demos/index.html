@@ -4,8 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Demo: Autocomplete</title>
 
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
-	<link rel="stylesheet" href="../build/autocomplete.css">
+	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
 	<script src="../build/globals/autocomplete.js"></script>
@@ -14,7 +13,7 @@
 	<h1>Autocomplete</h1>
 	<input type="text">
 	<script type="text/javascript">
-		new steel.Autocomplete({
+		new metal.Autocomplete({
 			inputElement: document.querySelector('input'),
 			data: function(query) {
 				return ['Alabama', 'Alaska'].filter(function(item) {

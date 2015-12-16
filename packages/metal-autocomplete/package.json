@@ -1,9 +1,9 @@
 {
-	"name": "steel-autocomplete",
+	"name": "metal-autocomplete",
 	"version": "0.0.0",
-	"description": "Steel's autocomplete component",
+	"description": "Metal's autocomplete component",
 	"license": "BSD",
-	"repository": "metal/steel-autocomplete",
+	"repository": "metal/metal-autocomplete",
 	"engines": {
 		"node": ">=0.12.0"
 	},
@@ -11,8 +11,8 @@
 		"test": "gulp test"
 	},
 	"keywords": [
-		"metal",
-		"steel"
+		"autocomplete",
+		"metal"
 	],
 	"devDependencies": {
 		"gulp": "^3.8.11",

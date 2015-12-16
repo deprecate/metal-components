@@ -1,6 +1,6 @@
-# steel-autocomplete
+# metal-autocomplete
 
-Steel's autocomplete component
+Metal's autocomplete component
 
 ## Setup
 
