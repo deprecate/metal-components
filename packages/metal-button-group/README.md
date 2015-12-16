@@ -1,6 +1,6 @@
-# steel-button-group
+# metal-button-group
 
-Steel's button group component
+Metal's button group component
 
 ## Setup
 

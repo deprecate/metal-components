@@ -4,10 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Demo: ButtonGroup</title>
 
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/bootstrap.css">
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-12.css">
-	<link rel="stylesheet" href="../bower_components/steel-bootstrap/build/fonts/icon-16.css">
-	<link rel="stylesheet" href="../build/buttonGroup.css">
+	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
 
 	<script src="../bower_components/soyutils/soyutils.js"></script>
 	<script src="../build/globals/buttonGroup.js"></script>
@@ -15,18 +12,16 @@
 <body>
 	<h1>ButtonGroup</h1>
 	<script type="text/javascript">
-		window.buttonGroup = new steel.ButtonGroup({
+		window.buttonGroup = new metal.ButtonGroup({
 			buttons: [
 				{
 					label: 'First'
 				},
 				{
-					label: 'Second',
-					cssClass: 'btn btn-default http-post-bg'
+					label: 'Second'
 				},
 				{
-					label: 'Third',
-					cssClass: 'btn btn-default http-put-bg'
+					label: 'Third'
 				}
 			],
 			selected: ['First', 'Third'],

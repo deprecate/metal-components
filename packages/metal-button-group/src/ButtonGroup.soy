@@ -19,7 +19,9 @@
 				data-index="{index($button)}"
 				data-onclick="handleClick_">
 				<span class="btn-group-label">{$button.label ? $button.label : ''}</span>
-				<span class="btn-group-icon icon-12-check"></span>
+				{if $button.icon}
+					<span class="{$button.icon}"></span>
+				{/if}
 			</button>
 		{/foreach}
 	</div>

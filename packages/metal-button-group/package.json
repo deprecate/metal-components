@@ -1,9 +1,9 @@
 {
-	"name": "steel-button-group",
+	"name": "metal-button-group",
 	"version": "0.0.0",
-	"description": "Steel's button group component",
+	"description": "Metal's button group component",
 	"license": "BSD",
-	"repository": "metal/steel-button-group",
+	"repository": "metal/metal-button-group",
 	"engines": {
 		"node": ">=0.12.0"
 	},
@@ -11,8 +11,7 @@
 		"test": "gulp test"
 	},
 	"keywords": [
-		"metal",
-		"steel"
+		"metal"
 	],
 	"devDependencies": {
 		"gulp": "^3.8.11",
