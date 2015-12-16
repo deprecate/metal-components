@@ -3155,295 +3155,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Position = this.metal.Position;
-
-	/**
-  * Align utility. Computes region or best region to align an element with
-  * another. Regions are relative to viewport, make sure to use element with
-  * position fixed, or position absolute when the element first positioned
-  * parent is the body element.
-  */
-
-	var Align = (function () {
-		function Align() {
-			babelHelpers.classCallCheck(this, Align);
-		}
-
-		/**
-   * Aligns the element with the best region around alignElement. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {string} The final chosen position for the aligned element.
-   * @static
-   */
-
-		Align.align = function align(element, alignElement, position) {
-			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
-			var bestRegion = suggestion.region;
-
-			var computedStyle = window.getComputedStyle(element, null);
-			if (computedStyle.getPropertyValue('position') !== 'fixed') {
-				bestRegion.top += window.pageYOffset;
-				bestRegion.left += window.pageXOffset;
-
-				var offsetParent = element;
-				while (offsetParent = offsetParent.offsetParent) {
-					bestRegion.top -= Position.getOffsetTop(offsetParent);
-					bestRegion.left -= Position.getOffsetLeft(offsetParent);
-				}
-			}
-
-			element.style.top = bestRegion.top + 'px';
-			element.style.left = bestRegion.left + 'px';
-			return suggestion.position;
-		};
-
-		/**
-   * Returns the best region to align element with alignElement. This is similar
-   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
-   * while `Align.suggestAlignBestRegion` also returns the chosen position.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Best region to align element.
-   * @static
-   */
-
-		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
-			return Align.suggestAlignBestRegion(element, alignElement, position).region;
-		};
-
-		/**
-   * Returns the region to align element with alignElement. The element is
-   * always aligned in the middle of alignElement axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The position to align. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Region to align element.
-   * @static
-   */
-
-		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
-			var r1 = Position.getRegion(alignElement);
-			var r2 = Position.getRegion(element);
-			var top = 0;
-			var left = 0;
-
-			switch (position) {
-				case Align.TopCenter:
-					top = r1.top - r2.height;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.RightCenter:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left + r1.width;
-					break;
-				case Align.BottomCenter:
-					top = r1.bottom;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.LeftCenter:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left - r2.width;
-					break;
-				case Align.TopRight:
-					top = r1.top - r2.height;
-					left = r1.right - r2.width;
-					break;
-				case Align.BottomRight:
-					top = r1.bottom;
-					left = r1.right - r2.width;
-					break;
-				case Align.BottomLeft:
-					top = r1.bottom;
-					left = r1.left;
-					break;
-				case Align.TopLeft:
-					top = r1.top - r2.height;
-					left = r1.left;
-					break;
-			}
-
-			return {
-				bottom: top + r2.height,
-				height: r2.height,
-				left: left,
-				right: left + r2.width,
-				top: top,
-				width: r2.width
-			};
-		};
-
-		/**
-   * Checks if specified value is a valid position. Options `Align.Top`,
-   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
-   * @return {boolean} Returns true if value is a valid position.
-   * @static
-   */
-
-		Align.isValidPosition = function isValidPosition(val) {
-			return 0 <= val && val <= 8;
-		};
-
-		/**
-   * Looks for the best region for aligning the given element. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {{position: string, region: DOMRect}} Best region to align element.
-   * @static
-   */
-
-		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
-			var bestArea = 0;
-			var bestPosition = position;
-			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
-			var tryPosition = bestPosition;
-			var tryRegion = bestRegion;
-			var viewportRegion = Position.getRegion(window);
-
-			for (var i = 0; i < 8;) {
-				if (Position.intersectRegion(viewportRegion, tryRegion)) {
-					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
-					var area = visibleRegion.width * visibleRegion.height;
-					if (area > bestArea) {
-						bestArea = area;
-						bestRegion = tryRegion;
-						bestPosition = tryPosition;
-					}
-					if (Position.insideViewport(tryRegion)) {
-						break;
-					}
-				}
-				tryPosition = (position + ++i) % 8;
-				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
-			}
-
-			return {
-				position: bestPosition,
-				region: bestRegion
-			};
-		};
-
-		return Align;
-	})();
-
-	/**
-  * Constants that represent the supported positions for `Align`.
-  * @type {number}
-  * @static
-  */
-
-	Align.TopCenter = 0;
-	Align.TopRight = 1;
-	Align.RightCenter = 2;
-	Align.BottomRight = 3;
-	Align.BottomCenter = 4;
-	Align.BottomLeft = 5;
-	Align.LeftCenter = 6;
-	Align.TopLeft = 7;
-
-	/**
-  * Aliases for position constants.
-  * @type {number}
-  * @static
-  */
-	Align.Top = Align.TopCenter;
-	Align.Right = Align.RightCenter;
-	Align.Bottom = Align.BottomCenter;
-	Align.Left = Align.LeftCenter;
-
-	this.metal.Align = Align;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.metal.Disposable;
-
-	/**
-  * EventHandler utility. It's useful for easily removing a group of
-  * listeners from different EventEmitter instances.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventHandler = (function (_Disposable) {
-		babelHelpers.inherits(EventHandler, _Disposable);
-
-		function EventHandler() {
-			babelHelpers.classCallCheck(this, EventHandler);
-
-			/**
-    * An array that holds the added event handles, so the listeners can be
-    * removed later.
-    * @type {Array.<EventHandle>}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.eventHandles_ = [];
-			return _this;
-		}
-
-		/**
-   * Adds event handles to be removed later through the `removeAllListeners`
-   * method.
-   * @param {...(!EventHandle)} var_args
-   */
-
-		EventHandler.prototype.add = function add() {
-			for (var i = 0; i < arguments.length; i++) {
-				this.eventHandles_.push(arguments[i]);
-			}
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-		EventHandler.prototype.disposeInternal = function disposeInternal() {
-			this.eventHandles_ = null;
-		};
-
-		/**
-   * Removes all listeners that have been added through the `add` method.
-   */
-
-		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
-			for (var i = 0; i < this.eventHandles_.length; i++) {
-				this.eventHandles_[i].removeListener();
-			}
-
-			this.eventHandles_ = [];
-		};
-
-		return EventHandler;
-	})(Disposable);
-
-	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
-	this.metal.EventHandler = EventHandler;
-}).call(this);
-'use strict';
-
-(function () {
 	var string = (function () {
 		function string() {
 			babelHelpers.classCallCheck(this, string);
@@ -3630,6 +3341,21 @@ babelHelpers;
 				globalEval.runFile(script.src);
 			} else {
 				globalEval.run(script.text);
+			}
+		};
+
+		/**
+   * Evaluates any script tags present in the given element.
+   * @params {!Element} element
+   */
+
+		globalEval.runScriptsInElement = function runScriptsInElement(element) {
+			var scripts = element.querySelectorAll('script');
+			for (var i = 0; i < scripts.length; i++) {
+				var script = scripts.item(i);
+				if (!script.type || script.type === 'text/javascript') {
+					globalEval.runScript(script);
+				}
 			}
 		};
 
@@ -4141,6 +3867,76 @@ babelHelpers;
 	})();
 
 	this.metal.ComponentRenderer = ComponentRenderer;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.metal.Disposable;
+
+	/**
+  * EventHandler utility. It's useful for easily removing a group of
+  * listeners from different EventEmitter instances.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventHandler = (function (_Disposable) {
+		babelHelpers.inherits(EventHandler, _Disposable);
+
+		function EventHandler() {
+			babelHelpers.classCallCheck(this, EventHandler);
+
+			/**
+    * An array that holds the added event handles, so the listeners can be
+    * removed later.
+    * @type {Array.<EventHandle>}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.eventHandles_ = [];
+			return _this;
+		}
+
+		/**
+   * Adds event handles to be removed later through the `removeAllListeners`
+   * method.
+   * @param {...(!EventHandle)} var_args
+   */
+
+		EventHandler.prototype.add = function add() {
+			for (var i = 0; i < arguments.length; i++) {
+				this.eventHandles_.push(arguments[i]);
+			}
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+		EventHandler.prototype.disposeInternal = function disposeInternal() {
+			this.eventHandles_ = null;
+		};
+
+		/**
+   * Removes all listeners that have been added through the `add` method.
+   */
+
+		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
+			for (var i = 0; i < this.eventHandles_.length; i++) {
+				this.eventHandles_[i].removeListener();
+			}
+
+			this.eventHandles_ = [];
+		};
+
+		return EventHandler;
+	})(Disposable);
+
+	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
+	this.metal.EventHandler = EventHandler;
 }).call(this);
 'use strict';
 
@@ -4825,15 +4621,8 @@ babelHelpers;
 
 		Component.prototype.buildFragment_ = function buildFragment_(content) {
 			var frag = dom.buildFragment(content);
-			if (content.indexOf('<script') === -1) {
-				return frag;
-			}
-			var scripts = frag.querySelectorAll('script');
-			for (var i = 0; i < scripts.length; i++) {
-				var script = scripts.item(i);
-				if (!script.type || script.type === 'text/javascript') {
-					globalEval.runScript(script);
-				}
+			if (content.indexOf('<script') !== -1) {
+				globalEval.runScriptsInElement(frag);
 			}
 			return frag;
 		};
@@ -6826,6 +6615,2790 @@ babelHelpers;
   var SoyTemplates = this.metal.SoyTemplates;
 
   var Templates = SoyTemplates.get();
+  // This file was automatically generated from Alert.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Alert.
+   */
+
+  if (typeof Templates.Alert == 'undefined') {
+    Templates.Alert = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Alert.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Alert.content.soyTemplateName = 'Templates.Alert.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Alert.body = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Alert.body.soyTemplateName = 'Templates.Alert.body';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Alert.dismiss = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-dismiss">' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
+  }
+
+  Templates.Alert.content.params = ["id"];
+  Templates.Alert.body.params = ["body", "id"];
+  Templates.Alert.dismiss.params = ["dismissible", "id"];
+
+  var Alert = (function (_Component) {
+    babelHelpers.inherits(Alert, _Component);
+
+    function Alert() {
+      babelHelpers.classCallCheck(this, Alert);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Alert;
+  })(Component);
+
+  Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
+
+  Alert.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Alert');
+  this.metal.Alert = Alert;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.metal.dom;
+	var features = this.metal.features;
+
+	var mouseEventMap = {
+		mouseenter: 'mouseover',
+		mouseleave: 'mouseout',
+		pointerenter: 'pointerover',
+		pointerleave: 'pointerout'
+	};
+	Object.keys(mouseEventMap).forEach(function (eventName) {
+		dom.registerCustomEvent(eventName, {
+			delegate: true,
+			handler: function handler(callback, event) {
+				var related = event.relatedTarget;
+				var target = event.delegateTarget;
+				if (!related || related !== target && !target.contains(related)) {
+					event.customType = eventName;
+					return callback(event);
+				}
+			},
+			originalEvent: mouseEventMap[eventName]
+		});
+	});
+
+	var animationEventMap = {
+		animation: 'animationend',
+		transition: 'transitionend'
+	};
+	Object.keys(animationEventMap).forEach(function (eventType) {
+		var eventName = animationEventMap[eventType];
+		dom.registerCustomEvent(eventName, {
+			event: true,
+			delegate: true,
+			handler: function handler(callback, event) {
+				event.customType = eventName;
+				return callback(event);
+			},
+			originalEvent: features.checkAnimationEventName()[eventType]
+		});
+	});
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var features = this.metal.features;
+
+	var Anim = (function () {
+		function Anim() {
+			babelHelpers.classCallCheck(this, Anim);
+		}
+
+		/**
+   * Emulates animation or transition end event, the end event with longer
+   * duration will be used by the emulation. If they have the same value,
+   * transitionend will be emulated.
+   * @param {!Element} element
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   */
+
+		Anim.emulateEnd = function emulateEnd(element, opt_durationMs) {
+			if (this.getComputedDurationMs(element, 'animation') > this.getComputedDurationMs(element, 'transition')) {
+				return this.emulateEnd_(element, 'animation', opt_durationMs);
+			} else {
+				return this.emulateEnd_(element, 'transition', opt_durationMs);
+			}
+		};
+
+		/**
+   * Emulates animation end event. If `opt_durationMs` not specified the value
+   * will read from computed style for animation-duration.
+   * @param {!Element} element
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   */
+
+		Anim.emulateAnimationEnd = function emulateAnimationEnd(element, opt_durationMs) {
+			return this.emulateEnd_(element, 'animation', opt_durationMs);
+		};
+
+		/**
+   * Emulates transition end event. If `opt_durationMs` not specified the
+   * value will read from computed style for transition-duration.
+   * @param {!Element} element
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   */
+
+		Anim.emulateTransitionEnd = function emulateTransitionEnd(element, opt_durationMs) {
+			this.emulateEnd_(element, 'transition', opt_durationMs);
+		};
+
+		/**
+   * Emulates transition or animation end.
+   * @param {!Element} element
+   * @param {string} type
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   * @protected
+   */
+
+		Anim.emulateEnd_ = function emulateEnd_(element, type, opt_durationMs) {
+			var duration = opt_durationMs;
+			if (!core.isDef(opt_durationMs)) {
+				duration = this.getComputedDurationMs(element, type);
+			}
+
+			var delayed = setTimeout(function () {
+				dom.triggerEvent(element, features.checkAnimationEventName()[type]);
+			}, duration);
+
+			var abort = function abort() {
+				clearTimeout(delayed);
+				hoistedEvtHandler.removeListener();
+			};
+			var hoistedEvtHandler = dom.once(element, type + 'end', abort);
+
+			return {
+				abort: abort
+			};
+		};
+
+		/**
+   * Gets computed style duration for duration.
+   * @param {!Element} element
+   * @param {string} type
+   * @return {number} The computed duration in milliseconds.
+   */
+
+		Anim.getComputedDurationMs = function getComputedDurationMs(element, type) {
+			return (parseFloat(window.getComputedStyle(element, null).getPropertyValue(type + '-duration')) || 0) * 1000;
+		};
+
+		return Anim;
+	})();
+
+	this.metal.Anim = Anim;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var AlertBase = this.metal.Alert;
+	var Anim = this.metal.Anim;
+	var EventHandler = this.metal.EventHandler;
+
+	/**
+  * Alert component.
+  */
+
+	var Alert = (function (_AlertBase) {
+		babelHelpers.inherits(Alert, _AlertBase);
+
+		function Alert(opt_config) {
+			babelHelpers.classCallCheck(this, Alert);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _AlertBase.call(this, opt_config));
+
+			_this.eventHandler_ = new EventHandler();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Alert.prototype.detached = function detached() {
+			_AlertBase.prototype.detached.call(this);
+			this.eventHandler_.removeAllListeners();
+			clearTimeout(this.delay_);
+		};
+
+		/**
+   * Closes the alert, disposing it once the animation ends.
+   */
+
+		Alert.prototype.close = function close() {
+			dom.once(this.element, 'animationend', this.dispose.bind(this));
+			dom.once(this.element, 'transitionend', this.dispose.bind(this));
+			this.eventHandler_.removeAllListeners();
+			this.syncVisible(false);
+		};
+
+		/**
+   * Handles document click in order to close the alert.
+   * @param {!Event} event
+   * @protected
+   */
+
+		Alert.prototype.handleDocClick_ = function handleDocClick_(event) {
+			if (!this.element.contains(event.target)) {
+				this.hide();
+			}
+		};
+
+		/**
+   * Hide the alert.
+   */
+
+		Alert.prototype.hide = function hide() {
+			this.visible = false;
+		};
+
+		/**
+   * Toggles the visibility of the alert.
+   */
+
+		Alert.prototype.toggle = function toggle() {
+			this.visible = !this.visible;
+		};
+
+		/**
+   * Synchronization logic for `dismissible` attribute.
+   * @param {boolean} dismissible
+   */
+
+		Alert.prototype.syncDismissible = function syncDismissible(dismissible) {
+			if (dismissible) {
+				this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+			} else {
+				this.eventHandler_.removeAllListeners();
+			}
+
+			dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
+		};
+
+		/**
+   * Synchronization logic for `visible` attribute.
+   * @param {boolean} visible
+   */
+
+		Alert.prototype.syncVisible = function syncVisible(visible) {
+			dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
+			dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
+			// Some browsers do not fire transitionend events when running in background
+			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
+			Anim.emulateEnd(this.element);
+
+			if (visible && core.isNumber(this.hideDelay)) {
+				this.syncHideDelay(this.hideDelay);
+			}
+		};
+
+		/**
+   * Synchronization logic for `hideDelay` attribute.
+   * @param {?number} hideDelay
+   */
+
+		Alert.prototype.syncHideDelay = function syncHideDelay(hideDelay) {
+			if (core.isNumber(hideDelay) && this.visible) {
+				clearTimeout(this.delay_);
+				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
+			}
+		};
+
+		return Alert;
+	})(AlertBase);
+
+	/**
+  * Default alert elementClasses.
+  * @default alert
+  * @type {string}
+  * @static
+  */
+
+	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
+	Alert.ELEMENT_CLASSES = 'alert';
+
+	/**
+  * Alert attributes definition.
+  * @type {!Object}
+  * @static
+  */
+	Alert.ATTRS = {
+		/**
+   * The CSS classes that should be added to the alert when being shown/hidden.
+   * @type {!Object}
+   */
+		animClasses: {
+			validator: core.isObject,
+			value: {
+				show: 'fade in',
+				hide: 'fade'
+			}
+		},
+
+		/**
+   * The body content of the alert.
+   * @type {string}
+   */
+		body: {
+			value: ''
+		},
+
+		/**
+   * Flag indicating if the alert should be dismissable (closeable).
+   * @type {boolean}
+   * @default true
+   */
+		dismissible: {
+			validator: core.isBoolean,
+			value: true
+		},
+
+		/**
+   * The CSS classes that should be added to the alert.
+   * @type {string}
+   * @default 'alert-success'
+   */
+		elementClasses: {
+			value: 'alert-success'
+		},
+
+		/**
+   * Delay hiding the alert (ms).
+   * @type {?number}
+   */
+		hideDelay: {},
+
+		/**
+   * Flag indicating if the alert is visible or not.
+   * @type {boolean}
+   * @default false
+   */
+		visible: {
+			value: false
+		}
+	};
+
+	this.metal.Alert = Alert;
+}).call(this);
+/*!
+ * Promises polyfill from Google's Closure Library.
+ *
+ *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
+ *
+ * NOTE(eduardo): Promise support is not ready on all supported browsers,
+ * therefore core.js is temporarily using Google's promises as polyfill. It
+ * supports cancellable promises and has clean and fast implementation.
+ */
+
+'use strict';
+
+(function () {
+  var core = this.metal.core;
+  var async = this.metal.async;
+
+  /**
+   * Provides a more strict interface for Thenables in terms of
+   * http://promisesaplus.com for interop with {@see CancellablePromise}.
+   *
+   * @interface
+   * @extends {IThenable.<TYPE>}
+   * @template TYPE
+   */
+
+  var Thenable = function Thenable() {};
+
+  /**
+   * Adds callbacks that will operate on the result of the Thenable, returning a
+   * new child Promise.
+   *
+   * If the Thenable is fulfilled, the {@code onFulfilled} callback will be
+   * invoked with the fulfillment value as argument, and the child Promise will
+   * be fulfilled with the return value of the callback. If the callback throws
+   * an exception, the child Promise will be rejected with the thrown value
+   * instead.
+   *
+   * If the Thenable is rejected, the {@code onRejected} callback will be invoked
+   * with the rejection reason as argument, and the child Promise will be rejected
+   * with the return value of the callback or thrown value.
+   *
+   * @param {?(function(this:THIS, TYPE):
+   *             (RESULT|IThenable.<RESULT>|Thenable))=} opt_onFulfilled A
+   *     function that will be invoked with the fulfillment value if the Promise
+   *     is fullfilled.
+   * @param {?(function(*): *)=} opt_onRejected A function that will be invoked
+   *     with the rejection reason if the Promise is rejected.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     with the default this.
+   * @return {!CancellablePromise.<RESULT>} A new Promise that will receive the
+   *     result of the fulfillment or rejection callback.
+   * @template RESULT,THIS
+   */
+  Thenable.prototype.then = function () {};
+
+  /**
+   * An expando property to indicate that an object implements
+   * {@code Thenable}.
+   *
+   * {@see addImplementation}.
+   *
+   * @const
+   */
+  Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
+
+  /**
+   * Marks a given class (constructor) as an implementation of Thenable, so
+   * that we can query that fact at runtime. The class must have already
+   * implemented the interface.
+   * Exports a 'then' method on the constructor prototype, so that the objects
+   * also implement the extern {@see Thenable} interface for interop with
+   * other Promise implementations.
+   * @param {function(new:Thenable,...[?])} ctor The class constructor. The
+   *     corresponding class must have already implemented the interface.
+   */
+  Thenable.addImplementation = function (ctor) {
+    ctor.prototype.then = ctor.prototype.then;
+    ctor.prototype.$goog_Thenable = true;
+  };
+
+  /**
+   * @param {*} object
+   * @return {boolean} Whether a given instance implements {@code Thenable}.
+   *     The class/superclass of the instance must call {@code addImplementation}.
+   */
+  Thenable.isImplementedBy = function (object) {
+    if (!object) {
+      return false;
+    }
+    try {
+      return !!object.$goog_Thenable;
+    } catch (e) {
+      // Property access seems to be forbidden.
+      return false;
+    }
+  };
+
+  /**
+   * Like bind(), except that a 'this object' is not required. Useful when the
+   * target function is already bound.
+   *
+   * Usage:
+   * var g = partial(f, arg1, arg2);
+   * g(arg3, arg4);
+   *
+   * @param {Function} fn A function to partially apply.
+   * @param {...*} var_args Additional arguments that are partially applied to fn.
+   * @return {!Function} A partially-applied form of the function bind() was
+   *     invoked as a method of.
+   */
+  var partial = function partial(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return function () {
+      // Clone the array (with slice()) and append additional arguments
+      // to the existing arguments.
+      var newArgs = args.slice();
+      newArgs.push.apply(newArgs, arguments);
+      return fn.apply(this, newArgs);
+    };
+  };
+
+  /**
+   * Promises provide a result that may be resolved asynchronously. A Promise may
+   * be resolved by being fulfilled or rejected with a value, which will be known
+   * as the fulfillment value or the rejection reason. Whether fulfilled or
+   * rejected, the Promise result is immutable once it is set.
+   *
+   * Promises may represent results of any type, including undefined. Rejection
+   * reasons are typically Errors, but may also be of any type. Closure Promises
+   * allow for optional type annotations that enforce that fulfillment values are
+   * of the appropriate types at compile time.
+   *
+   * The result of a Promise is accessible by calling {@code then} and registering
+   * {@code onFulfilled} and {@code onRejected} callbacks. Once the Promise
+   * resolves, the relevant callbacks are invoked with the fulfillment value or
+   * rejection reason as argument. Callbacks are always invoked in the order they
+   * were registered, even when additional {@code then} calls are made from inside
+   * another callback. A callback is always run asynchronously sometime after the
+   * scope containing the registering {@code then} invocation has returned.
+   *
+   * If a Promise is resolved with another Promise, the first Promise will block
+   * until the second is resolved, and then assumes the same result as the second
+   * Promise. This allows Promises to depend on the results of other Promises,
+   * linking together multiple asynchronous operations.
+   *
+   * This implementation is compatible with the Promises/A+ specification and
+   * passes that specification's conformance test suite. A Closure Promise may be
+   * resolved with a Promise instance (or sufficiently compatible Promise-like
+   * object) created by other Promise implementations. From the specification,
+   * Promise-like objects are known as "Thenables".
+   *
+   * @see http://promisesaplus.com/
+   *
+   * @param {function(
+   *             this:RESOLVER_CONTEXT,
+   *             function((TYPE|IThenable.<TYPE>|Thenable)),
+   *             function(*)): void} resolver
+   *     Initialization function that is invoked immediately with {@code resolve}
+   *     and {@code reject} functions as arguments. The Promise is resolved or
+   *     rejected with the first argument passed to either function.
+   * @param {RESOLVER_CONTEXT=} opt_context An optional context for executing the
+   *     resolver function. If unspecified, the resolver function will be executed
+   *     in the default scope.
+   * @constructor
+   * @struct
+   * @final
+   * @implements {Thenable.<TYPE>}
+   * @template TYPE,RESOLVER_CONTEXT
+   */
+  var CancellablePromise = function CancellablePromise(resolver, opt_context) {
+    /**
+     * The internal state of this Promise. Either PENDING, FULFILLED, REJECTED, or
+     * BLOCKED.
+     * @private {CancellablePromise.State_}
+     */
+    this.state_ = CancellablePromise.State_.PENDING;
+
+    /**
+     * The resolved result of the Promise. Immutable once set with either a
+     * fulfillment value or rejection reason.
+     * @private {*}
+     */
+    this.result_ = undefined;
+
+    /**
+     * For Promises created by calling {@code then()}, the originating parent.
+     * @private {CancellablePromise}
+     */
+    this.parent_ = null;
+
+    /**
+     * The list of {@code onFulfilled} and {@code onRejected} callbacks added to
+     * this Promise by calls to {@code then()}.
+     * @private {Array.<CancellablePromise.CallbackEntry_>}
+     */
+    this.callbackEntries_ = null;
+
+    /**
+     * Whether the Promise is in the queue of Promises to execute.
+     * @private {boolean}
+     */
+    this.executing_ = false;
+
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      /**
+       * A timeout ID used when the {@code UNHANDLED_REJECTION_DELAY} is greater
+       * than 0 milliseconds. The ID is set when the Promise is rejected, and
+       * cleared only if an {@code onRejected} callback is invoked for the
+       * Promise (or one of its descendants) before the delay is exceeded.
+       *
+       * If the rejection is not handled before the timeout completes, the
+       * rejection reason is passed to the unhandled rejection handler.
+       * @private {number}
+       */
+      this.unhandledRejectionId_ = 0;
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      /**
+       * When the {@code UNHANDLED_REJECTION_DELAY} is set to 0 milliseconds, a
+       * boolean that is set if the Promise is rejected, and reset to false if an
+       * {@code onRejected} callback is invoked for the Promise (or one of its
+       * descendants). If the rejection is not handled before the next timestep,
+       * the rejection reason is passed to the unhandled rejection handler.
+       * @private {boolean}
+       */
+      this.hadUnhandledRejection_ = false;
+    }
+
+    try {
+      var self = this;
+      resolver.call(opt_context, function (value) {
+        self.resolve_(CancellablePromise.State_.FULFILLED, value);
+      }, function (reason) {
+        self.resolve_(CancellablePromise.State_.REJECTED, reason);
+      });
+    } catch (e) {
+      this.resolve_(CancellablePromise.State_.REJECTED, e);
+    }
+  };
+
+  /**
+   * @define {number} The delay in milliseconds before a rejected Promise's reason
+   * is passed to the rejection handler. By default, the rejection handler
+   * rethrows the rejection reason so that it appears in the developer console or
+   * {@code window.onerror} handler.
+   *
+   * Rejections are rethrown as quickly as possible by default. A negative value
+   * disables rejection handling entirely.
+   */
+  CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
+
+  /**
+   * The possible internal states for a Promise. These states are not directly
+   * observable to external callers.
+   * @enum {number}
+   * @private
+   */
+  CancellablePromise.State_ = {
+    /** The Promise is waiting for resolution. */
+    PENDING: 0,
+
+    /** The Promise is blocked waiting for the result of another Thenable. */
+    BLOCKED: 1,
+
+    /** The Promise has been resolved with a fulfillment value. */
+    FULFILLED: 2,
+
+    /** The Promise has been resolved with a rejection reason. */
+    REJECTED: 3
+  };
+
+  /**
+   * Typedef for entries in the callback chain. Each call to {@code then},
+   * {@code thenCatch}, or {@code thenAlways} creates an entry containing the
+   * functions that may be invoked once the Promise is resolved.
+   *
+   * @typedef {{
+   *   child: CancellablePromise,
+   *   onFulfilled: function(*),
+   *   onRejected: function(*)
+   * }}
+   * @private
+   */
+  CancellablePromise.CallbackEntry_ = null;
+
+  /**
+   * @param {(TYPE|Thenable.<TYPE>|Thenable)=} opt_value
+   * @return {!CancellablePromise.<TYPE>} A new Promise that is immediately resolved
+   *     with the given value.
+   * @template TYPE
+   */
+  CancellablePromise.resolve = function (opt_value) {
+    return new CancellablePromise(function (resolve) {
+      resolve(opt_value);
+    });
+  };
+
+  /**
+   * @param {*=} opt_reason
+   * @return {!CancellablePromise} A new Promise that is immediately rejected with the
+   *     given reason.
+   */
+  CancellablePromise.reject = function (opt_reason) {
+    return new CancellablePromise(function (resolve, reject) {
+      reject(opt_reason);
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<TYPE>} A Promise that receives the result of the
+   *     first Promise (or Promise-like) input to complete.
+   * @template TYPE
+   */
+  CancellablePromise.race = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      if (!promises.length) {
+        resolve(undefined);
+      }
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(resolve, reject);
+      }
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<!Array.<TYPE>>} A Promise that receives a list of
+   *     every fulfilled value once every input Promise (or Promise-like) is
+   *     successfully fulfilled, or is rejected by the first rejection result.
+   * @template TYPE
+   */
+  CancellablePromise.all = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      var toFulfill = promises.length;
+      var values = [];
+
+      if (!toFulfill) {
+        resolve(values);
+        return;
+      }
+
+      var onFulfill = function onFulfill(index, value) {
+        toFulfill--;
+        values[index] = value;
+        if (toFulfill === 0) {
+          resolve(values);
+        }
+      };
+
+      var onReject = function onReject(reason) {
+        reject(reason);
+      };
+
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(partial(onFulfill, i), onReject);
+      }
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<TYPE>} A Promise that receives the value of
+   *     the first input to be fulfilled, or is rejected with a list of every
+   *     rejection reason if all inputs are rejected.
+   * @template TYPE
+   */
+  CancellablePromise.firstFulfilled = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      var toReject = promises.length;
+      var reasons = [];
+
+      if (!toReject) {
+        resolve(undefined);
+        return;
+      }
+
+      var onFulfill = function onFulfill(value) {
+        resolve(value);
+      };
+
+      var onReject = function onReject(index, reason) {
+        toReject--;
+        reasons[index] = reason;
+        if (toReject === 0) {
+          reject(reasons);
+        }
+      };
+
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(onFulfill, partial(onReject, i));
+      }
+    });
+  };
+
+  /**
+   * Adds callbacks that will operate on the result of the Promise, returning a
+   * new child Promise.
+   *
+   * If the Promise is fulfilled, the {@code onFulfilled} callback will be invoked
+   * with the fulfillment value as argument, and the child Promise will be
+   * fulfilled with the return value of the callback. If the callback throws an
+   * exception, the child Promise will be rejected with the thrown value instead.
+   *
+   * If the Promise is rejected, the {@code onRejected} callback will be invoked
+   * with the rejection reason as argument, and the child Promise will be rejected
+   * with the return value (or thrown value) of the callback.
+   *
+   * @override
+   */
+  CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
+    return this.addChildPromise_(core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+  };
+  Thenable.addImplementation(CancellablePromise);
+
+  /**
+   * Adds a callback that will be invoked whether the Promise is fulfilled or
+   * rejected. The callback receives no argument, and no new child Promise is
+   * created. This is useful for ensuring that cleanup takes place after certain
+   * asynchronous operations. Callbacks added with {@code thenAlways} will be
+   * executed in the same order with other calls to {@code then},
+   * {@code thenAlways}, or {@code thenCatch}.
+   *
+   * Since it does not produce a new child Promise, cancellation propagation is
+   * not prevented by adding callbacks with {@code thenAlways}. A Promise that has
+   * a cleanup handler added with {@code thenAlways} will be canceled if all of
+   * its children created by {@code then} (or {@code thenCatch}) are canceled.
+   *
+   * @param {function(this:THIS): void} onResolved A function that will be invoked
+   *     when the Promise is resolved.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     in the global scope.
+   * @return {!CancellablePromise.<TYPE>} This Promise, for chaining additional calls.
+   * @template THIS
+   */
+  CancellablePromise.prototype.thenAlways = function (onResolved, opt_context) {
+    var callback = function callback() {
+      try {
+        // Ensure that no arguments are passed to onResolved.
+        onResolved.call(opt_context);
+      } catch (err) {
+        CancellablePromise.handleRejection_.call(null, err);
+      }
+    };
+
+    this.addCallbackEntry_({
+      child: null,
+      onRejected: callback,
+      onFulfilled: callback
+    });
+    return this;
+  };
+
+  /**
+   * Adds a callback that will be invoked only if the Promise is rejected. This
+   * is equivalent to {@code then(null, onRejected)}.
+   *
+   * @param {!function(this:THIS, *): *} onRejected A function that will be
+   *     invoked with the rejection reason if the Promise is rejected.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     in the global scope.
+   * @return {!CancellablePromise} A new Promise that will receive the result of the
+   *     callback.
+   * @template THIS
+   */
+  CancellablePromise.prototype.thenCatch = function (onRejected, opt_context) {
+    return this.addChildPromise_(null, onRejected, opt_context);
+  };
+
+  /**
+   * Alias of {@link CancellablePromise.prototype.thenCatch}
+   */
+  CancellablePromise.prototype.catch = CancellablePromise.prototype.thenCatch;
+
+  /**
+   * Cancels the Promise if it is still pending by rejecting it with a cancel
+   * Error. No action is performed if the Promise is already resolved.
+   *
+   * All child Promises of the canceled Promise will be rejected with the same
+   * cancel error, as with normal Promise rejection. If the Promise to be canceled
+   * is the only child of a pending Promise, the parent Promise will also be
+   * canceled. Cancellation may propagate upward through multiple generations.
+   *
+   * @param {string=} opt_message An optional debugging message for describing the
+   *     cancellation reason.
+   */
+  CancellablePromise.prototype.cancel = function (opt_message) {
+    if (this.state_ === CancellablePromise.State_.PENDING) {
+      async.run(function () {
+        var err = new CancellablePromise.CancellationError(opt_message);
+        err.IS_CANCELLATION_ERROR = true;
+        this.cancelInternal_(err);
+      }, this);
+    }
+  };
+
+  /**
+   * Cancels this Promise with the given error.
+   *
+   * @param {!Error} err The cancellation error.
+   * @private
+   */
+  CancellablePromise.prototype.cancelInternal_ = function (err) {
+    if (this.state_ === CancellablePromise.State_.PENDING) {
+      if (this.parent_) {
+        // Cancel the Promise and remove it from the parent's child list.
+        this.parent_.cancelChild_(this, err);
+      } else {
+        this.resolve_(CancellablePromise.State_.REJECTED, err);
+      }
+    }
+  };
+
+  /**
+   * Cancels a child Promise from the list of callback entries. If the Promise has
+   * not already been resolved, reject it with a cancel error. If there are no
+   * other children in the list of callback entries, propagate the cancellation
+   * by canceling this Promise as well.
+   *
+   * @param {!CancellablePromise} childPromise The Promise to cancel.
+   * @param {!Error} err The cancel error to use for rejecting the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.cancelChild_ = function (childPromise, err) {
+    if (!this.callbackEntries_) {
+      return;
+    }
+    var childCount = 0;
+    var childIndex = -1;
+
+    // Find the callback entry for the childPromise, and count whether there are
+    // additional child Promises.
+    for (var i = 0, entry; entry = this.callbackEntries_[i]; i++) {
+      var child = entry.child;
+      if (child) {
+        childCount++;
+        if (child === childPromise) {
+          childIndex = i;
+        }
+        if (childIndex >= 0 && childCount > 1) {
+          break;
+        }
+      }
+    }
+
+    // If the child Promise was the only child, cancel this Promise as well.
+    // Otherwise, reject only the child Promise with the cancel error.
+    if (childIndex >= 0) {
+      if (this.state_ === CancellablePromise.State_.PENDING && childCount === 1) {
+        this.cancelInternal_(err);
+      } else {
+        var callbackEntry = this.callbackEntries_.splice(childIndex, 1)[0];
+        this.executeCallback_(callbackEntry, CancellablePromise.State_.REJECTED, err);
+      }
+    }
+  };
+
+  /**
+   * Adds a callback entry to the current Promise, and schedules callback
+   * execution if the Promise has already been resolved.
+   *
+   * @param {CancellablePromise.CallbackEntry_} callbackEntry Record containing
+   *     {@code onFulfilled} and {@code onRejected} callbacks to execute after
+   *     the Promise is resolved.
+   * @private
+   */
+  CancellablePromise.prototype.addCallbackEntry_ = function (callbackEntry) {
+    if ((!this.callbackEntries_ || !this.callbackEntries_.length) && (this.state_ === CancellablePromise.State_.FULFILLED || this.state_ === CancellablePromise.State_.REJECTED)) {
+      this.scheduleCallbacks_();
+    }
+    if (!this.callbackEntries_) {
+      this.callbackEntries_ = [];
+    }
+    this.callbackEntries_.push(callbackEntry);
+  };
+
+  /**
+   * Creates a child Promise and adds it to the callback entry list. The result of
+   * the child Promise is determined by the state of the parent Promise and the
+   * result of the {@code onFulfilled} or {@code onRejected} callbacks as
+   * specified in the Promise resolution procedure.
+   *
+   * @see http://promisesaplus.com/#the__method
+   *
+   * @param {?function(this:THIS, TYPE):
+   *          (RESULT|CancellablePromise.<RESULT>|Thenable)} onFulfilled A callback that
+   *     will be invoked if the Promise is fullfilled, or null.
+   * @param {?function(this:THIS, *): *} onRejected A callback that will be
+   *     invoked if the Promise is rejected, or null.
+   * @param {THIS=} opt_context An optional execution context for the callbacks.
+   *     in the default calling context.
+   * @return {!CancellablePromise} The child Promise.
+   * @template RESULT,THIS
+   * @private
+   */
+  CancellablePromise.prototype.addChildPromise_ = function (onFulfilled, onRejected, opt_context) {
+
+    var callbackEntry = {
+      child: null,
+      onFulfilled: null,
+      onRejected: null
+    };
+
+    callbackEntry.child = new CancellablePromise(function (resolve, reject) {
+      // Invoke onFulfilled, or resolve with the parent's value if absent.
+      callbackEntry.onFulfilled = onFulfilled ? function (value) {
+        try {
+          var result = onFulfilled.call(opt_context, value);
+          resolve(result);
+        } catch (err) {
+          reject(err);
+        }
+      } : resolve;
+
+      // Invoke onRejected, or reject with the parent's reason if absent.
+      callbackEntry.onRejected = onRejected ? function (reason) {
+        try {
+          var result = onRejected.call(opt_context, reason);
+          if (!core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
+            // Propagate cancellation to children if no other result is returned.
+            reject(reason);
+          } else {
+            resolve(result);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      } : reject;
+    });
+
+    callbackEntry.child.parent_ = this;
+    this.addCallbackEntry_(
+    /** @type {CancellablePromise.CallbackEntry_} */callbackEntry);
+    return callbackEntry.child;
+  };
+
+  /**
+   * Unblocks the Promise and fulfills it with the given value.
+   *
+   * @param {TYPE} value
+   * @private
+   */
+  CancellablePromise.prototype.unblockAndFulfill_ = function (value) {
+    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
+      throw new Error('CancellablePromise is not blocked.');
+    }
+    this.state_ = CancellablePromise.State_.PENDING;
+    this.resolve_(CancellablePromise.State_.FULFILLED, value);
+  };
+
+  /**
+   * Unblocks the Promise and rejects it with the given rejection reason.
+   *
+   * @param {*} reason
+   * @private
+   */
+  CancellablePromise.prototype.unblockAndReject_ = function (reason) {
+    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
+      throw new Error('CancellablePromise is not blocked.');
+    }
+    this.state_ = CancellablePromise.State_.PENDING;
+    this.resolve_(CancellablePromise.State_.REJECTED, reason);
+  };
+
+  /**
+   * Attempts to resolve a Promise with a given resolution state and value. This
+   * is a no-op if the given Promise has already been resolved.
+   *
+   * If the given result is a Thenable (such as another Promise), the Promise will
+   * be resolved with the same state and result as the Thenable once it is itself
+   * resolved.
+   *
+   * If the given result is not a Thenable, the Promise will be fulfilled or
+   * rejected with that result based on the given state.
+   *
+   * @see http://promisesaplus.com/#the_promise_resolution_procedure
+   *
+   * @param {CancellablePromise.State_} state
+   * @param {*} x The result to apply to the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.resolve_ = function (state, x) {
+    if (this.state_ !== CancellablePromise.State_.PENDING) {
+      return;
+    }
+
+    if (this === x) {
+      state = CancellablePromise.State_.REJECTED;
+      x = new TypeError('CancellablePromise cannot resolve to itself');
+    } else if (Thenable.isImplementedBy(x)) {
+      x = /** @type {!Thenable} */x;
+      this.state_ = CancellablePromise.State_.BLOCKED;
+      x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
+      return;
+    } else if (core.isObject(x)) {
+      try {
+        var then = x.then;
+        if (core.isFunction(then)) {
+          this.tryThen_(x, then);
+          return;
+        }
+      } catch (e) {
+        state = CancellablePromise.State_.REJECTED;
+        x = e;
+      }
+    }
+
+    this.result_ = x;
+    this.state_ = state;
+    this.scheduleCallbacks_();
+
+    if (state === CancellablePromise.State_.REJECTED && !x.IS_CANCELLATION_ERROR) {
+      CancellablePromise.addUnhandledRejection_(this, x);
+    }
+  };
+
+  /**
+   * Attempts to call the {@code then} method on an object in the hopes that it is
+   * a Promise-compatible instance. This allows interoperation between different
+   * Promise implementations, however a non-compliant object may cause a Promise
+   * to hang indefinitely. If the {@code then} method throws an exception, the
+   * dependent Promise will be rejected with the thrown value.
+   *
+   * @see http://promisesaplus.com/#point-70
+   *
+   * @param {Thenable} thenable An object with a {@code then} method that may be
+   *     compatible with the Promise/A+ specification.
+   * @param {!Function} then The {@code then} method of the Thenable object.
+   * @private
+   */
+  CancellablePromise.prototype.tryThen_ = function (thenable, then) {
+    this.state_ = CancellablePromise.State_.BLOCKED;
+    var promise = this;
+    var called = false;
+
+    var resolve = function resolve(value) {
+      if (!called) {
+        called = true;
+        promise.unblockAndFulfill_(value);
+      }
+    };
+
+    var reject = function reject(reason) {
+      if (!called) {
+        called = true;
+        promise.unblockAndReject_(reason);
+      }
+    };
+
+    try {
+      then.call(thenable, resolve, reject);
+    } catch (e) {
+      reject(e);
+    }
+  };
+
+  /**
+   * Executes the pending callbacks of a resolved Promise after a timeout.
+   *
+   * Section 2.2.4 of the Promises/A+ specification requires that Promise
+   * callbacks must only be invoked from a call stack that only contains Promise
+   * implementation code, which we accomplish by invoking callback execution after
+   * a timeout. If {@code startExecution_} is called multiple times for the same
+   * Promise, the callback chain will be evaluated only once. Additional callbacks
+   * may be added during the evaluation phase, and will be executed in the same
+   * event loop.
+   *
+   * All Promises added to the waiting list during the same browser event loop
+   * will be executed in one batch to avoid using a separate timeout per Promise.
+   *
+   * @private
+   */
+  CancellablePromise.prototype.scheduleCallbacks_ = function () {
+    if (!this.executing_) {
+      this.executing_ = true;
+      async.run(this.executeCallbacks_, this);
+    }
+  };
+
+  /**
+   * Executes all pending callbacks for this Promise.
+   *
+   * @private
+   */
+  CancellablePromise.prototype.executeCallbacks_ = function () {
+    while (this.callbackEntries_ && this.callbackEntries_.length) {
+      var entries = this.callbackEntries_;
+      this.callbackEntries_ = [];
+
+      for (var i = 0; i < entries.length; i++) {
+        this.executeCallback_(entries[i], this.state_, this.result_);
+      }
+    }
+    this.executing_ = false;
+  };
+
+  /**
+   * Executes a pending callback for this Promise. Invokes an {@code onFulfilled}
+   * or {@code onRejected} callback based on the resolved state of the Promise.
+   *
+   * @param {!CancellablePromise.CallbackEntry_} callbackEntry An entry containing the
+   *     onFulfilled and/or onRejected callbacks for this step.
+   * @param {CancellablePromise.State_} state The resolution status of the Promise,
+   *     either FULFILLED or REJECTED.
+   * @param {*} result The resolved result of the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.executeCallback_ = function (callbackEntry, state, result) {
+    if (state === CancellablePromise.State_.FULFILLED) {
+      callbackEntry.onFulfilled(result);
+    } else {
+      this.removeUnhandledRejection_();
+      callbackEntry.onRejected(result);
+    }
+  };
+
+  /**
+   * Marks this rejected Promise as having being handled. Also marks any parent
+   * Promises in the rejected state as handled. The rejection handler will no
+   * longer be invoked for this Promise (if it has not been called already).
+   *
+   * @private
+   */
+  CancellablePromise.prototype.removeUnhandledRejection_ = function () {
+    var p;
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      for (p = this; p && p.unhandledRejectionId_; p = p.parent_) {
+        clearTimeout(p.unhandledRejectionId_);
+        p.unhandledRejectionId_ = 0;
+      }
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      for (p = this; p && p.hadUnhandledRejection_; p = p.parent_) {
+        p.hadUnhandledRejection_ = false;
+      }
+    }
+  };
+
+  /**
+   * Marks this rejected Promise as unhandled. If no {@code onRejected} callback
+   * is called for this Promise before the {@code UNHANDLED_REJECTION_DELAY}
+   * expires, the reason will be passed to the unhandled rejection handler. The
+   * handler typically rethrows the rejection reason so that it becomes visible in
+   * the developer console.
+   *
+   * @param {!CancellablePromise} promise The rejected Promise.
+   * @param {*} reason The Promise rejection reason.
+   * @private
+   */
+  CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      promise.unhandledRejectionId_ = setTimeout(function () {
+        CancellablePromise.handleRejection_.call(null, reason);
+      }, CancellablePromise.UNHANDLED_REJECTION_DELAY);
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      promise.hadUnhandledRejection_ = true;
+      async.run(function () {
+        if (promise.hadUnhandledRejection_) {
+          CancellablePromise.handleRejection_.call(null, reason);
+        }
+      });
+    }
+  };
+
+  /**
+   * A method that is invoked with the rejection reasons for Promises that are
+   * rejected but have no {@code onRejected} callbacks registered yet.
+   * @type {function(*)}
+   * @private
+   */
+  CancellablePromise.handleRejection_ = async.throwException;
+
+  /**
+   * Sets a handler that will be called with reasons from unhandled rejected
+   * Promises. If the rejected Promise (or one of its descendants) has an
+   * {@code onRejected} callback registered, the rejection will be considered
+   * handled, and the rejection handler will not be called.
+   *
+   * By default, unhandled rejections are rethrown so that the error may be
+   * captured by the developer console or a {@code window.onerror} handler.
+   *
+   * @param {function(*)} handler A function that will be called with reasons from
+   *     rejected Promises. Defaults to {@code async.throwException}.
+   */
+  CancellablePromise.setUnhandledRejectionHandler = function (handler) {
+    CancellablePromise.handleRejection_ = handler;
+  };
+
+  /**
+   * Error used as a rejection reason for canceled Promises.
+   *
+   * @param {string=} opt_message
+   * @constructor
+   * @extends {Error}
+   * @final
+   */
+  CancellablePromise.CancellationError = (function (_Error) {
+    babelHelpers.inherits(_class, _Error);
+
+    function _class(opt_message) {
+      babelHelpers.classCallCheck(this, _class);
+
+      var _this = babelHelpers.possibleConstructorReturn(this, _Error.call(this, opt_message));
+
+      if (opt_message) {
+        _this.message = opt_message;
+      }
+      return _this;
+    }
+
+    return _class;
+  })(Error);
+
+  /** @override */
+  CancellablePromise.CancellationError.prototype.name = 'cancel';
+
+  this.metalNamed.Promise = {};
+  this.metalNamed.Promise.CancellablePromise = CancellablePromise;
+  this.metal.Promise = CancellablePromise;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var Promise = this.metalNamed.Promise.CancellablePromise;
+	var Component = this.metal.Component;
+	var EventHandler = this.metal.EventHandler;
+
+	/*
+  * AutocompleteBase component.
+  */
+
+	var AutocompleteBase = (function (_Component) {
+		babelHelpers.inherits(AutocompleteBase, _Component);
+
+		/**
+   * @inheritDoc
+   */
+
+		function AutocompleteBase(opt_config) {
+			babelHelpers.classCallCheck(this, AutocompleteBase);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
+
+			_this.eventHandler_ = new EventHandler();
+			_this.on('select', _this.select);
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		AutocompleteBase.prototype.attached = function attached() {
+			if (this.inputElement) {
+				this.eventHandler_.add(dom.on(this.inputElement, 'input', this.handleUserInput_.bind(this)));
+			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		AutocompleteBase.prototype.detached = function detached() {
+			this.eventHandler_.removeAllListeners();
+		};
+
+		/**
+   * Handles the user input.
+   * @param {!Event} event
+   * @protected
+   */
+
+		AutocompleteBase.prototype.handleUserInput_ = function handleUserInput_() {
+			this.request(this.inputElement.value);
+		};
+
+		/**
+   * Cancels pending request and starts a request for the user input.
+   * @param {string} query
+   * @return {!CancellablePromise} Deferred request.
+   */
+
+		AutocompleteBase.prototype.request = function request(query) {
+			var self = this;
+
+			if (this.pendingRequest) {
+				this.pendingRequest.cancel('Cancelled by another request');
+			}
+
+			this.pendingRequest = Promise.resolve().then(function () {
+				return self.data(query);
+			}).then(function (data) {
+				if (Array.isArray(data)) {
+					return data.map(self.format.bind(self)).filter(function (val) {
+						return core.isDefAndNotNull(val);
+					});
+				}
+			});
+
+			return this.pendingRequest;
+		};
+
+		/**
+   * Normalizes the provided data value. If the value is not a function, the
+   * value will be wrapped in a function which returns the provided value.
+   * @param {Array.<object>|Promise|function} val The provided value which
+   *     have to be normalized.
+   * @protected
+   */
+
+		AutocompleteBase.prototype.setData_ = function setData_(val) {
+			if (!core.isFunction(val)) {
+				return function () {
+					return val;
+				};
+			}
+			return val;
+		};
+
+		return AutocompleteBase;
+	})(Component);
+
+	/**
+  * AutocompleteBase attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
+	AutocompleteBase.ATTRS = {
+		/**
+   * Function or array, which have to return the results from the query.
+   * If function, it should return an `array` or a `Promise`. In case of
+   * Promise, it should be resolved with an array containing the results.
+   * @type {Array.<object>|function}
+   */
+		data: {
+			setter: 'setData_'
+		},
+
+		/**
+   * Function that formats each item of the data.
+   * @type {function}
+   * @default Identity function.
+   */
+		format: {
+			value: core.identityFunction,
+			validator: core.isFunction
+		},
+
+		/**
+   * The element which will be used source for the data queries.
+   * @type {DOMElement|string}
+   */
+		inputElement: {
+			setter: dom.toElement
+		},
+
+		/**
+   * Handles item selection. It will receive two parameters - the selected
+   * value from the user and the current value from the input element.
+   * @type {function}
+   * @default
+   *   function(selectedValue) {
+   *	   this.inputElement.value = selectedValue;
+   *	   this.inputElement.focus();
+   *   }
+   */
+		select: {
+			value: function value(selectedValue) {
+				this.inputElement.value = selectedValue.textPrimary;
+				this.inputElement.focus();
+			},
+			validator: core.isFunction
+		},
+
+		/**
+   * Indicates if the component is visible or not.
+   * @type {boolean}
+   */
+		visible: {
+			validator: core.isBoolean,
+			value: false
+		}
+	};
+
+	this.metal.AutocompleteBase = AutocompleteBase;
+}).call(this);
+'use strict';
+
+(function () {
+	var Position = this.metal.Position;
+
+	/**
+  * Align utility. Computes region or best region to align an element with
+  * another. Regions are relative to viewport, make sure to use element with
+  * position fixed, or position absolute when the element first positioned
+  * parent is the body element.
+  */
+
+	var Align = (function () {
+		function Align() {
+			babelHelpers.classCallCheck(this, Align);
+		}
+
+		/**
+   * Aligns the element with the best region around alignElement. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {string} The final chosen position for the aligned element.
+   * @static
+   */
+
+		Align.align = function align(element, alignElement, position) {
+			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
+			var bestRegion = suggestion.region;
+
+			var computedStyle = window.getComputedStyle(element, null);
+			if (computedStyle.getPropertyValue('position') !== 'fixed') {
+				bestRegion.top += window.pageYOffset;
+				bestRegion.left += window.pageXOffset;
+
+				var offsetParent = element;
+				while (offsetParent = offsetParent.offsetParent) {
+					bestRegion.top -= Position.getOffsetTop(offsetParent);
+					bestRegion.left -= Position.getOffsetLeft(offsetParent);
+				}
+			}
+
+			element.style.top = bestRegion.top + 'px';
+			element.style.left = bestRegion.left + 'px';
+			return suggestion.position;
+		};
+
+		/**
+   * Returns the best region to align element with alignElement. This is similar
+   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
+   * while `Align.suggestAlignBestRegion` also returns the chosen position.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Best region to align element.
+   * @static
+   */
+
+		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
+			return Align.suggestAlignBestRegion(element, alignElement, position).region;
+		};
+
+		/**
+   * Returns the region to align element with alignElement. The element is
+   * always aligned in the middle of alignElement axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The position to align. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Region to align element.
+   * @static
+   */
+
+		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
+			var r1 = Position.getRegion(alignElement);
+			var r2 = Position.getRegion(element);
+			var top = 0;
+			var left = 0;
+
+			switch (position) {
+				case Align.TopCenter:
+					top = r1.top - r2.height;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.RightCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left + r1.width;
+					break;
+				case Align.BottomCenter:
+					top = r1.bottom;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.LeftCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left - r2.width;
+					break;
+				case Align.TopRight:
+					top = r1.top - r2.height;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomRight:
+					top = r1.bottom;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomLeft:
+					top = r1.bottom;
+					left = r1.left;
+					break;
+				case Align.TopLeft:
+					top = r1.top - r2.height;
+					left = r1.left;
+					break;
+			}
+
+			return {
+				bottom: top + r2.height,
+				height: r2.height,
+				left: left,
+				right: left + r2.width,
+				top: top,
+				width: r2.width
+			};
+		};
+
+		/**
+   * Checks if specified value is a valid position. Options `Align.Top`,
+   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
+   * @return {boolean} Returns true if value is a valid position.
+   * @static
+   */
+
+		Align.isValidPosition = function isValidPosition(val) {
+			return 0 <= val && val <= 8;
+		};
+
+		/**
+   * Looks for the best region for aligning the given element. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {{position: string, region: DOMRect}} Best region to align element.
+   * @static
+   */
+
+		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
+			var bestArea = 0;
+			var bestPosition = position;
+			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
+			var tryPosition = bestPosition;
+			var tryRegion = bestRegion;
+			var viewportRegion = Position.getRegion(window);
+
+			for (var i = 0; i < 8;) {
+				if (Position.intersectRegion(viewportRegion, tryRegion)) {
+					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
+					var area = visibleRegion.width * visibleRegion.height;
+					if (area > bestArea) {
+						bestArea = area;
+						bestRegion = tryRegion;
+						bestPosition = tryPosition;
+					}
+					if (Position.insideViewport(tryRegion)) {
+						break;
+					}
+				}
+				tryPosition = (position + ++i) % 8;
+				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
+			}
+
+			return {
+				position: bestPosition,
+				region: bestRegion
+			};
+		};
+
+		return Align;
+	})();
+
+	/**
+  * Constants that represent the supported positions for `Align`.
+  * @type {number}
+  * @static
+  */
+
+	Align.TopCenter = 0;
+	Align.TopRight = 1;
+	Align.RightCenter = 2;
+	Align.BottomRight = 3;
+	Align.BottomCenter = 4;
+	Align.BottomLeft = 5;
+	Align.LeftCenter = 6;
+	Align.TopLeft = 7;
+
+	/**
+  * Aliases for position constants.
+  * @type {number}
+  * @static
+  */
+	Align.Top = Align.TopCenter;
+	Align.Right = Align.RightCenter;
+	Align.Bottom = Align.BottomCenter;
+	Align.Left = Align.LeftCenter;
+
+	this.metal.Align = Align;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from List.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.List.
+   */
+
+  if (typeof Templates.List == 'undefined') {
+    Templates.List = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.List.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.List.content.soyTemplateName = 'Templates.List.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.List.items = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" class="list-group" data-onclick="handleClick">';
+    if (opt_data.itemsHtml != null) {
+      output += soy.$$escapeHtml(opt_data.itemsHtml);
+    } else {
+      var itemList18 = opt_data.items;
+      var itemListLen18 = itemList18.length;
+      for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
+        var itemData18 = itemList18[itemIndex18];
+        output += Templates.ListItem.content({ id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18 }, null, opt_ijData);
+      }
+    }
+    output += '</ul>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.List.items.soyTemplateName = 'Templates.List.items';
+  }
+
+  Templates.List.content.params = ["id"];
+  Templates.List.items.params = ["id", "items", "itemsHtml"];
+
+  var List = (function (_Component) {
+    babelHelpers.inherits(List, _Component);
+
+    function List() {
+      babelHelpers.classCallCheck(this, List);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return List;
+  })(Component);
+
+  List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
+
+  List.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('List');
+  this.metal.List = List;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from ListItem.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.ListItem.
+   */
+
+  if (typeof Templates.ListItem == 'undefined') {
+    Templates.ListItem = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ListItem.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
+  };
+  if (goog.DEBUG) {
+    Templates.ListItem.content.soyTemplateName = 'Templates.ListItem.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ListItem.item = function (opt_data, opt_ignored, opt_ijData) {
+    var output = (opt_data.item.avatar ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + (opt_data.item.textSecondary ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
+    if (opt_data.item.icons) {
+      output += '<div class="list-icons pull-right">';
+      var iconList56 = opt_data.item.icons;
+      var iconListLen56 = iconList56.length;
+      for (var iconIndex56 = 0; iconIndex56 < iconListLen56; iconIndex56++) {
+        var iconData56 = iconList56[iconIndex56];
+        output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData56) + '"></span>';
+      }
+      output += '</div>';
+    }
+    if (opt_data.item.iconsHtml) {
+      output += '<div class="list-icons pull-right">';
+      var iconHtmlList65 = opt_data.item.iconsHtml;
+      var iconHtmlListLen65 = iconHtmlList65.length;
+      for (var iconHtmlIndex65 = 0; iconHtmlIndex65 < iconHtmlListLen65; iconHtmlIndex65++) {
+        var iconHtmlData65 = iconHtmlList65[iconHtmlIndex65];
+        output += soy.$$escapeHtml(iconHtmlData65);
+      }
+      output += '</div>';
+    }
+    output += opt_data.item.label ? '<span class="label list-label pull-right ' + soy.$$escapeHtmlAttribute(opt_data.item.label['class']) + '">' + soy.$$escapeHtml(opt_data.item.label.content) + '</span>' : '';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
+  }
+
+  Templates.ListItem.content.params = ["id", "index", "item"];
+  Templates.ListItem.item.params = ["item"];
+
+  var ListItem = (function (_Component) {
+    babelHelpers.inherits(ListItem, _Component);
+
+    function ListItem() {
+      babelHelpers.classCallCheck(this, ListItem);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return ListItem;
+  })(Component);
+
+  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
+
+  ListItem.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('ListItem');
+  this.metal.ListItem = ListItem;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  var ListItemBase = this.metal.ListItem;
+
+  /**
+   * List component.
+   */
+
+  var ListItem = (function (_ListItemBase) {
+    babelHelpers.inherits(ListItem, _ListItemBase);
+
+    function ListItem(opt_config) {
+      babelHelpers.classCallCheck(this, ListItem);
+      return babelHelpers.possibleConstructorReturn(this, _ListItemBase.call(this, opt_config));
+    }
+
+    return ListItem;
+  })(ListItemBase);
+
+  /**
+   * Default list elementClasses.
+   * @default list
+   * @type {String}
+   * @static
+   */
+
+  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
+  ListItem.ELEMENT_CLASSES = 'listitem';
+
+  /**
+   * List attributes definition.
+   * @type {Object}
+   * @static
+   */
+  ListItem.ATTRS = {
+    item: {},
+
+    index: {
+      value: -1
+    }
+  };
+
+  this.metal.ListItem = ListItem;
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.metal.dom;
+	var ListBase = this.metal.List;
+
+	/**
+  * List component.
+  */
+
+	var List = (function (_ListBase) {
+		babelHelpers.inherits(List, _ListBase);
+
+		/**
+   * @inheritDoc
+   */
+
+		function List(opt_config) {
+			babelHelpers.classCallCheck(this, List);
+			return babelHelpers.possibleConstructorReturn(this, _ListBase.call(this, opt_config));
+		}
+
+		/**
+   * Handles click event on the list. The function fires an
+   * {@code itemSelected} event.
+   * @param {!Event} event The native click event
+   */
+
+		List.prototype.handleClick = function handleClick(event) {
+			var target = event.target;
+			while (target) {
+				if (dom.match(target, '.listitem')) {
+					break;
+				}
+				target = target.parentNode;
+			}
+			this.emit('itemSelected', target);
+		};
+
+		return List;
+	})(ListBase);
+
+	/**
+  * Default list elementClasses.
+  * @default list
+  * @type {string}
+  * @static
+  */
+
+	List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
+	List.ELEMENT_CLASSES = 'list';
+
+	/**
+  * List attributes definition.
+  * @type {!Object}
+  * @static
+  */
+	List.ATTRS = {
+		/**
+   * The list items. Each is represented by an object that can have the following keys:
+   *   - textPrimary: The item's main content.
+   *   - textSecondary: (Optional) The item's help content.
+   *   - icons: (Optional) A list of icon css classes to render on the right side.
+   *   - iconsHtml: (Optional) A list of icon css classes to render on the right side.
+   *   - avatar: (Optional) An object that specifies the avatar's content and, optionally, a css
+   *       class it should use.
+   * @type {!Array<!Object>}
+   * @default []
+   */
+		items: {
+			validator: Array.isArray,
+			valueFn: function valueFn() {
+				return [];
+			}
+		},
+
+		/**
+   * The list items as HTML to be added directly to the list.
+   * @type {string}
+   */
+		itemsHtml: {}
+	};
+
+	this.metal.List = List;
+}).call(this);
+'use strict';
+
+(function () {
+	var AutocompleteBase = this.metal.AutocompleteBase;
+	var Promise = this.metalNamed.Promise.CancellablePromise;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var Align = this.metal.Align;
+	var List = this.metal.List;
+
+	/*
+  * Autocomplete component.
+  */
+
+	var Autocomplete = (function (_AutocompleteBase) {
+		babelHelpers.inherits(Autocomplete, _AutocompleteBase);
+
+		/**
+   * @inheritDoc
+   */
+
+		function Autocomplete(opt_config) {
+			babelHelpers.classCallCheck(this, Autocomplete);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _AutocompleteBase.call(this, opt_config));
+
+			_this.once('render', _this.handleRender_);
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Autocomplete.prototype.attached = function attached() {
+			_AutocompleteBase.prototype.attached.call(this);
+			this.list.attach(this.element);
+			this.on('click', this.genericStopPropagation_);
+			this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
+			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+			if (this.visible) {
+				this.align();
+			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		Autocomplete.prototype.detached = function detached() {
+			_AutocompleteBase.prototype.detached.call(this);
+			this.list.detach();
+		};
+
+		/**
+   * Aligns main element to the input element.
+   */
+
+		Autocomplete.prototype.align = function align() {
+			this.element.style.width = this.inputElement.offsetWidth + 'px';
+			Align.align(this.element, this.inputElement, Align.Bottom);
+		};
+
+		/**
+   * Handles document click in order to hide autocomplete. If input element is
+   * focused autocomplete will not hide.
+   * @param {!Event} event
+   */
+
+		Autocomplete.prototype.handleDocClick_ = function handleDocClick_() {
+			if (document.activeElement === this.inputElement) {
+				return;
+			}
+			this.visible = false;
+		};
+
+		/**
+   * Handles input focus.
+   * @param {!Event} event
+   */
+
+		Autocomplete.prototype.handleInputFocus_ = function handleInputFocus_() {
+			this.request(this.inputElement.value);
+		};
+
+		/**
+   * Handles the `render` event, creating a `List` component and rendering
+   * it inside this autocomplete.
+   * @protected
+   */
+
+		Autocomplete.prototype.handleRender_ = function handleRender_() {
+			this.list = new List().render(this.element);
+			this.list.on('itemSelected', this.onListItemSelected_.bind(this));
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		Autocomplete.prototype.request = function request(query) {
+			var self = this;
+			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
+				if (data) {
+					data.forEach(self.assertItemObjectStructure_);
+					self.list.items = data;
+				}
+				self.visible = !!(data && data.length > 0);
+			});
+		};
+
+		/**
+   * Emits a `select` event with the information about the selected item and
+   * hides the element.
+   * @param {!Element} item The list selected item.
+   * @protected
+   */
+
+		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
+			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+			this.emit('select', this.list.items[selectedIndex]);
+			this.visible = false;
+		};
+
+		/**
+   * Stops propagation of an event.
+   * @param {!Event} event
+   * @protected
+   */
+
+		Autocomplete.prototype.genericStopPropagation_ = function genericStopPropagation_(event) {
+			event.stopPropagation();
+		};
+
+		/**
+   * Synchronization logic for `visible` attribute.
+   * @param {boolean} visible
+   */
+
+		Autocomplete.prototype.syncVisible = function syncVisible(visible) {
+			_AutocompleteBase.prototype.syncVisible.call(this, visible);
+
+			if (visible) {
+				this.align();
+			}
+		};
+
+		/**
+   * Asserts that formatted data is valid. Throws error if item is not in the
+   * valid syntax.
+   * @param {*} item
+   * @protected
+   */
+
+		Autocomplete.prototype.assertItemObjectStructure_ = function assertItemObjectStructure_(item) {
+			if (!core.isObject(item)) {
+				throw new Promise.CancellationError('Autocomplete item must be an object');
+			}
+			if (!item.hasOwnProperty('textPrimary')) {
+				throw new Promise.CancellationError('Autocomplete item must be an object with \'textPrimary\' key');
+			}
+		};
+
+		return Autocomplete;
+	})(AutocompleteBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
+	Autocomplete.ATTRS = {
+		/**
+   * Function that converts a given item to the format that should be used by
+   * the autocomplete.
+   * @type {!function()}
+   */
+		format: {
+			value: function value(item) {
+				return core.isString(item) ? {
+					textPrimary: item
+				} : item;
+			}
+		}
+	};
+
+	/**
+  * Provides a list of classes which have to be applied to the element's DOM element.
+  * @type {string}
+  * @static
+  * @default 'autocomplete autocomplete-list'
+  */
+	Autocomplete.ELEMENT_CLASSES = 'autocomplete autocomplete-list';
+
+	this.metal.Autocomplete = Autocomplete;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from ButtonGroup.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.ButtonGroup.
+   */
+
+  if (typeof Templates.ButtonGroup == 'undefined') {
+    Templates.ButtonGroup = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ButtonGroup.content = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="btn-group component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">';
+    var buttonList8 = opt_data.buttons;
+    var buttonListLen8 = buttonList8.length;
+    for (var buttonIndex8 = 0; buttonIndex8 < buttonListLen8; buttonIndex8++) {
+      var buttonData8 = buttonList8[buttonIndex8];
+      var type__soy9 = buttonData8.type ? buttonData8.type : 'button';
+      var cssClass__soy10 = buttonData8.cssClass ? buttonData8.cssClass : 'btn btn-default';
+      output += '<button type="' + soy.$$escapeHtmlAttribute(type__soy9) + '" class="' + soy.$$escapeHtmlAttribute(cssClass__soy10) + soy.$$escapeHtmlAttribute(Templates.ButtonGroup.selectedClass({ label: buttonData8.label, selected: opt_data.selected }, null, opt_ijData)) + '" data-index="' + soy.$$escapeHtmlAttribute(buttonIndex8) + '" data-onclick="handleClick_"><span class="btn-group-label">' + soy.$$escapeHtml(buttonData8.label ? buttonData8.label : '') + '</span>' + (buttonData8.icon ? '<span class="' + soy.$$escapeHtmlAttribute(buttonData8.icon) + '"></span>' : '') + '</button>';
+    }
+    output += '</div>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.ButtonGroup.content.soyTemplateName = 'Templates.ButtonGroup.content';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ButtonGroup.selectedClass = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '';
+    if (opt_data.selected) {
+      var selectedValueList34 = opt_data.selected;
+      var selectedValueListLen34 = selectedValueList34.length;
+      for (var selectedValueIndex34 = 0; selectedValueIndex34 < selectedValueListLen34; selectedValueIndex34++) {
+        var selectedValueData34 = selectedValueList34[selectedValueIndex34];
+        output += selectedValueData34 == opt_data.label ? ' btn-group-selected' : '';
+      }
+    }
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.ButtonGroup.selectedClass.soyTemplateName = 'Templates.ButtonGroup.selectedClass';
+  }
+
+  Templates.ButtonGroup.content.params = ["buttons", "id"];
+  Templates.ButtonGroup.selectedClass.private = true;
+
+  var ButtonGroup = (function (_Component) {
+    babelHelpers.inherits(ButtonGroup, _Component);
+
+    function ButtonGroup() {
+      babelHelpers.classCallCheck(this, ButtonGroup);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return ButtonGroup;
+  })(Component);
+
+  ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
+
+  ButtonGroup.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('ButtonGroup');
+  this.metal.ButtonGroup = ButtonGroup;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var ButtonGroupBase = this.metal.ButtonGroup;
+
+	/**
+  * Responsible for handling groups of buttons.
+  */
+
+	var ButtonGroup = (function (_ButtonGroupBase) {
+		babelHelpers.inherits(ButtonGroup, _ButtonGroupBase);
+
+		/**
+   * @inheritDoc
+   */
+
+		function ButtonGroup(opt_config) {
+			babelHelpers.classCallCheck(this, ButtonGroup);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _ButtonGroupBase.call(this, opt_config));
+
+			_this.buttonElements_ = null;
+
+			_this.on('selectedChanged', _this.defaultSelectedChanged_, true);
+			return _this;
+		}
+
+		/**
+   * The default behavior of the `selectedChanged` event. Adds or removes the CSS
+   * class defined by `ButtonGroup.SELECTED_CLASS` to each button.
+   * @param {!Object} event
+   * @protected
+   */
+
+		ButtonGroup.prototype.defaultSelectedChanged_ = function defaultSelectedChanged_(event) {
+			for (var i = 0; i < this.buttonElements_.length; i++) {
+				if (event.newVal.indexOf(this.buttons[i].label) !== -1) {
+					dom.addClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
+				} else {
+					dom.removeClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
+				}
+			}
+		};
+
+		/**
+   * Handles a `click` event fired on one of the buttons. Appropriately selects
+   * or deselects the clicked button.
+   * @param {!Event} event
+   * @protected
+   */
+
+		ButtonGroup.prototype.handleClick_ = function handleClick_(event) {
+			var button = event.delegateTarget;
+			var index = button.getAttribute('data-index');
+			var selectedIndex = this.selected.indexOf(this.buttons[index].label);
+			if (selectedIndex === -1) {
+				this.selected.push(this.buttons[index].label);
+				this.selected = this.selected;
+			} else if (this.selected.length > this.minSelected) {
+				this.selected.splice(selectedIndex, 1);
+				this.selected = this.selected;
+			}
+		};
+
+		/**
+   * Setter function for the `selected` attribute. Checks if the minimum number
+   * of buttons is selected. If not, the remaining number of buttons needed to
+   * reach the minimum will be selected.
+   * @param {!Object<number, boolean>|!Array<string>} selected
+   * @return {!Object<number, boolean>}
+   * @protected
+   */
+
+		ButtonGroup.prototype.setterSelectedFn_ = function setterSelectedFn_(selected) {
+			var minSelected = Math.min(this.minSelected, this.buttons.length);
+			var i = 0;
+			while (selected.length < minSelected) {
+				if (selected.indexOf(this.buttons[i].label) === -1) {
+					selected.push(this.buttons[i].label);
+				}
+				i++;
+			}
+			return selected;
+		};
+
+		/**
+   * Called whenever the `buttons` attr changes, as well as on the first
+   * render. This just stores the new button elements for later use.
+   */
+
+		ButtonGroup.prototype.syncButtons = function syncButtons() {
+			this.buttonElements_ = this.element.querySelectorAll('button');
+		};
+
+		return ButtonGroup;
+	})(ButtonGroupBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
+	ButtonGroup.ATTRS = {
+		/**
+   * Configuration for the buttons that should be rendered in this group.
+   * Each button config should be given as an object. Supported options are:
+   * label, type and cssClass.
+   * @type {!Array<!Object>}
+   * @default []
+   */
+		buttons: {
+			validator: function validator(val) {
+				return val instanceof Array;
+			},
+			valueFn: function valueFn() {
+				return [];
+			}
+		},
+
+		/**
+   * The minimum number of buttons that need to be selected at a time. If the
+   * minimum number of buttons is not already initially selected, this will
+   * automaticaly select the first `minSelected` buttons.
+   * @type {number}
+   * @default 0
+   */
+		minSelected: {
+			validator: core.isNumber,
+			value: 0,
+			writeOnce: true
+		},
+
+		/**
+   * An array with the labels of the buttons that should be selected.
+   * @type {!Array<string>}
+   */
+		selected: {
+			setter: 'setterSelectedFn_',
+			validator: Array.isArray,
+			valueFn: function valueFn() {
+				return [];
+			}
+		}
+	};
+
+	/**
+  * Default element classes.
+  * @type {string}
+  * @static
+  */
+	ButtonGroup.ELEMENT_CLASSES = 'btn-group';
+
+	/**
+  * The CSS class added to selected buttons.
+  * @type {string}
+  * @static
+  */
+	ButtonGroup.SELECTED_CLASS = 'btn-group-selected';
+
+	this.metal.ButtonGroup = ButtonGroup;
+}).call(this);
+'use strict';
+
+(function () {
+	var Attribute = this.metal.Attribute;
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+
+	/**
+  * Clipboard component.
+  */
+
+	var Clipboard = (function (_Attribute) {
+		babelHelpers.inherits(Clipboard, _Attribute);
+
+		/**
+   * Delegates a click event to the passed selector.
+   */
+
+		function Clipboard(opt_config) {
+			babelHelpers.classCallCheck(this, Clipboard);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+
+			dom.on(_this.selector, 'click', function (e) {
+				return _this.initialize(e);
+			});
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Clipboard.prototype.disposeInterval = function disposeInterval() {
+			_Attribute.prototype.disposeInterval.call(this);
+		};
+
+		/**
+   * Defines a new `ClipboardAction` on each click event.
+   * @param {!Event} e
+   */
+
+		Clipboard.prototype.initialize = function initialize(e) {
+			if (this.clipboardAction) {
+				this.clipboardAction = null;
+			}
+
+			this.clipboardAction = new ClipboardAction({
+				host: this,
+				action: this.action(e.delegateTarget),
+				target: this.target(e.delegateTarget),
+				text: this.text(e.delegateTarget),
+				trigger: e.delegateTarget
+			});
+		};
+
+		return Clipboard;
+	})(Attribute);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
+	Clipboard.ATTRS = {
+		selector: {
+			value: '[data-clipboard]',
+			validator: core.isString
+		},
+
+		target: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return document.querySelector(delegateTarget.getAttribute('data-target'));
+			}
+		},
+
+		action: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return delegateTarget.getAttribute('data-action');
+			}
+		},
+
+		text: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return delegateTarget.getAttribute('data-text');
+			}
+		}
+	};
+
+	/**
+  * ClipboardAction component.
+  */
+
+	var ClipboardAction = (function (_Attribute2) {
+		babelHelpers.inherits(ClipboardAction, _Attribute2);
+
+		/**
+   * Initializes selection either from a `text` or `target` attribute.
+   */
+
+		function ClipboardAction(opt_config) {
+			babelHelpers.classCallCheck(this, ClipboardAction);
+
+			var _this2 = babelHelpers.possibleConstructorReturn(this, _Attribute2.call(this, opt_config));
+
+			if (_this2.text) {
+				_this2.selectValue();
+			} else if (_this2.target) {
+				_this2.selectTarget();
+			}
+			return _this2;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		ClipboardAction.prototype.disposeInterval = function disposeInterval() {
+			this.removeFakeElement();
+			_Attribute2.prototype.disposeInterval.call(this);
+		};
+
+		/**
+   * Selects the content from value passed on `text` attribute.
+   */
+
+		ClipboardAction.prototype.selectValue = function selectValue() {
+			this.removeFakeElement();
+			this.removeFakeHandler = dom.once(document, 'click', this.removeFakeElement.bind(this));
+
+			this.fake = document.createElement('textarea');
+			this.fake.style.position = 'fixed';
+			this.fake.style.left = '-9999px';
+			this.fake.setAttribute('readonly', '');
+			this.fake.value = this.text;
+			this.selectedText = this.text;
+
+			dom.enterDocument(this.fake);
+
+			this.fake.select();
+			this.copyText();
+		};
+
+		ClipboardAction.prototype.removeFakeElement = function removeFakeElement() {
+			if (this.fake) {
+				dom.exitDocument(this.fake);
+			}
+
+			if (this.removeFakeHandler) {
+				this.removeFakeHandler.removeListener();
+			}
+		};
+
+		/**
+   * Selects the content from element passed on `target` attribute.
+   */
+
+		ClipboardAction.prototype.selectTarget = function selectTarget() {
+			if (this.target.nodeName === 'INPUT' || this.target.nodeName === 'TEXTAREA') {
+				this.target.select();
+				this.selectedText = this.target.value;
+			} else {
+				var range = document.createRange();
+				var selection = window.getSelection();
+
+				range.selectNodeContents(this.target);
+				selection.addRange(range);
+				this.selectedText = selection.toString();
+			}
+
+			this.copyText();
+		};
+
+		/**
+   * Executes the copy operation based on the current selection.
+   */
+
+		ClipboardAction.prototype.copyText = function copyText() {
+			var succeeded = undefined;
+
+			try {
+				succeeded = document.execCommand(this.action);
+			} catch (err) {
+				succeeded = false;
+			}
+
+			this.handleResult(succeeded);
+		};
+
+		/**
+   * Emits an event based on the copy operation result.
+   * @param {boolean} succeeded
+   */
+
+		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
+			if (succeeded) {
+				this.host.emit('success', {
+					action: this.action,
+					text: this.selectedText,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			} else {
+				this.host.emit('error', {
+					action: this.action,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			}
+		};
+
+		/**
+   * Removes current selection and focus from `target` element.
+   */
+
+		ClipboardAction.prototype.clearSelection = function clearSelection() {
+			if (this.target) {
+				this.target.blur();
+			}
+
+			window.getSelection().removeAllRanges();
+		};
+
+		return ClipboardAction;
+	})(Attribute);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
+	ClipboardAction.ATTRS = {
+		/**
+   * A reference to the `Clipboard` base class.
+   * @type {Clipboard}
+   */
+		host: {
+			validator: function validator(val) {
+				return val instanceof Clipboard;
+			}
+		},
+
+		/**
+   * The action to be performed (either 'copy' or 'cut').
+   * @type {string}
+   * @default 'copy'
+   */
+		action: {
+			value: 'copy',
+			validator: function validator(val) {
+				return val === 'copy' || val === 'cut';
+			}
+		},
+
+		/**
+   * The ID of an element that will be have its content copied.
+   * @type {Element}
+   */
+		target: {
+			validator: core.isElement
+		},
+
+		/**
+   * The text to be copied.
+   * @type {string}
+   */
+		text: {
+			validator: core.isString
+		},
+
+		/**
+   * The element that when clicked initiates a clipboard action.
+   * @type {Element}
+   */
+		trigger: {
+			validator: core.isElement
+		},
+
+		/**
+   * The text that is current selected.
+   * @type {string}
+   */
+		selectedText: {
+			validator: core.isString
+		}
+	};
+
+	this.metal.Clipboard = Clipboard;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
   // This file was automatically generated from Dropdown.soy.
   // Please don't edit this file by hand.
 
@@ -7524,50 +10097,6 @@ babelHelpers;
 	};
 
 	this.metal.Modal = Modal;
-}).call(this);
-'use strict';
-
-(function () {
-	var dom = this.metal.dom;
-	var features = this.metal.features;
-
-	var mouseEventMap = {
-		mouseenter: 'mouseover',
-		mouseleave: 'mouseout',
-		pointerenter: 'pointerover',
-		pointerleave: 'pointerout'
-	};
-	Object.keys(mouseEventMap).forEach(function (eventName) {
-		dom.registerCustomEvent(eventName, {
-			delegate: true,
-			handler: function handler(callback, event) {
-				var related = event.relatedTarget;
-				var target = event.delegateTarget;
-				if (!related || related !== target && !target.contains(related)) {
-					event.customType = eventName;
-					return callback(event);
-				}
-			},
-			originalEvent: mouseEventMap[eventName]
-		});
-	});
-
-	var animationEventMap = {
-		animation: 'animationend',
-		transition: 'transitionend'
-	};
-	Object.keys(animationEventMap).forEach(function (eventType) {
-		var eventName = animationEventMap[eventType];
-		dom.registerCustomEvent(eventName, {
-			event: true,
-			delegate: true,
-			handler: function handler(callback, event) {
-				event.customType = eventName;
-				return callback(event);
-			},
-			originalEvent: features.checkAnimationEventName()[eventType]
-		});
-	});
 }).call(this);
 'use strict';
 
@@ -8590,6 +11119,278 @@ babelHelpers;
 	};
 
 	this.metal.Scrollspy = Scrollspy;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Select.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Select.
+   */
+
+  if (typeof Templates.Select == 'undefined') {
+    Templates.Select = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Select.content = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="select component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" data-onkeydown="handleKeyDown_">';
+    var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : opt_data.label || opt_data.items.length == 0 ? -1 : 0;
+    output += '<input type="hidden" name="' + soy.$$escapeHtmlAttribute(opt_data.hiddenInputName ? opt_data.hiddenInputName : '') + '" value="' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == -1 ? '' : opt_data.items[currSelectedIndex__soy8]) + '" />';
+    var param14 = '';
+    var itemList15 = opt_data.items;
+    var itemListLen15 = itemList15.length;
+    for (var itemIndex15 = 0; itemIndex15 < itemListLen15; itemIndex15++) {
+      var itemData15 = itemList15[itemIndex15];
+      param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="#">' + soy.$$escapeHtml(itemData15) + '</a></li>';
+    }
+    output += soy.$$escapeHtml(Templates.Dropdown.content({ body: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks(param14), events: { attrsSynced: opt_data.id + ':handleDropdownAttrsSynced_' }, header: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('<button class="' + soy.$$escapeHtmlAttribute(opt_data.buttonClass) + ' dropdown-select" type="button" data-onclick="toggle">' + soy.$$escapeHtml(currSelectedIndex__soy8 == -1 ? opt_data.label : opt_data.items[currSelectedIndex__soy8]) + ' <span class="' + soy.$$escapeHtmlAttribute(opt_data.arrowClass ? opt_data.arrowClass : 'caret') + '"></span></button>'), id: opt_data.id + '-dropdown' }, null, opt_ijData));
+    output += '</div>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.Select.content.soyTemplateName = 'Templates.Select.content';
+  }
+
+  Templates.Select.content.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
+
+  var Select = (function (_Component) {
+    babelHelpers.inherits(Select, _Component);
+
+    function Select() {
+      babelHelpers.classCallCheck(this, Select);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Select;
+  })(Component);
+
+  Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
+
+  Select.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Select');
+  this.metal.Select = Select;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var SelectBase = this.metal.Select;
+
+	/**
+  * Responsible for rendering and handling a custom select component, based
+  * on `Dropdown`.
+  */
+
+	var Select = (function (_SelectBase) {
+		babelHelpers.inherits(Select, _SelectBase);
+
+		function Select() {
+			babelHelpers.classCallCheck(this, Select);
+			return babelHelpers.possibleConstructorReturn(this, _SelectBase.apply(this, arguments));
+		}
+
+		/**
+   * Finds the index of the given element in the items array.
+   * @param {!Element} element
+   * @return {number}
+   * @protected
+   */
+
+		Select.prototype.findItemIndex_ = function findItemIndex_(element) {
+			var items = this.element.querySelectorAll('li');
+			for (var i = 0; i < items.length; i++) {
+				if (items.item(i) === element) {
+					return i;
+				}
+			}
+		};
+
+		/**
+   * Focuses the option at the given index.
+   * @param {number} index
+   * @protected
+   */
+
+		Select.prototype.focusIndex_ = function focusIndex_(index) {
+			var option = this.element.querySelector('.select-option:nth-child(' + (index + 1) + ') a');
+			if (option) {
+				this.focusedIndex_ = index;
+				option.focus();
+			}
+		};
+
+		/**
+   * Gets the `Dropdown` instance used by this `Select`.
+   * @return {!Dropdown}
+   */
+
+		Select.prototype.getDropdown = function getDropdown() {
+			return this.components[this.id + '-dropdown'];
+		};
+
+		/**
+   * Handles a `attrsSynced` event for the dropdown.
+   * @param {!Object} data
+   * @protected
+   */
+
+		Select.prototype.handleDropdownAttrsSynced_ = function handleDropdownAttrsSynced_(data) {
+			if (this.openedWithKeyboard_) {
+				// This is done on `attrsSynced` because the items need to have already
+				// been made visible before we try focusing them.
+				this.focusIndex_(0);
+				this.openedWithKeyboard_ = false;
+			} else if (data.changes.expanded) {
+				this.focusedIndex_ = null;
+			}
+		};
+
+		/**
+   * Handles a `click` event on one of the items. Updates `selectedIndex`
+   * accordingly.
+   * @param {!Event} event
+   * @protected
+   */
+
+		Select.prototype.handleItemClick_ = function handleItemClick_(event) {
+			this.selectedIndex = this.findItemIndex_(event.delegateTarget);
+			this.getDropdown().close();
+			event.preventDefault();
+		};
+
+		/**
+   * Handles a `keydown` event on this component. Handles keyboard controls.
+   * @param {!Event} event
+   * @protected
+   */
+
+		Select.prototype.handleKeyDown_ = function handleKeyDown_(event) {
+			if (this.getDropdown().expanded) {
+				switch (event.keyCode) {
+					case 27:
+						this.getDropdown().close();
+						break;
+					case 38:
+						this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
+						this.focusIndex_(this.focusedIndex_ === 0 ? this.items.length - 1 : this.focusedIndex_ - 1);
+						event.preventDefault();
+						break;
+					case 40:
+						this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
+						this.focusIndex_(this.focusedIndex_ === this.items.length - 1 ? 0 : this.focusedIndex_ + 1);
+						event.preventDefault();
+						break;
+				}
+			} else if ((event.keyCode === 13 || event.keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
+				this.openedWithKeyboard_ = true;
+				this.getDropdown().open();
+				event.preventDefault();
+				return;
+			}
+		};
+
+		return Select;
+	})(SelectBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+	Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
+	Select.ATTRS = {
+		/**
+   * The CSS class used by the select menu arrow.
+   * @type {string}
+   * @default 'caret'
+   */
+		arrowClass: {
+			value: 'caret'
+		},
+
+		/**
+   * The CSS class used by the select menu button.
+   * @type {string}
+   * @default 'btn btn-default'
+   */
+		buttonClass: {
+			validator: core.isString,
+			value: 'btn btn-default'
+		},
+
+		/**
+   * The name of the hidden input field
+   * @type {string}
+   */
+		hiddenInputName: {
+			validator: core.isString
+		},
+
+		/**
+   * A list representing the select dropdown items. Can be either already a list
+   * of objects specifying both name and value for each item, or just a list of
+   * names, in which case the values will be the indexes where the names show up
+   * on the list.
+   * @type {!Array<string>|!Array<!{name: string, value: string}>}
+   * @default []
+   */
+		items: {
+			validator: function validator(val) {
+				return val instanceof Array;
+			},
+			valueFn: function valueFn() {
+				return [];
+			}
+		},
+
+		/**
+   * The label that should be used for the select menu when no item is
+   * selected. If not set, the first item will be selected automatically.
+   * @type {string}
+   */
+		label: {
+			validator: core.isString
+		},
+
+		/**
+   * The index of the currently selected item, or -1 if none is selected.
+   * @type {number}
+   */
+		selectedIndex: {
+			validator: core.isNumber,
+			valueFn: function valueFn() {
+				return this.label || !this.items.length ? -1 : 0;
+			}
+		}
+	};
+
+	/**
+  * Default element classes.
+  * @type {string}
+  * @static
+  */
+	Select.ELEMENT_CLASSES = 'select';
+
+	this.metal.Select = Select;
 }).call(this);
 'use strict';
 
@@ -10219,6 +13020,137 @@ babelHelpers;
 	Slider.ELEMENT_CLASSES = 'slider';
 
 	this.metal.Slider = Slider;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Switcher.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Switcher.
+   */
+
+  if (typeof Templates.Switcher == 'undefined') {
+    Templates.Switcher = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Switcher.content = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="switcher component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.checked ? ' switcher-on' : '') + '"><div class="switcher-control"><div class="switcher-control-icon"></div></div></div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Switcher.content.soyTemplateName = 'Templates.Switcher.content';
+  }
+
+  Templates.Switcher.content.params = ["id"];
+
+  var Switcher = (function (_Component) {
+    babelHelpers.inherits(Switcher, _Component);
+
+    function Switcher() {
+      babelHelpers.classCallCheck(this, Switcher);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Switcher;
+  })(Component);
+
+  Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
+
+  Switcher.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Switcher');
+  this.metal.Switcher = Switcher;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var SwitcherBase = this.metal.Switcher;
+
+	/**
+  * Switcher component.
+  */
+
+	var Switcher = (function (_SwitcherBase) {
+		babelHelpers.inherits(Switcher, _SwitcherBase);
+
+		function Switcher() {
+			babelHelpers.classCallCheck(this, Switcher);
+			return babelHelpers.possibleConstructorReturn(this, _SwitcherBase.apply(this, arguments));
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Switcher.prototype.attached = function attached() {
+			this.on('click', this.handleClick);
+		};
+
+		/**
+   * Handles switcher click.
+   */
+
+		Switcher.prototype.handleClick = function handleClick() {
+			this.checked = !this.checked;
+		};
+
+		/**
+   * Synchronization logic for the `checked` attribute.
+   * @param {boolean} checked
+   */
+
+		Switcher.prototype.syncChecked = function syncChecked(checked) {
+			dom[checked ? 'addClasses' : 'removeClasses'](this.element, 'switcher-on');
+		};
+
+		return Switcher;
+	})(SwitcherBase);
+
+	/**
+  * Default switcher elementClasses.
+  * @default list
+  * @type {string}
+  * @static
+  */
+
+	Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
+	Switcher.ELEMENT_CLASSES = 'switcher';
+
+	/**
+  * Switcher attributes definition.
+  * @type {!Object}
+  * @static
+  */
+	Switcher.ATTRS = {
+		/**
+   * Flag indicating if the switcher is currently checked or not.
+   * @type {boolean}
+   * @default false
+   */
+		checked: {
+			validator: core.isBoolean,
+			value: false
+		}
+	};
+
+	this.metal.Switcher = Switcher;
 }).call(this);
 'use strict';
 

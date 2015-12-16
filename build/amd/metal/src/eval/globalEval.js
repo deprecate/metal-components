@@ -57,6 +57,18 @@ define(['exports', 'metal/src/dom/dom'], function (exports, _dom) {
 			}
 		};
 
+		globalEval.runScriptsInElement = function runScriptsInElement(element) {
+			var scripts = element.querySelectorAll('script');
+
+			for (var i = 0; i < scripts.length; i++) {
+				var script = scripts.item(i);
+
+				if (!script.type || script.type === 'text/javascript') {
+					globalEval.runScript(script);
+				}
+			}
+		};
+
 		return globalEval;
 	})();
 

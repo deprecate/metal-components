@@ -224,18 +224,8 @@ define(['exports', 'metal/src/array/array', 'metal/src/core', 'metal/src/dom/dom
 		Component.prototype.buildFragment_ = function buildFragment_(content) {
 			var frag = _dom2.default.buildFragment(content);
 
-			if (content.indexOf('<script') === -1) {
-				return frag;
-			}
-
-			var scripts = frag.querySelectorAll('script');
-
-			for (var i = 0; i < scripts.length; i++) {
-				var script = scripts.item(i);
-
-				if (!script.type || script.type === 'text/javascript') {
-					_globalEval2.default.runScript(script);
-				}
+			if (content.indexOf('<script') !== -1) {
+				_globalEval2.default.runScriptsInElement(frag);
 			}
 
 			return frag;
