@@ -6,8 +6,14 @@ import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
 import 'bower:metal/src/dom/events';
 
 describe('Alert', function() {
+	var component;
+
+	afterEach(function() {
+		component.dispose();
+	});
+
 	it('should show alert and fire transitionend', function(done) {
-		var component = new Alert().render();
+		component = new Alert().render();
 		assert.ok(!component.visible);
 		dom.once(component.element, 'transitionend', function() {
 			assert.ok(component.visible);
@@ -18,7 +24,7 @@ describe('Alert', function() {
 	});
 
 	it('should hide alert and fire transitionend', function(done) {
-		var component = new Alert({
+		component = new Alert({
 			visible: true
 		}).render();
 		assert.ok(component.visible);
@@ -31,7 +37,7 @@ describe('Alert', function() {
 	});
 
 	it('should toggle alert and fire transitionend', function(done) {
-		var component = new Alert({
+		component = new Alert({
 			visible: true
 		}).render();
 		assert.ok(component.visible);
@@ -47,7 +53,7 @@ describe('Alert', function() {
 	});
 
 	it('should close alert, fire transitionend and dispose itself', function(done) {
-		var component = new Alert({
+		component = new Alert({
 			visible: true
 		}).render();
 		component.close();
@@ -58,7 +64,7 @@ describe('Alert', function() {
 	});
 
 	it('should hide alert and fire transitionend from close element', function(done) {
-		var component = new Alert({
+		component = new Alert({
 			visible: true
 		}).render();
 		dom.triggerEvent(component.element.querySelector('.close'), 'click');
@@ -69,7 +75,7 @@ describe('Alert', function() {
 	});
 
 	it('should alert be not dismissible', function() {
-		var component = new Alert({
+		component = new Alert({
 			visible: true,
 			dismissible: false
 		}).render();
@@ -89,7 +95,7 @@ describe('Alert', function() {
 		var markup = SoyTemplates.get('Alert', 'content')(config);
 		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('alert').outerHTML;
-		var component = new Alert(config).decorate();
+		component = new Alert(config).decorate();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
 
@@ -97,7 +103,7 @@ describe('Alert', function() {
 	});
 
 	it('should close alert when click outside', function(done) {
-		var component = new Alert({
+		component = new Alert({
 			visible: true
 		}).render();
 
@@ -114,7 +120,7 @@ describe('Alert', function() {
 	});
 
 	it('should not close alert when click on the element', function(done) {
-		var component = new Alert({
+		component = new Alert({
 			visible: true
 		}).render();
 
@@ -129,15 +135,15 @@ describe('Alert', function() {
 	});
 
 	it('should hide alert after delay', function(done) {
-		var alert = new Alert({
+		component = new Alert({
 			hideDelay: 0
 		}).render();
 
-		assert.ok(!alert.visible);
-		alert.visible = true;
-		dom.once(alert.element, 'transitionend', function() {
-			dom.once(alert.element, 'transitionend', function() {
-				assert.ok(!alert.visible);
+		assert.ok(!component.visible);
+		component.visible = true;
+		dom.once(component.element, 'transitionend', function() {
+			dom.once(component.element, 'transitionend', function() {
+				assert.ok(!component.visible);
 				done();
 			});
 		});
