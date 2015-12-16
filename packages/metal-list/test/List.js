@@ -144,6 +144,6 @@ describe('List', function() {
 			assert.strictEqual(1, parseInt(itemIndex, 10));
 		});
 
-		dom.triggerEvent(elements[1], 'click');
+		dom.triggerEvent(elements[1].childNodes[0], 'click');
 	});
 });
