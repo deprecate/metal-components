@@ -15,12 +15,19 @@
   ],
   "dependencies": {
     "metal-affix": "metal/metal-affix#master",
+    "metal-alert": "metal/metal-alert#master",
+    "metal-autocomplete": "metal/metal-autocomplete#master",
+    "metal-button-group": "metal/metal-button-group#master",
+    "metal-clipboard": "metal/metal-clipboard#master",
     "metal-dropdown": "metal/metal-dropdown#master",
+    "metal-list": "metal/metal-list#master",
     "metal-modal": "metal/metal-modal#master",
     "metal-popover": "metal/metal-popover#master",
     "metal-progressbar": "metal/metal-progressbar#master",
     "metal-scrollspy": "metal/metal-scrollspy#master",
+    "metal-select": "metal/metal-select#master",
     "metal-slider": "metal/metal-slider#master",
+    "metal-switcher": "metal/metal-switcher#master",
     "metal-tooltip": "metal/metal-tooltip#master",
     "metal-treeview": "metal/metal-treeview#master"
   }

@@ -8,6 +8,7 @@ var babelOptions = {
 };
 
 var scssOptions = {
+	includePaths: ['bower_components'],
 	sourceMap: true
 };
 

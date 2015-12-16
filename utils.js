@@ -2,12 +2,19 @@
 
 var components = [
 	'metal-affix',
+	'metal-alert',
+	'metal-autocomplete',
+	'metal-button-group',
+	'metal-clipboard',
 	'metal-dropdown',
+	'metal-list',
 	'metal-modal',
 	'metal-popover',
 	'metal-progressbar',
 	'metal-scrollspy',
+	'metal-select',
 	'metal-slider',
+	'metal-switcher',
 	'metal-tooltip',
 	'metal-treeview'
 ];
