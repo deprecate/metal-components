@@ -42,7 +42,7 @@ describe('Switcher', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = SoyTemplates.get('Switcher', 'content')({
+		var markup = SoyTemplates.get('Switcher', 'render')({
 			checked: true,
 			id: 'switcher'
 		});
