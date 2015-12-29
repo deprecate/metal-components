@@ -298,7 +298,7 @@ describe('Treeview', function() {
 				}
 			]
 		};
-		dom.append(document.body, SoyTemplates.get('Treeview', 'content')(data).content);
+		dom.append(document.body, SoyTemplates.get('Treeview', 'render')(data).content);
 
 		var element = document.getElementById('decorated');
 		var soyRenderedContent = element.innerHTML;

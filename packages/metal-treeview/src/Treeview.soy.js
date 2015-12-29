@@ -21,11 +21,11 @@ if (typeof Templates.Treeview == 'undefined') { Templates.Treeview = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Treeview.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Treeview.render = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="treeview component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tree">' + Templates.Treeview.nodes(opt_data, null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
-  Templates.Treeview.content.soyTemplateName = 'Templates.Treeview.content';
+  Templates.Treeview.render.soyTemplateName = 'Templates.Treeview.render';
 }
 
 
@@ -69,7 +69,7 @@ if (goog.DEBUG) {
   Templates.Treeview.node.soyTemplateName = 'Templates.Treeview.node';
 }
 
-Templates.Treeview.content.params = ["id"];
+Templates.Treeview.render.params = ["id"];
 Templates.Treeview.nodes.params = ["id","nodes","parentSurfaceId","surfaceId"];
 Templates.Treeview.node.private = true;
 
