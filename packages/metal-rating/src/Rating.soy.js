@@ -21,14 +21,14 @@ if (typeof Templates.Rating == 'undefined') { Templates.Rating = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Rating.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Rating.render = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="rating component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '"></div>');
 };
 if (goog.DEBUG) {
-  Templates.Rating.content.soyTemplateName = 'Templates.Rating.content';
+  Templates.Rating.render.soyTemplateName = 'Templates.Rating.render';
 }
 
-Templates.Rating.content.params = ["id"];
+Templates.Rating.render.params = ["id"];
 
 class Rating extends Component {}
 Rating.RENDERER = SoyRenderer;
