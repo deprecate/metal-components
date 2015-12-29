@@ -21,14 +21,14 @@ if (typeof Templates.ProgressBar == 'undefined') { Templates.ProgressBar = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.ProgressBar.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.ProgressBar.render = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="progressbar" tabindex="0"><div class="progress-bar"></div></div>');
 };
 if (goog.DEBUG) {
-  Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';
+  Templates.ProgressBar.render.soyTemplateName = 'Templates.ProgressBar.render';
 }
 
-Templates.ProgressBar.content.params = ["id"];
+Templates.ProgressBar.render.params = ["id"];
 
 class ProgressBar extends Component {}
 ProgressBar.RENDERER = SoyRenderer;
