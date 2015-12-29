@@ -8,7 +8,7 @@
  * @param? selected
  * @skipUpdates elementClasses selected
  */
-{template .content}
+{template .render}
 	<div id="{$id}" class="btn-group component{$elementClasses ? ' ' + $elementClasses : ''}">
 		{foreach $button in $buttons}
 			{let $type: $button.type ? $button.type : 'button' /}
