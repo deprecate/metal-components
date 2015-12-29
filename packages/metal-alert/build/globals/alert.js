@@ -283,7 +283,7 @@ babelHelpers;
   * @protected
   */
 
-	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
 	/**
   * Counter for unique id.
@@ -1417,34 +1417,78 @@ babelHelpers;
 		/**
    * Evaluates the given javascript file in the global scope.
    * @param {string} src The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
    */
 
-		globalEval.runFile = function runFile(src) {
+		globalEval.runFile = function runFile(src, opt_callback) {
 			var script = document.createElement('script');
 			script.src = src;
-			dom.on(script, 'load', function () {
+
+			var callback = function callback() {
 				script.parentNode.removeChild(script);
-			});
-			dom.on(script, 'error', function () {
-				script.parentNode.removeChild(script);
-			});
+				opt_callback && opt_callback();
+			};
+			dom.on(script, 'load', callback);
+			dom.on(script, 'error', callback);
 			document.head.appendChild(script);
 		};
 
 		/**
    * Evaluates the code referenced by the given script element.
    * @param {!Element} script
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
    */
 
-		globalEval.runScript = function runScript(script) {
+		globalEval.runScript = function runScript(script, opt_callback) {
+			if (script.type && script.type !== 'text/javascript') {
+				opt_callback && opt_callback();
+				return;
+			}
 			if (script.parentNode) {
 				script.parentNode.removeChild(script);
 			}
 			if (script.src) {
-				globalEval.runFile(script.src);
+				globalEval.runFile(script.src, opt_callback);
 			} else {
 				globalEval.run(script.text);
+				opt_callback && opt_callback();
 			}
+		};
+
+		/**
+   * Evaluates any script tags present in the given element.
+   * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
+			var scripts = element.querySelectorAll('script');
+			if (scripts.length) {
+				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
+			} else if (opt_callback) {
+				opt_callback();
+			}
+		};
+
+		/**
+   * Runs the given scripts elements in the order that they appear.
+   * @param {!NodeList} scripts
+   * @param {number} index
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
+			globalEval.runScript(scripts.item(index), function () {
+				if (index < scripts.length - 1) {
+					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
+				} else if (opt_callback) {
+					opt_callback();
+				}
+			});
 		};
 
 		return globalEval;
@@ -4044,15 +4088,8 @@ babelHelpers;
 
 		Component.prototype.buildFragment_ = function buildFragment_(content) {
 			var frag = dom.buildFragment(content);
-			if (content.indexOf('<script') === -1) {
-				return frag;
-			}
-			var scripts = frag.querySelectorAll('script');
-			for (var i = 0; i < scripts.length; i++) {
-				var script = scripts.item(i);
-				if (!script.type || script.type === 'text/javascript') {
-					globalEval.runScript(script);
-				}
+			if (content.indexOf('<script') !== -1) {
+				globalEval.runScriptsInElement(frag);
 			}
 			return frag;
 		};
@@ -5696,7 +5733,7 @@ babelHelpers;
 				var templateName = templateNames[i];
 				var templateFn = SoyAop.getOriginalFn(templates[templateName]);
 				if (SoyRenderer.isSurfaceTemplate_(templateName, templateFn)) {
-					var surfaceId = templateName === 'content' ? component.id : templateName;
+					var surfaceId = templateName === 'render' ? component.id : templateName;
 					component.addSurface(surfaceId, {
 						renderAttrs: templateFn.params,
 						templateComponentName: name,
@@ -5752,7 +5789,7 @@ babelHelpers;
 
 		/**
    * Creates and instantiates a component that has the given soy template function as its
-   * main content template. All keys present in the config object, if one is given, will be
+   * main render template. All keys present in the config object, if one is given, will be
    * attributes of this component, and the object itself will be passed to the constructor.
    * @param {!function()} templateFn
    * @param {(Element|string)=} opt_element The element that should be decorated. If none is given,
@@ -5787,7 +5824,7 @@ babelHelpers;
 			TemplateComponent.RENDERER = SoyRenderer;
 			ComponentRegistry.register(TemplateComponent, name);
 			SoyTemplates.set(name, {
-				content: function content(opt_attrs, opt_ignored, opt_ijData) {
+				render: function render(opt_attrs, opt_ignored, opt_ijData) {
 					return SoyAop.getOriginalFn(templateFn)(data, opt_ignored, opt_ijData);
 				}
 			});
@@ -5897,7 +5934,7 @@ babelHelpers;
 		SoyRenderer.handleInterceptedCall_ = function handleInterceptedCall_(component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
 			if (SoyRenderer.skipInnerCalls_) {
 				return '';
-			} else if (templateName === 'content') {
+			} else if (templateName === 'render') {
 				return this.handleComponentCall_.call(this, component, templateComponentName, data);
 			} else {
 				return this.handleSurfaceCall_.call(this, component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData);
@@ -6063,11 +6100,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Alert.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.Alert.content.soyTemplateName = 'Templates.Alert.content';
+    Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
   }
 
   /**
@@ -6098,7 +6135,7 @@ babelHelpers;
     Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
   }
 
-  Templates.Alert.content.params = ["id"];
+  Templates.Alert.render.params = ["id"];
   Templates.Alert.body.params = ["body", "id"];
   Templates.Alert.dismiss.params = ["dismissible", "id"];
 

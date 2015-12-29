@@ -21,11 +21,11 @@ if (typeof Templates.Alert == 'undefined') { Templates.Alert = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Alert.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Alert.render = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
-  Templates.Alert.content.soyTemplateName = 'Templates.Alert.content';
+  Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
 }
 
 
@@ -58,7 +58,7 @@ if (goog.DEBUG) {
   Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
 }
 
-Templates.Alert.content.params = ["id"];
+Templates.Alert.render.params = ["id"];
 Templates.Alert.body.params = ["body","id"];
 Templates.Alert.dismiss.params = ["dismissible","id"];
 

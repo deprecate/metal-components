@@ -92,7 +92,7 @@ describe('Alert', function() {
 			dismissible: true
 		};
 
-		var markup = SoyTemplates.get('Alert', 'content')(config);
+		var markup = SoyTemplates.get('Alert', 'render')(config);
 		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('alert').outerHTML;
 		component = new Alert(config).decorate();
