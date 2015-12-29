@@ -21,11 +21,11 @@ if (typeof Templates.Dropdown == 'undefined') { Templates.Dropdown = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Dropdown.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Dropdown.render = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="dropdown component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.expanded ? ' open' : '') + '">' + ((opt_data.header) ? soy.$$escapeHtml(opt_data.header) : '') + Templates.Dropdown.body(opt_data, null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
-  Templates.Dropdown.content.soyTemplateName = 'Templates.Dropdown.content';
+  Templates.Dropdown.render.soyTemplateName = 'Templates.Dropdown.render';
 }
 
 
@@ -43,7 +43,7 @@ if (goog.DEBUG) {
   Templates.Dropdown.body.soyTemplateName = 'Templates.Dropdown.body';
 }
 
-Templates.Dropdown.content.params = ["header","id"];
+Templates.Dropdown.render.params = ["header","id"];
 Templates.Dropdown.body.params = ["body","id"];
 
 class Dropdown extends Component {}

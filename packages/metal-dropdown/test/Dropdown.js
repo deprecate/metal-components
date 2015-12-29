@@ -181,7 +181,7 @@ describe('Dropdown', function() {
 			header: 'header'
 		};
 
-		var markup = SoyTemplates.get('Dropdown', 'content')(config);
+		var markup = SoyTemplates.get('Dropdown', 'render')(config);
 		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('dropdown').outerHTML;
 		component = new Dropdown(config).decorate();
