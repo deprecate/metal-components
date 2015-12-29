@@ -21,7 +21,7 @@ if (typeof Templates.Popover == 'undefined') { Templates.Popover = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Popover.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.Popover.render = function(opt_data, opt_ignored, opt_ijData) {
   var output = '';
   var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
   var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
@@ -29,7 +29,7 @@ Templates.Popover.content = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
 if (goog.DEBUG) {
-  Templates.Popover.content.soyTemplateName = 'Templates.Popover.content';
+  Templates.Popover.render.soyTemplateName = 'Templates.Popover.render';
 }
 
 
@@ -62,7 +62,7 @@ if (goog.DEBUG) {
   Templates.Popover.innerContent.soyTemplateName = 'Templates.Popover.innerContent';
 }
 
-Templates.Popover.content.params = ["id"];
+Templates.Popover.render.params = ["id"];
 Templates.Popover.title.params = ["id","title"];
 Templates.Popover.innerContent.params = ["content","id"];
 

@@ -78,7 +78,7 @@ describe('Popover', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = SoyTemplates.get('Popover', 'content')({
+		var markup = SoyTemplates.get('Popover', 'render')({
 			id: 'popover',
 			content: 'content',
 			title: 'title'
