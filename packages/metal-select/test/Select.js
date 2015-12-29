@@ -334,7 +334,7 @@ describe('Select', function() {
 
 	describe('Soy', function() {
 		it('should render correct selected item if `selectedIndex` is given', function() {
-			var templateFn = SoyTemplates.get('Select', 'content');
+			var templateFn = SoyTemplates.get('Select', 'render');
 			var content = templateFn({
 				id: 'select',
 				items: ['First', 'Second', 'Third'],
@@ -346,7 +346,7 @@ describe('Select', function() {
 		});
 
 		it('should automatically render first item as selected if `selectedIndex` is not given', function() {
-			var templateFn = SoyTemplates.get('Select', 'content');
+			var templateFn = SoyTemplates.get('Select', 'render');
 			var content = templateFn({
 				id: 'select',
 				items: ['First', 'Second', 'Third']
@@ -357,7 +357,7 @@ describe('Select', function() {
 		});
 
 		it('should not select any item if `label` is given but `selectedIndex` is not', function() {
-			var templateFn = SoyTemplates.get('Select', 'content');
+			var templateFn = SoyTemplates.get('Select', 'render');
 			var content = templateFn({
 				id: 'select',
 				items: ['First', 'Second', 'Third'],
