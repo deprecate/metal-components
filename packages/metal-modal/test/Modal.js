@@ -345,7 +345,7 @@ describe('Modal', function() {
 	});
 
 	it('should modal progressive enchance always as hidden', function() {
-		var markup = SoyTemplates.get('Modal', 'content')({
+		var markup = SoyTemplates.get('Modal', 'render')({
 			id: 'modal',
 			elementClasses: 'centered',
 			header: 'header',
@@ -370,7 +370,7 @@ describe('Modal', function() {
 	});
 
 	it('should change to visible when decorated and visible is true', function() {
-		var markup = SoyTemplates.get('Modal', 'content')({
+		var markup = SoyTemplates.get('Modal', 'render')({
 			id: 'modal',
 			elementClasses: 'centered',
 			header: 'header',
@@ -393,7 +393,7 @@ describe('Modal', function() {
 	});
 
 	it('should handle calling template without passing "elementClasses"', function() {
-		var markup = SoyTemplates.get('Modal', 'content')({
+		var markup = SoyTemplates.get('Modal', 'render')({
 			id: 'modal',
 			header: 'header',
 			body: 'body',
