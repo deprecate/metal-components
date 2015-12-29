@@ -57,7 +57,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.ButtonGroup = {};
   }
 
-  Templates.ButtonGroup.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.ButtonGroup.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="btn-group component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">';
     var buttonList8 = opt_data.buttons;
     var buttonListLen8 = buttonList8.length;
@@ -77,7 +77,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   };
 
   if (goog.DEBUG) {
-    Templates.ButtonGroup.content.soyTemplateName = 'Templates.ButtonGroup.content';
+    Templates.ButtonGroup.render.soyTemplateName = 'Templates.ButtonGroup.render';
   }
 
   Templates.ButtonGroup.selectedClass = function (opt_data, opt_ignored, opt_ijData) {
@@ -100,7 +100,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.ButtonGroup.selectedClass.soyTemplateName = 'Templates.ButtonGroup.selectedClass';
   }
 
-  Templates.ButtonGroup.content.params = ["buttons", "id"];
+  Templates.ButtonGroup.render.params = ["buttons", "id"];
   Templates.ButtonGroup.selectedClass.private = true;
 
   var ButtonGroup = (function (_Component) {

@@ -59,23 +59,28 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 
 			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
 
-			_dom2.default.on(_this.selector, 'click', function (e) {
+			_this.listener_ = _dom2.default.on(_this.selector, 'click', function (e) {
 				return _this.initialize(e);
 			});
-
 			return _this;
 		}
 
-		Clipboard.prototype.disposeInterval = function disposeInterval() {
-			_Attribute.prototype.disposeInterval.call(this);
+		Clipboard.prototype.disposeInternal = function disposeInternal() {
+			this.listener_.dispose();
+			this.listener_ = null;
+
+			if (this.clipboardAction_) {
+				this.clipboardAction_.dispose();
+				this.clipboardAction_ = null;
+			}
 		};
 
 		Clipboard.prototype.initialize = function initialize(e) {
-			if (this.clipboardAction) {
-				this.clipboardAction = null;
+			if (this.clipboardAction_) {
+				this.clipboardAction_ = null;
 			}
 
-			this.clipboardAction = new ClipboardAction({
+			this.clipboardAction_ = new ClipboardAction({
 				host: this,
 				action: this.action(e.delegateTarget),
 				target: this.target(e.delegateTarget),
@@ -89,6 +94,12 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 
 	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
 	Clipboard.ATTRS = {
+		action: {
+			validator: _core2.default.isFunction,
+			value: function value(delegateTarget) {
+				return delegateTarget.getAttribute('data-action');
+			}
+		},
 		selector: {
 			value: '[data-clipboard]',
 			validator: _core2.default.isString
@@ -97,12 +108,6 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 			validator: _core2.default.isFunction,
 			value: function value(delegateTarget) {
 				return document.querySelector(delegateTarget.getAttribute('data-target'));
-			}
-		},
-		action: {
-			validator: _core2.default.isFunction,
-			value: function value(delegateTarget) {
-				return delegateTarget.getAttribute('data-action');
 			}
 		},
 		text: {
@@ -130,26 +135,47 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 			return _this2;
 		}
 
-		ClipboardAction.prototype.disposeInterval = function disposeInterval() {
-			this.removeFakeElement();
+		ClipboardAction.prototype.clearSelection = function clearSelection() {
+			if (this.target) {
+				this.target.blur();
+			}
 
-			_Attribute2.prototype.disposeInterval.call(this);
+			window.getSelection().removeAllRanges();
 		};
 
-		ClipboardAction.prototype.selectValue = function selectValue() {
+		ClipboardAction.prototype.copyText = function copyText() {
+			var succeeded = undefined;
+
+			try {
+				succeeded = document.execCommand(this.action);
+			} catch (err) {
+				succeeded = false;
+			}
+
+			this.handleResult(succeeded);
+		};
+
+		ClipboardAction.prototype.disposeInternal = function disposeInternal() {
 			this.removeFakeElement();
-			this.removeFakeHandler = _dom2.default.once(document, 'click', this.removeFakeElement.bind(this));
-			this.fake = document.createElement('textarea');
-			this.fake.style.position = 'fixed';
-			this.fake.style.left = '-9999px';
-			this.fake.setAttribute('readonly', '');
-			this.fake.value = this.text;
-			this.selectedText = this.text;
 
-			_dom2.default.enterDocument(this.fake);
+			_Attribute2.prototype.disposeInternal.call(this);
+		};
 
-			this.fake.select();
-			this.copyText();
+		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
+			if (succeeded) {
+				this.host.emit('success', {
+					action: this.action,
+					text: this.selectedText,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			} else {
+				this.host.emit('error', {
+					action: this.action,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			}
 		};
 
 		ClipboardAction.prototype.removeFakeElement = function removeFakeElement() {
@@ -177,41 +203,20 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 			this.copyText();
 		};
 
-		ClipboardAction.prototype.copyText = function copyText() {
-			var succeeded = undefined;
+		ClipboardAction.prototype.selectValue = function selectValue() {
+			this.removeFakeElement();
+			this.removeFakeHandler = _dom2.default.once(document, 'click', this.removeFakeElement.bind(this));
+			this.fake = document.createElement('textarea');
+			this.fake.style.position = 'fixed';
+			this.fake.style.left = '-9999px';
+			this.fake.setAttribute('readonly', '');
+			this.fake.value = this.text;
+			this.selectedText = this.text;
 
-			try {
-				succeeded = document.execCommand(this.action);
-			} catch (err) {
-				succeeded = false;
-			}
+			_dom2.default.enterDocument(this.fake);
 
-			this.handleResult(succeeded);
-		};
-
-		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
-			if (succeeded) {
-				this.host.emit('success', {
-					action: this.action,
-					text: this.selectedText,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			} else {
-				this.host.emit('error', {
-					action: this.action,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			}
-		};
-
-		ClipboardAction.prototype.clearSelection = function clearSelection() {
-			if (this.target) {
-				this.target.blur();
-			}
-
-			window.getSelection().removeAllRanges();
+			this.fake.select();
+			this.copyText();
 		};
 
 		return ClipboardAction;
@@ -219,16 +224,19 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 
 	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
 	ClipboardAction.ATTRS = {
-		host: {
-			validator: function validator(val) {
-				return val instanceof Clipboard;
-			}
-		},
 		action: {
 			value: 'copy',
 			validator: function validator(val) {
 				return val === 'copy' || val === 'cut';
 			}
+		},
+		host: {
+			validator: function validator(val) {
+				return val instanceof Clipboard;
+			}
+		},
+		selectedText: {
+			validator: _core2.default.isString
 		},
 		target: {
 			validator: _core2.default.isElement
@@ -238,9 +246,6 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 		},
 		trigger: {
 			validator: _core2.default.isElement
-		},
-		selectedText: {
-			validator: _core2.default.isString
 		}
 	};
 	exports.default = Clipboard;

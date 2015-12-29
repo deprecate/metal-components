@@ -6,7 +6,7 @@
  * @param id
  * @skipUpdates elementClasses
  */
-{template .content}
+{template .render}
 	<div id="{$id}" class="list component{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .items data="all" /}
 	</div>
@@ -24,7 +24,7 @@
 			{$itemsHtml}
 		{else}
 			{foreach $item in $items}
-				{call Templates.ListItem.content}
+				{call Templates.ListItem.render}
 					{param id: $id + '-items-' + index($item) /}
 					{param index: index($item) /}
 					{param item: $item /}

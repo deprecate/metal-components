@@ -38,13 +38,13 @@ babelHelpers.possibleConstructorReturn = function (self, call) {
 };
 
 babelHelpers;
-'use strict'
+'use strict';
 
 /**
  * A collection of core utility functions.
  * @const
  */
-;
+
 (function () {
 	var core = (function () {
 		function core() {
@@ -283,7 +283,7 @@ babelHelpers;
   * @protected
   */
 
-	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
 	/**
   * Counter for unique id.
@@ -366,7 +366,7 @@ babelHelpers;
 
 	this.metal.object = object;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
  * Disposable utility. When inherited provides the `dispose` function to its
@@ -375,7 +375,7 @@ babelHelpers;
  * `disposeInternal` to implement any specific disposing logic.
  * @constructor
  */
-;
+
 (function () {
 	var Disposable = (function () {
 		function Disposable() {
@@ -3314,49 +3314,78 @@ babelHelpers;
 		/**
    * Evaluates the given javascript file in the global scope.
    * @param {string} src The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
    */
 
-		globalEval.runFile = function runFile(src) {
+		globalEval.runFile = function runFile(src, opt_callback) {
 			var script = document.createElement('script');
 			script.src = src;
-			dom.on(script, 'load', function () {
+
+			var callback = function callback() {
 				script.parentNode.removeChild(script);
-			});
-			dom.on(script, 'error', function () {
-				script.parentNode.removeChild(script);
-			});
+				opt_callback && opt_callback();
+			};
+			dom.on(script, 'load', callback);
+			dom.on(script, 'error', callback);
 			document.head.appendChild(script);
 		};
 
 		/**
    * Evaluates the code referenced by the given script element.
    * @param {!Element} script
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
    */
 
-		globalEval.runScript = function runScript(script) {
+		globalEval.runScript = function runScript(script, opt_callback) {
+			if (script.type && script.type !== 'text/javascript') {
+				opt_callback && opt_callback();
+				return;
+			}
 			if (script.parentNode) {
 				script.parentNode.removeChild(script);
 			}
 			if (script.src) {
-				globalEval.runFile(script.src);
+				globalEval.runFile(script.src, opt_callback);
 			} else {
 				globalEval.run(script.text);
+				opt_callback && opt_callback();
 			}
 		};
 
 		/**
    * Evaluates any script tags present in the given element.
    * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
    */
 
-		globalEval.runScriptsInElement = function runScriptsInElement(element) {
+		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
 			var scripts = element.querySelectorAll('script');
-			for (var i = 0; i < scripts.length; i++) {
-				var script = scripts.item(i);
-				if (!script.type || script.type === 'text/javascript') {
-					globalEval.runScript(script);
-				}
+			if (scripts.length) {
+				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
+			} else if (opt_callback) {
+				opt_callback();
 			}
+		};
+
+		/**
+   * Runs the given scripts elements in the order that they appear.
+   * @param {!NodeList} scripts
+   * @param {number} index
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
+			globalEval.runScript(scripts.item(index), function () {
+				if (index < scripts.length - 1) {
+					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
+				} else if (opt_callback) {
+					opt_callback();
+				}
+			});
 		};
 
 		return globalEval;
@@ -3836,13 +3865,13 @@ babelHelpers;
 
 	this.metal.ComponentCollector = ComponentCollector;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
  * Base class that component renderers should extend from. It defines the
  * required methods all renderers should have.
  */
-;
+
 (function () {
 	var ComponentRenderer = (function () {
 		function ComponentRenderer() {
@@ -6266,7 +6295,7 @@ babelHelpers;
 				var templateName = templateNames[i];
 				var templateFn = SoyAop.getOriginalFn(templates[templateName]);
 				if (SoyRenderer.isSurfaceTemplate_(templateName, templateFn)) {
-					var surfaceId = templateName === 'content' ? component.id : templateName;
+					var surfaceId = templateName === 'render' ? component.id : templateName;
 					component.addSurface(surfaceId, {
 						renderAttrs: templateFn.params,
 						templateComponentName: name,
@@ -6322,7 +6351,7 @@ babelHelpers;
 
 		/**
    * Creates and instantiates a component that has the given soy template function as its
-   * main content template. All keys present in the config object, if one is given, will be
+   * main render template. All keys present in the config object, if one is given, will be
    * attributes of this component, and the object itself will be passed to the constructor.
    * @param {!function()} templateFn
    * @param {(Element|string)=} opt_element The element that should be decorated. If none is given,
@@ -6357,7 +6386,7 @@ babelHelpers;
 			TemplateComponent.RENDERER = SoyRenderer;
 			ComponentRegistry.register(TemplateComponent, name);
 			SoyTemplates.set(name, {
-				content: function content(opt_attrs, opt_ignored, opt_ijData) {
+				render: function render(opt_attrs, opt_ignored, opt_ijData) {
 					return SoyAop.getOriginalFn(templateFn)(data, opt_ignored, opt_ijData);
 				}
 			});
@@ -6467,7 +6496,7 @@ babelHelpers;
 		SoyRenderer.handleInterceptedCall_ = function handleInterceptedCall_(component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
 			if (SoyRenderer.skipInnerCalls_) {
 				return '';
-			} else if (templateName === 'content') {
+			} else if (templateName === 'render') {
 				return this.handleComponentCall_.call(this, component, templateComponentName, data);
 			} else {
 				return this.handleSurfaceCall_.call(this, component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData);
@@ -6633,11 +6662,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Alert.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.Alert.content.soyTemplateName = 'Templates.Alert.content';
+    Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
   }
 
   /**
@@ -6668,7 +6697,7 @@ babelHelpers;
     Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
   }
 
-  Templates.Alert.content.params = ["id"];
+  Templates.Alert.render.params = ["id"];
   Templates.Alert.body.params = ["body", "id"];
   Templates.Alert.dismiss.params = ["dismissible", "id"];
 
@@ -8365,11 +8394,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.List.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.List.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.List.content.soyTemplateName = 'Templates.List.content';
+    Templates.List.render.soyTemplateName = 'Templates.List.render';
   }
 
   /**
@@ -8388,7 +8417,7 @@ babelHelpers;
       var itemListLen18 = itemList18.length;
       for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
         var itemData18 = itemList18[itemIndex18];
-        output += Templates.ListItem.content({ id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18 }, null, opt_ijData);
+        output += Templates.ListItem.render({ id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18 }, null, opt_ijData);
       }
     }
     output += '</ul>';
@@ -8398,7 +8427,7 @@ babelHelpers;
     Templates.List.items.soyTemplateName = 'Templates.List.items';
   }
 
-  Templates.List.content.params = ["id"];
+  Templates.List.render.params = ["id"];
   Templates.List.items.params = ["id", "items", "itemsHtml"];
 
   var List = (function (_Component) {
@@ -8447,11 +8476,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.ListItem.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.ListItem.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
   };
   if (goog.DEBUG) {
-    Templates.ListItem.content.soyTemplateName = 'Templates.ListItem.content';
+    Templates.ListItem.render.soyTemplateName = 'Templates.ListItem.render';
   }
 
   /**
@@ -8490,7 +8519,7 @@ babelHelpers;
     Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
   }
 
-  Templates.ListItem.content.params = ["id", "index", "item"];
+  Templates.ListItem.render.params = ["id", "index", "item"];
   Templates.ListItem.item.params = ["item"];
 
   var ListItem = (function (_Component) {
@@ -8867,7 +8896,7 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.ButtonGroup.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.ButtonGroup.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="btn-group component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">';
     var buttonList8 = opt_data.buttons;
     var buttonListLen8 = buttonList8.length;
@@ -8881,7 +8910,7 @@ babelHelpers;
     return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
   };
   if (goog.DEBUG) {
-    Templates.ButtonGroup.content.soyTemplateName = 'Templates.ButtonGroup.content';
+    Templates.ButtonGroup.render.soyTemplateName = 'Templates.ButtonGroup.render';
   }
 
   /**
@@ -8907,7 +8936,7 @@ babelHelpers;
     Templates.ButtonGroup.selectedClass.soyTemplateName = 'Templates.ButtonGroup.selectedClass';
   }
 
-  Templates.ButtonGroup.content.params = ["buttons", "id"];
+  Templates.ButtonGroup.render.params = ["buttons", "id"];
   Templates.ButtonGroup.selectedClass.private = true;
 
   var ButtonGroup = (function (_Component) {
@@ -9116,7 +9145,7 @@ babelHelpers;
 
 			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
 
-			dom.on(_this.selector, 'click', function (e) {
+			_this.listener_ = dom.on(_this.selector, 'click', function (e) {
 				return _this.initialize(e);
 			});
 			return _this;
@@ -9126,8 +9155,13 @@ babelHelpers;
    * @inheritDoc
    */
 
-		Clipboard.prototype.disposeInterval = function disposeInterval() {
-			_Attribute.prototype.disposeInterval.call(this);
+		Clipboard.prototype.disposeInternal = function disposeInternal() {
+			this.listener_.dispose();
+			this.listener_ = null;
+			if (this.clipboardAction_) {
+				this.clipboardAction_.dispose();
+				this.clipboardAction_ = null;
+			}
 		};
 
 		/**
@@ -9136,11 +9170,11 @@ babelHelpers;
    */
 
 		Clipboard.prototype.initialize = function initialize(e) {
-			if (this.clipboardAction) {
-				this.clipboardAction = null;
+			if (this.clipboardAction_) {
+				this.clipboardAction_ = null;
 			}
 
-			this.clipboardAction = new ClipboardAction({
+			this.clipboardAction_ = new ClipboardAction({
 				host: this,
 				action: this.action(e.delegateTarget),
 				target: this.target(e.delegateTarget),
@@ -9160,18 +9194,11 @@ babelHelpers;
 
 	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
 	Clipboard.ATTRS = {
-		selector: {
-			value: '[data-clipboard]',
-			validator: core.isString
-		},
-
-		target: {
-			validator: core.isFunction,
-			value: function value(delegateTarget) {
-				return document.querySelector(delegateTarget.getAttribute('data-target'));
-			}
-		},
-
+		/**
+   * A function that returns the name of the clipboard action that should be done
+   * when for the given element (either 'copy' or 'cut').
+   * @type {!function(!Element)}
+   */
 		action: {
 			validator: core.isFunction,
 			value: function value(delegateTarget) {
@@ -9179,6 +9206,31 @@ babelHelpers;
 			}
 		},
 
+		/**
+   * The selector for all elements that should be listened for clipboard actions.
+   * @type {string}
+   */
+		selector: {
+			value: '[data-clipboard]',
+			validator: core.isString
+		},
+
+		/**
+   * A function that returns an element that has the content to be copied to the
+   * clipboard.
+   * @type {!function(!Element)}
+   */
+		target: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return document.querySelector(delegateTarget.getAttribute('data-target'));
+			}
+		},
+
+		/**
+   * A function that returns the text to be copied to the clipboard.
+   * @type {!function(!Element)}
+   */
 		text: {
 			validator: core.isFunction,
 			value: function value(delegateTarget) {
@@ -9212,34 +9264,68 @@ babelHelpers;
 		}
 
 		/**
-   * @inheritDoc
+   * Removes current selection and focus from `target` element.
    */
 
-		ClipboardAction.prototype.disposeInterval = function disposeInterval() {
-			this.removeFakeElement();
-			_Attribute2.prototype.disposeInterval.call(this);
+		ClipboardAction.prototype.clearSelection = function clearSelection() {
+			if (this.target) {
+				this.target.blur();
+			}
+
+			window.getSelection().removeAllRanges();
 		};
 
 		/**
-   * Selects the content from value passed on `text` attribute.
+   * Executes the copy operation based on the current selection.
    */
 
-		ClipboardAction.prototype.selectValue = function selectValue() {
-			this.removeFakeElement();
-			this.removeFakeHandler = dom.once(document, 'click', this.removeFakeElement.bind(this));
+		ClipboardAction.prototype.copyText = function copyText() {
+			var succeeded = undefined;
 
-			this.fake = document.createElement('textarea');
-			this.fake.style.position = 'fixed';
-			this.fake.style.left = '-9999px';
-			this.fake.setAttribute('readonly', '');
-			this.fake.value = this.text;
-			this.selectedText = this.text;
+			try {
+				succeeded = document.execCommand(this.action);
+			} catch (err) {
+				succeeded = false;
+			}
 
-			dom.enterDocument(this.fake);
-
-			this.fake.select();
-			this.copyText();
+			this.handleResult(succeeded);
 		};
+
+		/**
+   * @inheritDoc
+   */
+
+		ClipboardAction.prototype.disposeInternal = function disposeInternal() {
+			this.removeFakeElement();
+			_Attribute2.prototype.disposeInternal.call(this);
+		};
+
+		/**
+   * Emits an event based on the copy operation result.
+   * @param {boolean} succeeded
+   */
+
+		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
+			if (succeeded) {
+				this.host.emit('success', {
+					action: this.action,
+					text: this.selectedText,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			} else {
+				this.host.emit('error', {
+					action: this.action,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			}
+		};
+
+		/**
+   * Removes the fake element that was added to the document, as well as its
+   * listener.
+   */
 
 		ClipboardAction.prototype.removeFakeElement = function removeFakeElement() {
 			if (this.fake) {
@@ -9272,53 +9358,24 @@ babelHelpers;
 		};
 
 		/**
-   * Executes the copy operation based on the current selection.
+   * Selects the content from value passed on `text` attribute.
    */
 
-		ClipboardAction.prototype.copyText = function copyText() {
-			var succeeded = undefined;
+		ClipboardAction.prototype.selectValue = function selectValue() {
+			this.removeFakeElement();
+			this.removeFakeHandler = dom.once(document, 'click', this.removeFakeElement.bind(this));
 
-			try {
-				succeeded = document.execCommand(this.action);
-			} catch (err) {
-				succeeded = false;
-			}
+			this.fake = document.createElement('textarea');
+			this.fake.style.position = 'fixed';
+			this.fake.style.left = '-9999px';
+			this.fake.setAttribute('readonly', '');
+			this.fake.value = this.text;
+			this.selectedText = this.text;
 
-			this.handleResult(succeeded);
-		};
+			dom.enterDocument(this.fake);
 
-		/**
-   * Emits an event based on the copy operation result.
-   * @param {boolean} succeeded
-   */
-
-		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
-			if (succeeded) {
-				this.host.emit('success', {
-					action: this.action,
-					text: this.selectedText,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			} else {
-				this.host.emit('error', {
-					action: this.action,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			}
-		};
-
-		/**
-   * Removes current selection and focus from `target` element.
-   */
-
-		ClipboardAction.prototype.clearSelection = function clearSelection() {
-			if (this.target) {
-				this.target.blur();
-			}
-
-			window.getSelection().removeAllRanges();
+			this.fake.select();
+			this.copyText();
 		};
 
 		return ClipboardAction;
@@ -9333,16 +9390,6 @@ babelHelpers;
 	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
 	ClipboardAction.ATTRS = {
 		/**
-   * A reference to the `Clipboard` base class.
-   * @type {Clipboard}
-   */
-		host: {
-			validator: function validator(val) {
-				return val instanceof Clipboard;
-			}
-		},
-
-		/**
    * The action to be performed (either 'copy' or 'cut').
    * @type {string}
    * @default 'copy'
@@ -9352,6 +9399,24 @@ babelHelpers;
 			validator: function validator(val) {
 				return val === 'copy' || val === 'cut';
 			}
+		},
+
+		/**
+   * A reference to the `Clipboard` base class.
+   * @type {!Clipboard}
+   */
+		host: {
+			validator: function validator(val) {
+				return val instanceof Clipboard;
+			}
+		},
+
+		/**
+   * The text that is current selected.
+   * @type {string}
+   */
+		selectedText: {
+			validator: core.isString
 		},
 
 		/**
@@ -9372,18 +9437,10 @@ babelHelpers;
 
 		/**
    * The element that when clicked initiates a clipboard action.
-   * @type {Element}
+   * @type {!Element}
    */
 		trigger: {
 			validator: core.isElement
-		},
-
-		/**
-   * The text that is current selected.
-   * @type {string}
-   */
-		selectedText: {
-			validator: core.isString
 		}
 	};
 
@@ -9417,11 +9474,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Dropdown.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Dropdown.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="dropdown component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.expanded ? ' open' : '') + '">' + (opt_data.header ? soy.$$escapeHtml(opt_data.header) : '') + Templates.Dropdown.body(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.Dropdown.content.soyTemplateName = 'Templates.Dropdown.content';
+    Templates.Dropdown.render.soyTemplateName = 'Templates.Dropdown.render';
   }
 
   /**
@@ -9438,7 +9495,7 @@ babelHelpers;
     Templates.Dropdown.body.soyTemplateName = 'Templates.Dropdown.body';
   }
 
-  Templates.Dropdown.content.params = ["header", "id"];
+  Templates.Dropdown.render.params = ["header", "id"];
   Templates.Dropdown.body.params = ["body", "id"];
 
   var Dropdown = (function (_Component) {
@@ -9738,11 +9795,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Modal.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Modal.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="' + soy.$$escapeHtmlAttribute(opt_data.role ? opt_data.role : 'dialog') + '" aria-labelledby="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header"><div class="modal-dialog" tabindex="0"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
   };
   if (goog.DEBUG) {
-    Templates.Modal.content.soyTemplateName = 'Templates.Modal.content';
+    Templates.Modal.render.soyTemplateName = 'Templates.Modal.render';
   }
 
   /**
@@ -9787,7 +9844,7 @@ babelHelpers;
     Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
   }
 
-  Templates.Modal.content.params = ["id", "role"];
+  Templates.Modal.render.params = ["id", "role"];
   Templates.Modal.body.params = ["id", "body"];
   Templates.Modal.footer.params = ["footer", "id"];
   Templates.Modal.header.params = ["header", "id"];
@@ -10445,7 +10502,7 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Popover.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Popover.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '';
     var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
     var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
@@ -10453,7 +10510,7 @@ babelHelpers;
     return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
   };
   if (goog.DEBUG) {
-    Templates.Popover.content.soyTemplateName = 'Templates.Popover.content';
+    Templates.Popover.render.soyTemplateName = 'Templates.Popover.render';
   }
 
   /**
@@ -10484,7 +10541,7 @@ babelHelpers;
     Templates.Popover.innerContent.soyTemplateName = 'Templates.Popover.innerContent';
   }
 
-  Templates.Popover.content.params = ["id"];
+  Templates.Popover.render.params = ["id"];
   Templates.Popover.title.params = ["id", "title"];
   Templates.Popover.innerContent.params = ["content", "id"];
 
@@ -10613,14 +10670,14 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.ProgressBar.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.ProgressBar.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="progress component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="progressbar" tabindex="0"><div class="progress-bar"></div></div>');
   };
   if (goog.DEBUG) {
-    Templates.ProgressBar.content.soyTemplateName = 'Templates.ProgressBar.content';
+    Templates.ProgressBar.render.soyTemplateName = 'Templates.ProgressBar.render';
   }
 
-  Templates.ProgressBar.content.params = ["id"];
+  Templates.ProgressBar.render.params = ["id"];
 
   var ProgressBar = (function (_Component) {
     babelHelpers.inherits(ProgressBar, _Component);
@@ -11148,7 +11205,7 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Select.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Select.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="select component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" data-onkeydown="handleKeyDown_">';
     var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : opt_data.label || opt_data.items.length == 0 ? -1 : 0;
     output += '<input type="hidden" name="' + soy.$$escapeHtmlAttribute(opt_data.hiddenInputName ? opt_data.hiddenInputName : '') + '" value="' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == -1 ? '' : opt_data.items[currSelectedIndex__soy8]) + '" />';
@@ -11159,15 +11216,15 @@ babelHelpers;
       var itemData15 = itemList15[itemIndex15];
       param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="#">' + soy.$$escapeHtml(itemData15) + '</a></li>';
     }
-    output += soy.$$escapeHtml(Templates.Dropdown.content({ body: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks(param14), events: { attrsSynced: opt_data.id + ':handleDropdownAttrsSynced_' }, header: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('<button class="' + soy.$$escapeHtmlAttribute(opt_data.buttonClass) + ' dropdown-select" type="button" data-onclick="toggle">' + soy.$$escapeHtml(currSelectedIndex__soy8 == -1 ? opt_data.label : opt_data.items[currSelectedIndex__soy8]) + ' <span class="' + soy.$$escapeHtmlAttribute(opt_data.arrowClass ? opt_data.arrowClass : 'caret') + '"></span></button>'), id: opt_data.id + '-dropdown' }, null, opt_ijData));
+    output += soy.$$escapeHtml(Templates.Dropdown.render({ body: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks(param14), events: { attrsSynced: opt_data.id + ':handleDropdownAttrsSynced_' }, header: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('<button class="' + soy.$$escapeHtmlAttribute(opt_data.buttonClass) + ' dropdown-select" type="button" data-onclick="toggle">' + soy.$$escapeHtml(currSelectedIndex__soy8 == -1 ? opt_data.label : opt_data.items[currSelectedIndex__soy8]) + ' <span class="' + soy.$$escapeHtmlAttribute(opt_data.arrowClass ? opt_data.arrowClass : 'caret') + '"></span></button>'), id: opt_data.id + '-dropdown' }, null, opt_ijData));
     output += '</div>';
     return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
   };
   if (goog.DEBUG) {
-    Templates.Select.content.soyTemplateName = 'Templates.Select.content';
+    Templates.Select.render.soyTemplateName = 'Templates.Select.render';
   }
 
-  Templates.Select.content.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
+  Templates.Select.render.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
 
   var Select = (function (_Component) {
     babelHelpers.inherits(Select, _Component);
@@ -12708,11 +12765,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Slider.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Slider.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="slider component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Slider.input(opt_data, null, opt_ijData) + Templates.Slider.label(opt_data, null, opt_ijData) + Templates.Slider.rail(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.Slider.content.soyTemplateName = 'Templates.Slider.content';
+    Templates.Slider.render.soyTemplateName = 'Templates.Slider.render';
   }
 
   /**
@@ -12757,7 +12814,7 @@ babelHelpers;
     Templates.Slider.rail.soyTemplateName = 'Templates.Slider.rail';
   }
 
-  Templates.Slider.content.params = ["id"];
+  Templates.Slider.render.params = ["id"];
   Templates.Slider.input.params = ["id", "inputName", "value"];
   Templates.Slider.label.params = ["id", "value"];
   Templates.Slider.rail.params = ["id"];
@@ -13049,14 +13106,14 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Switcher.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Switcher.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="switcher component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.checked ? ' switcher-on' : '') + '"><div class="switcher-control"><div class="switcher-control-icon"></div></div></div>');
   };
   if (goog.DEBUG) {
-    Templates.Switcher.content.soyTemplateName = 'Templates.Switcher.content';
+    Templates.Switcher.render.soyTemplateName = 'Templates.Switcher.render';
   }
 
-  Templates.Switcher.content.params = ["id"];
+  Templates.Switcher.render.params = ["id"];
 
   var Switcher = (function (_Component) {
     babelHelpers.inherits(Switcher, _Component);
@@ -13180,7 +13237,7 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Tooltip.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Tooltip.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '';
     var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
     var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
@@ -13188,7 +13245,7 @@ babelHelpers;
     return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
   };
   if (goog.DEBUG) {
-    Templates.Tooltip.content.soyTemplateName = 'Templates.Tooltip.content';
+    Templates.Tooltip.render.soyTemplateName = 'Templates.Tooltip.render';
   }
 
   /**
@@ -13205,7 +13262,7 @@ babelHelpers;
     Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
   }
 
-  Templates.Tooltip.content.params = ["id"];
+  Templates.Tooltip.render.params = ["id"];
   Templates.Tooltip.inner.params = ["title", "id"];
 
   var Tooltip = (function (_Component) {
@@ -13305,11 +13362,11 @@ babelHelpers;
    * @return {!soydata.SanitizedHtml}
    * @suppress {checkTypes}
    */
-  Templates.Treeview.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Treeview.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="treeview component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tree">' + Templates.Treeview.nodes(opt_data, null, opt_ijData) + '</div>');
   };
   if (goog.DEBUG) {
-    Templates.Treeview.content.soyTemplateName = 'Templates.Treeview.content';
+    Templates.Treeview.render.soyTemplateName = 'Templates.Treeview.render';
   }
 
   /**
@@ -13351,7 +13408,7 @@ babelHelpers;
     Templates.Treeview.node.soyTemplateName = 'Templates.Treeview.node';
   }
 
-  Templates.Treeview.content.params = ["id"];
+  Templates.Treeview.render.params = ["id"];
   Templates.Treeview.nodes.params = ["id", "nodes", "parentSurfaceId", "surfaceId"];
   Templates.Treeview.node.private = true;
 

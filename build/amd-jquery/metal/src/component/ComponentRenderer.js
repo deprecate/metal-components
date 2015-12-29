@@ -1,10 +1,10 @@
-'use strict'
+'use strict';
 
 /**
  * Base class that component renderers should extend from. It defines the
  * required methods all renderers should have.
  */
-;
+
 define(['exports'], function (exports) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true

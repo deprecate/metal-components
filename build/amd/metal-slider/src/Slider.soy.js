@@ -57,12 +57,12 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Slider = {};
   }
 
-  Templates.Slider.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Slider.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="slider component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Slider.input(opt_data, null, opt_ijData) + Templates.Slider.label(opt_data, null, opt_ijData) + Templates.Slider.rail(opt_data, null, opt_ijData) + '</div>');
   };
 
   if (goog.DEBUG) {
-    Templates.Slider.content.soyTemplateName = 'Templates.Slider.content';
+    Templates.Slider.render.soyTemplateName = 'Templates.Slider.render';
   }
 
   Templates.Slider.input = function (opt_data, opt_ignored, opt_ijData) {
@@ -89,7 +89,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Slider.rail.soyTemplateName = 'Templates.Slider.rail';
   }
 
-  Templates.Slider.content.params = ["id"];
+  Templates.Slider.render.params = ["id"];
   Templates.Slider.input.params = ["id", "inputName", "value"];
   Templates.Slider.label.params = ["id", "value"];
   Templates.Slider.rail.params = ["id"];

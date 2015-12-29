@@ -57,7 +57,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Select = {};
   }
 
-  Templates.Select.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Select.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="select component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" data-onkeydown="handleKeyDown_">';
     var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : opt_data.label || opt_data.items.length == 0 ? -1 : 0;
     output += '<input type="hidden" name="' + soy.$$escapeHtmlAttribute(opt_data.hiddenInputName ? opt_data.hiddenInputName : '') + '" value="' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == -1 ? '' : opt_data.items[currSelectedIndex__soy8]) + '" />';
@@ -70,7 +70,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
       param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="#">' + soy.$$escapeHtml(itemData15) + '</a></li>';
     }
 
-    output += soy.$$escapeHtml(Templates.Dropdown.content({
+    output += soy.$$escapeHtml(Templates.Dropdown.render({
       body: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks(param14),
       events: {
         attrsSynced: opt_data.id + ':handleDropdownAttrsSynced_'
@@ -83,10 +83,10 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   };
 
   if (goog.DEBUG) {
-    Templates.Select.content.soyTemplateName = 'Templates.Select.content';
+    Templates.Select.render.soyTemplateName = 'Templates.Select.render';
   }
 
-  Templates.Select.content.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
+  Templates.Select.render.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
 
   var Select = (function (_Component) {
     _inherits(Select, _Component);

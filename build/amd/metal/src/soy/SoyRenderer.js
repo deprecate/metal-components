@@ -83,7 +83,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 				var templateFn = _SoyAop2.default.getOriginalFn(templates[templateName]);
 
 				if (SoyRenderer.isSurfaceTemplate_(templateName, templateFn)) {
-					var surfaceId = templateName === 'content' ? component.id : templateName;
+					var surfaceId = templateName === 'render' ? component.id : templateName;
 					component.addSurface(surfaceId, {
 						renderAttrs: templateFn.params,
 						templateComponentName: name,
@@ -152,7 +152,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 			_ComponentRegistry2.default.register(TemplateComponent, name);
 
 			_SoyTemplates2.default.set(name, {
-				content: function content(opt_attrs, opt_ignored, opt_ijData) {
+				render: function render(opt_attrs, opt_ignored, opt_ijData) {
 					return _SoyAop2.default.getOriginalFn(templateFn)(data, opt_ignored, opt_ijData);
 				}
 			});
@@ -211,7 +211,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 		SoyRenderer.handleInterceptedCall_ = function handleInterceptedCall_(component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
 			if (SoyRenderer.skipInnerCalls_) {
 				return '';
-			} else if (templateName === 'content') {
+			} else if (templateName === 'render') {
 				return this.handleComponentCall_.call(this, component, templateComponentName, data);
 			} else {
 				return this.handleSurfaceCall_.call(this, component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData);

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 /**
  * Disposable utility. When inherited provides the `dispose` function to its
@@ -7,7 +7,7 @@
  * `disposeInternal` to implement any specific disposing logic.
  * @constructor
  */
-;
+
 define(['exports'], function (exports) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true

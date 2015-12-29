@@ -57,15 +57,15 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Switcher = {};
   }
 
-  Templates.Switcher.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Switcher.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="switcher component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.checked ? ' switcher-on' : '') + '"><div class="switcher-control"><div class="switcher-control-icon"></div></div></div>');
   };
 
   if (goog.DEBUG) {
-    Templates.Switcher.content.soyTemplateName = 'Templates.Switcher.content';
+    Templates.Switcher.render.soyTemplateName = 'Templates.Switcher.render';
   }
 
-  Templates.Switcher.content.params = ["id"];
+  Templates.Switcher.render.params = ["id"];
 
   var Switcher = (function (_Component) {
     _inherits(Switcher, _Component);

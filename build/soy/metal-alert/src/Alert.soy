@@ -6,7 +6,7 @@
  * @param? elementClasses
  * @skipUpdates elementClasses
  */
-{template .content}
+{template .render}
 	<div id="{$id}" class="alert alert-dismissible component{$elementClasses ? ' ' + $elementClasses : ''}" role="alert">
 		{call .dismiss data="all" /}
 		{call .body data="all" /}

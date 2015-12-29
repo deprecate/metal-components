@@ -57,7 +57,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Tooltip = {};
   }
 
-  Templates.Tooltip.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Tooltip.render = function (opt_data, opt_ignored, opt_ijData) {
     var output = '';
     var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
     var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
@@ -66,7 +66,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   };
 
   if (goog.DEBUG) {
-    Templates.Tooltip.content.soyTemplateName = 'Templates.Tooltip.content';
+    Templates.Tooltip.render.soyTemplateName = 'Templates.Tooltip.render';
   }
 
   Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
@@ -77,7 +77,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
   }
 
-  Templates.Tooltip.content.params = ["id"];
+  Templates.Tooltip.render.params = ["id"];
   Templates.Tooltip.inner.params = ["title", "id"];
 
   var Tooltip = (function (_Component) {

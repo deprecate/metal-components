@@ -12,7 +12,7 @@
  * @param? selectedIndex
  * @skipUpdates elementClasses
  */
-{template .content}
+{template .render}
 	<div id="{$id}" class="select component{$elementClasses ? ' ' + $elementClasses : ''}" data-onkeydown="handleKeyDown_">
 		{let $currSelectedIndex: isNonnull($selectedIndex) ? $selectedIndex : ($label or (length($items) == 0) ? -1 : 0) /}
 		<input
@@ -20,7 +20,7 @@
 			name="{$hiddenInputName ? $hiddenInputName : ''}"
 			value="{$currSelectedIndex == -1 ? '' : $items[$currSelectedIndex]}"
 		/>
-		{call Templates.Dropdown.content}
+		{call Templates.Dropdown.render}
 			{param body kind="html"}
 				{foreach $item in $items}
 					<li data-onclick="{$id}:handleItemClick_" class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">

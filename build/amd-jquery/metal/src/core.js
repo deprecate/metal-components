@@ -1,10 +1,10 @@
-'use strict'
+'use strict';
 
 /**
  * A collection of core utility functions.
  * @const
  */
-;
+
 define(['exports'], function (exports) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -128,7 +128,7 @@ define(['exports'], function (exports) {
 		return core;
 	})();
 
-	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 	core.uniqueIdCounter_ = 1;
 	exports.default = core;
 });

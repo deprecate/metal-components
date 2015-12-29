@@ -57,12 +57,12 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Modal = {};
   }
 
-  Templates.Modal.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.Modal.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="' + soy.$$escapeHtmlAttribute(opt_data.role ? opt_data.role : 'dialog') + '" aria-labelledby="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header"><div class="modal-dialog" tabindex="0"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
   };
 
   if (goog.DEBUG) {
-    Templates.Modal.content.soyTemplateName = 'Templates.Modal.content';
+    Templates.Modal.render.soyTemplateName = 'Templates.Modal.render';
   }
 
   Templates.Modal.body = function (opt_data, opt_ignored, opt_ijData) {
@@ -89,7 +89,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
   }
 
-  Templates.Modal.content.params = ["id", "role"];
+  Templates.Modal.render.params = ["id", "role"];
   Templates.Modal.body.params = ["id", "body"];
   Templates.Modal.footer.params = ["footer", "id"];
   Templates.Modal.header.params = ["header", "id"];

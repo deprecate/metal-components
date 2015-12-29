@@ -57,12 +57,12 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.List = {};
   }
 
-  Templates.List.content = function (opt_data, opt_ignored, opt_ijData) {
+  Templates.List.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
   };
 
   if (goog.DEBUG) {
-    Templates.List.content.soyTemplateName = 'Templates.List.content';
+    Templates.List.render.soyTemplateName = 'Templates.List.render';
   }
 
   Templates.List.items = function (opt_data, opt_ignored, opt_ijData) {
@@ -76,7 +76,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
 
       for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
         var itemData18 = itemList18[itemIndex18];
-        output += Templates.ListItem.content({
+        output += Templates.ListItem.render({
           id: opt_data.id + '-items-' + itemIndex18,
           index: itemIndex18,
           item: itemData18
@@ -92,7 +92,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     Templates.List.items.soyTemplateName = 'Templates.List.items';
   }
 
-  Templates.List.content.params = ["id"];
+  Templates.List.render.params = ["id"];
   Templates.List.items.params = ["id", "items", "itemsHtml"];
 
   var List = (function (_Component) {

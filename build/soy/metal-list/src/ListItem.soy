@@ -7,7 +7,7 @@
  * @param? elementClasses
  * @skipUpdates elementClasses
  */
-{template .content}
+{template .render}
 	<li id="{$id}" class="listitem list-group-item component{$elementClasses ? ' ' + $elementClasses : ''} clearfix" data-index="{$index}">
 		{call .item data="all" /}
 	</li>
