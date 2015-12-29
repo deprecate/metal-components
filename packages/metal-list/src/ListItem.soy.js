@@ -21,11 +21,11 @@ if (typeof Templates.ListItem == 'undefined') { Templates.ListItem = {}; }
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.ListItem.content = function(opt_data, opt_ignored, opt_ijData) {
+Templates.ListItem.render = function(opt_data, opt_ignored, opt_ijData) {
   return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
 };
 if (goog.DEBUG) {
-  Templates.ListItem.content.soyTemplateName = 'Templates.ListItem.content';
+  Templates.ListItem.render.soyTemplateName = 'Templates.ListItem.render';
 }
 
 
@@ -65,7 +65,7 @@ if (goog.DEBUG) {
   Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
 }
 
-Templates.ListItem.content.params = ["id","index","item"];
+Templates.ListItem.render.params = ["id","index","item"];
 Templates.ListItem.item.params = ["item"];
 
 class ListItem extends Component {}
