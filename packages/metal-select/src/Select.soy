@@ -24,7 +24,7 @@
 			{param body kind="html"}
 				{foreach $item in $items}
 					<li data-onclick="{$id}:handleItemClick_" class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
-						<a href="#">{$item}</a>
+						<a href="javascript:;">{$item}</a>
 					</li>
 				{/foreach}
 			{/param}
