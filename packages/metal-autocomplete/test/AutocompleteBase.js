@@ -1,6 +1,7 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 import AutocompleteBase from '../src/AutocompleteBase';
 
 var component;
@@ -78,7 +79,7 @@ describe('AutocompleteBase', function() {
 
 	it('should cancel pending request', function(done) {
 		component = new AutocompleteBase({
-			data: [],
+			data: new CancellablePromise(function() {}),
 			inputElement: input
 		}).render();
 		component.request().catch(function(reason) {

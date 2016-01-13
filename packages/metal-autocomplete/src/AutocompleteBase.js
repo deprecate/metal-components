@@ -2,7 +2,7 @@
 
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 import Component from 'bower:metal/src/component/Component';
 import EventHandler from 'bower:metal/src/events/EventHandler';
 
@@ -57,15 +57,16 @@ class AutocompleteBase extends Component {
 			this.pendingRequest.cancel('Cancelled by another request');
 		}
 
-		this.pendingRequest = Promise.resolve()
-			.then(function() {
-				return self.data(query);
-			})
-			.then(function(data) {
-				if (Array.isArray(data)) {
-					return data.map(self.format.bind(self)).filter(val => core.isDefAndNotNull(val));
-				}
-			});
+		var maybeDeferredData = self.data(query);
+		if (!(maybeDeferredData instanceof CancellablePromise)) {
+			maybeDeferredData = CancellablePromise.resolve(maybeDeferredData);
+		}
+
+		this.pendingRequest = maybeDeferredData.then(function(data) {
+			if (Array.isArray(data)) {
+				return data.map(self.format.bind(self)).filter(val => core.isDefAndNotNull(val));
+			}
+		});
 
 		return this.pendingRequest;
 	}
