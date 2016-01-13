@@ -57,12 +57,12 @@ class AutocompleteBase extends Component {
 			this.pendingRequest.cancel('Cancelled by another request');
 		}
 
-		var maybeDeferredData = self.data(query);
-		if (!(maybeDeferredData instanceof CancellablePromise)) {
-			maybeDeferredData = CancellablePromise.resolve(maybeDeferredData);
+		var deferredData = self.data(query);
+		if (!core.isPromise(deferredData)) {
+			deferredData = CancellablePromise.resolve(deferredData);
 		}
 
-		this.pendingRequest = maybeDeferredData.then(function(data) {
+		this.pendingRequest = deferredData.then(function(data) {
 			if (Array.isArray(data)) {
 				return data.map(self.format.bind(self)).filter(val => core.isDefAndNotNull(val));
 			}
