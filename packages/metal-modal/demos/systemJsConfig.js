@@ -2,9 +2,9 @@ System.config({
 	defaultJSExtensions: true,
 	baseURL: '../',
 	map: {
-		traceur: 'bower:traceur/traceur'
+		traceur: 'bower_components/traceur/traceur'
 	},
 	paths: {
-		'bower:*': 'bower_components/*'
+		'npm:*': 'node_modules/*'
 	}
 });

@@ -19,13 +19,10 @@
     "!src/**/*"
   ],
   "license": "MIT",
-  "dependencies": {
-    "soyutils": "2014.04.22",
+  "devDependencies": {
     "traceur": "~0.0.90",
     "system.js": "~0.17.1",
     "bootstrap": "~3.3.4",
-    "requirejs": "~2.1.18",
-    "metal": "metal/metal.js#master",
-    "metal-jquery-adapter": "metal/metal-jquery-adapter#master"
+    "requirejs": "~2.1.18"
   }
 }

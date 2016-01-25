@@ -7,7 +7,7 @@
 
 	<link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
 
-	<script src="../bower_components/soyutils/soyutils.js"></script>
+	<script src="../node_modules/closure-templates/soyutils.js"></script>
 	<script src="../bower_components/system.js/dist/system.js"></script>
 	<script src="systemJsConfig.js"></script>
 </head>
@@ -15,13 +15,11 @@
 	<h1>Modal</h1>
 	<script type="text/javascript">
 		System.import('src/Modal').then(function(Modal) {
-			System.import('bower:metal/src/soy/SoyRenderer').then(function(SoyRenderer) {
-				window.modal = new Modal.default({
-					header: SoyRenderer.default.sanitizeHtml('<h4 class="modal-title">Modal header</h4>'),
-					body: 'One fine body...',
-					footer: SoyRenderer.default.sanitizeHtml('<button type="button" class="btn btn-primary">OK</button>')
-				}).render();
-			});
+			window.modal = new Modal.default({
+				header: '<h4 class="modal-title">Modal header</h4>',
+				body: 'One fine body...',
+				footer: '<button type="button" class="btn btn-primary">OK</button>'
+			}).render();
 		});
 	</script>
 </body>

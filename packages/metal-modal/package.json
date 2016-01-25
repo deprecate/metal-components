@@ -20,6 +20,10 @@
   ],
   "devDependencies": {
     "gulp": "^3.8.11",
-    "gulp-metal": "^0.8.0"
+    "gulp-metal": "^0.9.0"
+  },
+  "dependencies": {
+    "closure-templates": "20140422.0.0",
+    "metal": "github:metal/metal.js#master"
   }
 }

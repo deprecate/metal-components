@@ -1,8 +1,8 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
-import EventHandler from 'bower:metal/src/events/EventHandler';
+import core from 'npm:metal/src/core';
+import dom from 'npm:metal/src/dom/dom';
+import EventHandler from 'npm:metal/src/events/EventHandler';
 import ModalBase from './Modal.soy';
 
 /**
