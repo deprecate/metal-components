@@ -1,11 +1,11 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
+import core from 'npm:metal/src/core';
+import dom from 'npm:metal/src/dom/dom';
 import AlertBase from './Alert.soy.js';
-import Anim from 'bower:metal-anim/src/Anim';
-import EventHandler from 'bower:metal/src/events/EventHandler';
-import 'bower:metal/src/dom/events';
+import Anim from 'npm:metal-anim/src/Anim';
+import EventHandler from 'npm:metal/src/events/EventHandler';
+import 'npm:metal/src/dom/events';
 
 /**
  * Alert component.

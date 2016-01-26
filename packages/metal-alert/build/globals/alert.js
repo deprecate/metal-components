@@ -2,9 +2,10 @@
 this.metal = this.metal || {};
 this.metalNamed = this.metalNamed || {};
 var babelHelpers = {};
-
-babelHelpers.typeof = function (obj) {
-  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj;
+babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
 };
 
 babelHelpers.classCallCheck = function (instance, Constructor) {
@@ -38,15 +39,15 @@ babelHelpers.possibleConstructorReturn = function (self, call) {
 };
 
 babelHelpers;
-'use strict'
+'use strict';
 
 /**
  * A collection of core utility functions.
  * @const
  */
-;
+
 (function () {
-	var core = (function () {
+	var core = function () {
 		function core() {
 			babelHelpers.classCallCheck(this, core);
 		}
@@ -231,6 +232,16 @@ babelHelpers;
 		};
 
 		/**
+   * Returns true if value is a Promise.
+   * @param {*} val
+   * @return {Boolean}
+   */
+
+		core.isPromise = function isPromise(val) {
+			return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
+		};
+
+		/**
    * Returns true if value is a string.
    * @param {*} val
    * @return {Boolean}
@@ -275,7 +286,7 @@ babelHelpers;
 		core.nullFunction = function nullFunction() {};
 
 		return core;
-	})();
+	}();
 
 	/**
   * Unique id property prefix.
@@ -299,7 +310,7 @@ babelHelpers;
 (function () {
 	var core = this.metal.core;
 
-	var object = (function () {
+	var object = function () {
 		function object() {
 			babelHelpers.classCallCheck(this, object);
 		}
@@ -362,11 +373,11 @@ babelHelpers;
 		};
 
 		return object;
-	})();
+	}();
 
 	this.metal.object = object;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
  * Disposable utility. When inherited provides the `dispose` function to its
@@ -375,9 +386,9 @@ babelHelpers;
  * `disposeInternal` to implement any specific disposing logic.
  * @constructor
  */
-;
+
 (function () {
-	var Disposable = (function () {
+	var Disposable = function () {
 		function Disposable() {
 			babelHelpers.classCallCheck(this, Disposable);
 
@@ -418,7 +429,7 @@ babelHelpers;
 		};
 
 		return Disposable;
-	})();
+	}();
 
 	this.metal.Disposable = Disposable;
 }).call(this);
@@ -440,7 +451,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventHandle = (function (_Disposable) {
+	var EventHandle = function (_Disposable) {
 		babelHelpers.inherits(EventHandle, _Disposable);
 
 		function EventHandle(emitter, event, listener) {
@@ -494,7 +505,7 @@ babelHelpers;
 		};
 
 		return EventHandle;
-	})(Disposable);
+	}(Disposable);
 
 	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
 	this.metal.EventHandle = EventHandle;
@@ -510,7 +521,7 @@ babelHelpers;
   * @extends {EventHandle}
   */
 
-	var DomEventHandle = (function (_EventHandle) {
+	var DomEventHandle = function (_EventHandle) {
 		babelHelpers.inherits(DomEventHandle, _EventHandle);
 
 		/**
@@ -541,7 +552,7 @@ babelHelpers;
 		};
 
 		return DomEventHandle;
-	})(EventHandle);
+	}(EventHandle);
 
 	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
 	this.metal.DomEventHandle = DomEventHandle;
@@ -553,7 +564,7 @@ babelHelpers;
 	var object = this.metal.object;
 	var DomEventHandle = this.metal.DomEventHandle;
 
-	var dom = (function () {
+	var dom = function () {
 		function dom() {
 			babelHelpers.classCallCheck(this, dom);
 		}
@@ -1136,7 +1147,7 @@ babelHelpers;
 		};
 
 		return dom;
-	})();
+	}();
 
 	var elementsByTag = {};
 	dom.customEvents = {};
@@ -1148,7 +1159,7 @@ babelHelpers;
 (function () {
 	var core = this.metal.core;
 
-	var array = (function () {
+	var array = function () {
 		function array() {
 			babelHelpers.classCallCheck(this, array);
 		}
@@ -1251,14 +1262,14 @@ babelHelpers;
 		};
 
 		return array;
-	})();
+	}();
 
 	this.metal.array = array;
 }).call(this);
 'use strict';
 
 (function () {
-	var string = (function () {
+	var string = function () {
 		function string() {
 			babelHelpers.classCallCheck(this, string);
 		}
@@ -1309,7 +1320,7 @@ babelHelpers;
 		};
 
 		return string;
-	})();
+	}();
 
 	this.metal.string = string;
 }).call(this);
@@ -1323,7 +1334,7 @@ babelHelpers;
   * Class with static methods responsible for doing browser feature checks.
   */
 
-	var features = (function () {
+	var features = function () {
 		function features() {
 			babelHelpers.classCallCheck(this, features);
 		}
@@ -1381,7 +1392,7 @@ babelHelpers;
 		};
 
 		return features;
-	})();
+	}();
 
 	features.animationElement_ = document.createElement('div');
 	features.animationEventName_ = undefined;
@@ -1398,7 +1409,7 @@ babelHelpers;
   * Utility functions for running javascript code in the global scope.
   */
 
-	var globalEval = (function () {
+	var globalEval = function () {
 		function globalEval() {
 			babelHelpers.classCallCheck(this, globalEval);
 		}
@@ -1492,7 +1503,7 @@ babelHelpers;
 		};
 
 		return globalEval;
-	})();
+	}();
 
 	this.metal.globalEval = globalEval;
 }).call(this);
@@ -1502,7 +1513,7 @@ babelHelpers;
 	var core = this.metal.core;
 	var string = this.metal.string;
 
-	var html = (function () {
+	var html = function () {
 		function html() {
 			babelHelpers.classCallCheck(this, html);
 		}
@@ -1772,7 +1783,7 @@ babelHelpers;
 		};
 
 		return html;
-	})();
+	}();
 
 	/**
   * HTML regex patterns.
@@ -1833,7 +1844,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventEmitter = (function (_Disposable) {
+	var EventEmitter = function (_Disposable) {
 		babelHelpers.inherits(EventEmitter, _Disposable);
 
 		function EventEmitter() {
@@ -2200,7 +2211,7 @@ babelHelpers;
 		};
 
 		return EventEmitter;
-	})(Disposable);
+	}(Disposable);
 
 	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	this.metal.EventEmitter = EventEmitter;
@@ -2357,7 +2368,7 @@ babelHelpers;
 		// synchronous postMessage implementation.
 		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
 			/** @constructor */
-			Channel = function () {
+			Channel = function Channel() {
 				// Make an empty, invisible iframe.
 				var iframe = document.createElement('iframe');
 				iframe.style.display = 'none';
@@ -2370,14 +2381,14 @@ babelHelpers;
 				doc.close();
 				var message = 'callImmediate' + Math.random();
 				var origin = win.location.protocol + '//' + win.location.host;
-				var onmessage = (function (e) {
+				var onmessage = function (e) {
 					// Validate origin and message to make sure that this message was
 					// intended for us.
 					if (e.origin !== origin && e.data !== message) {
 						return;
 					}
 					this.port1.onmessage();
-				}).bind(this);
+				}.bind(this);
 				win.addEventListener('message', onmessage, false);
 				this.port1 = {};
 				this.port2 = {
@@ -2460,7 +2471,7 @@ babelHelpers;
   * @extends {EventEmitter}
   */
 
-	var Attribute = (function (_EventEmitter) {
+	var Attribute = function (_EventEmitter) {
 		babelHelpers.inherits(Attribute, _EventEmitter);
 
 		function Attribute(opt_config) {
@@ -2986,7 +2997,7 @@ babelHelpers;
 		};
 
 		return Attribute;
-	})(EventEmitter);
+	}(EventEmitter);
 
 	/**
   * A list with attribute names that will automatically be rejected as invalid.
@@ -3022,7 +3033,7 @@ babelHelpers;
   * @type {Object}
   */
 
-	var ComponentRegistry = (function () {
+	var ComponentRegistry = function () {
 		function ComponentRegistry() {
 			babelHelpers.classCallCheck(this, ComponentRegistry);
 		}
@@ -3066,7 +3077,7 @@ babelHelpers;
 		};
 
 		return ComponentRegistry;
-	})();
+	}();
 
 	/**
   * Holds all registered components, indexed by their names.
@@ -3085,7 +3096,7 @@ babelHelpers;
 	var ComponentRegistry = this.metal.ComponentRegistry;
 	var Disposable = this.metal.Disposable;
 
-	var ComponentCollector = (function (_Disposable) {
+	var ComponentCollector = function (_Disposable) {
 		babelHelpers.inherits(ComponentCollector, _Disposable);
 
 		function ComponentCollector() {
@@ -3148,7 +3159,7 @@ babelHelpers;
 		};
 
 		return ComponentCollector;
-	})(Disposable);
+	}(Disposable);
 
 	/**
   * Holds all collected components, indexed by their id.
@@ -3160,15 +3171,15 @@ babelHelpers;
 
 	this.metal.ComponentCollector = ComponentCollector;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
  * Base class that component renderers should extend from. It defines the
  * required methods all renderers should have.
  */
-;
+
 (function () {
-	var ComponentRenderer = (function () {
+	var ComponentRenderer = function () {
 		function ComponentRenderer() {
 			babelHelpers.classCallCheck(this, ComponentRenderer);
 		}
@@ -3188,7 +3199,7 @@ babelHelpers;
 		ComponentRenderer.getSurfaceContent = function getSurfaceContent() {};
 
 		return ComponentRenderer;
-	})();
+	}();
 
 	this.metal.ComponentRenderer = ComponentRenderer;
 }).call(this);
@@ -3215,7 +3226,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventEmitterProxy = (function (_Disposable) {
+	var EventEmitterProxy = function (_Disposable) {
 		babelHelpers.inherits(EventEmitterProxy, _Disposable);
 
 		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
@@ -3330,7 +3341,7 @@ babelHelpers;
 		};
 
 		return EventEmitterProxy;
-	})(Disposable);
+	}(Disposable);
 
 	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
 	this.metal.EventEmitterProxy = EventEmitterProxy;
@@ -3347,7 +3358,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventHandler = (function (_Disposable) {
+	var EventHandler = function (_Disposable) {
 		babelHelpers.inherits(EventHandler, _Disposable);
 
 		function EventHandler() {
@@ -3400,7 +3411,7 @@ babelHelpers;
 		};
 
 		return EventHandler;
-	})(Disposable);
+	}(Disposable);
 
 	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
 	this.metal.EventHandler = EventHandler;
@@ -3421,7 +3432,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventsCollector = (function (_Disposable) {
+	var EventsCollector = function (_Disposable) {
 		babelHelpers.inherits(EventsCollector, _Disposable);
 
 		function EventsCollector(component) {
@@ -3617,7 +3628,7 @@ babelHelpers;
 		};
 
 		return EventsCollector;
-	})(Disposable);
+	}(Disposable);
 
 	EventsCollector.prototype.registerMetalComponent && EventsCollector.prototype.registerMetalComponent(EventsCollector, 'EventsCollector')
 	this.metal.EventsCollector = EventsCollector;
@@ -3632,7 +3643,7 @@ babelHelpers;
   * Stores surface data to be used later by Components.
   */
 
-	var SurfaceCollector = (function (_Disposable) {
+	var SurfaceCollector = function (_Disposable) {
 		babelHelpers.inherits(SurfaceCollector, _Disposable);
 
 		function SurfaceCollector() {
@@ -3711,7 +3722,7 @@ babelHelpers;
 		};
 
 		return SurfaceCollector;
-	})(Disposable);
+	}(Disposable);
 
 	SurfaceCollector.prototype.registerMetalComponent && SurfaceCollector.prototype.registerMetalComponent(SurfaceCollector, 'SurfaceCollector')
 	this.metal.SurfaceCollector = SurfaceCollector;
@@ -3784,7 +3795,7 @@ babelHelpers;
   * @extends {Attribute}
   */
 
-	var Component = (function (_Attribute) {
+	var Component = function (_Attribute) {
 		babelHelpers.inherits(Component, _Attribute);
 
 		function Component(opt_config) {
@@ -4253,21 +4264,6 @@ babelHelpers;
 			var el = document.createElement(this.constructor.SURFACE_TAG_NAME_MERGED);
 			el.id = surfaceElementId;
 			return el;
-		};
-
-		/**
-   * Decorates this component as a subcomponent, meaning that no rendering is
-   * needed since it was already rendered by the parent component. Handles the
-   * same logics that `renderAsSubComponent`, but also makes sure that the
-   * surfaces content is updated if the html is incorrect for the given data.
-   * @param {string=} opt_content The content that was already rendered for this
-   *   component.
-   */
-
-		Component.prototype.decorateAsSubComponent = function decorateAsSubComponent(opt_content) {
-			this.decorating_ = true;
-			this.renderAsSubComponent(opt_content);
-			this.decorating_ = false;
 		};
 
 		/**
@@ -4816,10 +4812,10 @@ babelHelpers;
 
 		Component.prototype.getSurfaces = function getSurfaces() {
 			var surfaces = {};
-			Object.keys(this.surfaceIds_).forEach((function (surfaceElementId) {
+			Object.keys(this.surfaceIds_).forEach(function (surfaceElementId) {
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
 				surfaces[this.getSurfaceId(surface)] = surface;
-			}).bind(this));
+			}.bind(this));
 			return surfaces;
 		};
 
@@ -5001,7 +4997,6 @@ babelHelpers;
    */
 
 		Component.prototype.renderAsSubComponent = function renderAsSubComponent(opt_content) {
-			this.addElementSurface_();
 			if (opt_content && dom.isEmpty(this.element)) {
 				// If we have the rendered content for this component, but it hasn't
 				// been rendered in its element yet, we render it manually here. That
@@ -5027,8 +5022,6 @@ babelHelpers;
 			if (component.wasRendered) {
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
 				Component.componentsCollector.updateComponent(surfaceElementId, surface.componentData);
-			} else if (this.decorating_) {
-				component.decorateAsSubComponent(opt_content);
 			} else {
 				component.renderAsSubComponent(opt_content);
 			}
@@ -5111,7 +5104,8 @@ babelHelpers;
 			}
 
 			for (var i = 0; i < surfaceElementIds.length; i++) {
-				if (!this.getSurfaceFromElementId(surfaceElementIds[i]).handled) {
+				var surface = this.getSurfaceFromElementId(surfaceElementIds[i]);
+				if (!surface.handled && (surface.parent || surfaceElementIds[i] === this.id)) {
 					this.emitRenderSurfaceEvent_(surfaceElementIds[i], null, null, surfaces[surfaceElementIds[i]]);
 				}
 			}
@@ -5404,7 +5398,7 @@ babelHelpers;
 		};
 
 		return Component;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Helper responsible for extracting components from strings and config data.
@@ -5570,7 +5564,7 @@ babelHelpers;
   * imported.
   */
 
-	var SoyTemplates = (function () {
+	var SoyTemplates = function () {
 		function SoyTemplates() {
 			babelHelpers.classCallCheck(this, SoyTemplates);
 		}
@@ -5606,7 +5600,7 @@ babelHelpers;
 		};
 
 		return SoyTemplates;
-	})();
+	}();
 
 	this.metal.SoyTemplates = SoyTemplates;
 }).call(this);
@@ -5711,7 +5705,7 @@ babelHelpers;
   * @extends {ComponentRenderer}
   */
 
-	var SoyRenderer = (function (_ComponentRenderer) {
+	var SoyRenderer = function (_ComponentRenderer) {
 		babelHelpers.inherits(SoyRenderer, _ComponentRenderer);
 
 		function SoyRenderer() {
@@ -5808,7 +5802,7 @@ babelHelpers;
 
 			var name = 'TemplateComponent' + core.getUid();
 
-			var TemplateComponent = (function (_Component) {
+			var TemplateComponent = function (_Component) {
 				babelHelpers.inherits(TemplateComponent, _Component);
 
 				function TemplateComponent() {
@@ -5817,7 +5811,7 @@ babelHelpers;
 				}
 
 				return TemplateComponent;
-			})(Component);
+			}(Component);
 
 			TemplateComponent.prototype.registerMetalComponent && TemplateComponent.prototype.registerMetalComponent(TemplateComponent, 'TemplateComponent')
 
@@ -6058,7 +6052,7 @@ babelHelpers;
 		};
 
 		return SoyRenderer;
-	})(ComponentRenderer);
+	}(ComponentRenderer);
 
 	SoyRenderer.prototype.registerMetalComponent && SoyRenderer.prototype.registerMetalComponent(SoyRenderer, 'SoyRenderer')
 
@@ -6139,7 +6133,7 @@ babelHelpers;
   Templates.Alert.body.params = ["body", "id"];
   Templates.Alert.dismiss.params = ["dismissible", "id"];
 
-  var Alert = (function (_Component) {
+  var Alert = function (_Component) {
     babelHelpers.inherits(Alert, _Component);
 
     function Alert() {
@@ -6148,7 +6142,7 @@ babelHelpers;
     }
 
     return Alert;
-  })(Component);
+  }(Component);
 
   Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
 
@@ -6208,7 +6202,7 @@ babelHelpers;
 	var dom = this.metal.dom;
 	var features = this.metal.features;
 
-	var Anim = (function () {
+	var Anim = function () {
 		function Anim() {
 			babelHelpers.classCallCheck(this, Anim);
 		}
@@ -6296,7 +6290,7 @@ babelHelpers;
 		};
 
 		return Anim;
-	})();
+	}();
 
 	this.metal.Anim = Anim;
 }).call(this);
@@ -6313,7 +6307,7 @@ babelHelpers;
   * Alert component.
   */
 
-	var Alert = (function (_AlertBase) {
+	var Alert = function (_AlertBase) {
 		babelHelpers.inherits(Alert, _AlertBase);
 
 		function Alert(opt_config) {
@@ -6419,7 +6413,7 @@ babelHelpers;
 		};
 
 		return Alert;
-	})(AlertBase);
+	}(AlertBase);
 
 	/**
   * Default alert elementClasses.

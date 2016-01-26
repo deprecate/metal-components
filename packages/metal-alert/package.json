@@ -14,6 +14,12 @@
 		"alert",
 		"metal"
 	],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "closure-templates": "20140422.0.0",
+    "metal": "github:metal/metal.js#master",
+		"metal-anim": "metal/metal-anim#master"
+  },
 	"devDependencies": {
 		"gulp": "^3.8.11",
 		"gulp-metal": "^0.7.0"
