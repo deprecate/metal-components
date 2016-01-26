@@ -1,10 +1,10 @@
 'use strict';
 
-import async from 'bower:metal/src/async/async';
-import dom from 'bower:metal/src/dom/dom';
-import Align from 'bower:metal-position/src/Align';
+import async from 'npm:metal/src/async/async';
+import dom from 'npm:metal/src/dom/dom';
+import Align from 'npm:metal-position/src/Align';
 import Dropdown from '../src/Dropdown';
-import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+import SoyTemplates from 'npm:metal/src/soy/SoyTemplates';
 
 describe('Dropdown', function() {
 	var component;

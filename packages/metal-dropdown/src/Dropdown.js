@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
-import Align from 'bower:metal-position/src/Align';
-import EventHandler from 'bower:metal/src/events/EventHandler';
+import core from 'npm:metal/src/core';
+import dom from 'npm:metal/src/dom/dom';
+import Align from 'npm:metal-position/src/Align';
+import EventHandler from 'npm:metal/src/events/EventHandler';
 import DropdownBase from './Dropdown.soy';
 
 /**
