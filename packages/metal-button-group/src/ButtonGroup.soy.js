@@ -1,8 +1,8 @@
 /* jshint ignore:start */
-import Component from 'bower:metal/src/component/Component';
-import SoyAop from 'bower:metal/src/soy/SoyAop';
-import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
-import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+import Component from 'npm:metal/src/component/Component';
+import SoyAop from 'npm:metal/src/soy/SoyAop';
+import SoyRenderer from 'npm:metal/src/soy/SoyRenderer';
+import SoyTemplates from 'npm:metal/src/soy/SoyTemplates';
 var Templates = SoyTemplates.get();
 // This file was automatically generated from ButtonGroup.soy.
 // Please don't edit this file by hand.

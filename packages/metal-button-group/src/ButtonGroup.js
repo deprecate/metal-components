@@ -1,7 +1,7 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
+import core from 'npm:metal/src/core';
+import dom from 'npm:metal/src/dom/dom';
 import ButtonGroupBase from './ButtonGroup.soy';
 
 /**
