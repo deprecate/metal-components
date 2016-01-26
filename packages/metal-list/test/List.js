@@ -1,8 +1,8 @@
 'use strict';
 
-import async from 'bower:metal/src/async/async';
-import dom from 'bower:metal/src/dom/dom';
-import SoyRenderer from 'bower:metal/src/soy/SoyRenderer';
+import async from 'npm:metal/src/async/async';
+import dom from 'npm:metal/src/dom/dom';
+import SoyRenderer from 'npm:metal/src/soy/SoyRenderer';
 import List from '../src/List';
 
 var list;
