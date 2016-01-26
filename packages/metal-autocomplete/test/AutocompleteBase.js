@@ -1,7 +1,7 @@
 'use strict';
 
-import dom from 'bower:metal/src/dom/dom';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import dom from 'npm:metal/src/dom/dom';
+import CancellablePromise from 'npm:metal-promise/src/promise/Promise';
 import AutocompleteBase from '../src/AutocompleteBase';
 
 var component;

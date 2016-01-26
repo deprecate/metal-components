@@ -1,10 +1,10 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
-import Component from 'bower:metal/src/component/Component';
-import EventHandler from 'bower:metal/src/events/EventHandler';
+import core from 'npm:metal/src/core';
+import dom from 'npm:metal/src/dom/dom';
+import CancellablePromise from 'npm:metal-promise/src/promise/Promise';
+import Component from 'npm:metal/src/component/Component';
+import EventHandler from 'npm:metal/src/events/EventHandler';
 
 /*
  * AutocompleteBase component.

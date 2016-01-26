@@ -1,8 +1,8 @@
 'use strict';
 
-import async from 'bower:metal/src/async/async';
+import async from 'npm:metal/src/async/async';
 import Autocomplete from '../src/Autocomplete';
-import dom from 'bower:metal/src/dom/dom';
+import dom from 'npm:metal/src/dom/dom';
 
 var component;
 var input;

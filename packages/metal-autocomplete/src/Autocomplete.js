@@ -1,11 +1,11 @@
 'use strict';
 
 import AutocompleteBase from './AutocompleteBase';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
-import Align from 'bower:metal-position/src/Align';
-import List from 'bower:metal-list/src/List';
+import { CancellablePromise as Promise } from 'npm:metal-promise/src/promise/Promise';
+import core from 'npm:metal/src/core';
+import dom from 'npm:metal/src/dom/dom';
+import Align from 'npm:metal-position/src/Align';
+import List from 'npm:metal-list/src/List';
 
 /*
  * Autocomplete component.
