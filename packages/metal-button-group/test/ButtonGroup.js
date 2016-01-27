@@ -1,6 +1,6 @@
 'use strict';
 
-import dom from 'npm:metal/src/dom/dom';
+import dom from 'metal/src/dom/dom';
 import ButtonGroup from '../src/ButtonGroup';
 
 describe('ButtonGroup', function() {
