@@ -7,12 +7,12 @@ var utils = require('./utils');
 metal.registerTasks({
 	buildSrc: utils.getComponentPaths('src'),
 	bundleFileName: 'metal.js',
-	cssSrc: 'bower_components/metal-*/src/**/*.css',
-	scssSrc: 'bower_components/metal-*/src/**/*.scss'
+	cssSrc: 'node_modules/metal-*/src/**/*.css',
+	scssSrc: 'node_modules/metal-*/src/**/*.scss'
 });
 
 gulp.task('soy:copy', function() {
-	return gulp.src('bower_components/metal-*/src/**/*.soy')
+	return gulp.src('node_modules/metal-*/src/**/*.soy')
 		.pipe(gulp.dest('build/soy'));
 });
 

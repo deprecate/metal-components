@@ -10,7 +10,7 @@ var babelOptions = {
 };
 
 var scssOptions = {
-	includePaths: ['bower_components'],
+	includePaths: ['node_modules'],
 	sourceMap: true
 };
 
@@ -24,16 +24,16 @@ module.exports = function (config) {
 		frameworks: ['mocha', 'chai', 'source-map-support', 'commonjs', 'sinon'],
 
 		files: [
-			'bower_components/soyutils/soyutils.js',
-			'bower_components/metal*/src/**/*.js',
-			'bower_components/metal-drag-drop/test/fixtures/DragTestHelper.js',
-			'bower_components/metal-*/src/**/*.scss'
+			'node_modules/closure-templates/soyutils.js',
+			'node_modules/metal*/src/**/*.js',
+			'node_modules/metal-drag-drop/test/fixtures/DragTestHelper.js',
+			'node_modules/metal-*/src/**/*.scss'
 		].concat(utils.getComponentPaths('test')),
 
 		preprocessors: merge(coveragePreprocessors, {
-			'bower_components/metal*/src/**/*.js': ['babel', 'commonjs'],
-			'bower_components/metal-*/test/**/*.js': ['babel', 'commonjs'],
-			'bower_components/metal-*/src/**/*.scss': ['scss']
+			'node_modules/metal*/src/**/*.js': ['babel', 'commonjs'],
+			'node_modules/metal-*/test/**/*.js': ['babel', 'commonjs'],
+			'node_modules/metal-*/src/**/*.scss': ['scss']
 		}),
 
 		browsers: ['Chrome'],

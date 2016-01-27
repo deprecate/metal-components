@@ -23,7 +23,7 @@ module.exports = {
 	getComponentPaths: function(folder, ext) {
 		ext = ext || '*.js';
 		return components.map(function(name) {
-			return 'bower_components/' + name + '/' + folder + '/**/' + ext;
+			return 'node_modules/' + name + '/' + folder + '/**/' + ext;
 		});
 	}
 };
