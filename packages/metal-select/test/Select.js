@@ -1,9 +1,9 @@
 'use strict';
 
-import dom from 'bower:metal/src/dom/dom';
-import Dropdown from 'bower:metal-dropdown/src/Dropdown';
+import dom from 'metal/src/dom/dom';
+import Dropdown from 'metal-dropdown/src/Dropdown';
 import Select from '../src/Select';
-import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+import SoyTemplates from 'metal/src/soy/SoyTemplates';
 
 describe('Select', function() {
 	var select;

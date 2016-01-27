@@ -4,9 +4,14 @@
 	"description": "Steel's select component",
 	"license": "BSD",
 	"repository": "metal/metal-select",
-	"engines": {
-		"node": ">=0.12.0"
-	},
+  "engines": {
+    "node": ">=0.12.0",
+    "npm": ">=3.0.0"
+  },
+  "files": [
+    "src/**/*.js",
+    "test/**/*.js"
+  ],
 	"scripts": {
 		"test": "gulp test"
 	},
@@ -14,8 +19,14 @@
 		"metal",
 		"select"
 	],
-	"devDependencies": {
-		"gulp": "^3.8.11",
-		"gulp-metal": "^0.7.0"
-	}
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "closure-templates": "20140422.0.0",
+    "metal": "metal/metal.js#master",
+		"metal-dropdown": "metal/metal-dropdown#master"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+		"gulp-metal": "^0.9.0"
+  }
 }
