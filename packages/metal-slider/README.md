@@ -16,7 +16,6 @@ Metal's slider component
 
   ```
   npm install
-  bower install
   ```
 
 4. Build the code:

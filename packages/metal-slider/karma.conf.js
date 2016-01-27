@@ -1,3 +1,5 @@
+'use strict';
+
 var metalKarmaConfig = require('metal-karma-config');
 
 module.exports = function (config) {
@@ -5,7 +7,7 @@ module.exports = function (config) {
 
 	config.plugins.push('karma-scss-preprocessor');
 	config.files.push(
-		'bower_components/metal-drag-drop/test/fixtures/DragTestHelper.js',
+		'node_modules/metal-drag-drop/test/fixtures/DragTestHelper.js',
 		'src/**/*.scss'
 	);
 	config.preprocessors['src/**/*.scss'] = ['scss'];
@@ -14,4 +16,4 @@ module.exports = function (config) {
 			sourceMap: true
 		}
 	};
-}
+};

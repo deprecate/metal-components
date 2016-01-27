@@ -5,18 +5,29 @@
   "license": "BSD",
   "repository": "metal/metal-slider",
   "engines": {
-    "node": ">=0.12.0"
+    "node": ">=0.12.0",
+    "npm": ">=3.0.0"
   },
+  "files": [
+    "src/**/*.js",
+    "test/**/*.js"
+  ],
   "scripts": {
     "test": "gulp test"
   },
   "keywords": [
     "metal"
   ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "closure-templates": "20140422.0.0",
+    "metal": "metal/metal.js#master",
+    "metal-drag-drop": "metal/metal-drag-drop#master"
+  },
   "devDependencies": {
     "gulp": "^3.8.11",
-    "gulp-metal": "^0.7.0",
+    "gulp-metal": "^0.9.0",
     "karma-scss-preprocessor": "^1.0.1",
-    "metal-karma-config": "^0.1.0"
+    "metal-karma-config": "^1.0.0"
   }
 }

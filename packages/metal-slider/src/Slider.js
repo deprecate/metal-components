@@ -1,8 +1,8 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import Drag from 'bower:metal-drag-drop/src/Drag';
-import Position from 'bower:metal-position/src/Position';
+import core from 'metal/src/core';
+import Drag from 'metal-drag-drop/src/Drag';
+import Position from 'metal-position/src/Position';
 import SliderBase from './Slider.soy';
 
 /**
