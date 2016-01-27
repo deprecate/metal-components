@@ -1,9 +1,9 @@
 'use strict';
 
-import dom from 'npm:metal/src/dom/dom';
+import dom from 'metal/src/dom/dom';
 import Alert from '../src/Alert';
-import SoyTemplates from 'npm:metal/src/soy/SoyTemplates';
-import 'npm:metal/src/dom/events';
+import SoyTemplates from 'metal/src/soy/SoyTemplates';
+import 'metal/src/dom/events';
 
 describe('Alert', function() {
 	var component;

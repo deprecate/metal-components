@@ -1,11 +1,11 @@
 'use strict';
 
-import core from 'npm:metal/src/core';
-import dom from 'npm:metal/src/dom/dom';
+import core from 'metal/src/core';
+import dom from 'metal/src/dom/dom';
 import AlertBase from './Alert.soy.js';
-import Anim from 'npm:metal-anim/src/Anim';
-import EventHandler from 'npm:metal/src/events/EventHandler';
-import 'npm:metal/src/dom/events';
+import Anim from 'metal-anim/src/Anim';
+import EventHandler from 'metal/src/events/EventHandler';
+import 'metal/src/dom/events';
 
 /**
  * Alert component.
