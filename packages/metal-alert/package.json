@@ -8,8 +8,8 @@
 		"node": ">=0.12.0"
 	},
 	"files": [
-		"src/**/*.js",
-		"test/**/*.js"
+		"src",
+		"test"
 	],
 	"scripts": {
 		"test": "gulp test"
