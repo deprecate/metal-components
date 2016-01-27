@@ -1,10 +1,10 @@
 'use strict';
 
-import core from 'npm:metal/src/core';
-import dom from 'npm:metal/src/dom/dom';
-import CancellablePromise from 'npm:metal-promise/src/promise/Promise';
-import Component from 'npm:metal/src/component/Component';
-import EventHandler from 'npm:metal/src/events/EventHandler';
+import core from 'metal/src/core';
+import dom from 'metal/src/dom/dom';
+import CancellablePromise from 'metal-promise/src/promise/Promise';
+import Component from 'metal/src/component/Component';
+import EventHandler from 'metal/src/events/EventHandler';
 
 /*
  * AutocompleteBase component.
