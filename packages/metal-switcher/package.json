@@ -1,21 +1,32 @@
 {
-	"name": "metal-switcher",
-	"version": "0.0.0",
-	"description": "Metal's switcher component",
-	"license": "BSD",
-	"repository": "metal/metal-switcher",
-	"engines": {
-		"node": ">=0.12.0"
-	},
-	"scripts": {
-		"test": "gulp test"
-	},
-	"keywords": [
-		"metal",
-		"switcher"
-	],
-	"devDependencies": {
-		"gulp": "^3.8.11",
-		"gulp-metal": "^0.7.0"
-	}
+  "name": "metal-switcher",
+  "version": "0.0.0",
+  "description": "Metal's switcher component",
+  "license": "BSD",
+  "repository": "metal/metal-switcher",
+  "engines": {
+    "node": ">=0.12.0",
+    "npm": ">=3.0.0"
+  },
+  "files": [
+    "src/**/*.js",
+    "test/**/*.js"
+  ],
+  "scripts": {
+    "test": "gulp test"
+  },
+  "keywords": [
+    "metal",
+    "switcher"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "bootstrap-sass": "^3.3.6",
+    "closure-templates": "20140422.0.0",
+    "metal": "metal/metal.js#master"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-metal": "^0.9.2"
+  }
 }
