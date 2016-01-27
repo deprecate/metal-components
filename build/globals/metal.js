@@ -2,9 +2,10 @@
 this.metal = this.metal || {};
 this.metalNamed = this.metalNamed || {};
 var babelHelpers = {};
-
-babelHelpers.typeof = function (obj) {
-  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj;
+babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
 };
 
 babelHelpers.classCallCheck = function (instance, Constructor) {
@@ -46,7 +47,7 @@ babelHelpers;
  */
 
 (function () {
-	var core = (function () {
+	var core = function () {
 		function core() {
 			babelHelpers.classCallCheck(this, core);
 		}
@@ -231,6 +232,16 @@ babelHelpers;
 		};
 
 		/**
+   * Returns true if value is a Promise.
+   * @param {*} val
+   * @return {Boolean}
+   */
+
+		core.isPromise = function isPromise(val) {
+			return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
+		};
+
+		/**
    * Returns true if value is a string.
    * @param {*} val
    * @return {Boolean}
@@ -275,7 +286,7 @@ babelHelpers;
 		core.nullFunction = function nullFunction() {};
 
 		return core;
-	})();
+	}();
 
 	/**
   * Unique id property prefix.
@@ -299,7 +310,7 @@ babelHelpers;
 (function () {
 	var core = this.metal.core;
 
-	var object = (function () {
+	var object = function () {
 		function object() {
 			babelHelpers.classCallCheck(this, object);
 		}
@@ -362,7 +373,7 @@ babelHelpers;
 		};
 
 		return object;
-	})();
+	}();
 
 	this.metal.object = object;
 }).call(this);
@@ -377,7 +388,7 @@ babelHelpers;
  */
 
 (function () {
-	var Disposable = (function () {
+	var Disposable = function () {
 		function Disposable() {
 			babelHelpers.classCallCheck(this, Disposable);
 
@@ -418,7 +429,7 @@ babelHelpers;
 		};
 
 		return Disposable;
-	})();
+	}();
 
 	this.metal.Disposable = Disposable;
 }).call(this);
@@ -440,7 +451,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventHandle = (function (_Disposable) {
+	var EventHandle = function (_Disposable) {
 		babelHelpers.inherits(EventHandle, _Disposable);
 
 		function EventHandle(emitter, event, listener) {
@@ -494,7 +505,7 @@ babelHelpers;
 		};
 
 		return EventHandle;
-	})(Disposable);
+	}(Disposable);
 
 	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
 	this.metal.EventHandle = EventHandle;
@@ -510,7 +521,7 @@ babelHelpers;
   * @extends {EventHandle}
   */
 
-	var DomEventHandle = (function (_EventHandle) {
+	var DomEventHandle = function (_EventHandle) {
 		babelHelpers.inherits(DomEventHandle, _EventHandle);
 
 		/**
@@ -541,7 +552,7 @@ babelHelpers;
 		};
 
 		return DomEventHandle;
-	})(EventHandle);
+	}(EventHandle);
 
 	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
 	this.metal.DomEventHandle = DomEventHandle;
@@ -553,7 +564,7 @@ babelHelpers;
 	var object = this.metal.object;
 	var DomEventHandle = this.metal.DomEventHandle;
 
-	var dom = (function () {
+	var dom = function () {
 		function dom() {
 			babelHelpers.classCallCheck(this, dom);
 		}
@@ -1136,7 +1147,7 @@ babelHelpers;
 		};
 
 		return dom;
-	})();
+	}();
 
 	var elementsByTag = {};
 	dom.customEvents = {};
@@ -1148,7 +1159,7 @@ babelHelpers;
 (function () {
 	var core = this.metal.core;
 
-	var array = (function () {
+	var array = function () {
 		function array() {
 			babelHelpers.classCallCheck(this, array);
 		}
@@ -1251,7 +1262,7 @@ babelHelpers;
 		};
 
 		return array;
-	})();
+	}();
 
 	this.metal.array = array;
 }).call(this);
@@ -1269,7 +1280,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventEmitter = (function (_Disposable) {
+	var EventEmitter = function (_Disposable) {
 		babelHelpers.inherits(EventEmitter, _Disposable);
 
 		function EventEmitter() {
@@ -1636,7 +1647,7 @@ babelHelpers;
 		};
 
 		return EventEmitter;
-	})(Disposable);
+	}(Disposable);
 
 	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	this.metal.EventEmitter = EventEmitter;
@@ -1793,7 +1804,7 @@ babelHelpers;
 		// synchronous postMessage implementation.
 		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
 			/** @constructor */
-			Channel = function () {
+			Channel = function Channel() {
 				// Make an empty, invisible iframe.
 				var iframe = document.createElement('iframe');
 				iframe.style.display = 'none';
@@ -1806,14 +1817,14 @@ babelHelpers;
 				doc.close();
 				var message = 'callImmediate' + Math.random();
 				var origin = win.location.protocol + '//' + win.location.host;
-				var onmessage = (function (e) {
+				var onmessage = function (e) {
 					// Validate origin and message to make sure that this message was
 					// intended for us.
 					if (e.origin !== origin && e.data !== message) {
 						return;
 					}
 					this.port1.onmessage();
-				}).bind(this);
+				}.bind(this);
 				win.addEventListener('message', onmessage, false);
 				this.port1 = {};
 				this.port2 = {
@@ -1896,7 +1907,7 @@ babelHelpers;
   * @extends {EventEmitter}
   */
 
-	var Attribute = (function (_EventEmitter) {
+	var Attribute = function (_EventEmitter) {
 		babelHelpers.inherits(Attribute, _EventEmitter);
 
 		function Attribute(opt_config) {
@@ -2422,7 +2433,7 @@ babelHelpers;
 		};
 
 		return Attribute;
-	})(EventEmitter);
+	}(EventEmitter);
 
 	/**
   * A list with attribute names that will automatically be rejected as invalid.
@@ -2470,7 +2481,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventEmitterProxy = (function (_Disposable) {
+	var EventEmitterProxy = function (_Disposable) {
 		babelHelpers.inherits(EventEmitterProxy, _Disposable);
 
 		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
@@ -2585,7 +2596,7 @@ babelHelpers;
 		};
 
 		return EventEmitterProxy;
-	})(Disposable);
+	}(Disposable);
 
 	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
 	this.metal.EventEmitterProxy = EventEmitterProxy;
@@ -2593,7 +2604,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Geometry = (function () {
+	var Geometry = function () {
 		function Geometry() {
 			babelHelpers.classCallCheck(this, Geometry);
 		}
@@ -2632,7 +2643,7 @@ babelHelpers;
 		};
 
 		return Geometry;
-	})();
+	}();
 
 	this.metal.Geometry = Geometry;
 }).call(this);
@@ -2646,7 +2657,7 @@ babelHelpers;
   * Class with static methods responsible for doing browser position checks.
   */
 
-	var Position = (function () {
+	var Position = function () {
 		function Position() {
 			babelHelpers.classCallCheck(this, Position);
 		}
@@ -2975,7 +2986,7 @@ babelHelpers;
 		};
 
 		return Position;
-	})();
+	}();
 
 	this.metal.Position = Position;
 }).call(this);
@@ -2993,7 +3004,7 @@ babelHelpers;
   * Affix utility.
   */
 
-	var Affix = (function (_Attribute) {
+	var Affix = function (_Attribute) {
 		babelHelpers.inherits(Affix, _Attribute);
 
 		/**
@@ -3100,7 +3111,7 @@ babelHelpers;
 		};
 
 		return Affix;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Holds positions enum.
@@ -3155,7 +3166,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var string = (function () {
+	var string = function () {
 		function string() {
 			babelHelpers.classCallCheck(this, string);
 		}
@@ -3206,7 +3217,7 @@ babelHelpers;
 		};
 
 		return string;
-	})();
+	}();
 
 	this.metal.string = string;
 }).call(this);
@@ -3220,7 +3231,7 @@ babelHelpers;
   * Class with static methods responsible for doing browser feature checks.
   */
 
-	var features = (function () {
+	var features = function () {
 		function features() {
 			babelHelpers.classCallCheck(this, features);
 		}
@@ -3278,7 +3289,7 @@ babelHelpers;
 		};
 
 		return features;
-	})();
+	}();
 
 	features.animationElement_ = document.createElement('div');
 	features.animationEventName_ = undefined;
@@ -3295,7 +3306,7 @@ babelHelpers;
   * Utility functions for running javascript code in the global scope.
   */
 
-	var globalEval = (function () {
+	var globalEval = function () {
 		function globalEval() {
 			babelHelpers.classCallCheck(this, globalEval);
 		}
@@ -3389,7 +3400,7 @@ babelHelpers;
 		};
 
 		return globalEval;
-	})();
+	}();
 
 	this.metal.globalEval = globalEval;
 }).call(this);
@@ -3399,7 +3410,7 @@ babelHelpers;
 	var core = this.metal.core;
 	var string = this.metal.string;
 
-	var html = (function () {
+	var html = function () {
 		function html() {
 			babelHelpers.classCallCheck(this, html);
 		}
@@ -3669,7 +3680,7 @@ babelHelpers;
 		};
 
 		return html;
-	})();
+	}();
 
 	/**
   * HTML regex patterns.
@@ -3727,7 +3738,7 @@ babelHelpers;
   * @type {Object}
   */
 
-	var ComponentRegistry = (function () {
+	var ComponentRegistry = function () {
 		function ComponentRegistry() {
 			babelHelpers.classCallCheck(this, ComponentRegistry);
 		}
@@ -3771,7 +3782,7 @@ babelHelpers;
 		};
 
 		return ComponentRegistry;
-	})();
+	}();
 
 	/**
   * Holds all registered components, indexed by their names.
@@ -3790,7 +3801,7 @@ babelHelpers;
 	var ComponentRegistry = this.metal.ComponentRegistry;
 	var Disposable = this.metal.Disposable;
 
-	var ComponentCollector = (function (_Disposable) {
+	var ComponentCollector = function (_Disposable) {
 		babelHelpers.inherits(ComponentCollector, _Disposable);
 
 		function ComponentCollector() {
@@ -3853,7 +3864,7 @@ babelHelpers;
 		};
 
 		return ComponentCollector;
-	})(Disposable);
+	}(Disposable);
 
 	/**
   * Holds all collected components, indexed by their id.
@@ -3873,7 +3884,7 @@ babelHelpers;
  */
 
 (function () {
-	var ComponentRenderer = (function () {
+	var ComponentRenderer = function () {
 		function ComponentRenderer() {
 			babelHelpers.classCallCheck(this, ComponentRenderer);
 		}
@@ -3893,7 +3904,7 @@ babelHelpers;
 		ComponentRenderer.getSurfaceContent = function getSurfaceContent() {};
 
 		return ComponentRenderer;
-	})();
+	}();
 
 	this.metal.ComponentRenderer = ComponentRenderer;
 }).call(this);
@@ -3909,7 +3920,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventHandler = (function (_Disposable) {
+	var EventHandler = function (_Disposable) {
 		babelHelpers.inherits(EventHandler, _Disposable);
 
 		function EventHandler() {
@@ -3962,7 +3973,7 @@ babelHelpers;
 		};
 
 		return EventHandler;
-	})(Disposable);
+	}(Disposable);
 
 	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
 	this.metal.EventHandler = EventHandler;
@@ -3983,7 +3994,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventsCollector = (function (_Disposable) {
+	var EventsCollector = function (_Disposable) {
 		babelHelpers.inherits(EventsCollector, _Disposable);
 
 		function EventsCollector(component) {
@@ -4179,7 +4190,7 @@ babelHelpers;
 		};
 
 		return EventsCollector;
-	})(Disposable);
+	}(Disposable);
 
 	EventsCollector.prototype.registerMetalComponent && EventsCollector.prototype.registerMetalComponent(EventsCollector, 'EventsCollector')
 	this.metal.EventsCollector = EventsCollector;
@@ -4194,7 +4205,7 @@ babelHelpers;
   * Stores surface data to be used later by Components.
   */
 
-	var SurfaceCollector = (function (_Disposable) {
+	var SurfaceCollector = function (_Disposable) {
 		babelHelpers.inherits(SurfaceCollector, _Disposable);
 
 		function SurfaceCollector() {
@@ -4273,7 +4284,7 @@ babelHelpers;
 		};
 
 		return SurfaceCollector;
-	})(Disposable);
+	}(Disposable);
 
 	SurfaceCollector.prototype.registerMetalComponent && SurfaceCollector.prototype.registerMetalComponent(SurfaceCollector, 'SurfaceCollector')
 	this.metal.SurfaceCollector = SurfaceCollector;
@@ -4346,7 +4357,7 @@ babelHelpers;
   * @extends {Attribute}
   */
 
-	var Component = (function (_Attribute) {
+	var Component = function (_Attribute) {
 		babelHelpers.inherits(Component, _Attribute);
 
 		function Component(opt_config) {
@@ -4815,21 +4826,6 @@ babelHelpers;
 			var el = document.createElement(this.constructor.SURFACE_TAG_NAME_MERGED);
 			el.id = surfaceElementId;
 			return el;
-		};
-
-		/**
-   * Decorates this component as a subcomponent, meaning that no rendering is
-   * needed since it was already rendered by the parent component. Handles the
-   * same logics that `renderAsSubComponent`, but also makes sure that the
-   * surfaces content is updated if the html is incorrect for the given data.
-   * @param {string=} opt_content The content that was already rendered for this
-   *   component.
-   */
-
-		Component.prototype.decorateAsSubComponent = function decorateAsSubComponent(opt_content) {
-			this.decorating_ = true;
-			this.renderAsSubComponent(opt_content);
-			this.decorating_ = false;
 		};
 
 		/**
@@ -5378,10 +5374,10 @@ babelHelpers;
 
 		Component.prototype.getSurfaces = function getSurfaces() {
 			var surfaces = {};
-			Object.keys(this.surfaceIds_).forEach((function (surfaceElementId) {
+			Object.keys(this.surfaceIds_).forEach(function (surfaceElementId) {
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
 				surfaces[this.getSurfaceId(surface)] = surface;
-			}).bind(this));
+			}.bind(this));
 			return surfaces;
 		};
 
@@ -5563,7 +5559,6 @@ babelHelpers;
    */
 
 		Component.prototype.renderAsSubComponent = function renderAsSubComponent(opt_content) {
-			this.addElementSurface_();
 			if (opt_content && dom.isEmpty(this.element)) {
 				// If we have the rendered content for this component, but it hasn't
 				// been rendered in its element yet, we render it manually here. That
@@ -5589,8 +5584,6 @@ babelHelpers;
 			if (component.wasRendered) {
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
 				Component.componentsCollector.updateComponent(surfaceElementId, surface.componentData);
-			} else if (this.decorating_) {
-				component.decorateAsSubComponent(opt_content);
 			} else {
 				component.renderAsSubComponent(opt_content);
 			}
@@ -5673,7 +5666,8 @@ babelHelpers;
 			}
 
 			for (var i = 0; i < surfaceElementIds.length; i++) {
-				if (!this.getSurfaceFromElementId(surfaceElementIds[i]).handled) {
+				var surface = this.getSurfaceFromElementId(surfaceElementIds[i]);
+				if (!surface.handled && (surface.parent || surfaceElementIds[i] === this.id)) {
 					this.emitRenderSurfaceEvent_(surfaceElementIds[i], null, null, surfaces[surfaceElementIds[i]]);
 				}
 			}
@@ -5966,7 +5960,7 @@ babelHelpers;
 		};
 
 		return Component;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Helper responsible for extracting components from strings and config data.
@@ -6132,7 +6126,7 @@ babelHelpers;
   * imported.
   */
 
-	var SoyTemplates = (function () {
+	var SoyTemplates = function () {
 		function SoyTemplates() {
 			babelHelpers.classCallCheck(this, SoyTemplates);
 		}
@@ -6168,7 +6162,7 @@ babelHelpers;
 		};
 
 		return SoyTemplates;
-	})();
+	}();
 
 	this.metal.SoyTemplates = SoyTemplates;
 }).call(this);
@@ -6273,7 +6267,7 @@ babelHelpers;
   * @extends {ComponentRenderer}
   */
 
-	var SoyRenderer = (function (_ComponentRenderer) {
+	var SoyRenderer = function (_ComponentRenderer) {
 		babelHelpers.inherits(SoyRenderer, _ComponentRenderer);
 
 		function SoyRenderer() {
@@ -6370,7 +6364,7 @@ babelHelpers;
 
 			var name = 'TemplateComponent' + core.getUid();
 
-			var TemplateComponent = (function (_Component) {
+			var TemplateComponent = function (_Component) {
 				babelHelpers.inherits(TemplateComponent, _Component);
 
 				function TemplateComponent() {
@@ -6379,7 +6373,7 @@ babelHelpers;
 				}
 
 				return TemplateComponent;
-			})(Component);
+			}(Component);
 
 			TemplateComponent.prototype.registerMetalComponent && TemplateComponent.prototype.registerMetalComponent(TemplateComponent, 'TemplateComponent')
 
@@ -6620,7 +6614,7 @@ babelHelpers;
 		};
 
 		return SoyRenderer;
-	})(ComponentRenderer);
+	}(ComponentRenderer);
 
 	SoyRenderer.prototype.registerMetalComponent && SoyRenderer.prototype.registerMetalComponent(SoyRenderer, 'SoyRenderer')
 
@@ -6701,7 +6695,7 @@ babelHelpers;
   Templates.Alert.body.params = ["body", "id"];
   Templates.Alert.dismiss.params = ["dismissible", "id"];
 
-  var Alert = (function (_Component) {
+  var Alert = function (_Component) {
     babelHelpers.inherits(Alert, _Component);
 
     function Alert() {
@@ -6710,7 +6704,7 @@ babelHelpers;
     }
 
     return Alert;
-  })(Component);
+  }(Component);
 
   Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
 
@@ -6770,7 +6764,7 @@ babelHelpers;
 	var dom = this.metal.dom;
 	var features = this.metal.features;
 
-	var Anim = (function () {
+	var Anim = function () {
 		function Anim() {
 			babelHelpers.classCallCheck(this, Anim);
 		}
@@ -6858,7 +6852,7 @@ babelHelpers;
 		};
 
 		return Anim;
-	})();
+	}();
 
 	this.metal.Anim = Anim;
 }).call(this);
@@ -6875,7 +6869,7 @@ babelHelpers;
   * Alert component.
   */
 
-	var Alert = (function (_AlertBase) {
+	var Alert = function (_AlertBase) {
 		babelHelpers.inherits(Alert, _AlertBase);
 
 		function Alert(opt_config) {
@@ -6981,7 +6975,7 @@ babelHelpers;
 		};
 
 		return Alert;
-	})(AlertBase);
+	}(AlertBase);
 
 	/**
   * Default alert elementClasses.
@@ -7953,7 +7947,7 @@ babelHelpers;
    * @extends {Error}
    * @final
    */
-  CancellablePromise.CancellationError = (function (_Error) {
+  CancellablePromise.CancellationError = function (_Error) {
     babelHelpers.inherits(_class, _Error);
 
     function _class(opt_message) {
@@ -7968,7 +7962,7 @@ babelHelpers;
     }
 
     return _class;
-  })(Error);
+  }(Error);
 
   /** @override */
   CancellablePromise.CancellationError.prototype.name = 'cancel';
@@ -7982,7 +7976,7 @@ babelHelpers;
 (function () {
 	var core = this.metal.core;
 	var dom = this.metal.dom;
-	var Promise = this.metalNamed.Promise.CancellablePromise;
+	var CancellablePromise = this.metal.Promise;
 	var Component = this.metal.Component;
 	var EventHandler = this.metal.EventHandler;
 
@@ -7990,7 +7984,7 @@ babelHelpers;
   * AutocompleteBase component.
   */
 
-	var AutocompleteBase = (function (_Component) {
+	var AutocompleteBase = function (_Component) {
 		babelHelpers.inherits(AutocompleteBase, _Component);
 
 		/**
@@ -8048,9 +8042,12 @@ babelHelpers;
 				this.pendingRequest.cancel('Cancelled by another request');
 			}
 
-			this.pendingRequest = Promise.resolve().then(function () {
-				return self.data(query);
-			}).then(function (data) {
+			var deferredData = self.data(query);
+			if (!core.isPromise(deferredData)) {
+				deferredData = CancellablePromise.resolve(deferredData);
+			}
+
+			this.pendingRequest = deferredData.then(function (data) {
 				if (Array.isArray(data)) {
 					return data.map(self.format.bind(self)).filter(function (val) {
 						return core.isDefAndNotNull(val);
@@ -8079,7 +8076,7 @@ babelHelpers;
 		};
 
 		return AutocompleteBase;
-	})(Component);
+	}(Component);
 
 	/**
   * AutocompleteBase attributes definition.
@@ -8159,7 +8156,7 @@ babelHelpers;
   * parent is the body element.
   */
 
-	var Align = (function () {
+	var Align = function () {
 		function Align() {
 			babelHelpers.classCallCheck(this, Align);
 		}
@@ -8337,7 +8334,7 @@ babelHelpers;
 		};
 
 		return Align;
-	})();
+	}();
 
 	/**
   * Constants that represent the supported positions for `Align`.
@@ -8430,7 +8427,7 @@ babelHelpers;
   Templates.List.render.params = ["id"];
   Templates.List.items.params = ["id", "items", "itemsHtml"];
 
-  var List = (function (_Component) {
+  var List = function (_Component) {
     babelHelpers.inherits(List, _Component);
 
     function List() {
@@ -8439,7 +8436,7 @@ babelHelpers;
     }
 
     return List;
-  })(Component);
+  }(Component);
 
   List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
 
@@ -8522,7 +8519,7 @@ babelHelpers;
   Templates.ListItem.render.params = ["id", "index", "item"];
   Templates.ListItem.item.params = ["item"];
 
-  var ListItem = (function (_Component) {
+  var ListItem = function (_Component) {
     babelHelpers.inherits(ListItem, _Component);
 
     function ListItem() {
@@ -8531,7 +8528,7 @@ babelHelpers;
     }
 
     return ListItem;
-  })(Component);
+  }(Component);
 
   ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
 
@@ -8549,7 +8546,7 @@ babelHelpers;
    * List component.
    */
 
-  var ListItem = (function (_ListItemBase) {
+  var ListItem = function (_ListItemBase) {
     babelHelpers.inherits(ListItem, _ListItemBase);
 
     function ListItem(opt_config) {
@@ -8558,7 +8555,7 @@ babelHelpers;
     }
 
     return ListItem;
-  })(ListItemBase);
+  }(ListItemBase);
 
   /**
    * Default list elementClasses.
@@ -8595,7 +8592,7 @@ babelHelpers;
   * List component.
   */
 
-	var List = (function (_ListBase) {
+	var List = function (_ListBase) {
 		babelHelpers.inherits(List, _ListBase);
 
 		/**
@@ -8625,7 +8622,7 @@ babelHelpers;
 		};
 
 		return List;
-	})(ListBase);
+	}(ListBase);
 
 	/**
   * Default list elementClasses.
@@ -8684,7 +8681,7 @@ babelHelpers;
   * Autocomplete component.
   */
 
-	var Autocomplete = (function (_AutocompleteBase) {
+	var Autocomplete = function (_AutocompleteBase) {
 		babelHelpers.inherits(Autocomplete, _AutocompleteBase);
 
 		/**
@@ -8834,7 +8831,7 @@ babelHelpers;
 		};
 
 		return Autocomplete;
-	})(AutocompleteBase);
+	}(AutocompleteBase);
 
 	/**
   * Attributes definition.
@@ -8939,7 +8936,7 @@ babelHelpers;
   Templates.ButtonGroup.render.params = ["buttons", "id"];
   Templates.ButtonGroup.selectedClass.private = true;
 
-  var ButtonGroup = (function (_Component) {
+  var ButtonGroup = function (_Component) {
     babelHelpers.inherits(ButtonGroup, _Component);
 
     function ButtonGroup() {
@@ -8948,7 +8945,7 @@ babelHelpers;
     }
 
     return ButtonGroup;
-  })(Component);
+  }(Component);
 
   ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
 
@@ -8968,7 +8965,7 @@ babelHelpers;
   * Responsible for handling groups of buttons.
   */
 
-	var ButtonGroup = (function (_ButtonGroupBase) {
+	var ButtonGroup = function (_ButtonGroupBase) {
 		babelHelpers.inherits(ButtonGroup, _ButtonGroupBase);
 
 		/**
@@ -9054,7 +9051,7 @@ babelHelpers;
 		};
 
 		return ButtonGroup;
-	})(ButtonGroupBase);
+	}(ButtonGroupBase);
 
 	/**
   * Attributes definition.
@@ -9133,7 +9130,7 @@ babelHelpers;
   * Clipboard component.
   */
 
-	var Clipboard = (function (_Attribute) {
+	var Clipboard = function (_Attribute) {
 		babelHelpers.inherits(Clipboard, _Attribute);
 
 		/**
@@ -9184,7 +9181,7 @@ babelHelpers;
 		};
 
 		return Clipboard;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Attributes definition.
@@ -9243,7 +9240,7 @@ babelHelpers;
   * ClipboardAction component.
   */
 
-	var ClipboardAction = (function (_Attribute2) {
+	var ClipboardAction = function (_Attribute2) {
 		babelHelpers.inherits(ClipboardAction, _Attribute2);
 
 		/**
@@ -9379,7 +9376,7 @@ babelHelpers;
 		};
 
 		return ClipboardAction;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Attributes definition.
@@ -9498,7 +9495,7 @@ babelHelpers;
   Templates.Dropdown.render.params = ["header", "id"];
   Templates.Dropdown.body.params = ["body", "id"];
 
-  var Dropdown = (function (_Component) {
+  var Dropdown = function (_Component) {
     babelHelpers.inherits(Dropdown, _Component);
 
     function Dropdown() {
@@ -9507,7 +9504,7 @@ babelHelpers;
     }
 
     return Dropdown;
-  })(Component);
+  }(Component);
 
   Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 
@@ -9529,7 +9526,7 @@ babelHelpers;
   * Dropdown component.
   */
 
-	var Dropdown = (function (_DropdownBase) {
+	var Dropdown = function (_DropdownBase) {
 		babelHelpers.inherits(Dropdown, _DropdownBase);
 
 		/**
@@ -9690,7 +9687,7 @@ babelHelpers;
 		};
 
 		return Dropdown;
-	})(DropdownBase);
+	}(DropdownBase);
 
 	/**
   * Attrbutes definition.
@@ -9849,7 +9846,7 @@ babelHelpers;
   Templates.Modal.footer.params = ["footer", "id"];
   Templates.Modal.header.params = ["header", "id"];
 
-  var Modal = (function (_Component) {
+  var Modal = function (_Component) {
     babelHelpers.inherits(Modal, _Component);
 
     function Modal() {
@@ -9858,7 +9855,7 @@ babelHelpers;
     }
 
     return Modal;
-  })(Component);
+  }(Component);
 
   Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
 
@@ -9879,7 +9876,7 @@ babelHelpers;
   * Modal component.
   */
 
-	var Modal = (function (_ModalBase) {
+	var Modal = function (_ModalBase) {
 		babelHelpers.inherits(Modal, _ModalBase);
 
 		/**
@@ -10063,7 +10060,7 @@ babelHelpers;
 		};
 
 		return Modal;
-	})(ModalBase);
+	}(ModalBase);
 
 	/**
   * Default modal elementClasses.
@@ -10172,7 +10169,7 @@ babelHelpers;
   * the crystal Popover component, which can be accessed at metal/crystal-popover.
   */
 
-	var TooltipBase = (function (_Component) {
+	var TooltipBase = function (_Component) {
 		babelHelpers.inherits(TooltipBase, _Component);
 
 		/**
@@ -10384,7 +10381,7 @@ babelHelpers;
 		};
 
 		return TooltipBase;
-	})(Component);
+	}(Component);
 
 	/**
   * @inheritDoc
@@ -10545,7 +10542,7 @@ babelHelpers;
   Templates.Popover.title.params = ["id", "title"];
   Templates.Popover.innerContent.params = ["content", "id"];
 
-  var Popover = (function (_Component) {
+  var Popover = function (_Component) {
     babelHelpers.inherits(Popover, _Component);
 
     function Popover() {
@@ -10554,7 +10551,7 @@ babelHelpers;
     }
 
     return Popover;
-  })(Component);
+  }(Component);
 
   Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 
@@ -10574,7 +10571,7 @@ babelHelpers;
   * just some UI to it.
   */
 
-	var Popover = (function (_TooltipBase) {
+	var Popover = function (_TooltipBase) {
 		babelHelpers.inherits(Popover, _TooltipBase);
 
 		function Popover() {
@@ -10606,7 +10603,7 @@ babelHelpers;
 		};
 
 		return Popover;
-	})(TooltipBase);
+	}(TooltipBase);
 
 	/**
   * Attributes definition.
@@ -10679,7 +10676,7 @@ babelHelpers;
 
   Templates.ProgressBar.render.params = ["id"];
 
-  var ProgressBar = (function (_Component) {
+  var ProgressBar = function (_Component) {
     babelHelpers.inherits(ProgressBar, _Component);
 
     function ProgressBar() {
@@ -10688,7 +10685,7 @@ babelHelpers;
     }
 
     return ProgressBar;
-  })(Component);
+  }(Component);
 
   ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
 
@@ -10708,7 +10705,7 @@ babelHelpers;
   * UI Component that renders a progress bar.
   */
 
-	var ProgressBar = (function (_ProgressBarBase) {
+	var ProgressBar = function (_ProgressBarBase) {
 		babelHelpers.inherits(ProgressBar, _ProgressBarBase);
 
 		function ProgressBar() {
@@ -10820,7 +10817,7 @@ babelHelpers;
 		};
 
 		return ProgressBar;
-	})(ProgressBarBase);
+	}(ProgressBarBase);
 
 	/**
   * Attributes definition.
@@ -10901,7 +10898,7 @@ babelHelpers;
   * Scrollspy utility.
   */
 
-	var Scrollspy = (function (_Attribute) {
+	var Scrollspy = function (_Attribute) {
 		babelHelpers.inherits(Scrollspy, _Attribute);
 
 		/**
@@ -11109,7 +11106,7 @@ babelHelpers;
 		};
 
 		return Scrollspy;
-	})(Attribute);
+	}(Attribute);
 
 	Scrollspy.prototype.registerMetalComponent && Scrollspy.prototype.registerMetalComponent(Scrollspy, 'Scrollspy')
 
@@ -11214,7 +11211,7 @@ babelHelpers;
     var itemListLen15 = itemList15.length;
     for (var itemIndex15 = 0; itemIndex15 < itemListLen15; itemIndex15++) {
       var itemData15 = itemList15[itemIndex15];
-      param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="#">' + soy.$$escapeHtml(itemData15) + '</a></li>';
+      param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="javascript:;">' + soy.$$escapeHtml(itemData15) + '</a></li>';
     }
     output += soy.$$escapeHtml(Templates.Dropdown.render({ body: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks(param14), events: { attrsSynced: opt_data.id + ':handleDropdownAttrsSynced_' }, header: soydata.VERY_UNSAFE.$$ordainSanitizedHtmlForInternalBlocks('<button class="' + soy.$$escapeHtmlAttribute(opt_data.buttonClass) + ' dropdown-select" type="button" data-onclick="toggle">' + soy.$$escapeHtml(currSelectedIndex__soy8 == -1 ? opt_data.label : opt_data.items[currSelectedIndex__soy8]) + ' <span class="' + soy.$$escapeHtmlAttribute(opt_data.arrowClass ? opt_data.arrowClass : 'caret') + '"></span></button>'), id: opt_data.id + '-dropdown' }, null, opt_ijData));
     output += '</div>';
@@ -11226,7 +11223,7 @@ babelHelpers;
 
   Templates.Select.render.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
 
-  var Select = (function (_Component) {
+  var Select = function (_Component) {
     babelHelpers.inherits(Select, _Component);
 
     function Select() {
@@ -11235,7 +11232,7 @@ babelHelpers;
     }
 
     return Select;
-  })(Component);
+  }(Component);
 
   Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
 
@@ -11256,7 +11253,7 @@ babelHelpers;
   * on `Dropdown`.
   */
 
-	var Select = (function (_SelectBase) {
+	var Select = function (_SelectBase) {
 		babelHelpers.inherits(Select, _SelectBase);
 
 		function Select() {
@@ -11365,7 +11362,7 @@ babelHelpers;
 		};
 
 		return Select;
-	})(SelectBase);
+	}(SelectBase);
 
 	/**
   * Attributes definition.
@@ -11461,7 +11458,7 @@ babelHelpers;
   * mouse is near their boundaries.
   */
 
-	var DragAutoScroll = (function (_Attribute) {
+	var DragAutoScroll = function (_Attribute) {
 		babelHelpers.inherits(DragAutoScroll, _Attribute);
 
 		/**
@@ -11585,7 +11582,7 @@ babelHelpers;
 		};
 
 		return DragAutoScroll;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Attributes definition.
@@ -11642,7 +11639,7 @@ babelHelpers;
   * the scroll position of the given containers change.
   */
 
-	var DragScrollDelta = (function (_EventEmitter) {
+	var DragScrollDelta = function (_EventEmitter) {
 		babelHelpers.inherits(DragScrollDelta, _EventEmitter);
 
 		/**
@@ -11740,7 +11737,7 @@ babelHelpers;
 		};
 
 		return DragScrollDelta;
-	})(EventEmitter);
+	}(EventEmitter);
 
 	DragScrollDelta.prototype.registerMetalComponent && DragScrollDelta.prototype.registerMetalComponent(DragScrollDelta, 'DragScrollDelta')
 	this.metal.DragScrollDelta = DragScrollDelta;
@@ -11756,7 +11753,7 @@ babelHelpers;
   * document. Helpful when dragging over iframes.
   */
 
-	var DragShim = (function () {
+	var DragShim = function () {
 		function DragShim() {
 			babelHelpers.classCallCheck(this, DragShim);
 		}
@@ -11830,7 +11827,7 @@ babelHelpers;
 		};
 
 		return DragShim;
-	})();
+	}();
 
 	/**
   * The shim element. This is only created when necessary.
@@ -11862,7 +11859,7 @@ babelHelpers;
   * @extends {Attribute}
   */
 
-	var Drag = (function (_Attribute) {
+	var Drag = function (_Attribute) {
 		babelHelpers.inherits(Drag, _Attribute);
 
 		/**
@@ -12547,7 +12544,7 @@ babelHelpers;
 		};
 
 		return Drag;
-	})(Attribute);
+	}(Attribute);
 
 	/**
   * Attributes definition.
@@ -12819,7 +12816,7 @@ babelHelpers;
   Templates.Slider.label.params = ["id", "value"];
   Templates.Slider.rail.params = ["id"];
 
-  var Slider = (function (_Component) {
+  var Slider = function (_Component) {
     babelHelpers.inherits(Slider, _Component);
 
     function Slider() {
@@ -12828,7 +12825,7 @@ babelHelpers;
     }
 
     return Slider;
-  })(Component);
+  }(Component);
 
   Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
 
@@ -12849,7 +12846,7 @@ babelHelpers;
   * Slider component.
   */
 
-	var Slider = (function (_SliderBase) {
+	var Slider = function (_SliderBase) {
 		babelHelpers.inherits(Slider, _SliderBase);
 
 		/**
@@ -13023,7 +13020,7 @@ babelHelpers;
 		};
 
 		return Slider;
-	})(SliderBase);
+	}(SliderBase);
 
 	Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
 
@@ -13115,7 +13112,7 @@ babelHelpers;
 
   Templates.Switcher.render.params = ["id"];
 
-  var Switcher = (function (_Component) {
+  var Switcher = function (_Component) {
     babelHelpers.inherits(Switcher, _Component);
 
     function Switcher() {
@@ -13124,7 +13121,7 @@ babelHelpers;
     }
 
     return Switcher;
-  })(Component);
+  }(Component);
 
   Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
 
@@ -13144,7 +13141,7 @@ babelHelpers;
   * Switcher component.
   */
 
-	var Switcher = (function (_SwitcherBase) {
+	var Switcher = function (_SwitcherBase) {
 		babelHelpers.inherits(Switcher, _SwitcherBase);
 
 		function Switcher() {
@@ -13178,7 +13175,7 @@ babelHelpers;
 		};
 
 		return Switcher;
-	})(SwitcherBase);
+	}(SwitcherBase);
 
 	/**
   * Default switcher elementClasses.
@@ -13265,7 +13262,7 @@ babelHelpers;
   Templates.Tooltip.render.params = ["id"];
   Templates.Tooltip.inner.params = ["title", "id"];
 
-  var Tooltip = (function (_Component) {
+  var Tooltip = function (_Component) {
     babelHelpers.inherits(Tooltip, _Component);
 
     function Tooltip() {
@@ -13274,7 +13271,7 @@ babelHelpers;
     }
 
     return Tooltip;
-  })(Component);
+  }(Component);
 
   Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
 
@@ -13292,7 +13289,7 @@ babelHelpers;
    * Tooltip component.
    */
 
-  var Tooltip = (function (_TooltipBase) {
+  var Tooltip = function (_TooltipBase) {
     babelHelpers.inherits(Tooltip, _TooltipBase);
 
     function Tooltip() {
@@ -13313,7 +13310,7 @@ babelHelpers;
     };
 
     return Tooltip;
-  })(TooltipBase);
+  }(TooltipBase);
 
   /**
    * @inheritDoc
@@ -13412,7 +13409,7 @@ babelHelpers;
   Templates.Treeview.nodes.params = ["id", "nodes", "parentSurfaceId", "surfaceId"];
   Templates.Treeview.node.private = true;
 
-  var Treeview = (function (_Component) {
+  var Treeview = function (_Component) {
     babelHelpers.inherits(Treeview, _Component);
 
     function Treeview() {
@@ -13421,7 +13418,7 @@ babelHelpers;
     }
 
     return Treeview;
-  })(Component);
+  }(Component);
 
   Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
 
@@ -13440,7 +13437,7 @@ babelHelpers;
   * Treeview component.
   */
 
-	var Treeview = (function (_TreeviewBase) {
+	var Treeview = function (_TreeviewBase) {
 		babelHelpers.inherits(Treeview, _TreeviewBase);
 
 		function Treeview() {
@@ -13556,7 +13553,7 @@ babelHelpers;
 		};
 
 		return Treeview;
-	})(TreeviewBase);
+	}(TreeviewBase);
 
 	/**
   * Default tree view elementClasses.

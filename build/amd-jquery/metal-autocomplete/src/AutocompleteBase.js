@@ -1,8 +1,8 @@
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/promise/Promise', 'metal/src/component/Component', 'metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Promise, _Component2, _EventHandler, _JQueryAdapter) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -10,6 +10,8 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 	var _core2 = _interopRequireDefault(_core);
 
 	var _dom2 = _interopRequireDefault(_dom);
+
+	var _Promise2 = _interopRequireDefault(_Promise);
 
 	var _Component3 = _interopRequireDefault(_Component2);
 
@@ -53,7 +55,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var AutocompleteBase = (function (_Component) {
+	var AutocompleteBase = function (_Component) {
 		_inherits(AutocompleteBase, _Component);
 
 		function AutocompleteBase(opt_config) {
@@ -89,9 +91,13 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 				this.pendingRequest.cancel('Cancelled by another request');
 			}
 
-			this.pendingRequest = _Promise.CancellablePromise.resolve().then(function () {
-				return self.data(query);
-			}).then(function (data) {
+			var deferredData = self.data(query);
+
+			if (!_core2.default.isPromise(deferredData)) {
+				deferredData = _Promise2.default.resolve(deferredData);
+			}
+
+			this.pendingRequest = deferredData.then(function (data) {
 				if (Array.isArray(data)) {
 					return data.map(self.format.bind(self)).filter(function (val) {
 						return _core2.default.isDefAndNotNull(val);
@@ -112,7 +118,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 		};
 
 		return AutocompleteBase;
-	})(_Component3.default);
+	}(_Component3.default);
 
 	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
 	AutocompleteBase.ATTRS = {

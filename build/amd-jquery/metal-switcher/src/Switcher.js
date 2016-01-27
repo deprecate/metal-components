@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Switcher.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _SwitcherSoy, _JQueryAdapter) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-switcher/src/Switcher.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Switcher, _JQueryAdapter) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-switcher/src/Sw
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Switcher2 = _interopRequireDefault(_Switcher);
+	var _SwitcherSoy2 = _interopRequireDefault(_SwitcherSoy);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -51,7 +51,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-switcher/src/Sw
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Switcher = (function (_SwitcherBase) {
+	var Switcher = function (_SwitcherBase) {
 		_inherits(Switcher, _SwitcherBase);
 
 		function Switcher() {
@@ -73,7 +73,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-switcher/src/Sw
 		};
 
 		return Switcher;
-	})(_Switcher2.default);
+	}(_SwitcherSoy2.default);
 
 	Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
 	Switcher.ELEMENT_CLASSES = 'switcher';

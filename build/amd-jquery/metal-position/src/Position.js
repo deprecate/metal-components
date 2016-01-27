@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _Geometry) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal-position/src/Geometry'], function (exports, _core, _Geometry) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -21,7 +21,7 @@ define(['exports', 'metal/src/core', 'metal-position/src/Geometry'], function (e
 		}
 	}
 
-	var Position = (function () {
+	var Position = function () {
 		function Position() {
 			_classCallCheck(this, Position);
 		}
@@ -194,7 +194,7 @@ define(['exports', 'metal/src/core', 'metal-position/src/Geometry'], function (e
 		};
 
 		return Position;
-	})();
+	}();
 
 	exports.default = Position;
 });

@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', '../disposable/Disposable'], function (exports, _Disposable2) {
+	'use strict';
 
-define(['exports', 'metal/src/disposable/Disposable'], function (exports, _Disposable2) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -45,7 +45,7 @@ define(['exports', 'metal/src/disposable/Disposable'], function (exports, _Dispo
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var EventHandle = (function (_Disposable) {
+	var EventHandle = function (_Disposable) {
 		_inherits(EventHandle, _Disposable);
 
 		function EventHandle(emitter, event, listener) {
@@ -72,7 +72,7 @@ define(['exports', 'metal/src/disposable/Disposable'], function (exports, _Dispo
 		};
 
 		return EventHandle;
-	})(_Disposable3.default);
+	}(_Disposable3.default);
 
 	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
 	exports.default = EventHandle;

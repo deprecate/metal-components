@@ -1,8 +1,8 @@
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src/dom/dom', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _Attribute3, _core, _dom, _JQueryAdapter) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -51,7 +51,7 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Clipboard = (function (_Attribute) {
+	var Clipboard = function (_Attribute) {
 		_inherits(Clipboard, _Attribute);
 
 		function Clipboard(opt_config) {
@@ -90,7 +90,7 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 		};
 
 		return Clipboard;
-	})(_Attribute4.default);
+	}(_Attribute4.default);
 
 	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
 	Clipboard.ATTRS = {
@@ -118,7 +118,7 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 		}
 	};
 
-	var ClipboardAction = (function (_Attribute2) {
+	var ClipboardAction = function (_Attribute2) {
 		_inherits(ClipboardAction, _Attribute2);
 
 		function ClipboardAction(opt_config) {
@@ -220,7 +220,7 @@ define(['exports', 'metal/src/attribute/Attribute', 'metal/src/core', 'metal/src
 		};
 
 		return ClipboardAction;
-	})(_Attribute4.default);
+	}(_Attribute4.default);
 
 	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
 	ClipboardAction.ATTRS = {

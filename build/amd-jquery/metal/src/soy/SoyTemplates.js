@@ -1,6 +1,6 @@
-'use strict';
-
 define(['exports'], function (exports) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -13,7 +13,7 @@ define(['exports'], function (exports) {
 
 	var templates = {};
 
-	var SoyTemplates = (function () {
+	var SoyTemplates = function () {
 		function SoyTemplates() {
 			_classCallCheck(this, SoyTemplates);
 		}
@@ -33,7 +33,7 @@ define(['exports'], function (exports) {
 		};
 
 		return SoyTemplates;
-	})();
+	}();
 
 	exports.default = SoyTemplates;
 });

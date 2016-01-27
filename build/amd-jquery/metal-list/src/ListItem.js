@@ -1,13 +1,13 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', './ListItem.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _ListItemSoy, _JQueryAdapter) {
+  'use strict';
 
-define(['exports', 'metal-list/src/ListItem.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _ListItem, _JQueryAdapter) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
 
-  var _ListItem2 = _interopRequireDefault(_ListItem);
+  var _ListItemSoy2 = _interopRequireDefault(_ListItemSoy);
 
   var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -47,7 +47,7 @@ define(['exports', 'metal-list/src/ListItem.soy', 'metal-jquery-adapter/src/JQue
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var ListItem = (function (_ListItemBase) {
+  var ListItem = function (_ListItemBase) {
     _inherits(ListItem, _ListItemBase);
 
     function ListItem(opt_config) {
@@ -57,7 +57,7 @@ define(['exports', 'metal-list/src/ListItem.soy', 'metal-jquery-adapter/src/JQue
     }
 
     return ListItem;
-  })(_ListItem2.default);
+  }(_ListItemSoy2.default);
 
   ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
   ListItem.ELEMENT_CLASSES = 'listitem';

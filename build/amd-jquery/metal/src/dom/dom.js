@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../core', '../object/object', '../events/DomEventHandle'], function (exports, _core, _object, _DomEventHandle) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/object/object', 'metal/src/events/DomEventHandle'], function (exports, _core, _object, _DomEventHandle) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -23,7 +23,7 @@ define(['exports', 'metal/src/core', 'metal/src/object/object', 'metal/src/event
 		}
 	}
 
-	var dom = (function () {
+	var dom = function () {
 		function dom() {
 			_classCallCheck(this, dom);
 		}
@@ -368,7 +368,7 @@ define(['exports', 'metal/src/core', 'metal/src/object/object', 'metal/src/event
 		};
 
 		return dom;
-	})();
+	}();
 
 	var elementsByTag = {};
 	dom.customEvents = {};

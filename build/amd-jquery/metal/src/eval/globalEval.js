@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../dom/dom'], function (exports, _dom) {
+	'use strict';
 
-define(['exports', 'metal/src/dom/dom'], function (exports, _dom) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -19,7 +19,7 @@ define(['exports', 'metal/src/dom/dom'], function (exports, _dom) {
 		}
 	}
 
-	var globalEval = (function () {
+	var globalEval = function () {
 		function globalEval() {
 			_classCallCheck(this, globalEval);
 		}
@@ -85,7 +85,7 @@ define(['exports', 'metal/src/dom/dom'], function (exports, _dom) {
 		};
 
 		return globalEval;
-	})();
+	}();
 
 	exports.default = globalEval;
 });

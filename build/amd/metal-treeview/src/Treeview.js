@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _dom, _Treeview) {
+	'use strict';
 
-define(['exports', 'metal/src/dom/dom', 'metal-treeview/src/Treeview.soy'], function (exports, _dom, _Treeview) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -47,7 +47,7 @@ define(['exports', 'metal/src/dom/dom', 'metal-treeview/src/Treeview.soy'], func
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Treeview = (function (_TreeviewBase) {
+	var Treeview = function (_TreeviewBase) {
 		_inherits(Treeview, _TreeviewBase);
 
 		function Treeview() {
@@ -116,7 +116,7 @@ define(['exports', 'metal/src/dom/dom', 'metal-treeview/src/Treeview.soy'], func
 		};
 
 		return Treeview;
-	})(_Treeview2.default);
+	}(_Treeview2.default);
 
 	Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
 	Treeview.ELEMENT_CLASSES = 'treeview';

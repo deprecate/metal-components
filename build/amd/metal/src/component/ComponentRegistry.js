@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../core'], function (exports, _core) {
+	'use strict';
 
-define(['exports', 'metal/src/core'], function (exports, _core) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -19,7 +19,7 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		}
 	}
 
-	var ComponentRegistry = (function () {
+	var ComponentRegistry = function () {
 		function ComponentRegistry() {
 			_classCallCheck(this, ComponentRegistry);
 		}
@@ -50,7 +50,7 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		};
 
 		return ComponentRegistry;
-	})();
+	}();
 
 	ComponentRegistry.components_ = {};
 	exports.default = ComponentRegistry;

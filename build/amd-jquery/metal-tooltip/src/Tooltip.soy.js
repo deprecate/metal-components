@@ -1,8 +1,8 @@
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyRenderer', 'metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+  'use strict';
+
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
@@ -80,7 +80,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   Templates.Tooltip.render.params = ["id"];
   Templates.Tooltip.inner.params = ["title", "id"];
 
-  var Tooltip = (function (_Component) {
+  var Tooltip = function (_Component) {
     _inherits(Tooltip, _Component);
 
     function Tooltip() {
@@ -90,7 +90,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     }
 
     return Tooltip;
-  })(_Component3.default);
+  }(_Component3.default);
 
   Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
   Tooltip.RENDERER = _SoyRenderer2.default;

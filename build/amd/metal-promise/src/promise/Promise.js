@@ -1,18 +1,8 @@
-/*!
- * Promises polyfill from Google's Closure Library.
- *
- *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
- *
- * NOTE(eduardo): Promise support is not ready on all supported browsers,
- * therefore core.js is temporarily using Google's promises as polyfill. It
- * supports cancellable promises and has clean and fast implementation.
- */
-
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/core', 'metal/src/async/async'], function (exports, _core, _async) {
+  'use strict';
+
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
@@ -482,7 +472,7 @@ define(['exports', 'metal/src/core', 'metal/src/async/async'], function (exports
     CancellablePromise.handleRejection_ = handler;
   };
 
-  CancellablePromise.CancellationError = (function (_Error) {
+  CancellablePromise.CancellationError = function (_Error) {
     _inherits(_class, _Error);
 
     function _class(opt_message) {
@@ -498,7 +488,7 @@ define(['exports', 'metal/src/core', 'metal/src/async/async'], function (exports
     }
 
     return _class;
-  })(Error);
+  }(Error);
 
   CancellablePromise.CancellationError.prototype.name = 'cancel';
   exports.CancellablePromise = CancellablePromise;

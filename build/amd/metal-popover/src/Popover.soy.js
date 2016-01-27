@@ -1,8 +1,8 @@
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyRenderer', 'metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+  'use strict';
+
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
@@ -89,7 +89,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   Templates.Popover.title.params = ["id", "title"];
   Templates.Popover.innerContent.params = ["content", "id"];
 
-  var Popover = (function (_Component) {
+  var Popover = function (_Component) {
     _inherits(Popover, _Component);
 
     function Popover() {
@@ -99,7 +99,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     }
 
     return Popover;
-  })(_Component3.default);
+  }(_Component3.default);
 
   Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
   Popover.RENDERER = _SoyRenderer2.default;

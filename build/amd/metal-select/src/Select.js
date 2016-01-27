@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Select.soy', 'metal-dropdown/src/Dropdown'], function (exports, _core, _dom, _Select) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-select/src/Select.soy', 'metal-dropdown/src/Dropdown'], function (exports, _core, _dom, _Select) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -49,7 +49,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-select/src/Sele
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Select = (function (_SelectBase) {
+	var Select = function (_SelectBase) {
 		_inherits(Select, _SelectBase);
 
 		function Select() {
@@ -124,7 +124,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-select/src/Sele
 		};
 
 		return Select;
-	})(_Select2.default);
+	}(_Select2.default);
 
 	Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
 	Select.ATTRS = {

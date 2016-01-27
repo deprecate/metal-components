@@ -1,6 +1,6 @@
-'use strict';
-
 define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/dom/features', 'metal/src/dom/events'], function (exports, _core, _dom, _features) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -23,7 +23,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/dom/feature
 		}
 	}
 
-	var Anim = (function () {
+	var Anim = function () {
 		function Anim() {
 			_classCallCheck(this, Anim);
 		}
@@ -72,7 +72,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/dom/feature
 		};
 
 		return Anim;
-	})();
+	}();
 
 	exports.default = Anim;
 });

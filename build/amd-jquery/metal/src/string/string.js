@@ -1,6 +1,6 @@
-'use strict';
-
 define(['exports'], function (exports) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -11,7 +11,7 @@ define(['exports'], function (exports) {
 		}
 	}
 
-	var string = (function () {
+	var string = function () {
 		function string() {
 			_classCallCheck(this, string);
 		}
@@ -36,7 +36,7 @@ define(['exports'], function (exports) {
 		};
 
 		return string;
-	})();
+	}();
 
 	exports.default = string;
 });

@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', './TooltipBase', './Tooltip.soy'], function (exports, _TooltipBase2) {
+  'use strict';
 
-define(['exports', 'metal-tooltip/src/TooltipBase', 'metal-tooltip/src/Tooltip.soy'], function (exports, _TooltipBase2) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
@@ -45,7 +45,7 @@ define(['exports', 'metal-tooltip/src/TooltipBase', 'metal-tooltip/src/Tooltip.s
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Tooltip = (function (_TooltipBase) {
+  var Tooltip = function (_TooltipBase) {
     _inherits(Tooltip, _TooltipBase);
 
     function Tooltip() {
@@ -61,7 +61,7 @@ define(['exports', 'metal-tooltip/src/TooltipBase', 'metal-tooltip/src/Tooltip.s
     };
 
     return Tooltip;
-  })(_TooltipBase3.default);
+  }(_TooltipBase3.default);
 
   Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
   Tooltip.Align = _TooltipBase3.default.Align;

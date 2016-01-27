@@ -1,6 +1,6 @@
-'use strict';
+define(['./dom', './features'], function (_dom, _features) {
+	'use strict';
 
-define(['metal/src/dom/dom', 'metal/src/dom/features'], function (_dom, _features) {
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _features2 = _interopRequireDefault(_features);

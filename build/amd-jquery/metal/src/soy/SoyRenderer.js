@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', '../core', '../dom/dom', '../object/object', '../component/Component', '../component/ComponentRegistry', '../component/ComponentRenderer', './SoyAop', './SoyTemplates'], function (exports, _core, _dom, _object, _Component2, _ComponentRegistry, _ComponentRenderer2, _SoyAop, _SoyTemplates) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/object', 'metal/src/component/Component', 'metal/src/component/ComponentRegistry', 'metal/src/component/ComponentRenderer', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyTemplates'], function (exports, _core, _dom, _object, _Component2, _ComponentRegistry, _ComponentRenderer2, _SoyAop, _SoyTemplates) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -61,7 +61,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 
 	var ijData = {};
 
-	var SoyRenderer = (function (_ComponentRenderer) {
+	var SoyRenderer = function (_ComponentRenderer) {
 		_inherits(SoyRenderer, _ComponentRenderer);
 
 		function SoyRenderer() {
@@ -134,7 +134,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 
 			var name = 'TemplateComponent' + _core2.default.getUid();
 
-			var TemplateComponent = (function (_Component) {
+			var TemplateComponent = function (_Component) {
 				_inherits(TemplateComponent, _Component);
 
 				function TemplateComponent() {
@@ -144,7 +144,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 				}
 
 				return TemplateComponent;
-			})(_Component3.default);
+			}(_Component3.default);
 
 			TemplateComponent.prototype.registerMetalComponent && TemplateComponent.prototype.registerMetalComponent(TemplateComponent, 'TemplateComponent')
 			TemplateComponent.RENDERER = SoyRenderer;
@@ -278,7 +278,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/object/obje
 		};
 
 		return SoyRenderer;
-	})(_ComponentRenderer3.default);
+	}(_ComponentRenderer3.default);
 
 	SoyRenderer.prototype.registerMetalComponent && SoyRenderer.prototype.registerMetalComponent(SoyRenderer, 'SoyRenderer')
 	var originalSanitizedHtmlFromFn = soydata.SanitizedHtml.from;

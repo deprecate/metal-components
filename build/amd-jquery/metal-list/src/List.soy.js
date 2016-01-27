@@ -1,8 +1,8 @@
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyRenderer', 'metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+  'use strict';
+
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
@@ -95,7 +95,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   Templates.List.render.params = ["id"];
   Templates.List.items.params = ["id", "items", "itemsHtml"];
 
-  var List = (function (_Component) {
+  var List = function (_Component) {
     _inherits(List, _Component);
 
     function List() {
@@ -105,7 +105,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     }
 
     return List;
-  })(_Component3.default);
+  }(_Component3.default);
 
   List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
   List.RENDERER = _SoyRenderer2.default;

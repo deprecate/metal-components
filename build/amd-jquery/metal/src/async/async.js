@@ -1,11 +1,6 @@
-/*!
- * Polyfill from Google's Closure Library.
- * Copyright 2013 The Closure Library Authors. All Rights Reserved.
- */
-
-'use strict';
-
 define(['exports'], function (exports) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -84,7 +79,7 @@ define(['exports'], function (exports) {
 		}
 
 		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
-			Channel = function () {
+			Channel = function Channel() {
 				var iframe = document.createElement('iframe');
 				iframe.style.display = 'none';
 				iframe.src = '';
@@ -97,13 +92,13 @@ define(['exports'], function (exports) {
 				var message = 'callImmediate' + Math.random();
 				var origin = win.location.protocol + '//' + win.location.host;
 
-				var onmessage = (function (e) {
+				var onmessage = function (e) {
 					if (e.origin !== origin && e.data !== message) {
 						return;
 					}
 
 					this.port1.onmessage();
-				}).bind(this);
+				}.bind(this);
 
 				win.addEventListener('message', onmessage, false);
 				this.port1 = {};

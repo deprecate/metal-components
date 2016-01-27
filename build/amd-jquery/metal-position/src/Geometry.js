@@ -1,6 +1,6 @@
-'use strict';
-
 define(['exports'], function (exports) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -11,7 +11,7 @@ define(['exports'], function (exports) {
 		}
 	}
 
-	var Geometry = (function () {
+	var Geometry = function () {
 		function Geometry() {
 			_classCallCheck(this, Geometry);
 		}
@@ -21,7 +21,7 @@ define(['exports'], function (exports) {
 		};
 
 		return Geometry;
-	})();
+	}();
 
 	exports.default = Geometry;
 });

@@ -1,8 +1,8 @@
-'use strict';
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyRenderer', 'metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+  'use strict';
+
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
@@ -67,7 +67,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
 
     for (var itemIndex15 = 0; itemIndex15 < itemListLen15; itemIndex15++) {
       var itemData15 = itemList15[itemIndex15];
-      param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="#">' + soy.$$escapeHtml(itemData15) + '</a></li>';
+      param14 += '<li data-onclick="' + soy.$$escapeHtmlAttribute(opt_data.id) + ':handleItemClick_" class="select-option' + soy.$$escapeHtmlAttribute(currSelectedIndex__soy8 == itemIndex15 ? ' selected' : '') + '"><a href="javascript:;">' + soy.$$escapeHtml(itemData15) + '</a></li>';
     }
 
     output += soy.$$escapeHtml(Templates.Dropdown.render({
@@ -88,7 +88,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
 
   Templates.Select.render.params = ["arrowClass", "buttonClass", "hiddenInputName", "id", "items", "label", "selectedIndex"];
 
-  var Select = (function (_Component) {
+  var Select = function (_Component) {
     _inherits(Select, _Component);
 
     function Select() {
@@ -98,7 +98,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
     }
 
     return Select;
-  })(_Component3.default);
+  }(_Component3.default);
 
   Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
   Select.RENDERER = _SoyRenderer2.default;

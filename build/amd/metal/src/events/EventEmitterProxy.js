@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', '../core', '../dom/dom', '../disposable/Disposable'], function (exports, _core, _dom, _Disposable2) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/Disposable'], function (exports, _core, _dom, _Disposable2) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -49,7 +49,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var EventEmitterProxy = (function (_Disposable) {
+	var EventEmitterProxy = function (_Disposable) {
 		_inherits(EventEmitterProxy, _Disposable);
 
 		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
@@ -116,7 +116,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/
 		};
 
 		return EventEmitterProxy;
-	})(_Disposable3.default);
+	}(_Disposable3.default);
 
 	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
 	exports.default = EventEmitterProxy;

@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../core', '../string/string'], function (exports, _core, _string) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/string/string'], function (exports, _core, _string) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -21,7 +21,7 @@ define(['exports', 'metal/src/core', 'metal/src/string/string'], function (expor
 		}
 	}
 
-	var html = (function () {
+	var html = function () {
 		function html() {
 			_classCallCheck(this, html);
 		}
@@ -147,7 +147,7 @@ define(['exports', 'metal/src/core', 'metal/src/string/string'], function (expor
 		};
 
 		return html;
-	})();
+	}();
 
 	html.Patterns = {
 		INTERTAG_CUSTOM_CUSTOM: /~%%%\s+%%%~/g,

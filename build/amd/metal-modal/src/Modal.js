@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/EventHandler', './Modal.soy'], function (exports, _core, _dom, _EventHandler, _Modal) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/EventHandler', 'metal-modal/src/Modal.soy'], function (exports, _core, _dom, _EventHandler, _Modal) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -51,7 +51,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Modal = (function (_ModalBase) {
+	var Modal = function (_ModalBase) {
 		_inherits(Modal, _ModalBase);
 
 		function Modal(opt_config) {
@@ -161,7 +161,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 		};
 
 		return Modal;
-	})(_Modal2.default);
+	}(_Modal2.default);
 
 	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
 	Modal.ELEMENT_CLASSES = 'modal';

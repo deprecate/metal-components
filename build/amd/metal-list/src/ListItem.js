@@ -1,13 +1,13 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', './ListItem.soy.js'], function (exports, _ListItemSoy) {
+  'use strict';
 
-define(['exports', 'metal-list/src/ListItem.soy'], function (exports, _ListItem) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
 
-  var _ListItem2 = _interopRequireDefault(_ListItem);
+  var _ListItemSoy2 = _interopRequireDefault(_ListItemSoy);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -45,7 +45,7 @@ define(['exports', 'metal-list/src/ListItem.soy'], function (exports, _ListItem)
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var ListItem = (function (_ListItemBase) {
+  var ListItem = function (_ListItemBase) {
     _inherits(ListItem, _ListItemBase);
 
     function ListItem(opt_config) {
@@ -55,7 +55,7 @@ define(['exports', 'metal-list/src/ListItem.soy'], function (exports, _ListItem)
     }
 
     return ListItem;
-  })(_ListItem2.default);
+  }(_ListItemSoy2.default);
 
   ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
   ListItem.ELEMENT_CLASSES = 'listitem';

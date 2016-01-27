@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position/src/Position', './Slider.soy'], function (exports, _core, _Drag, _Position, _Slider) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position/src/Position', 'metal-slider/src/Slider.soy'], function (exports, _core, _Drag, _Position, _Slider) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -51,7 +51,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Slider = (function (_SliderBase) {
+	var Slider = function (_SliderBase) {
 		_inherits(Slider, _SliderBase);
 
 		function Slider(opt_config) {
@@ -142,7 +142,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 		};
 
 		return Slider;
-	})(_Slider2.default);
+	}(_Slider2.default);
 
 	Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
 	Slider.ATTRS = {

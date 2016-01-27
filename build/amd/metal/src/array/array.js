@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../core'], function (exports, _core) {
+	'use strict';
 
-define(['exports', 'metal/src/core'], function (exports, _core) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -19,7 +19,7 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		}
 	}
 
-	var array = (function () {
+	var array = function () {
 		function array() {
 			_classCallCheck(this, array);
 		}
@@ -83,7 +83,7 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		};
 
 		return array;
-	})();
+	}();
 
 	exports.default = array;
 });

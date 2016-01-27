@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ButtonGroup.soy'], function (exports, _core, _dom, _ButtonGroup) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-button-group/src/ButtonGroup.soy'], function (exports, _core, _dom, _ButtonGroup) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -49,7 +49,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-button-group/sr
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var ButtonGroup = (function (_ButtonGroupBase) {
+	var ButtonGroup = function (_ButtonGroupBase) {
 		_inherits(ButtonGroup, _ButtonGroupBase);
 
 		function ButtonGroup(opt_config) {
@@ -108,7 +108,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-button-group/sr
 		};
 
 		return ButtonGroup;
-	})(_ButtonGroup2.default);
+	}(_ButtonGroup2.default);
 
 	ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
 	ButtonGroup.ATTRS = {

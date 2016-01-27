@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../soy/SoyTemplates'], function (exports, _SoyTemplates) {
+	'use strict';
 
-define(['exports', 'metal/src/soy/SoyTemplates'], function (exports, _SoyTemplates) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

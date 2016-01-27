@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', './AutocompleteBase', 'metal-promise/src/promise/Promise', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Align', 'metal-list/src/List', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _AutocompleteBase2, _Promise, _core, _dom, _Align, _List, _JQueryAdapter) {
+	'use strict';
 
-define(['exports', 'metal-autocomplete/src/AutocompleteBase', 'metal-promise/src/promise/Promise', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Align', 'metal-list/src/List', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _AutocompleteBase2, _Promise, _core, _dom, _Align, _List, _JQueryAdapter) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -55,7 +55,7 @@ define(['exports', 'metal-autocomplete/src/AutocompleteBase', 'metal-promise/src
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Autocomplete = (function (_AutocompleteBase) {
+	var Autocomplete = function (_AutocompleteBase) {
 		_inherits(Autocomplete, _AutocompleteBase);
 
 		function Autocomplete(opt_config) {
@@ -151,7 +151,7 @@ define(['exports', 'metal-autocomplete/src/AutocompleteBase', 'metal-promise/src
 		};
 
 		return Autocomplete;
-	})(_AutocompleteBase3.default);
+	}(_AutocompleteBase3.default);
 
 	Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
 	Autocomplete.ATTRS = {

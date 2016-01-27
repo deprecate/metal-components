@@ -1,8 +1,8 @@
-'use strict';
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'metal-anim/src/Anim', 'metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter', 'metal/src/dom/events'], function (exports, _core, _dom, _AlertSoy, _Anim, _EventHandler, _JQueryAdapter) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-alert/src/Alert.soy', 'metal-anim/src/Anim', 'metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter', 'metal/src/dom/events'], function (exports, _core, _dom, _Alert, _Anim, _EventHandler, _JQueryAdapter) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-alert/src/Alert
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Alert2 = _interopRequireDefault(_Alert);
+	var _AlertSoy2 = _interopRequireDefault(_AlertSoy);
 
 	var _Anim2 = _interopRequireDefault(_Anim);
 
@@ -55,7 +55,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-alert/src/Alert
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Alert = (function (_AlertBase) {
+	var Alert = function (_AlertBase) {
 		_inherits(Alert, _AlertBase);
 
 		function Alert(opt_config) {
@@ -127,7 +127,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-alert/src/Alert
 		};
 
 		return Alert;
-	})(_Alert2.default);
+	}(_AlertSoy2.default);
 
 	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
 	Alert.ELEMENT_CLASSES = 'alert';

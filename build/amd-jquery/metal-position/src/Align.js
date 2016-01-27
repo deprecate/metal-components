@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', './Position'], function (exports, _Position) {
+	'use strict';
 
-define(['exports', 'metal-position/src/Position'], function (exports, _Position) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -19,7 +19,7 @@ define(['exports', 'metal-position/src/Position'], function (exports, _Position)
 		}
 	}
 
-	var Align = (function () {
+	var Align = function () {
 		function Align() {
 			_classCallCheck(this, Align);
 		}
@@ -150,7 +150,7 @@ define(['exports', 'metal-position/src/Position'], function (exports, _Position)
 		};
 
 		return Align;
-	})();
+	}();
 
 	Align.TopCenter = 0;
 	Align.TopRight = 1;
