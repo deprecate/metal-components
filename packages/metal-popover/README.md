@@ -16,7 +16,6 @@ Metal's popover component
 
   ```
   npm install
-  bower install
   ```
 
 4. Build the code:

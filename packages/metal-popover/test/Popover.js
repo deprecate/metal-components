@@ -1,7 +1,7 @@
 'use strict';
 
-import dom from 'bower:metal/src/dom/dom';
-import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+import dom from 'metal/src/dom/dom';
+import SoyTemplates from 'metal/src/soy/SoyTemplates';
 import Popover from '../src/Popover';
 
 describe('Popover', function() {
