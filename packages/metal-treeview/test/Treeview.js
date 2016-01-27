@@ -1,8 +1,8 @@
 'use strict';
 
-import dom from 'bower:metal/src/dom/dom';
-import object from 'bower:metal/src/object/object';
-import SoyTemplates from 'bower:metal/src/soy/SoyTemplates';
+import dom from 'metal/src/dom/dom';
+import object from 'metal/src/object/object';
+import SoyTemplates from 'metal/src/soy/SoyTemplates';
 import Treeview from '../src/Treeview';
 
 var treeview;
