@@ -1,11 +1,13 @@
 'use strict';
 
-import AutocompleteBase from './AutocompleteBase';
-import { CancellablePromise as Promise } from 'metal-promise/src/promise/Promise';
 import core from 'metal/src/core';
 import dom from 'metal/src/dom/dom';
+import { CancellablePromise as Promise } from 'metal-promise/src/promise/Promise';
 import Align from 'metal-position/src/Align';
-import List from 'metal-list/src/List';
+import AutocompleteBase from './AutocompleteBase';
+import SoyRenderer from 'metal/src/soy/SoyRenderer';
+import './Autocomplete.soy';
+import 'metal-list/src/List';
 
 /*
  * Autocomplete component.
@@ -14,19 +16,9 @@ class Autocomplete extends AutocompleteBase {
 	/**
 	 * @inheritDoc
 	 */
-	constructor(opt_config) {
-		super(opt_config);
-
-		this.once('render', this.handleRender_);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	attached() {
 		super.attached();
-		this.list.attach(this.element);
-		this.on('click', this.genericStopPropagation_);
+		this.on('click', event => event.stopPropagation());
 		this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		if (this.visible) {
@@ -35,19 +27,19 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	detached() {
-		super.detached();
-		this.list.detach();
-	}
-
-	/**
 	 * Aligns main element to the input element.
 	 */
 	align() {
 		this.element.style.width = this.inputElement.offsetWidth + 'px';
 		Align.align(this.element, this.inputElement, Align.Bottom);
+	}
+
+	/**
+	 * Returns the `List` component being used to render the matched items.
+	 * @return {!List}
+	 */
+	getList() {
+		return this.components[this.id + '-list'];
 	}
 
 	/**
@@ -71,16 +63,6 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
-	 * Handles the `render` event, creating a `List` component and rendering
-	 * it inside this autocomplete.
-	 * @protected
-	 */
-	handleRender_() {
-		this.list = new List().render(this.element);
-		this.list.on('itemSelected', this.onListItemSelected_.bind(this));
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	request(query) {
@@ -88,7 +70,7 @@ class Autocomplete extends AutocompleteBase {
 		return super.request(query).then(function(data) {
 			if (data) {
 				data.forEach(self.assertItemObjectStructure_);
-				self.list.items = data;
+				self.getList().items = data;
 			}
 			self.visible = !!(data && data.length > 0);
 		});
@@ -102,17 +84,8 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	onListItemSelected_(item) {
 		var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
-		this.emit('select', this.list.items[selectedIndex]);
+		this.emit('select', this.getList().items[selectedIndex]);
 		this.visible = false;
-	}
-
-	/**
-	 * Stops propagation of an event.
-	 * @param {!Event} event
-	 * @protected
-	 */
-	genericStopPropagation_(event) {
-		event.stopPropagation();
 	}
 
 	/**
@@ -164,11 +137,10 @@ Autocomplete.ATTRS = {
 };
 
 /**
- * Provides a list of classes which have to be applied to the element's DOM element.
- * @type {string}
+ * The class that will be used as this component's renderer.
+ * @type {!Function}
  * @static
- * @default 'autocomplete autocomplete-list'
  */
-Autocomplete.ELEMENT_CLASSES = 'autocomplete autocomplete-list';
+Autocomplete.RENDERER = SoyRenderer;
 
 export default Autocomplete;
