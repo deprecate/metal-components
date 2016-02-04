@@ -307,6 +307,29 @@ babelHelpers;
 }).call(this);
 'use strict';
 
+/**
+  * Debounces function execution.
+  * @param {!function()} fn
+  * @param {number} delay
+  * @return {!function()}
+  */
+
+(function () {
+	function debounce(fn, delay) {
+		var id;
+		return function () {
+			var args = arguments;
+			clearTimeout(id);
+			id = setTimeout(function () {
+				fn.apply(null, args);
+			}, delay);
+		};
+	}
+
+	this.metal.debounce = debounce;
+}).call(this);
+'use strict';
+
 (function () {
 	var core = this.metal.core;
 
@@ -2311,6 +2334,614 @@ babelHelpers;
   this.metalNamed.Promise = {};
   this.metalNamed.Promise.CancellablePromise = CancellablePromise;
   this.metal.Promise = CancellablePromise;
+}).call(this);
+'use strict';
+
+(function () {
+	var Geometry = function () {
+		function Geometry() {
+			babelHelpers.classCallCheck(this, Geometry);
+		}
+
+		/**
+     * Tests if a rectangle intersects with another.
+     *
+     * <pre>
+     *  x0y0 --------       x2y2 --------
+     *      |       |           |       |
+     *      -------- x1y1       -------- x3y3
+     * </pre>
+     *
+     * Note that coordinates starts from top to down (y), left to right (x):
+     *
+     * <pre>
+     *      ------> (x)
+     *      |
+     *      |
+     *     (y)
+     * </pre>
+     *
+     * @param {number} x0 Horizontal coordinate of P0.
+     * @param {number} y0 Vertical coordinate of P0.
+     * @param {number} x1 Horizontal coordinate of P1.
+     * @param {number} y1 Vertical coordinate of P1.
+     * @param {number} x2 Horizontal coordinate of P2.
+     * @param {number} y2 Vertical coordinate of P2.
+     * @param {number} x3 Horizontal coordinate of P3.
+     * @param {number} y3 Vertical coordinate of P3.
+     * @return {boolean}
+     */
+
+		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
+			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
+		};
+
+		return Geometry;
+	}();
+
+	this.metal.Geometry = Geometry;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+	var Geometry = this.metal.Geometry;
+
+	/**
+  * Class with static methods responsible for doing browser position checks.
+  */
+
+	var Position = function () {
+		function Position() {
+			babelHelpers.classCallCheck(this, Position);
+		}
+
+		/**
+   * Gets the client height of the specified node. Scroll height is not
+   * included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getClientHeight = function getClientHeight(node) {
+			return this.getClientSize_(node, 'Height');
+		};
+
+		/**
+   * Gets the client height or width of the specified node. Scroll height is
+   * not included.
+   * @param {Element|Document|Window=} node
+   * @param {string} `Width` or `Height` property.
+   * @return {number}
+   * @protected
+   */
+
+		Position.getClientSize_ = function getClientSize_(node, prop) {
+			var el = node;
+			if (core.isWindow(node)) {
+				el = node.document.documentElement;
+			}
+			if (core.isDocument(node)) {
+				el = node.documentElement;
+			}
+			return el['client' + prop];
+		};
+
+		/**
+   * Gets the client width of the specified node. Scroll width is not
+   * included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getClientWidth = function getClientWidth(node) {
+			return this.getClientSize_(node, 'Width');
+		};
+
+		/**
+   * Gets the region of the element, document or window.
+   * @param {Element|Document|Window=} opt_element Optional element to test.
+   * @return {!DOMRect} The returned value is a simulated DOMRect object which
+   *     is the union of the rectangles returned by getClientRects() for the
+   *     element, i.e., the CSS border-boxes associated with the element.
+   * @protected
+   */
+
+		Position.getDocumentRegion_ = function getDocumentRegion_(opt_element) {
+			var height = this.getHeight(opt_element);
+			var width = this.getWidth(opt_element);
+			return this.makeRegion(height, height, 0, width, 0, width);
+		};
+
+		/**
+   * Gets the height of the specified node. Scroll height is included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getHeight = function getHeight(node) {
+			return this.getSize_(node, 'Height');
+		};
+
+		/**
+   * Gets the top offset position of the given node. This fixes the `offsetLeft` value of
+   * nodes that were translated, which don't take that into account at all. That makes
+   * the calculation more expensive though, so if you don't want that to be considered
+   * either pass `opt_ignoreTransform` as true or call `offsetLeft` directly on the node.
+   * @param {!Element} node
+   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
+   *   when calculating the position. Defaults to false.
+   * @return {number}
+   */
+
+		Position.getOffsetLeft = function getOffsetLeft(node, opt_ignoreTransform) {
+			return node.offsetLeft + (opt_ignoreTransform ? 0 : Position.getTranslation(node).left);
+		};
+
+		/**
+   * Gets the top offset position of the given node. This fixes the `offsetTop` value of
+   * nodes that were translated, which don't take that into account at all. That makes
+   * the calculation more expensive though, so if you don't want that to be considered
+   * either pass `opt_ignoreTransform` as true or call `offsetTop` directly on the node.
+   * @param {!Element} node
+   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
+   *   when calculating the position. Defaults to false.
+   * @return {number}
+   */
+
+		Position.getOffsetTop = function getOffsetTop(node, opt_ignoreTransform) {
+			return node.offsetTop + (opt_ignoreTransform ? 0 : Position.getTranslation(node).top);
+		};
+
+		/**
+   * Gets the size of an element and its position relative to the viewport.
+   * @param {!Document|Element|Window} node
+   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
+   *   position should be considered in the element's region coordinates. Defaults
+   *   to false.
+   * @return {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   */
+
+		Position.getRegion = function getRegion(node, opt_includeScroll) {
+			if (core.isDocument(node) || core.isWindow(node)) {
+				return this.getDocumentRegion_(node);
+			}
+			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
+		};
+
+		/**
+   * Gets the scroll left position of the specified node.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getScrollLeft = function getScrollLeft(node) {
+			if (core.isWindow(node)) {
+				return node.pageXOffset;
+			}
+			if (core.isDocument(node)) {
+				return node.defaultView.pageXOffset;
+			}
+			return node.scrollLeft;
+		};
+
+		/**
+   * Gets the scroll top position of the specified node.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getScrollTop = function getScrollTop(node) {
+			if (core.isWindow(node)) {
+				return node.pageYOffset;
+			}
+			if (core.isDocument(node)) {
+				return node.defaultView.pageYOffset;
+			}
+			return node.scrollTop;
+		};
+
+		/**
+   * Gets the height or width of the specified node. Scroll height is
+   * included.
+   * @param {Element|Document|Window=} node
+   * @param {string} `Width` or `Height` property.
+   * @return {number}
+   * @protected
+   */
+
+		Position.getSize_ = function getSize_(node, prop) {
+			if (core.isWindow(node)) {
+				return this.getClientSize_(node, prop);
+			}
+			if (core.isDocument(node)) {
+				var docEl = node.documentElement;
+				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
+			}
+			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
+		};
+
+		/**
+   * Gets the transform matrix values for the given node.
+   * @param {!Element} node
+   * @return {Array<number>}
+   */
+
+		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
+			var style = getComputedStyle(node);
+			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
+			if (transform !== 'none') {
+				var values = [];
+				var regex = /([\d-\.\s]+)/g;
+				var matches = regex.exec(transform);
+				while (matches) {
+					values.push(matches[1]);
+					matches = regex.exec(transform);
+				}
+				return values;
+			}
+		};
+
+		/**
+   * Gets the number of translated pixels for the given node, for both the top and
+   * left positions.
+   * @param {!Element} node
+   * @return {number}
+   */
+
+		Position.getTranslation = function getTranslation(node) {
+			var values = Position.getTransformMatrixValues(node);
+			var translation = {
+				left: 0,
+				top: 0
+			};
+			if (values) {
+				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
+				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
+			}
+			return translation;
+		};
+
+		/**
+   * Gets the width of the specified node. Scroll width is included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getWidth = function getWidth(node) {
+			return this.getSize_(node, 'Width');
+		};
+
+		/**
+   * Tests if a region intersects with another.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {boolean}
+   */
+
+		Position.intersectRegion = function intersectRegion(r1, r2) {
+			return Geometry.intersectRect(r1.top, r1.left, r1.bottom, r1.right, r2.top, r2.left, r2.bottom, r2.right);
+		};
+
+		/**
+   * Tests if a region is inside another.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {boolean}
+   */
+
+		Position.insideRegion = function insideRegion(r1, r2) {
+			return r2.top >= r1.top && r2.bottom <= r1.bottom && r2.right <= r1.right && r2.left >= r1.left;
+		};
+
+		/**
+   * Tests if a region is inside viewport region.
+   * @param {DOMRect} region
+   * @return {boolean}
+   */
+
+		Position.insideViewport = function insideViewport(region) {
+			return this.insideRegion(this.getRegion(window), region);
+		};
+
+		/**
+   * Computes the intersection region between two regions.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {?DOMRect} Intersection region or null if regions doesn't
+   *     intersects.
+   */
+
+		Position.intersection = function intersection(r1, r2) {
+			if (!this.intersectRegion(r1, r2)) {
+				return null;
+			}
+			var bottom = Math.min(r1.bottom, r2.bottom);
+			var right = Math.min(r1.right, r2.right);
+			var left = Math.max(r1.left, r2.left);
+			var top = Math.max(r1.top, r2.top);
+			return this.makeRegion(bottom, bottom - top, left, right, top, right - left);
+		};
+
+		/**
+   * Makes a region object. It's a writable version of DOMRect.
+   * @param {number} bottom
+   * @param {number} height
+   * @param {number} left
+   * @param {number} right
+   * @param {number} top
+   * @param {number} width
+   * @return {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   */
+
+		Position.makeRegion = function makeRegion(bottom, height, left, right, top, width) {
+			return {
+				bottom: bottom,
+				height: height,
+				left: left,
+				right: right,
+				top: top,
+				width: width
+			};
+		};
+
+		/**
+   * Makes a region from a DOMRect result from `getBoundingClientRect`.
+   * @param  {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
+   *   position should be considered in the element's region coordinates. Defaults
+   *   to false.
+   * @return {DOMRect} Writable version of DOMRect.
+   * @protected
+   */
+
+		Position.makeRegionFromBoundingRect_ = function makeRegionFromBoundingRect_(rect, opt_includeScroll) {
+			var deltaX = opt_includeScroll ? Position.getScrollLeft(document) : 0;
+			var deltaY = opt_includeScroll ? Position.getScrollTop(document) : 0;
+			return this.makeRegion(rect.bottom + deltaY, rect.height, rect.left + deltaX, rect.right + deltaX, rect.top + deltaY, rect.width);
+		};
+
+		/**
+   * Checks if the given point coordinates are inside a region.
+   * @param {number} x
+   * @param {number} y
+   * @param {!Object} region
+   * @return {boolean}
+   */
+
+		Position.pointInsideRegion = function pointInsideRegion(x, y, region) {
+			return Position.insideRegion(region, Position.makeRegion(y, 0, x, x, y, 0));
+		};
+
+		return Position;
+	}();
+
+	this.metal.Position = Position;
+}).call(this);
+'use strict';
+
+(function () {
+	var Position = this.metal.Position;
+
+	/**
+  * Align utility. Computes region or best region to align an element with
+  * another. Regions are relative to viewport, make sure to use element with
+  * position fixed, or position absolute when the element first positioned
+  * parent is the body element.
+  */
+
+	var Align = function () {
+		function Align() {
+			babelHelpers.classCallCheck(this, Align);
+		}
+
+		/**
+   * Aligns the element with the best region around alignElement. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {string} The final chosen position for the aligned element.
+   * @static
+   */
+
+		Align.align = function align(element, alignElement, position) {
+			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
+			var bestRegion = suggestion.region;
+
+			var computedStyle = window.getComputedStyle(element, null);
+			if (computedStyle.getPropertyValue('position') !== 'fixed') {
+				bestRegion.top += window.pageYOffset;
+				bestRegion.left += window.pageXOffset;
+
+				var offsetParent = element;
+				while (offsetParent = offsetParent.offsetParent) {
+					bestRegion.top -= Position.getOffsetTop(offsetParent);
+					bestRegion.left -= Position.getOffsetLeft(offsetParent);
+				}
+			}
+
+			element.style.top = bestRegion.top + 'px';
+			element.style.left = bestRegion.left + 'px';
+			return suggestion.position;
+		};
+
+		/**
+   * Returns the best region to align element with alignElement. This is similar
+   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
+   * while `Align.suggestAlignBestRegion` also returns the chosen position.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Best region to align element.
+   * @static
+   */
+
+		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
+			return Align.suggestAlignBestRegion(element, alignElement, position).region;
+		};
+
+		/**
+   * Returns the region to align element with alignElement. The element is
+   * always aligned in the middle of alignElement axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The position to align. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Region to align element.
+   * @static
+   */
+
+		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
+			var r1 = Position.getRegion(alignElement);
+			var r2 = Position.getRegion(element);
+			var top = 0;
+			var left = 0;
+
+			switch (position) {
+				case Align.TopCenter:
+					top = r1.top - r2.height;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.RightCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left + r1.width;
+					break;
+				case Align.BottomCenter:
+					top = r1.bottom;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.LeftCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left - r2.width;
+					break;
+				case Align.TopRight:
+					top = r1.top - r2.height;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomRight:
+					top = r1.bottom;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomLeft:
+					top = r1.bottom;
+					left = r1.left;
+					break;
+				case Align.TopLeft:
+					top = r1.top - r2.height;
+					left = r1.left;
+					break;
+			}
+
+			return {
+				bottom: top + r2.height,
+				height: r2.height,
+				left: left,
+				right: left + r2.width,
+				top: top,
+				width: r2.width
+			};
+		};
+
+		/**
+   * Checks if specified value is a valid position. Options `Align.Top`,
+   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
+   * @return {boolean} Returns true if value is a valid position.
+   * @static
+   */
+
+		Align.isValidPosition = function isValidPosition(val) {
+			return 0 <= val && val <= 8;
+		};
+
+		/**
+   * Looks for the best region for aligning the given element. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {{position: string, region: DOMRect}} Best region to align element.
+   * @static
+   */
+
+		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
+			var bestArea = 0;
+			var bestPosition = position;
+			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
+			var tryPosition = bestPosition;
+			var tryRegion = bestRegion;
+			var viewportRegion = Position.getRegion(window);
+
+			for (var i = 0; i < 8;) {
+				if (Position.intersectRegion(viewportRegion, tryRegion)) {
+					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
+					var area = visibleRegion.width * visibleRegion.height;
+					if (area > bestArea) {
+						bestArea = area;
+						bestRegion = tryRegion;
+						bestPosition = tryPosition;
+					}
+					if (Position.insideViewport(tryRegion)) {
+						break;
+					}
+				}
+				tryPosition = (position + ++i) % 8;
+				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
+			}
+
+			return {
+				position: bestPosition,
+				region: bestRegion
+			};
+		};
+
+		return Align;
+	}();
+
+	/**
+  * Constants that represent the supported positions for `Align`.
+  * @type {number}
+  * @static
+  */
+
+	Align.TopCenter = 0;
+	Align.TopRight = 1;
+	Align.RightCenter = 2;
+	Align.BottomRight = 3;
+	Align.BottomCenter = 4;
+	Align.BottomLeft = 5;
+	Align.LeftCenter = 6;
+	Align.TopLeft = 7;
+
+	/**
+  * Aliases for position constants.
+  * @type {number}
+  * @static
+  */
+	Align.Top = Align.TopCenter;
+	Align.Right = Align.RightCenter;
+	Align.Bottom = Align.BottomCenter;
+	Align.Left = Align.LeftCenter;
+
+	this.metal.Align = Align;
 }).call(this);
 'use strict';
 
@@ -6650,614 +7281,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Geometry = function () {
-		function Geometry() {
-			babelHelpers.classCallCheck(this, Geometry);
-		}
-
-		/**
-     * Tests if a rectangle intersects with another.
-     *
-     * <pre>
-     *  x0y0 --------       x2y2 --------
-     *      |       |           |       |
-     *      -------- x1y1       -------- x3y3
-     * </pre>
-     *
-     * Note that coordinates starts from top to down (y), left to right (x):
-     *
-     * <pre>
-     *      ------> (x)
-     *      |
-     *      |
-     *     (y)
-     * </pre>
-     *
-     * @param {number} x0 Horizontal coordinate of P0.
-     * @param {number} y0 Vertical coordinate of P0.
-     * @param {number} x1 Horizontal coordinate of P1.
-     * @param {number} y1 Vertical coordinate of P1.
-     * @param {number} x2 Horizontal coordinate of P2.
-     * @param {number} y2 Vertical coordinate of P2.
-     * @param {number} x3 Horizontal coordinate of P3.
-     * @param {number} y3 Vertical coordinate of P3.
-     * @return {boolean}
-     */
-
-		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
-			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
-		};
-
-		return Geometry;
-	}();
-
-	this.metal.Geometry = Geometry;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var Geometry = this.metal.Geometry;
-
-	/**
-  * Class with static methods responsible for doing browser position checks.
-  */
-
-	var Position = function () {
-		function Position() {
-			babelHelpers.classCallCheck(this, Position);
-		}
-
-		/**
-   * Gets the client height of the specified node. Scroll height is not
-   * included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getClientHeight = function getClientHeight(node) {
-			return this.getClientSize_(node, 'Height');
-		};
-
-		/**
-   * Gets the client height or width of the specified node. Scroll height is
-   * not included.
-   * @param {Element|Document|Window=} node
-   * @param {string} `Width` or `Height` property.
-   * @return {number}
-   * @protected
-   */
-
-		Position.getClientSize_ = function getClientSize_(node, prop) {
-			var el = node;
-			if (core.isWindow(node)) {
-				el = node.document.documentElement;
-			}
-			if (core.isDocument(node)) {
-				el = node.documentElement;
-			}
-			return el['client' + prop];
-		};
-
-		/**
-   * Gets the client width of the specified node. Scroll width is not
-   * included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getClientWidth = function getClientWidth(node) {
-			return this.getClientSize_(node, 'Width');
-		};
-
-		/**
-   * Gets the region of the element, document or window.
-   * @param {Element|Document|Window=} opt_element Optional element to test.
-   * @return {!DOMRect} The returned value is a simulated DOMRect object which
-   *     is the union of the rectangles returned by getClientRects() for the
-   *     element, i.e., the CSS border-boxes associated with the element.
-   * @protected
-   */
-
-		Position.getDocumentRegion_ = function getDocumentRegion_(opt_element) {
-			var height = this.getHeight(opt_element);
-			var width = this.getWidth(opt_element);
-			return this.makeRegion(height, height, 0, width, 0, width);
-		};
-
-		/**
-   * Gets the height of the specified node. Scroll height is included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getHeight = function getHeight(node) {
-			return this.getSize_(node, 'Height');
-		};
-
-		/**
-   * Gets the top offset position of the given node. This fixes the `offsetLeft` value of
-   * nodes that were translated, which don't take that into account at all. That makes
-   * the calculation more expensive though, so if you don't want that to be considered
-   * either pass `opt_ignoreTransform` as true or call `offsetLeft` directly on the node.
-   * @param {!Element} node
-   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
-   *   when calculating the position. Defaults to false.
-   * @return {number}
-   */
-
-		Position.getOffsetLeft = function getOffsetLeft(node, opt_ignoreTransform) {
-			return node.offsetLeft + (opt_ignoreTransform ? 0 : Position.getTranslation(node).left);
-		};
-
-		/**
-   * Gets the top offset position of the given node. This fixes the `offsetTop` value of
-   * nodes that were translated, which don't take that into account at all. That makes
-   * the calculation more expensive though, so if you don't want that to be considered
-   * either pass `opt_ignoreTransform` as true or call `offsetTop` directly on the node.
-   * @param {!Element} node
-   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
-   *   when calculating the position. Defaults to false.
-   * @return {number}
-   */
-
-		Position.getOffsetTop = function getOffsetTop(node, opt_ignoreTransform) {
-			return node.offsetTop + (opt_ignoreTransform ? 0 : Position.getTranslation(node).top);
-		};
-
-		/**
-   * Gets the size of an element and its position relative to the viewport.
-   * @param {!Document|Element|Window} node
-   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
-   *   position should be considered in the element's region coordinates. Defaults
-   *   to false.
-   * @return {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   */
-
-		Position.getRegion = function getRegion(node, opt_includeScroll) {
-			if (core.isDocument(node) || core.isWindow(node)) {
-				return this.getDocumentRegion_(node);
-			}
-			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
-		};
-
-		/**
-   * Gets the scroll left position of the specified node.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getScrollLeft = function getScrollLeft(node) {
-			if (core.isWindow(node)) {
-				return node.pageXOffset;
-			}
-			if (core.isDocument(node)) {
-				return node.defaultView.pageXOffset;
-			}
-			return node.scrollLeft;
-		};
-
-		/**
-   * Gets the scroll top position of the specified node.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getScrollTop = function getScrollTop(node) {
-			if (core.isWindow(node)) {
-				return node.pageYOffset;
-			}
-			if (core.isDocument(node)) {
-				return node.defaultView.pageYOffset;
-			}
-			return node.scrollTop;
-		};
-
-		/**
-   * Gets the height or width of the specified node. Scroll height is
-   * included.
-   * @param {Element|Document|Window=} node
-   * @param {string} `Width` or `Height` property.
-   * @return {number}
-   * @protected
-   */
-
-		Position.getSize_ = function getSize_(node, prop) {
-			if (core.isWindow(node)) {
-				return this.getClientSize_(node, prop);
-			}
-			if (core.isDocument(node)) {
-				var docEl = node.documentElement;
-				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
-			}
-			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
-		};
-
-		/**
-   * Gets the transform matrix values for the given node.
-   * @param {!Element} node
-   * @return {Array<number>}
-   */
-
-		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
-			var style = getComputedStyle(node);
-			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
-			if (transform !== 'none') {
-				var values = [];
-				var regex = /([\d-\.\s]+)/g;
-				var matches = regex.exec(transform);
-				while (matches) {
-					values.push(matches[1]);
-					matches = regex.exec(transform);
-				}
-				return values;
-			}
-		};
-
-		/**
-   * Gets the number of translated pixels for the given node, for both the top and
-   * left positions.
-   * @param {!Element} node
-   * @return {number}
-   */
-
-		Position.getTranslation = function getTranslation(node) {
-			var values = Position.getTransformMatrixValues(node);
-			var translation = {
-				left: 0,
-				top: 0
-			};
-			if (values) {
-				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
-				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
-			}
-			return translation;
-		};
-
-		/**
-   * Gets the width of the specified node. Scroll width is included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getWidth = function getWidth(node) {
-			return this.getSize_(node, 'Width');
-		};
-
-		/**
-   * Tests if a region intersects with another.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {boolean}
-   */
-
-		Position.intersectRegion = function intersectRegion(r1, r2) {
-			return Geometry.intersectRect(r1.top, r1.left, r1.bottom, r1.right, r2.top, r2.left, r2.bottom, r2.right);
-		};
-
-		/**
-   * Tests if a region is inside another.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {boolean}
-   */
-
-		Position.insideRegion = function insideRegion(r1, r2) {
-			return r2.top >= r1.top && r2.bottom <= r1.bottom && r2.right <= r1.right && r2.left >= r1.left;
-		};
-
-		/**
-   * Tests if a region is inside viewport region.
-   * @param {DOMRect} region
-   * @return {boolean}
-   */
-
-		Position.insideViewport = function insideViewport(region) {
-			return this.insideRegion(this.getRegion(window), region);
-		};
-
-		/**
-   * Computes the intersection region between two regions.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {?DOMRect} Intersection region or null if regions doesn't
-   *     intersects.
-   */
-
-		Position.intersection = function intersection(r1, r2) {
-			if (!this.intersectRegion(r1, r2)) {
-				return null;
-			}
-			var bottom = Math.min(r1.bottom, r2.bottom);
-			var right = Math.min(r1.right, r2.right);
-			var left = Math.max(r1.left, r2.left);
-			var top = Math.max(r1.top, r2.top);
-			return this.makeRegion(bottom, bottom - top, left, right, top, right - left);
-		};
-
-		/**
-   * Makes a region object. It's a writable version of DOMRect.
-   * @param {number} bottom
-   * @param {number} height
-   * @param {number} left
-   * @param {number} right
-   * @param {number} top
-   * @param {number} width
-   * @return {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   */
-
-		Position.makeRegion = function makeRegion(bottom, height, left, right, top, width) {
-			return {
-				bottom: bottom,
-				height: height,
-				left: left,
-				right: right,
-				top: top,
-				width: width
-			};
-		};
-
-		/**
-   * Makes a region from a DOMRect result from `getBoundingClientRect`.
-   * @param  {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
-   *   position should be considered in the element's region coordinates. Defaults
-   *   to false.
-   * @return {DOMRect} Writable version of DOMRect.
-   * @protected
-   */
-
-		Position.makeRegionFromBoundingRect_ = function makeRegionFromBoundingRect_(rect, opt_includeScroll) {
-			var deltaX = opt_includeScroll ? Position.getScrollLeft(document) : 0;
-			var deltaY = opt_includeScroll ? Position.getScrollTop(document) : 0;
-			return this.makeRegion(rect.bottom + deltaY, rect.height, rect.left + deltaX, rect.right + deltaX, rect.top + deltaY, rect.width);
-		};
-
-		/**
-   * Checks if the given point coordinates are inside a region.
-   * @param {number} x
-   * @param {number} y
-   * @param {!Object} region
-   * @return {boolean}
-   */
-
-		Position.pointInsideRegion = function pointInsideRegion(x, y, region) {
-			return Position.insideRegion(region, Position.makeRegion(y, 0, x, x, y, 0));
-		};
-
-		return Position;
-	}();
-
-	this.metal.Position = Position;
-}).call(this);
-'use strict';
-
-(function () {
-	var Position = this.metal.Position;
-
-	/**
-  * Align utility. Computes region or best region to align an element with
-  * another. Regions are relative to viewport, make sure to use element with
-  * position fixed, or position absolute when the element first positioned
-  * parent is the body element.
-  */
-
-	var Align = function () {
-		function Align() {
-			babelHelpers.classCallCheck(this, Align);
-		}
-
-		/**
-   * Aligns the element with the best region around alignElement. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {string} The final chosen position for the aligned element.
-   * @static
-   */
-
-		Align.align = function align(element, alignElement, position) {
-			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
-			var bestRegion = suggestion.region;
-
-			var computedStyle = window.getComputedStyle(element, null);
-			if (computedStyle.getPropertyValue('position') !== 'fixed') {
-				bestRegion.top += window.pageYOffset;
-				bestRegion.left += window.pageXOffset;
-
-				var offsetParent = element;
-				while (offsetParent = offsetParent.offsetParent) {
-					bestRegion.top -= Position.getOffsetTop(offsetParent);
-					bestRegion.left -= Position.getOffsetLeft(offsetParent);
-				}
-			}
-
-			element.style.top = bestRegion.top + 'px';
-			element.style.left = bestRegion.left + 'px';
-			return suggestion.position;
-		};
-
-		/**
-   * Returns the best region to align element with alignElement. This is similar
-   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
-   * while `Align.suggestAlignBestRegion` also returns the chosen position.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Best region to align element.
-   * @static
-   */
-
-		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
-			return Align.suggestAlignBestRegion(element, alignElement, position).region;
-		};
-
-		/**
-   * Returns the region to align element with alignElement. The element is
-   * always aligned in the middle of alignElement axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The position to align. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Region to align element.
-   * @static
-   */
-
-		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
-			var r1 = Position.getRegion(alignElement);
-			var r2 = Position.getRegion(element);
-			var top = 0;
-			var left = 0;
-
-			switch (position) {
-				case Align.TopCenter:
-					top = r1.top - r2.height;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.RightCenter:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left + r1.width;
-					break;
-				case Align.BottomCenter:
-					top = r1.bottom;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.LeftCenter:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left - r2.width;
-					break;
-				case Align.TopRight:
-					top = r1.top - r2.height;
-					left = r1.right - r2.width;
-					break;
-				case Align.BottomRight:
-					top = r1.bottom;
-					left = r1.right - r2.width;
-					break;
-				case Align.BottomLeft:
-					top = r1.bottom;
-					left = r1.left;
-					break;
-				case Align.TopLeft:
-					top = r1.top - r2.height;
-					left = r1.left;
-					break;
-			}
-
-			return {
-				bottom: top + r2.height,
-				height: r2.height,
-				left: left,
-				right: left + r2.width,
-				top: top,
-				width: r2.width
-			};
-		};
-
-		/**
-   * Checks if specified value is a valid position. Options `Align.Top`,
-   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
-   * @return {boolean} Returns true if value is a valid position.
-   * @static
-   */
-
-		Align.isValidPosition = function isValidPosition(val) {
-			return 0 <= val && val <= 8;
-		};
-
-		/**
-   * Looks for the best region for aligning the given element. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {{position: string, region: DOMRect}} Best region to align element.
-   * @static
-   */
-
-		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
-			var bestArea = 0;
-			var bestPosition = position;
-			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
-			var tryPosition = bestPosition;
-			var tryRegion = bestRegion;
-			var viewportRegion = Position.getRegion(window);
-
-			for (var i = 0; i < 8;) {
-				if (Position.intersectRegion(viewportRegion, tryRegion)) {
-					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
-					var area = visibleRegion.width * visibleRegion.height;
-					if (area > bestArea) {
-						bestArea = area;
-						bestRegion = tryRegion;
-						bestPosition = tryPosition;
-					}
-					if (Position.insideViewport(tryRegion)) {
-						break;
-					}
-				}
-				tryPosition = (position + ++i) % 8;
-				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
-			}
-
-			return {
-				position: bestPosition,
-				region: bestRegion
-			};
-		};
-
-		return Align;
-	}();
-
-	/**
-  * Constants that represent the supported positions for `Align`.
-  * @type {number}
-  * @static
-  */
-
-	Align.TopCenter = 0;
-	Align.TopRight = 1;
-	Align.RightCenter = 2;
-	Align.BottomRight = 3;
-	Align.BottomCenter = 4;
-	Align.BottomLeft = 5;
-	Align.LeftCenter = 6;
-	Align.TopLeft = 7;
-
-	/**
-  * Aliases for position constants.
-  * @type {number}
-  * @static
-  */
-	Align.Top = Align.TopCenter;
-	Align.Right = Align.RightCenter;
-	Align.Bottom = Align.BottomCenter;
-	Align.Left = Align.LeftCenter;
-
-	this.metal.Align = Align;
-}).call(this);
-'use strict';
-
-(function () {
 	var templates = {};
 
 	/**
@@ -7778,6 +7801,61 @@ babelHelpers;
   var SoyTemplates = this.metal.SoyTemplates;
 
   var Templates = SoyTemplates.get();
+  // This file was automatically generated from Autocomplete.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Autocomplete.
+   */
+
+  if (typeof Templates.Autocomplete == 'undefined') {
+    Templates.Autocomplete = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Autocomplete.render = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="autocomplete autocomplete-list component ' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + soy.$$escapeHtml(Templates.List.render({ events: { itemSelected: opt_data.id + ':onListItemSelected_' }, id: opt_data.id + '-list' }, null, opt_ijData)) + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Autocomplete.render.soyTemplateName = 'Templates.Autocomplete.render';
+  }
+
+  Templates.Autocomplete.render.params = ["id"];
+
+  var Autocomplete = function (_Component) {
+    babelHelpers.inherits(Autocomplete, _Component);
+
+    function Autocomplete() {
+      babelHelpers.classCallCheck(this, Autocomplete);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Autocomplete;
+  }(Component);
+
+  Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
+
+  Autocomplete.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Autocomplete');
+  this.metal.Autocomplete = Autocomplete;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var SoyAop = this.metal.SoyAop;
+  var SoyRenderer = this.metal.SoyRenderer;
+  var SoyTemplates = this.metal.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
   // This file was automatically generated from List.soy.
   // Please don't edit this file by hand.
 
@@ -8075,12 +8153,13 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var AutocompleteBase = this.metal.AutocompleteBase;
-	var Promise = this.metalNamed.Promise.CancellablePromise;
 	var core = this.metal.core;
+	var debounce = this.metal.debounce;
 	var dom = this.metal.dom;
+	var Promise = this.metalNamed.Promise.CancellablePromise;
 	var Align = this.metal.Align;
-	var List = this.metal.List;
+	var AutocompleteBase = this.metal.AutocompleteBase;
+	var SoyRenderer = this.metal.SoyRenderer;
 
 	/*
   * Autocomplete component.
@@ -8089,17 +8168,9 @@ babelHelpers;
 	var Autocomplete = function (_AutocompleteBase) {
 		babelHelpers.inherits(Autocomplete, _AutocompleteBase);
 
-		/**
-   * @inheritDoc
-   */
-
-		function Autocomplete(opt_config) {
+		function Autocomplete() {
 			babelHelpers.classCallCheck(this, Autocomplete);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _AutocompleteBase.call(this, opt_config));
-
-			_this.once('render', _this.handleRender_);
-			return _this;
+			return babelHelpers.possibleConstructorReturn(this, _AutocompleteBase.apply(this, arguments));
 		}
 
 		/**
@@ -8108,22 +8179,15 @@ babelHelpers;
 
 		Autocomplete.prototype.attached = function attached() {
 			_AutocompleteBase.prototype.attached.call(this);
-			this.list.attach(this.element);
-			this.on('click', this.genericStopPropagation_);
+			this.on('click', function (event) {
+				return event.stopPropagation();
+			});
 			this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+			this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
 			if (this.visible) {
 				this.align();
 			}
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-		Autocomplete.prototype.detached = function detached() {
-			_AutocompleteBase.prototype.detached.call(this);
-			this.list.detach();
 		};
 
 		/**
@@ -8132,7 +8196,34 @@ babelHelpers;
 
 		Autocomplete.prototype.align = function align() {
 			this.element.style.width = this.inputElement.offsetWidth + 'px';
-			Align.align(this.element, this.inputElement, Align.Bottom);
+			var position = Align.align(this.element, this.inputElement, Align.Bottom);
+
+			dom.removeClasses(this.element, this.positionCss_);
+			switch (position) {
+				case Align.Top:
+				case Align.TopLeft:
+				case Align.TopRight:
+					this.positionCss_ = 'autocomplete-top';
+					break;
+				case Align.Bottom:
+				case Align.BottomLeft:
+				case Align.BottomRight:
+					this.positionCss_ = 'autocomplete-bottom';
+					break;
+				default:
+					this.positionCss_ = null;
+
+			}
+			dom.addClasses(this.element, this.positionCss_);
+		};
+
+		/**
+   * Returns the `List` component being used to render the matched items.
+   * @return {!List}
+   */
+
+		Autocomplete.prototype.getList = function getList() {
+			return this.components[this.id + '-list'];
 		};
 
 		/**
@@ -8158,14 +8249,14 @@ babelHelpers;
 		};
 
 		/**
-   * Handles the `render` event, creating a `List` component and rendering
-   * it inside this autocomplete.
-   * @protected
+   * Handles window resize events. Realigns the autocomplete results list to
+   * the input field.
    */
 
-		Autocomplete.prototype.handleRender_ = function handleRender_() {
-			this.list = new List().render(this.element);
-			this.list.on('itemSelected', this.onListItemSelected_.bind(this));
+		Autocomplete.prototype.handleWindowResize_ = function handleWindowResize_() {
+			if (this.visible) {
+				this.align();
+			}
 		};
 
 		/**
@@ -8177,7 +8268,7 @@ babelHelpers;
 			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
 				if (data) {
 					data.forEach(self.assertItemObjectStructure_);
-					self.list.items = data;
+					self.getList().items = data;
 				}
 				self.visible = !!(data && data.length > 0);
 			});
@@ -8192,18 +8283,8 @@ babelHelpers;
 
 		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
 			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
-			this.emit('select', this.list.items[selectedIndex]);
+			this.emit('select', this.getList().items[selectedIndex]);
 			this.visible = false;
-		};
-
-		/**
-   * Stops propagation of an event.
-   * @param {!Event} event
-   * @protected
-   */
-
-		Autocomplete.prototype.genericStopPropagation_ = function genericStopPropagation_(event) {
-			event.stopPropagation();
 		};
 
 		/**
@@ -8261,12 +8342,11 @@ babelHelpers;
 	};
 
 	/**
-  * Provides a list of classes which have to be applied to the element's DOM element.
-  * @type {string}
+  * The class that will be used as this component's renderer.
+  * @type {!Function}
   * @static
-  * @default 'autocomplete autocomplete-list'
   */
-	Autocomplete.ELEMENT_CLASSES = 'autocomplete autocomplete-list';
+	Autocomplete.RENDERER = SoyRenderer;
 
 	this.metal.Autocomplete = Autocomplete;
 }).call(this);
