@@ -1,6 +1,7 @@
 'use strict';
 
 import core from 'metal/src/core';
+import debounce from 'metal-debounce/src/debounce';
 import dom from 'metal/src/dom/dom';
 import { CancellablePromise as Promise } from 'metal-promise/src/promise/Promise';
 import Align from 'metal-position/src/Align';
@@ -21,6 +22,7 @@ class Autocomplete extends AutocompleteBase {
 		this.on('click', event => event.stopPropagation());
 		this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+		this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
 		if (this.visible) {
 			this.align();
 		}
@@ -60,6 +62,16 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	handleInputFocus_() {
 		this.request(this.inputElement.value);
+	}
+
+	/**
+	 * Handles window resize events. Realigns the autocomplete results list to
+	 * the input field.
+	 */
+	handleWindowResize_() {
+		if (this.visible) {
+			this.align();
+		}
 	}
 
 	/**

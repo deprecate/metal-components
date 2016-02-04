@@ -1,6 +1,7 @@
 'use strict';
 
 import async from 'metal/src/async/async';
+import Align from 'metal-position/src/Align';
 import Autocomplete from '../src/Autocomplete';
 import dom from 'metal/src/dom/dom';
 
@@ -181,6 +182,104 @@ describe('Autocomplete', function() {
 		async.nextTick(function() {
 			assert.ok(component.visible);
 			done();
+		});
+	});
+
+	describe('Align', function() {
+		beforeEach(function() {
+			sinon.spy(Align, 'align');
+		});
+
+		afterEach(function() {
+			Align.align.restore();
+		});
+
+		it('should update width to be equal to the input\'s width', function() {
+			input.style.width = '200px';
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			}).render();
+			assert.strictEqual(input.offsetWidth, component.element.offsetWidth);
+		});
+
+		it('should update width to be equal to the input\'s width when window resizes', function(done) {
+			input.style.width = '200px';
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			}).render();
+
+			// Simulating use case where resizing the window causes input width to change.
+			input.style.width = '400px';
+			dom.triggerEvent(window, 'resize');
+
+			// Waits for the resize event's debounce function to finish.
+			setTimeout(function() {
+				assert.strictEqual(input.offsetWidth, component.element.offsetWidth);
+				done();
+			}, 200);
+		});
+
+		it('should align element when it is created already visible', function() {
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			});
+
+			sinon.spy(component, 'attached');
+			component.render();
+			assert.ok(Align.align.calledAfter(component.attached));
+		});
+
+		it('should align element when it becomes visible', function(done) {
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input
+			}).render();
+			assert.strictEqual(0, Align.align.callCount);
+
+			component.visible = true;
+			component.once('attrsSynced', function() {
+				assert.strictEqual(1, Align.align.callCount);
+				done();
+			});
+		});
+
+		it('should realign element when window resizes while the results are visible', function(done) {
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			}).render();
+
+			Align.align.restore();
+			sinon.spy(Align, 'align');
+			dom.triggerEvent(window, 'resize');
+
+			// Waits for the resize event's debounce function to finish.
+			setTimeout(function() {
+				assert.strictEqual(1, Align.align.callCount);
+				done();
+			}, 200);
+		});
+
+		it('should not realign element when window resizes while the results aren\'t visible', function(done) {
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input
+			}).render();
+
+			dom.triggerEvent(window, 'resize');
+
+			// Waits for the resize event's debounce function to finish.
+			setTimeout(function() {
+				assert.strictEqual(0, Align.align.callCount);
+				done();
+			}, 200);
 		});
 	});
 });

@@ -1,34 +1,35 @@
 {
-	"name": "metal-autocomplete",
-	"version": "0.0.0",
-	"description": "Metal's autocomplete component",
-	"license": "BSD",
-	"repository": "metal/metal-autocomplete",
-	"engines": {
-		"node": ">=0.12.0",
-		"npm": ">=3.0.0"
-	},
-	"files": [
-		"src",
-		"test"
-	],
-	"scripts": {
-		"test": "gulp test"
-	},
-	"keywords": [
-		"autocomplete",
-		"metal"
-	],
+  "name": "metal-autocomplete",
+  "version": "0.0.0",
+  "description": "Metal's autocomplete component",
+  "license": "BSD",
+  "repository": "metal/metal-autocomplete",
+  "engines": {
+    "node": ">=0.12.0",
+    "npm": ">=3.0.0"
+  },
+  "files": [
+    "src",
+    "test"
+  ],
+  "scripts": {
+    "test": "gulp test"
+  },
+  "keywords": [
+    "autocomplete",
+    "metal"
+  ],
   "dependencies": {
     "bootstrap": "^3.3.6",
     "closure-templates": "20140422.0.0",
     "metal": "metal/metal.js#master",
-		"metal-list": "metal/metal-list#master",
+    "metal-debounce": "metal/metal-debounce#master",
+    "metal-list": "metal/metal-list#master",
     "metal-position": "metal/metal-position#master",
-		"metal-promise": "metal/metal-promise#master"
+    "metal-promise": "metal/metal-promise#master"
   },
-	"devDependencies": {
-		"gulp": "^3.8.11",
-		"gulp-metal": "^0.9.0"
-	}
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-metal": "^0.9.0"
+  }
 }
