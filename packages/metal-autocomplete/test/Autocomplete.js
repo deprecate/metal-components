@@ -187,7 +187,7 @@ describe('Autocomplete', function() {
 
 	describe('Align', function() {
 		beforeEach(function() {
-			sinon.spy(Align, 'align');
+			sinon.stub(Align, 'align');
 		});
 
 		afterEach(function() {
@@ -280,6 +280,28 @@ describe('Autocomplete', function() {
 				assert.strictEqual(0, Align.align.callCount);
 				done();
 			}, 200);
+		});
+
+		it('should add "autocomplete-bottom" css class if results are aligned on the bottom', function() {
+			Align.align.returns(Align.Bottom);
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			}).render();
+
+			assert.ok(dom.hasClass(component.element, 'autocomplete-bottom'));
+		});
+
+		it('should add "autocomplete-top" css class if results are aligned on the top', function() {
+			Align.align.returns(Align.Top);
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			}).render();
+
+			assert.ok(dom.hasClass(component.element, 'autocomplete-top'));
 		});
 	});
 });

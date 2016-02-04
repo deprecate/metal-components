@@ -33,7 +33,25 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	align() {
 		this.element.style.width = this.inputElement.offsetWidth + 'px';
-		Align.align(this.element, this.inputElement, Align.Bottom);
+		var position = Align.align(this.element, this.inputElement, Align.Bottom);
+
+		dom.removeClasses(this.element, this.positionCss_);
+		switch (position) {
+			case Align.Top:
+			case Align.TopLeft:
+			case Align.TopRight:
+				this.positionCss_ = 'autocomplete-top';
+				break;
+			case Align.Bottom:
+			case Align.BottomLeft:
+			case Align.BottomRight:
+				this.positionCss_ = 'autocomplete-bottom';
+				break;
+			default:
+				this.positionCss_ = null;
+
+		}
+		dom.addClasses(this.element, this.positionCss_);
 	}
 
 	/**
