@@ -1,9 +1,8 @@
 'use strict';
 
-import dom from 'metal/src/dom/dom';
+import dom from 'metal-dom';
 import Alert from '../src/Alert';
-import SoyTemplates from 'metal/src/soy/SoyTemplates';
-import 'metal/src/dom/events';
+import { SoyTemplates } from 'metal-soy';
 
 describe('Alert', function() {
 	var component;
@@ -143,8 +142,10 @@ describe('Alert', function() {
 		component.visible = true;
 		dom.once(component.element, 'transitionend', function() {
 			dom.once(component.element, 'transitionend', function() {
-				assert.ok(!component.visible);
-				done();
+				setTimeout(function() {
+					assert.ok(!component.visible);
+					done();
+				}, 100);
 			});
 		});
 	});
