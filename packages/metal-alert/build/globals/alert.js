@@ -310,6 +310,411 @@ babelHelpers;
 (function () {
 	var core = this.metal.core;
 
+	var array = function () {
+		function array() {
+			babelHelpers.classCallCheck(this, array);
+		}
+
+		/**
+   * Checks if the given arrays have the same content.
+   * @param {!Array<*>} arr1
+   * @param {!Array<*>} arr2
+   * @return {boolean}
+   */
+
+		array.equal = function equal(arr1, arr2) {
+			for (var i = 0; i < arr1.length; i++) {
+				if (arr1[i] !== arr2[i]) {
+					return false;
+				}
+			}
+			return arr1.length === arr2.length;
+		};
+
+		/**
+   * Returns the first value in the given array that isn't undefined.
+   * @param {!Array} arr
+   * @return {*}
+   */
+
+		array.firstDefinedValue = function firstDefinedValue(arr) {
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i] !== undefined) {
+					return arr[i];
+				}
+			}
+		};
+
+		/**
+   * Transforms the input nested array to become flat.
+   * @param {Array.<*|Array.<*>>} arr Nested array to flatten.
+   * @param {Array.<*>} opt_output Optional output array.
+   * @return {Array.<*>} Flat array.
+   */
+
+		array.flatten = function flatten(arr, opt_output) {
+			var output = opt_output || [];
+			for (var i = 0; i < arr.length; i++) {
+				if (Array.isArray(arr[i])) {
+					array.flatten(arr[i], output);
+				} else {
+					output.push(arr[i]);
+				}
+			}
+			return output;
+		};
+
+		/**
+   * Removes the first occurrence of a particular value from an array.
+   * @param {Array.<T>} arr Array from which to remove value.
+   * @param {T} obj Object to remove.
+   * @return {boolean} True if an element was removed.
+   * @template T
+   */
+
+		array.remove = function remove(arr, obj) {
+			var i = arr.indexOf(obj);
+			var rv;
+			if (rv = i >= 0) {
+				array.removeAt(arr, i);
+			}
+			return rv;
+		};
+
+		/**
+   * Removes from an array the element at index i
+   * @param {Array} arr Array or array like object from which to remove value.
+   * @param {number} i The index to remove.
+   * @return {boolean} True if an element was removed.
+   */
+
+		array.removeAt = function removeAt(arr, i) {
+			return Array.prototype.splice.call(arr, i, 1).length === 1;
+		};
+
+		/**
+   * Slices the given array, just like Array.prototype.slice, but this
+   * is faster and working on all array-like objects (like arguments).
+   * @param {!Object} arr Array-like object to slice.
+   * @param {number} start The index that should start the slice.
+   * @param {number=} opt_end The index where the slice should end, not
+   *   included in the final array. If not given, all elements after the
+   *   start index will be included.
+   * @return {!Array}
+   */
+
+		array.slice = function slice(arr, start, opt_end) {
+			var sliced = [];
+			var end = core.isDef(opt_end) ? opt_end : arr.length;
+			for (var i = start; i < end; i++) {
+				sliced.push(arr[i]);
+			}
+			return sliced;
+		};
+
+		return array;
+	}();
+
+	this.metal.array = array;
+}).call(this);
+/*!
+ * Polyfill from Google's Closure Library.
+ * Copyright 2013 The Closure Library Authors. All Rights Reserved.
+ */
+
+'use strict';
+
+(function () {
+	var async = {};
+
+	/**
+  * Throw an item without interrupting the current execution context.  For
+  * example, if processing a group of items in a loop, sometimes it is useful
+  * to report an error while still allowing the rest of the batch to be
+  * processed.
+  * @param {*} exception
+  */
+	async.throwException = function (exception) {
+		// Each throw needs to be in its own context.
+		async.nextTick(function () {
+			throw exception;
+		});
+	};
+
+	/**
+  * Fires the provided callback just before the current callstack unwinds, or as
+  * soon as possible after the current JS execution context.
+  * @param {function(this:THIS)} callback
+  * @param {THIS=} opt_context Object to use as the "this value" when calling
+  *     the provided function.
+  * @template THIS
+  */
+	async.run = function (callback, opt_context) {
+		if (!async.run.workQueueScheduled_) {
+			// Nothing is currently scheduled, schedule it now.
+			async.nextTick(async.run.processWorkQueue);
+			async.run.workQueueScheduled_ = true;
+		}
+
+		async.run.workQueue_.push(new async.run.WorkItem_(callback, opt_context));
+	};
+
+	/** @private {boolean} */
+	async.run.workQueueScheduled_ = false;
+
+	/** @private {!Array.<!async.run.WorkItem_>} */
+	async.run.workQueue_ = [];
+
+	/**
+  * Run any pending async.run work items. This function is not intended
+  * for general use, but for use by entry point handlers to run items ahead of
+  * async.nextTick.
+  */
+	async.run.processWorkQueue = function () {
+		// NOTE: additional work queue items may be pushed while processing.
+		while (async.run.workQueue_.length) {
+			// Don't let the work queue grow indefinitely.
+			var workItems = async.run.workQueue_;
+			async.run.workQueue_ = [];
+			for (var i = 0; i < workItems.length; i++) {
+				var workItem = workItems[i];
+				try {
+					workItem.fn.call(workItem.scope);
+				} catch (e) {
+					async.throwException(e);
+				}
+			}
+		}
+
+		// There are no more work items, reset the work queue.
+		async.run.workQueueScheduled_ = false;
+	};
+
+	/**
+  * @constructor
+  * @final
+  * @struct
+  * @private
+  *
+  * @param {function()} fn
+  * @param {Object|null|undefined} scope
+  */
+	async.run.WorkItem_ = function (fn, scope) {
+		/** @const */
+		this.fn = fn;
+		/** @const */
+		this.scope = scope;
+	};
+
+	/**
+  * Fires the provided callbacks as soon as possible after the current JS
+  * execution context. setTimeout(…, 0) always takes at least 5ms for legacy
+  * reasons.
+  * @param {function(this:SCOPE)} callback Callback function to fire as soon as
+  *     possible.
+  * @param {SCOPE=} opt_context Object in whose scope to call the listener.
+  * @template SCOPE
+  */
+	async.nextTick = function (callback, opt_context) {
+		var cb = callback;
+		if (opt_context) {
+			cb = callback.bind(opt_context);
+		}
+		cb = async.nextTick.wrapCallback_(cb);
+		// Introduced and currently only supported by IE10.
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof setImmediate === 'function') {
+			setImmediate(cb);
+			return;
+		}
+		// Look for and cache the custom fallback version of setImmediate.
+		if (!async.nextTick.setImmediate_) {
+			async.nextTick.setImmediate_ = async.nextTick.getSetImmediateEmulator_();
+		}
+		async.nextTick.setImmediate_(cb);
+	};
+
+	/**
+  * Cache for the setImmediate implementation.
+  * @type {function(function())}
+  * @private
+  */
+	async.nextTick.setImmediate_ = null;
+
+	/**
+  * Determines the best possible implementation to run a function as soon as
+  * the JS event loop is idle.
+  * @return {function(function())} The "setImmediate" implementation.
+  * @private
+  */
+	async.nextTick.getSetImmediateEmulator_ = function () {
+		// Create a private message channel and use it to postMessage empty messages
+		// to ourselves.
+		var Channel;
+
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof MessageChannel === 'function') {
+			Channel = MessageChannel;
+		}
+
+		// If MessageChannel is not available and we are in a browser, implement
+		// an iframe based polyfill in browsers that have postMessage and
+		// document.addEventListener. The latter excludes IE8 because it has a
+		// synchronous postMessage implementation.
+		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
+			/** @constructor */
+			Channel = function Channel() {
+				// Make an empty, invisible iframe.
+				var iframe = document.createElement('iframe');
+				iframe.style.display = 'none';
+				iframe.src = '';
+				document.documentElement.appendChild(iframe);
+				var win = iframe.contentWindow;
+				var doc = win.document;
+				doc.open();
+				doc.write('');
+				doc.close();
+				var message = 'callImmediate' + Math.random();
+				var origin = win.location.protocol + '//' + win.location.host;
+				var onmessage = function (e) {
+					// Validate origin and message to make sure that this message was
+					// intended for us.
+					if (e.origin !== origin && e.data !== message) {
+						return;
+					}
+					this.port1.onmessage();
+				}.bind(this);
+				win.addEventListener('message', onmessage, false);
+				this.port1 = {};
+				this.port2 = {
+					postMessage: function postMessage() {
+						win.postMessage(message, origin);
+					}
+				};
+			};
+		}
+		if (typeof Channel !== 'undefined') {
+			var channel = new Channel();
+			// Use a fifo linked list to call callbacks in the right order.
+			var head = {};
+			var tail = head;
+			channel.port1.onmessage = function () {
+				head = head.next;
+				var cb = head.cb;
+				head.cb = null;
+				cb();
+			};
+			return function (cb) {
+				tail.next = {
+					cb: cb
+				};
+				tail = tail.next;
+				channel.port2.postMessage(0);
+			};
+		}
+		// Implementation for IE6-8: Script elements fire an asynchronous
+		// onreadystatechange event when inserted into the DOM.
+		if (typeof document !== 'undefined' && 'onreadystatechange' in document.createElement('script')) {
+			return function (cb) {
+				var script = document.createElement('script');
+				script.onreadystatechange = function () {
+					// Clean up and call the callback.
+					script.onreadystatechange = null;
+					script.parentNode.removeChild(script);
+					script = null;
+					cb();
+					cb = null;
+				};
+				document.documentElement.appendChild(script);
+			};
+		}
+		// Fall back to setTimeout with 0. In browsers this creates a delay of 5ms
+		// or more.
+		return function (cb) {
+			setTimeout(cb, 0);
+		};
+	};
+
+	/**
+  * Helper function that is overrided to protect callbacks with entry point
+  * monitor if the application monitors entry points.
+  * @param {function()} callback Callback function to fire as soon as possible.
+  * @return {function()} The wrapped callback.
+  * @private
+  */
+	async.nextTick.wrapCallback_ = function (opt_returnValue) {
+		return opt_returnValue;
+	};
+
+	this.metal.async = async;
+}).call(this);
+'use strict';
+
+/**
+ * Disposable utility. When inherited provides the `dispose` function to its
+ * subclass, which is responsible for disposing of any object references
+ * when an instance won't be used anymore. Subclasses should override
+ * `disposeInternal` to implement any specific disposing logic.
+ * @constructor
+ */
+
+(function () {
+	var Disposable = function () {
+		function Disposable() {
+			babelHelpers.classCallCheck(this, Disposable);
+
+			/**
+    * Flag indicating if this instance has already been disposed.
+    * @type {boolean}
+    * @protected
+    */
+			this.disposed_ = false;
+		}
+
+		/**
+   * Disposes of this instance's object references. Calls `disposeInternal`.
+   */
+
+		Disposable.prototype.dispose = function dispose() {
+			if (!this.disposed_) {
+				this.disposeInternal();
+				this.disposed_ = true;
+			}
+		};
+
+		/**
+   * Subclasses should override this method to implement any specific
+   * disposing logic (like clearing references and calling `dispose` on other
+   * disposables).
+   */
+
+		Disposable.prototype.disposeInternal = function disposeInternal() {};
+
+		/**
+   * Checks if this instance has already been disposed.
+   * @return {boolean}
+   */
+
+		Disposable.prototype.isDisposed = function isDisposed() {
+			return this.disposed_;
+		};
+
+		return Disposable;
+	}();
+
+	this.metal.Disposable = Disposable;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.core;
+
 	var object = function () {
 		function object() {
 			babelHelpers.classCallCheck(this, object);
@@ -379,64 +784,94 @@ babelHelpers;
 }).call(this);
 'use strict';
 
-/**
- * Disposable utility. When inherited provides the `dispose` function to its
- * subclass, which is responsible for disposing of any object references
- * when an instance won't be used anymore. Subclasses should override
- * `disposeInternal` to implement any specific disposing logic.
- * @constructor
- */
-
 (function () {
-	var Disposable = function () {
-		function Disposable() {
-			babelHelpers.classCallCheck(this, Disposable);
-
-			/**
-    * Flag indicating if this instance has already been disposed.
-    * @type {boolean}
-    * @protected
-    */
-			this.disposed_ = false;
+	var string = function () {
+		function string() {
+			babelHelpers.classCallCheck(this, string);
 		}
 
 		/**
-   * Disposes of this instance's object references. Calls `disposeInternal`.
+   * Removes the breaking spaces from the left and right of the string and
+   * collapses the sequences of breaking spaces in the middle into single spaces.
+   * The original and the result strings render the same way in HTML.
+   * @param {string} str A string in which to collapse spaces.
+   * @return {string} Copy of the string with normalized breaking spaces.
    */
 
-		Disposable.prototype.dispose = function dispose() {
-			if (!this.disposed_) {
-				this.disposeInternal();
-				this.disposed_ = true;
+		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
+			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
+		};
+
+		/**
+  * Returns a string with at least 64-bits of randomness.
+  * @return {string} A random string, e.g. sn1s7vb4gcic.
+  */
+
+		string.getRandomString = function getRandomString() {
+			var x = 2147483648;
+			return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);
+		};
+
+		/**
+   * Calculates the hashcode for a string. The hashcode value is computed by
+   * the sum algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]. A nice
+   * property of using 31 prime is that the multiplication can be replaced by
+   * a shift and a subtraction for better performance: 31*i == (i<<5)-i.
+   * Modern VMs do this sort of optimization automatically.
+   * @param {String} val Target string.
+   * @return {Number} Returns the string hashcode.
+   */
+
+		string.hashCode = function hashCode(val) {
+			var hash = 0;
+			for (var i = 0, len = val.length; i < len; i++) {
+				hash = 31 * hash + val.charCodeAt(i);
+				hash %= 0x100000000;
 			}
+			return hash;
 		};
 
 		/**
-   * Subclasses should override this method to implement any specific
-   * disposing logic (like clearing references and calling `dispose` on other
-   * disposables).
+   * Replaces interval into the string with specified value, e.g.
+   * `replaceInterval("abcde", 1, 4, "")` returns "ae".
+   * @param {string} str The input string.
+   * @param {Number} start Start interval position to be replaced.
+   * @param {Number} end End interval position to be replaced.
+   * @param {string} value The value that replaces the specified interval.
+   * @return {string}
    */
 
-		Disposable.prototype.disposeInternal = function disposeInternal() {};
-
-		/**
-   * Checks if this instance has already been disposed.
-   * @return {boolean}
-   */
-
-		Disposable.prototype.isDisposed = function isDisposed() {
-			return this.disposed_;
+		string.replaceInterval = function replaceInterval(str, start, end, value) {
+			return str.substring(0, start) + value + str.substring(end);
 		};
 
-		return Disposable;
+		return string;
 	}();
 
-	this.metal.Disposable = Disposable;
+	this.metal.string = string;
 }).call(this);
 'use strict';
 
 (function () {
-	var Disposable = this.metal.Disposable;
+  var core = this.metal.core;
+  var array = this.metal.array;
+  var async = this.metal.async;
+  var Disposable = this.metal.Disposable;
+  var object = this.metal.object;
+  var string = this.metal.string;
+  this.metal.metal = core;
+  this.metalNamed.metal = {};
+  this.metalNamed.metal.core = core;
+  this.metalNamed.metal.array = array;
+  this.metalNamed.metal.async = async;
+  this.metalNamed.metal.Disposable = Disposable;
+  this.metalNamed.metal.object = object;
+  this.metalNamed.metal.string = string;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.metalNamed.metal.Disposable;
 
 	/**
   * EventHandle utility. Holds information about an event subscription, and
@@ -513,7 +948,630 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var core = this.metalNamed.metal.core;
+	var array = this.metalNamed.metal.array;
+	var Disposable = this.metalNamed.metal.Disposable;
 	var EventHandle = this.metal.EventHandle;
+
+	/**
+  * EventEmitter utility.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventEmitter = function (_Disposable) {
+		babelHelpers.inherits(EventEmitter, _Disposable);
+
+		function EventEmitter() {
+			babelHelpers.classCallCheck(this, EventEmitter);
+
+			/**
+    * Holds event listeners scoped by event type.
+    * @type {!Object<string, !Array<!function()>>}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.events_ = [];
+
+			/**
+    * The maximum number of listeners allowed for each event type. If the number
+    * becomes higher than the max, a warning will be issued.
+    * @type {number}
+    * @protected
+    */
+			_this.maxListeners_ = 10;
+
+			/**
+    * Configuration option which determines if an event facade should be sent
+    * as a param of listeners when emitting events. If set to true, the facade
+    * will be passed as the first argument of the listener.
+    * @type {boolean}
+    * @protected
+    */
+			_this.shouldUseFacade_ = false;
+			return _this;
+		}
+
+		/**
+   * Adds a listener to the end of the listeners array for the specified events.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @param {boolean} opt_default Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+		EventEmitter.prototype.addListener = function addListener(events, listener, opt_default) {
+			this.validateListener_(listener);
+
+			events = this.normalizeEvents_(events);
+			for (var i = 0; i < events.length; i++) {
+				this.addSingleListener_(events[i], listener, opt_default);
+			}
+
+			return new EventHandle(this, events, listener);
+		};
+
+		/**
+   * Adds a listener to the end of the listeners array for a single event.
+   * @param {string} event
+   * @param {!Function} listener
+   * @param {boolean} opt_default Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @return {!EventHandle} Can be used to remove the listener.
+   * @param {Function=} opt_origin The original function that was added as a
+   *   listener, if there is any.
+   * @protected
+   */
+
+		EventEmitter.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_default, opt_origin) {
+			this.emit('newListener', event, listener);
+
+			if (!this.events_[event]) {
+				this.events_[event] = [];
+			}
+			this.events_[event].push({
+				default: opt_default,
+				fn: listener,
+				origin: opt_origin
+			});
+
+			var listeners = this.events_[event];
+			if (listeners.length > this.maxListeners_ && !listeners.warned) {
+				console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
+				listeners.warned = true;
+			}
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+		EventEmitter.prototype.disposeInternal = function disposeInternal() {
+			this.events_ = [];
+		};
+
+		/**
+   * Execute each of the listeners in order with the supplied arguments.
+   * @param {string} event
+   * @param {*} opt_args [arg1], [arg2], [...]
+   * @return {boolean} Returns true if event had listeners, false otherwise.
+   */
+
+		EventEmitter.prototype.emit = function emit(event) {
+			var args = array.slice(arguments, 1);
+			var listeners = (this.events_[event] || []).concat();
+
+			var facade;
+			if (this.getShouldUseFacade()) {
+				facade = {
+					preventDefault: function preventDefault() {
+						facade.preventedDefault = true;
+					},
+					target: this,
+					type: event
+				};
+				args.push(facade);
+			}
+
+			var defaultListeners = [];
+			for (var i = 0; i < listeners.length; i++) {
+				if (listeners[i].default) {
+					defaultListeners.push(listeners[i]);
+				} else {
+					listeners[i].fn.apply(this, args);
+				}
+			}
+			if (!facade || !facade.preventedDefault) {
+				for (var j = 0; j < defaultListeners.length; j++) {
+					defaultListeners[j].fn.apply(this, args);
+				}
+			}
+
+			if (event !== '*') {
+				this.emit.apply(this, ['*', event].concat(args));
+			}
+
+			return listeners.length > 0;
+		};
+
+		/**
+   * Gets the configuration option which determines if an event facade should
+   * be sent as a param of listeners when emitting events. If set to true, the
+   * facade will be passed as the first argument of the listener.
+   * @return {boolean}
+   */
+
+		EventEmitter.prototype.getShouldUseFacade = function getShouldUseFacade() {
+			return this.shouldUseFacade_;
+		};
+
+		/**
+   * Returns an array of listeners for the specified event.
+   * @param {string} event
+   * @return {Array} Array of listeners.
+   */
+
+		EventEmitter.prototype.listeners = function listeners(event) {
+			return (this.events_[event] || []).map(function (listener) {
+				return listener.fn;
+			});
+		};
+
+		/**
+   * Adds a listener that will be invoked a fixed number of times for the
+   * events. After each event is triggered the specified amount of times, the
+   * listener is removed for it.
+   * @param {!(Array|string)} events
+   * @param {number} amount The amount of times this event should be listened
+   * to.
+   * @param {!Function} listener
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+		EventEmitter.prototype.many = function many(events, amount, listener) {
+			events = this.normalizeEvents_(events);
+			for (var i = 0; i < events.length; i++) {
+				this.many_(events[i], amount, listener);
+			}
+
+			return new EventHandle(this, events, listener);
+		};
+
+		/**
+   * Adds a listener that will be invoked a fixed number of times for a single
+   * event. After the event is triggered the specified amount of times, the
+   * listener is removed.
+   * @param {string} event
+   * @param {number} amount The amount of times this event should be listened
+   * to.
+   * @param {!Function} listener
+   * @protected
+   */
+
+		EventEmitter.prototype.many_ = function many_(event, amount, listener) {
+			var self = this;
+
+			if (amount <= 0) {
+				return;
+			}
+
+			function handlerInternal() {
+				if (--amount === 0) {
+					self.removeListener(event, handlerInternal);
+				}
+				listener.apply(self, arguments);
+			}
+
+			self.addSingleListener_(event, handlerInternal, false, listener);
+		};
+
+		/**
+   * Checks if a listener object matches the given listener function. To match,
+   * it needs to either point to that listener or have it as its origin.
+   * @param {!Object} listenerObj
+   * @param {!Function} listener
+   * @return {boolean}
+   * @protected
+   */
+
+		EventEmitter.prototype.matchesListener_ = function matchesListener_(listenerObj, listener) {
+			return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
+		};
+
+		/**
+   * Converts the parameter to an array if only one event is given.
+   * @param  {!(Array|string)} events
+   * @return {!Array}
+   * @protected
+   */
+
+		EventEmitter.prototype.normalizeEvents_ = function normalizeEvents_(events) {
+			return core.isString(events) ? [events] : events;
+		};
+
+		/**
+   * Removes a listener for the specified events.
+   * Caution: changes array indices in the listener array behind the listener.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+		EventEmitter.prototype.off = function off(events, listener) {
+			this.validateListener_(listener);
+
+			events = this.normalizeEvents_(events);
+			for (var i = 0; i < events.length; i++) {
+				var listenerObjs = this.events_[events[i]] || [];
+				this.removeMatchingListenerObjs_(listenerObjs, listener);
+			}
+
+			return this;
+		};
+
+		/**
+   * Adds a listener to the end of the listeners array for the specified events.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+		EventEmitter.prototype.on = function on() {
+			return this.addListener.apply(this, arguments);
+		};
+
+		/**
+   * Adds a one time listener for the events. This listener is invoked only the
+   * next time each event is fired, after which it is removed.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+		EventEmitter.prototype.once = function once(events, listener) {
+			return this.many(events, 1, listener);
+		};
+
+		/**
+   * Removes all listeners, or those of the specified events. It's not a good
+   * idea to remove listeners that were added elsewhere in the code,
+   * especially when it's on an emitter that you didn't create.
+   * @param {(Array|string)=} opt_events
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+		EventEmitter.prototype.removeAllListeners = function removeAllListeners(opt_events) {
+			if (opt_events) {
+				var events = this.normalizeEvents_(opt_events);
+				for (var i = 0; i < events.length; i++) {
+					this.events_[events[i]] = null;
+				}
+			} else {
+				this.events_ = {};
+			}
+			return this;
+		};
+
+		/**
+   * Removes all listener objects from the given array that match the given
+   * listener function.
+   * @param {!Array.<Object>} listenerObjs
+   * @param {!Function} listener
+   * @protected
+   */
+
+		EventEmitter.prototype.removeMatchingListenerObjs_ = function removeMatchingListenerObjs_(listenerObjs, listener) {
+			for (var i = listenerObjs.length - 1; i >= 0; i--) {
+				if (this.matchesListener_(listenerObjs[i], listener)) {
+					listenerObjs.splice(i, 1);
+				}
+			}
+		};
+
+		/**
+   * Removes a listener for the specified events.
+   * Caution: changes array indices in the listener array behind the listener.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+		EventEmitter.prototype.removeListener = function removeListener() {
+			return this.off.apply(this, arguments);
+		};
+
+		/**
+   * By default EventEmitters will print a warning if more than 10 listeners
+   * are added for a particular event. This is a useful default which helps
+   * finding memory leaks. Obviously not all Emitters should be limited to 10.
+   * This function allows that to be increased. Set to zero for unlimited.
+   * @param {number} max The maximum number of listeners.
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+		EventEmitter.prototype.setMaxListeners = function setMaxListeners(max) {
+			this.maxListeners_ = max;
+			return this;
+		};
+
+		/**
+   * Sets the configuration option which determines if an event facade should
+   * be sent as a param of listeners when emitting events. If set to true, the
+   * facade will be passed as the first argument of the listener.
+   * @param {boolean} shouldUseFacade
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+		EventEmitter.prototype.setShouldUseFacade = function setShouldUseFacade(shouldUseFacade) {
+			this.shouldUseFacade_ = shouldUseFacade;
+			return this;
+		};
+
+		/**
+   * Checks if the given listener is valid, throwing an exception when it's not.
+   * @param  {*} listener
+   * @protected
+   */
+
+		EventEmitter.prototype.validateListener_ = function validateListener_(listener) {
+			if (!core.isFunction(listener)) {
+				throw new TypeError('Listener must be a function');
+			}
+		};
+
+		return EventEmitter;
+	}(Disposable);
+
+	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
+	this.metal.EventEmitter = EventEmitter;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.metalNamed.metal.Disposable;
+	var object = this.metalNamed.metal.object;
+
+	/**
+  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
+  * instances together, emitting events from the first emitter through the
+  * second one. That means that listening to a supported event on the target
+  * emitter will mean listening to it on the origin emitter as well.
+  * @param {EventEmitter} originEmitter Events originated on this emitter
+  *   will be fired for the target emitter's listeners as well.
+  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
+  *   will also be triggered when the event is fired by the origin emitter.
+  * @param {Object} opt_blacklist Optional blacklist of events that should not be
+  *   proxied.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventEmitterProxy = function (_Disposable) {
+		babelHelpers.inherits(EventEmitterProxy, _Disposable);
+
+		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
+			babelHelpers.classCallCheck(this, EventEmitterProxy);
+
+			/**
+    * Map of events that should not be proxied.
+    * @type {Object}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.blacklist_ = opt_blacklist || {};
+
+			/**
+    * The origin emitter. This emitter's events will be proxied through the
+    * target emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.originEmitter_ = originEmitter;
+
+			/**
+    * Holds a map of events from the origin emitter that are already being proxied.
+    * @type {Object}
+    * @protected
+    */
+			_this.proxiedEvents_ = {};
+
+			/**
+    * The target emitter. This emitter will emit all events that come from
+    * the origin emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.targetEmitter_ = targetEmitter;
+
+			/**
+    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
+    * @type {Object}
+    * @protected
+    */
+			_this.whitelist_ = opt_whitelist;
+
+			_this.startProxy_();
+			return _this;
+		}
+
+		/**
+   * Adds the proxy listener for the given event.
+   * @param {string} event.
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.addListener_ = function addListener_(event) {
+			this.originEmitter_.on(event, this.proxiedEvents_[event]);
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
+			object.map(this.proxiedEvents_, this.removeListener_.bind(this));
+			this.proxiedEvents_ = null;
+			this.originEmitter_ = null;
+			this.targetEmitter_ = null;
+		};
+
+		/**
+   * Proxies the given event from the origin to the target emitter.
+   * @param {string} event
+   */
+
+		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
+			if (!this.shouldProxyEvent_(event)) {
+				return;
+			}
+
+			var self = this;
+			this.proxiedEvents_[event] = function () {
+				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
+				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
+			};
+
+			this.addListener_(event);
+		};
+
+		/**
+   * Removes the proxy listener for the given event.
+   * @param {string} event
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
+			this.originEmitter_.removeListener(event, this.proxiedEvents_[event]);
+		};
+
+		/**
+   * Checks if the given event should be proxied.
+   * @param {string} event
+   * @return {boolean}
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
+			if (this.whitelist_ && !this.whitelist_[event]) {
+				return false;
+			}
+			if (this.blacklist_[event]) {
+				return false;
+			}
+			return !this.proxiedEvents_[event];
+		};
+
+		/**
+   * Starts proxying all events from the origin to the target emitter.
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
+			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+		};
+
+		return EventEmitterProxy;
+	}(Disposable);
+
+	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
+	this.metal.EventEmitterProxy = EventEmitterProxy;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.metalNamed.metal.Disposable;
+
+	/**
+  * EventHandler utility. It's useful for easily removing a group of
+  * listeners from different EventEmitter instances.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventHandler = function (_Disposable) {
+		babelHelpers.inherits(EventHandler, _Disposable);
+
+		function EventHandler() {
+			babelHelpers.classCallCheck(this, EventHandler);
+
+			/**
+    * An array that holds the added event handles, so the listeners can be
+    * removed later.
+    * @type {Array.<EventHandle>}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.eventHandles_ = [];
+			return _this;
+		}
+
+		/**
+   * Adds event handles to be removed later through the `removeAllListeners`
+   * method.
+   * @param {...(!EventHandle)} var_args
+   */
+
+		EventHandler.prototype.add = function add() {
+			for (var i = 0; i < arguments.length; i++) {
+				this.eventHandles_.push(arguments[i]);
+			}
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+		EventHandler.prototype.disposeInternal = function disposeInternal() {
+			this.eventHandles_ = null;
+		};
+
+		/**
+   * Removes all listeners that have been added through the `add` method.
+   */
+
+		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
+			for (var i = 0; i < this.eventHandles_.length; i++) {
+				this.eventHandles_[i].removeListener();
+			}
+
+			this.eventHandles_ = [];
+		};
+
+		return EventHandler;
+	}(Disposable);
+
+	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
+	this.metal.EventHandler = EventHandler;
+}).call(this);
+'use strict';
+
+(function () {
+  var EventEmitter = this.metal.EventEmitter;
+  var EventEmitterProxy = this.metal.EventEmitterProxy;
+  var EventHandle = this.metal.EventHandle;
+  var EventHandler = this.metal.EventHandler;
+  this.metal.events = EventEmitter;
+  this.metalNamed.events = {};
+  this.metalNamed.events.EventEmitter = EventEmitter;
+  this.metalNamed.events.EventEmitterProxy = EventEmitterProxy;
+  this.metalNamed.events.EventHandle = EventHandle;
+  this.metalNamed.events.EventHandler = EventHandler;
+}).call(this);
+'use strict';
+
+(function () {
+	var EventHandle = this.metalNamed.events.EventHandle;
 
 	/**
   * This is a special EventHandle, that is responsible for dom events, instead
@@ -560,8 +1618,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-	var object = this.metal.object;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var DomEventHandle = this.metal.DomEventHandle;
 
 	var dom = function () {
@@ -1157,178 +2215,76 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var dom = this.metal.dom;
+	var EventEmitterProxy = this.metalNamed.events.EventEmitterProxy;
 
-	var array = function () {
-		function array() {
-			babelHelpers.classCallCheck(this, array);
+	/**
+  * DomEventEmitterProxy utility. It extends `EventEmitterProxy` to also accept
+  * dom elements as origin emitters.
+  * @extends {EventEmitterProxy}
+  */
+
+	var DomEventEmitterProxy = function (_EventEmitterProxy) {
+		babelHelpers.inherits(DomEventEmitterProxy, _EventEmitterProxy);
+
+		function DomEventEmitterProxy() {
+			babelHelpers.classCallCheck(this, DomEventEmitterProxy);
+			return babelHelpers.possibleConstructorReturn(this, _EventEmitterProxy.apply(this, arguments));
 		}
 
 		/**
-   * Checks if the given arrays have the same content.
-   * @param {!Array<*>} arr1
-   * @param {!Array<*>} arr2
+   * Adds the proxy listener for the given event.
+   * @param {string} event.
+   * @protected
+   * @override
+   */
+
+		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event) {
+			if (this.originEmitter_.addEventListener) {
+				dom.on(this.originEmitter_, event, this.proxiedEvents_[event]);
+			} else {
+				_EventEmitterProxy.prototype.addListener_.call(this, event);
+			}
+		};
+
+		/**
+   * Removes the proxy listener for the given event.
+   * @param {string} event
+   * @protected
+   * @override
+   */
+
+		DomEventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
+			if (this.originEmitter_.removeEventListener) {
+				this.originEmitter_.removeEventListener(event, this.proxiedEvents_[event]);
+			} else {
+				_EventEmitterProxy.prototype.removeListener_.call(this, event);
+			}
+		};
+
+		/**
+   * Checks if the given event should be proxied.
+   * @param {string} event
    * @return {boolean}
+   * @protected
+   * @override
    */
 
-		array.equal = function equal(arr1, arr2) {
-			for (var i = 0; i < arr1.length; i++) {
-				if (arr1[i] !== arr2[i]) {
-					return false;
-				}
-			}
-			return arr1.length === arr2.length;
+		DomEventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
+			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || dom.supportsEvent(this.originEmitter_, event));
 		};
 
-		/**
-   * Returns the first value in the given array that isn't undefined.
-   * @param {!Array} arr
-   * @return {*}
-   */
+		return DomEventEmitterProxy;
+	}(EventEmitterProxy);
 
-		array.firstDefinedValue = function firstDefinedValue(arr) {
-			for (var i = 0; i < arr.length; i++) {
-				if (arr[i] !== undefined) {
-					return arr[i];
-				}
-			}
-		};
-
-		/**
-   * Transforms the input nested array to become flat.
-   * @param {Array.<*|Array.<*>>} arr Nested array to flatten.
-   * @param {Array.<*>} opt_output Optional output array.
-   * @return {Array.<*>} Flat array.
-   */
-
-		array.flatten = function flatten(arr, opt_output) {
-			var output = opt_output || [];
-			for (var i = 0; i < arr.length; i++) {
-				if (Array.isArray(arr[i])) {
-					array.flatten(arr[i], output);
-				} else {
-					output.push(arr[i]);
-				}
-			}
-			return output;
-		};
-
-		/**
-   * Removes the first occurrence of a particular value from an array.
-   * @param {Array.<T>} arr Array from which to remove value.
-   * @param {T} obj Object to remove.
-   * @return {boolean} True if an element was removed.
-   * @template T
-   */
-
-		array.remove = function remove(arr, obj) {
-			var i = arr.indexOf(obj);
-			var rv;
-			if (rv = i >= 0) {
-				array.removeAt(arr, i);
-			}
-			return rv;
-		};
-
-		/**
-   * Removes from an array the element at index i
-   * @param {Array} arr Array or array like object from which to remove value.
-   * @param {number} i The index to remove.
-   * @return {boolean} True if an element was removed.
-   */
-
-		array.removeAt = function removeAt(arr, i) {
-			return Array.prototype.splice.call(arr, i, 1).length === 1;
-		};
-
-		/**
-   * Slices the given array, just like Array.prototype.slice, but this
-   * is faster and working on all array-like objects (like arguments).
-   * @param {!Object} arr Array-like object to slice.
-   * @param {number} start The index that should start the slice.
-   * @param {number=} opt_end The index where the slice should end, not
-   *   included in the final array. If not given, all elements after the
-   *   start index will be included.
-   * @return {!Array}
-   */
-
-		array.slice = function slice(arr, start, opt_end) {
-			var sliced = [];
-			var end = core.isDef(opt_end) ? opt_end : arr.length;
-			for (var i = start; i < end; i++) {
-				sliced.push(arr[i]);
-			}
-			return sliced;
-		};
-
-		return array;
-	}();
-
-	this.metal.array = array;
-}).call(this);
-'use strict';
-
-(function () {
-	var string = function () {
-		function string() {
-			babelHelpers.classCallCheck(this, string);
-		}
-
-		/**
-   * Removes the breaking spaces from the left and right of the string and
-   * collapses the sequences of breaking spaces in the middle into single spaces.
-   * The original and the result strings render the same way in HTML.
-   * @param {string} str A string in which to collapse spaces.
-   * @return {string} Copy of the string with normalized breaking spaces.
-   */
-
-		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
-			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
-		};
-
-		/**
-   * Calculates the hashcode for a string. The hashcode value is computed by
-   * the sum algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]. A nice
-   * property of using 31 prime is that the multiplication can be replaced by
-   * a shift and a subtraction for better performance: 31*i == (i<<5)-i.
-   * Modern VMs do this sort of optimization automatically.
-   * @param {String} val Target string.
-   * @return {Number} Returns the string hashcode.
-   */
-
-		string.hashCode = function hashCode(val) {
-			var hash = 0;
-			for (var i = 0, len = val.length; i < len; i++) {
-				hash = 31 * hash + val.charCodeAt(i);
-				hash %= 0x100000000;
-			}
-			return hash;
-		};
-
-		/**
-   * Replaces interval into the string with specified value, e.g.
-   * `replaceInterval("abcde", 1, 4, "")` returns "ae".
-   * @param {string} str The input string.
-   * @param {Number} start Start interval position to be replaced.
-   * @param {Number} end End interval position to be replaced.
-   * @param {string} value The value that replaces the specified interval.
-   * @return {string}
-   */
-
-		string.replaceInterval = function replaceInterval(str, start, end, value) {
-			return str.substring(0, start) + value + str.substring(end);
-		};
-
-		return string;
-	}();
-
-	this.metal.string = string;
+	DomEventEmitterProxy.prototype.registerMetalComponent && DomEventEmitterProxy.prototype.registerMetalComponent(DomEventEmitterProxy, 'DomEventEmitterProxy')
+	this.metal.DomEventEmitterProxy = DomEventEmitterProxy;
 }).call(this);
 'use strict';
 
 (function () {
 	var dom = this.metal.dom;
-	var string = this.metal.string;
+	var string = this.metalNamed.metal.string;
 
 	/**
   * Class with static methods responsible for doing browser feature checks.
@@ -1403,6 +2359,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var async = this.metalNamed.metal.async;
 	var dom = this.metal.dom;
 
 	/**
@@ -1417,12 +2374,14 @@ babelHelpers;
 		/**
    * Evaluates the given string in the global scope.
    * @param {string} text
+   * @return {Element} script
    */
 
 		globalEval.run = function run(text) {
 			var script = document.createElement('script');
 			script.text = text;
 			document.head.appendChild(script).parentNode.removeChild(script);
+			return script;
 		};
 
 		/**
@@ -1430,6 +2389,7 @@ babelHelpers;
    * @param {string} src The file's path.
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @return {Element} script
    */
 
 		globalEval.runFile = function runFile(src, opt_callback) {
@@ -1443,6 +2403,8 @@ babelHelpers;
 			dom.on(script, 'load', callback);
 			dom.on(script, 'error', callback);
 			document.head.appendChild(script);
+
+			return script;
 		};
 
 		/**
@@ -1450,21 +2412,25 @@ babelHelpers;
    * @param {!Element} script
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @return {Element} script
    */
 
 		globalEval.runScript = function runScript(script, opt_callback) {
-			if (script.type && script.type !== 'text/javascript') {
+			var callback = function callback() {
 				opt_callback && opt_callback();
+			};
+			if (script.type && script.type !== 'text/javascript') {
+				async.nextTick(callback);
 				return;
 			}
 			if (script.parentNode) {
 				script.parentNode.removeChild(script);
 			}
 			if (script.src) {
-				globalEval.runFile(script.src, opt_callback);
+				return globalEval.runFile(script.src, opt_callback);
 			} else {
-				globalEval.run(script.text);
-				opt_callback && opt_callback();
+				async.nextTick(callback);
+				return globalEval.run(script.text);
 			}
 		};
 
@@ -1480,7 +2446,7 @@ babelHelpers;
 			if (scripts.length) {
 				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
 			} else if (opt_callback) {
-				opt_callback();
+				async.nextTick(opt_callback);
 			}
 		};
 
@@ -1497,7 +2463,7 @@ babelHelpers;
 				if (index < scripts.length - 1) {
 					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
 				} else if (opt_callback) {
-					opt_callback();
+					async.nextTick(opt_callback);
 				}
 			});
 		};
@@ -1510,8 +2476,185 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-	var string = this.metal.string;
+	var async = this.metalNamed.metal.async;
+	var dom = this.metal.dom;
+
+	/**
+  * Utility functions for running styles.
+  */
+
+	var globalEvalStyles = function () {
+		function globalEvalStyles() {
+			babelHelpers.classCallCheck(this, globalEvalStyles);
+		}
+
+		/**
+   * Evaluates the given style.
+   * @param {string} text
+   * @return {Element} style
+   */
+
+		globalEvalStyles.run = function run(text) {
+			var style = document.createElement('style');
+			style.innerHTML = text;
+			document.head.appendChild(style);
+			return style;
+		};
+
+		/**
+   * Evaluates the given style file.
+   * @param {string} href The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the styles has been run.
+   * @return {Element} style
+   */
+
+		globalEvalStyles.runFile = function runFile(href, opt_callback) {
+			var link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = href;
+
+			var callback = function callback() {
+				opt_callback && opt_callback();
+			};
+			dom.on(link, 'load', callback);
+			dom.on(link, 'error', callback);
+			document.head.appendChild(link);
+
+			return link;
+		};
+
+		/**
+   * Evaluates the code referenced by the given style element.
+   * @param {!Element} style
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   *  @return {Element} style
+   */
+
+		globalEvalStyles.runStyle = function runStyle(style, opt_callback) {
+			var callback = function callback() {
+				opt_callback && opt_callback();
+			};
+			if (style.rel && style.rel !== 'stylesheet') {
+				async.nextTick(callback);
+				return;
+			}
+			if (style.href) {
+				return globalEvalStyles.runFile(style.href, opt_callback);
+			} else {
+				async.nextTick(callback);
+				return globalEvalStyles.run(style.innerHTML);
+			}
+		};
+
+		/**
+   * Evaluates any style present in the given element.
+   * TODO: Evaluates running styles in parallel instead of in order.
+   * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the style has been run.
+   */
+
+		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback) {
+			var styles = element.querySelectorAll('style,link');
+			if (styles.length) {
+				globalEvalStyles.runStylesInOrder(styles, 0, opt_callback);
+			} else if (opt_callback) {
+				async.nextTick(opt_callback);
+			}
+		};
+
+		/**
+   * Runs the given styles elements in the order that they appear.
+   * @param {!NodeList} styles
+   * @param {number} index
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEvalStyles.runStylesInOrder = function runStylesInOrder(styles, index, opt_callback) {
+			globalEvalStyles.runStyle(styles.item(index), function () {
+				if (index < styles.length - 1) {
+					globalEvalStyles.runStylesInOrder(styles, index + 1, opt_callback);
+				} else if (opt_callback) {
+					async.nextTick(opt_callback);
+				}
+			});
+		};
+
+		return globalEvalStyles;
+	}();
+
+	this.metal.globalEvalStyles = globalEvalStyles;
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.metal.dom;
+	var features = this.metal.features;
+
+	var mouseEventMap = {
+		mouseenter: 'mouseover',
+		mouseleave: 'mouseout',
+		pointerenter: 'pointerover',
+		pointerleave: 'pointerout'
+	};
+	Object.keys(mouseEventMap).forEach(function (eventName) {
+		dom.registerCustomEvent(eventName, {
+			delegate: true,
+			handler: function handler(callback, event) {
+				var related = event.relatedTarget;
+				var target = event.delegateTarget;
+				if (!related || related !== target && !target.contains(related)) {
+					event.customType = eventName;
+					return callback(event);
+				}
+			},
+			originalEvent: mouseEventMap[eventName]
+		});
+	});
+
+	var animationEventMap = {
+		animation: 'animationend',
+		transition: 'transitionend'
+	};
+	Object.keys(animationEventMap).forEach(function (eventType) {
+		var eventName = animationEventMap[eventType];
+		dom.registerCustomEvent(eventName, {
+			event: true,
+			delegate: true,
+			handler: function handler(callback, event) {
+				event.customType = eventName;
+				return callback(event);
+			},
+			originalEvent: features.checkAnimationEventName()[eventType]
+		});
+	});
+}).call(this);
+'use strict';
+
+(function () {
+  var dom = this.metal.dom;
+  var DomEventEmitterProxy = this.metal.DomEventEmitterProxy;
+  var DomEventHandle = this.metal.DomEventHandle;
+  var features = this.metal.features;
+  var globalEval = this.metal.globalEval;
+  var globalEvalStyles = this.metal.globalEvalStyles;
+  this.metal.dom = dom;
+  this.metalNamed.dom = {};
+  this.metalNamed.dom.dom = dom;
+  this.metalNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
+  this.metalNamed.dom.DomEventHandle = DomEventHandle;
+  this.metalNamed.dom.features = features;
+  this.metalNamed.dom.globalEval = globalEval;
+  this.metalNamed.dom.globalEvalStyles = globalEvalStyles;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metalNamed.metal.core;
+	var string = this.metalNamed.metal.string;
 
 	var html = function () {
 		function html() {
@@ -1833,634 +2976,11 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-	var array = this.metal.array;
-	var Disposable = this.metal.Disposable;
-	var EventHandle = this.metal.EventHandle;
-
-	/**
-  * EventEmitter utility.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventEmitter = function (_Disposable) {
-		babelHelpers.inherits(EventEmitter, _Disposable);
-
-		function EventEmitter() {
-			babelHelpers.classCallCheck(this, EventEmitter);
-
-			/**
-    * Holds event listeners scoped by event type.
-    * @type {!Object<string, !Array<!function()>>}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.events_ = [];
-
-			/**
-    * The maximum number of listeners allowed for each event type. If the number
-    * becomes higher than the max, a warning will be issued.
-    * @type {number}
-    * @protected
-    */
-			_this.maxListeners_ = 10;
-
-			/**
-    * Configuration option which determines if an event facade should be sent
-    * as a param of listeners when emitting events. If set to true, the facade
-    * will be passed as the first argument of the listener.
-    * @type {boolean}
-    * @protected
-    */
-			_this.shouldUseFacade_ = false;
-			return _this;
-		}
-
-		/**
-   * Adds a listener to the end of the listeners array for the specified events.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @param {boolean} opt_default Flag indicating if this listener is a default
-   *   action for this event. Default actions are run last, and only if no previous
-   *   listener call `preventDefault()` on the received event facade.
-   * @return {!EventHandle} Can be used to remove the listener.
-   */
-
-		EventEmitter.prototype.addListener = function addListener(events, listener, opt_default) {
-			this.validateListener_(listener);
-
-			events = this.normalizeEvents_(events);
-			for (var i = 0; i < events.length; i++) {
-				this.addSingleListener_(events[i], listener, opt_default);
-			}
-
-			return new EventHandle(this, events, listener);
-		};
-
-		/**
-   * Adds a listener to the end of the listeners array for a single event.
-   * @param {string} event
-   * @param {!Function} listener
-   * @param {boolean} opt_default Flag indicating if this listener is a default
-   *   action for this event. Default actions are run last, and only if no previous
-   *   listener call `preventDefault()` on the received event facade.
-   * @return {!EventHandle} Can be used to remove the listener.
-   * @param {Function=} opt_origin The original function that was added as a
-   *   listener, if there is any.
-   * @protected
-   */
-
-		EventEmitter.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_default, opt_origin) {
-			this.emit('newListener', event, listener);
-
-			if (!this.events_[event]) {
-				this.events_[event] = [];
-			}
-			this.events_[event].push({
-				default: opt_default,
-				fn: listener,
-				origin: opt_origin
-			});
-
-			var listeners = this.events_[event];
-			if (listeners.length > this.maxListeners_ && !listeners.warned) {
-				console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
-				listeners.warned = true;
-			}
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-		EventEmitter.prototype.disposeInternal = function disposeInternal() {
-			this.events_ = [];
-		};
-
-		/**
-   * Execute each of the listeners in order with the supplied arguments.
-   * @param {string} event
-   * @param {*} opt_args [arg1], [arg2], [...]
-   * @return {boolean} Returns true if event had listeners, false otherwise.
-   */
-
-		EventEmitter.prototype.emit = function emit(event) {
-			var args = array.slice(arguments, 1);
-			var listeners = (this.events_[event] || []).concat();
-
-			var facade;
-			if (this.getShouldUseFacade()) {
-				facade = {
-					preventDefault: function preventDefault() {
-						facade.preventedDefault = true;
-					},
-					target: this,
-					type: event
-				};
-				args.push(facade);
-			}
-
-			var defaultListeners = [];
-			for (var i = 0; i < listeners.length; i++) {
-				if (listeners[i].default) {
-					defaultListeners.push(listeners[i]);
-				} else {
-					listeners[i].fn.apply(this, args);
-				}
-			}
-			if (!facade || !facade.preventedDefault) {
-				for (var j = 0; j < defaultListeners.length; j++) {
-					defaultListeners[j].fn.apply(this, args);
-				}
-			}
-
-			if (event !== '*') {
-				this.emit.apply(this, ['*', event].concat(args));
-			}
-
-			return listeners.length > 0;
-		};
-
-		/**
-   * Gets the configuration option which determines if an event facade should
-   * be sent as a param of listeners when emitting events. If set to true, the
-   * facade will be passed as the first argument of the listener.
-   * @return {boolean}
-   */
-
-		EventEmitter.prototype.getShouldUseFacade = function getShouldUseFacade() {
-			return this.shouldUseFacade_;
-		};
-
-		/**
-   * Returns an array of listeners for the specified event.
-   * @param {string} event
-   * @return {Array} Array of listeners.
-   */
-
-		EventEmitter.prototype.listeners = function listeners(event) {
-			return (this.events_[event] || []).map(function (listener) {
-				return listener.fn;
-			});
-		};
-
-		/**
-   * Adds a listener that will be invoked a fixed number of times for the
-   * events. After each event is triggered the specified amount of times, the
-   * listener is removed for it.
-   * @param {!(Array|string)} events
-   * @param {number} amount The amount of times this event should be listened
-   * to.
-   * @param {!Function} listener
-   * @return {!EventHandle} Can be used to remove the listener.
-   */
-
-		EventEmitter.prototype.many = function many(events, amount, listener) {
-			events = this.normalizeEvents_(events);
-			for (var i = 0; i < events.length; i++) {
-				this.many_(events[i], amount, listener);
-			}
-
-			return new EventHandle(this, events, listener);
-		};
-
-		/**
-   * Adds a listener that will be invoked a fixed number of times for a single
-   * event. After the event is triggered the specified amount of times, the
-   * listener is removed.
-   * @param {string} event
-   * @param {number} amount The amount of times this event should be listened
-   * to.
-   * @param {!Function} listener
-   * @protected
-   */
-
-		EventEmitter.prototype.many_ = function many_(event, amount, listener) {
-			var self = this;
-
-			if (amount <= 0) {
-				return;
-			}
-
-			function handlerInternal() {
-				if (--amount === 0) {
-					self.removeListener(event, handlerInternal);
-				}
-				listener.apply(self, arguments);
-			}
-
-			self.addSingleListener_(event, handlerInternal, false, listener);
-		};
-
-		/**
-   * Checks if a listener object matches the given listener function. To match,
-   * it needs to either point to that listener or have it as its origin.
-   * @param {!Object} listenerObj
-   * @param {!Function} listener
-   * @return {boolean}
-   * @protected
-   */
-
-		EventEmitter.prototype.matchesListener_ = function matchesListener_(listenerObj, listener) {
-			return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
-		};
-
-		/**
-   * Converts the parameter to an array if only one event is given.
-   * @param  {!(Array|string)} events
-   * @return {!Array}
-   * @protected
-   */
-
-		EventEmitter.prototype.normalizeEvents_ = function normalizeEvents_(events) {
-			return core.isString(events) ? [events] : events;
-		};
-
-		/**
-   * Removes a listener for the specified events.
-   * Caution: changes array indices in the listener array behind the listener.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @return {!Object} Returns emitter, so calls can be chained.
-   */
-
-		EventEmitter.prototype.off = function off(events, listener) {
-			this.validateListener_(listener);
-
-			events = this.normalizeEvents_(events);
-			for (var i = 0; i < events.length; i++) {
-				var listenerObjs = this.events_[events[i]] || [];
-				this.removeMatchingListenerObjs_(listenerObjs, listener);
-			}
-
-			return this;
-		};
-
-		/**
-   * Adds a listener to the end of the listeners array for the specified events.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @return {!EventHandle} Can be used to remove the listener.
-   */
-
-		EventEmitter.prototype.on = function on() {
-			return this.addListener.apply(this, arguments);
-		};
-
-		/**
-   * Adds a one time listener for the events. This listener is invoked only the
-   * next time each event is fired, after which it is removed.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @return {!EventHandle} Can be used to remove the listener.
-   */
-
-		EventEmitter.prototype.once = function once(events, listener) {
-			return this.many(events, 1, listener);
-		};
-
-		/**
-   * Removes all listeners, or those of the specified events. It's not a good
-   * idea to remove listeners that were added elsewhere in the code,
-   * especially when it's on an emitter that you didn't create.
-   * @param {(Array|string)=} opt_events
-   * @return {!Object} Returns emitter, so calls can be chained.
-   */
-
-		EventEmitter.prototype.removeAllListeners = function removeAllListeners(opt_events) {
-			if (opt_events) {
-				var events = this.normalizeEvents_(opt_events);
-				for (var i = 0; i < events.length; i++) {
-					this.events_[events[i]] = null;
-				}
-			} else {
-				this.events_ = {};
-			}
-			return this;
-		};
-
-		/**
-   * Removes all listener objects from the given array that match the given
-   * listener function.
-   * @param {!Array.<Object>} listenerObjs
-   * @param {!Function} listener
-   * @protected
-   */
-
-		EventEmitter.prototype.removeMatchingListenerObjs_ = function removeMatchingListenerObjs_(listenerObjs, listener) {
-			for (var i = listenerObjs.length - 1; i >= 0; i--) {
-				if (this.matchesListener_(listenerObjs[i], listener)) {
-					listenerObjs.splice(i, 1);
-				}
-			}
-		};
-
-		/**
-   * Removes a listener for the specified events.
-   * Caution: changes array indices in the listener array behind the listener.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @return {!Object} Returns emitter, so calls can be chained.
-   */
-
-		EventEmitter.prototype.removeListener = function removeListener() {
-			return this.off.apply(this, arguments);
-		};
-
-		/**
-   * By default EventEmitters will print a warning if more than 10 listeners
-   * are added for a particular event. This is a useful default which helps
-   * finding memory leaks. Obviously not all Emitters should be limited to 10.
-   * This function allows that to be increased. Set to zero for unlimited.
-   * @param {number} max The maximum number of listeners.
-   * @return {!Object} Returns emitter, so calls can be chained.
-   */
-
-		EventEmitter.prototype.setMaxListeners = function setMaxListeners(max) {
-			this.maxListeners_ = max;
-			return this;
-		};
-
-		/**
-   * Sets the configuration option which determines if an event facade should
-   * be sent as a param of listeners when emitting events. If set to true, the
-   * facade will be passed as the first argument of the listener.
-   * @param {boolean} shouldUseFacade
-   * @return {!Object} Returns emitter, so calls can be chained.
-   */
-
-		EventEmitter.prototype.setShouldUseFacade = function setShouldUseFacade(shouldUseFacade) {
-			this.shouldUseFacade_ = shouldUseFacade;
-			return this;
-		};
-
-		/**
-   * Checks if the given listener is valid, throwing an exception when it's not.
-   * @param  {*} listener
-   * @protected
-   */
-
-		EventEmitter.prototype.validateListener_ = function validateListener_(listener) {
-			if (!core.isFunction(listener)) {
-				throw new TypeError('Listener must be a function');
-			}
-		};
-
-		return EventEmitter;
-	}(Disposable);
-
-	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
-	this.metal.EventEmitter = EventEmitter;
-}).call(this);
-/*!
- * Polyfill from Google's Closure Library.
- * Copyright 2013 The Closure Library Authors. All Rights Reserved.
- */
-
-'use strict';
-
-(function () {
-	var async = {};
-
-	/**
-  * Throw an item without interrupting the current execution context.  For
-  * example, if processing a group of items in a loop, sometimes it is useful
-  * to report an error while still allowing the rest of the batch to be
-  * processed.
-  * @param {*} exception
-  */
-	async.throwException = function (exception) {
-		// Each throw needs to be in its own context.
-		async.nextTick(function () {
-			throw exception;
-		});
-	};
-
-	/**
-  * Fires the provided callback just before the current callstack unwinds, or as
-  * soon as possible after the current JS execution context.
-  * @param {function(this:THIS)} callback
-  * @param {THIS=} opt_context Object to use as the "this value" when calling
-  *     the provided function.
-  * @template THIS
-  */
-	async.run = function (callback, opt_context) {
-		if (!async.run.workQueueScheduled_) {
-			// Nothing is currently scheduled, schedule it now.
-			async.nextTick(async.run.processWorkQueue);
-			async.run.workQueueScheduled_ = true;
-		}
-
-		async.run.workQueue_.push(new async.run.WorkItem_(callback, opt_context));
-	};
-
-	/** @private {boolean} */
-	async.run.workQueueScheduled_ = false;
-
-	/** @private {!Array.<!async.run.WorkItem_>} */
-	async.run.workQueue_ = [];
-
-	/**
-  * Run any pending async.run work items. This function is not intended
-  * for general use, but for use by entry point handlers to run items ahead of
-  * async.nextTick.
-  */
-	async.run.processWorkQueue = function () {
-		// NOTE: additional work queue items may be pushed while processing.
-		while (async.run.workQueue_.length) {
-			// Don't let the work queue grow indefinitely.
-			var workItems = async.run.workQueue_;
-			async.run.workQueue_ = [];
-			for (var i = 0; i < workItems.length; i++) {
-				var workItem = workItems[i];
-				try {
-					workItem.fn.call(workItem.scope);
-				} catch (e) {
-					async.throwException(e);
-				}
-			}
-		}
-
-		// There are no more work items, reset the work queue.
-		async.run.workQueueScheduled_ = false;
-	};
-
-	/**
-  * @constructor
-  * @final
-  * @struct
-  * @private
-  *
-  * @param {function()} fn
-  * @param {Object|null|undefined} scope
-  */
-	async.run.WorkItem_ = function (fn, scope) {
-		/** @const */
-		this.fn = fn;
-		/** @const */
-		this.scope = scope;
-	};
-
-	/**
-  * Fires the provided callbacks as soon as possible after the current JS
-  * execution context. setTimeout(…, 0) always takes at least 5ms for legacy
-  * reasons.
-  * @param {function(this:SCOPE)} callback Callback function to fire as soon as
-  *     possible.
-  * @param {SCOPE=} opt_context Object in whose scope to call the listener.
-  * @template SCOPE
-  */
-	async.nextTick = function (callback, opt_context) {
-		var cb = callback;
-		if (opt_context) {
-			cb = callback.bind(opt_context);
-		}
-		cb = async.nextTick.wrapCallback_(cb);
-		// Introduced and currently only supported by IE10.
-		// Verify if variable is defined on the current runtime (i.e., node, browser).
-		// Can't use typeof enclosed in a function (such as core.isFunction) or an
-		// exception will be thrown when the function is called on an environment
-		// where the variable is undefined.
-		if (typeof setImmediate === 'function') {
-			setImmediate(cb);
-			return;
-		}
-		// Look for and cache the custom fallback version of setImmediate.
-		if (!async.nextTick.setImmediate_) {
-			async.nextTick.setImmediate_ = async.nextTick.getSetImmediateEmulator_();
-		}
-		async.nextTick.setImmediate_(cb);
-	};
-
-	/**
-  * Cache for the setImmediate implementation.
-  * @type {function(function())}
-  * @private
-  */
-	async.nextTick.setImmediate_ = null;
-
-	/**
-  * Determines the best possible implementation to run a function as soon as
-  * the JS event loop is idle.
-  * @return {function(function())} The "setImmediate" implementation.
-  * @private
-  */
-	async.nextTick.getSetImmediateEmulator_ = function () {
-		// Create a private message channel and use it to postMessage empty messages
-		// to ourselves.
-		var Channel;
-
-		// Verify if variable is defined on the current runtime (i.e., node, browser).
-		// Can't use typeof enclosed in a function (such as core.isFunction) or an
-		// exception will be thrown when the function is called on an environment
-		// where the variable is undefined.
-		if (typeof MessageChannel === 'function') {
-			Channel = MessageChannel;
-		}
-
-		// If MessageChannel is not available and we are in a browser, implement
-		// an iframe based polyfill in browsers that have postMessage and
-		// document.addEventListener. The latter excludes IE8 because it has a
-		// synchronous postMessage implementation.
-		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
-			/** @constructor */
-			Channel = function Channel() {
-				// Make an empty, invisible iframe.
-				var iframe = document.createElement('iframe');
-				iframe.style.display = 'none';
-				iframe.src = '';
-				document.documentElement.appendChild(iframe);
-				var win = iframe.contentWindow;
-				var doc = win.document;
-				doc.open();
-				doc.write('');
-				doc.close();
-				var message = 'callImmediate' + Math.random();
-				var origin = win.location.protocol + '//' + win.location.host;
-				var onmessage = function (e) {
-					// Validate origin and message to make sure that this message was
-					// intended for us.
-					if (e.origin !== origin && e.data !== message) {
-						return;
-					}
-					this.port1.onmessage();
-				}.bind(this);
-				win.addEventListener('message', onmessage, false);
-				this.port1 = {};
-				this.port2 = {
-					postMessage: function postMessage() {
-						win.postMessage(message, origin);
-					}
-				};
-			};
-		}
-		if (typeof Channel !== 'undefined') {
-			var channel = new Channel();
-			// Use a fifo linked list to call callbacks in the right order.
-			var head = {};
-			var tail = head;
-			channel.port1.onmessage = function () {
-				head = head.next;
-				var cb = head.cb;
-				head.cb = null;
-				cb();
-			};
-			return function (cb) {
-				tail.next = {
-					cb: cb
-				};
-				tail = tail.next;
-				channel.port2.postMessage(0);
-			};
-		}
-		// Implementation for IE6-8: Script elements fire an asynchronous
-		// onreadystatechange event when inserted into the DOM.
-		if (typeof document !== 'undefined' && 'onreadystatechange' in document.createElement('script')) {
-			return function (cb) {
-				var script = document.createElement('script');
-				script.onreadystatechange = function () {
-					// Clean up and call the callback.
-					script.onreadystatechange = null;
-					script.parentNode.removeChild(script);
-					script = null;
-					cb();
-					cb = null;
-				};
-				document.documentElement.appendChild(script);
-			};
-		}
-		// Fall back to setTimeout with 0. In browsers this creates a delay of 5ms
-		// or more.
-		return function (cb) {
-			setTimeout(cb, 0);
-		};
-	};
-
-	/**
-  * Helper function that is overrided to protect callbacks with entry point
-  * monitor if the application monitors entry points.
-  * @param {function()} callback Callback function to fire as soon as possible.
-  * @return {function()} The wrapped callback.
-  * @private
-  */
-	async.nextTick.wrapCallback_ = function (opt_returnValue) {
-		return opt_returnValue;
-	};
-
-	this.metal.async = async;
-}).call(this);
-'use strict';
-
-(function () {
-	var array = this.metal.array;
-	var core = this.metal.core;
-	var object = this.metal.object;
-	var EventEmitter = this.metal.EventEmitter;
-	var async = this.metal.async;
+	var array = this.metalNamed.metal.array;
+	var async = this.metalNamed.metal.async;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
+	var EventEmitter = this.metalNamed.events.EventEmitter;
 
 	/**
   * Attribute adds support for having object properties that can be watched for
@@ -3025,7 +3545,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metalNamed.metal.core;
 
 	/**
   * The component registry is used to register components, so they can
@@ -3094,7 +3614,7 @@ babelHelpers;
 
 (function () {
 	var ComponentRegistry = this.metal.ComponentRegistry;
-	var Disposable = this.metal.Disposable;
+	var Disposable = this.metalNamed.metal.Disposable;
 
 	var ComponentCollector = function (_Disposable) {
 		babelHelpers.inherits(ComponentCollector, _Disposable);
@@ -3206,223 +3726,10 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var Disposable = this.metal.Disposable;
-
-	/**
-  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
-  * instances together, emitting events from the first emitter through the
-  * second one. That means that listening to a supported event on the target
-  * emitter will mean listening to it on the origin emitter as well.
-  * @param {EventEmitter | Element} originEmitter Events originated on this emitter
-  *   will be fired for the target emitter's listeners as well. Can be either a real
-  *   EventEmitter instance or a DOM element.
-  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
-  *   will also be triggered when the event is fired by the origin emitter.
-  * @param {Object} opt_blacklist Optional blacklist of events that should not be
-  *   proxied.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventEmitterProxy = function (_Disposable) {
-		babelHelpers.inherits(EventEmitterProxy, _Disposable);
-
-		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
-			babelHelpers.classCallCheck(this, EventEmitterProxy);
-
-			/**
-    * Map of events that should not be proxied.
-    * @type {Object}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.blacklist_ = opt_blacklist || {};
-
-			/**
-    * The origin emitter. This emitter's events will be proxied through the
-    * target emitter.
-    * @type {EventEmitter}
-    * @protected
-    */
-			_this.originEmitter_ = originEmitter;
-
-			/**
-    * Holds a map of events from the origin emitter that are already being proxied.
-    * @type {Object}
-    * @protected
-    */
-			_this.proxiedEvents_ = {};
-
-			/**
-    * The target emitter. This emitter will emit all events that come from
-    * the origin emitter.
-    * @type {EventEmitter}
-    * @protected
-    */
-			_this.targetEmitter_ = targetEmitter;
-
-			/**
-    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
-    * @type {Object}
-    * @protected
-    */
-			_this.whitelist_ = opt_whitelist;
-
-			_this.startProxy_();
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
-			var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
-			for (var event in this.proxiedEvents_) {
-				this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
-			}
-
-			this.proxiedEvents_ = null;
-			this.originEmitter_ = null;
-			this.targetEmitter_ = null;
-		};
-
-		/**
-   * Proxies the given event from the origin to the target emitter.
-   * @param {string} event
-   */
-
-		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
-			if (!this.shouldProxyEvent_(event)) {
-				return;
-			}
-
-			var self = this;
-			this.proxiedEvents_[event] = function () {
-				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
-				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
-			};
-
-			if (core.isElement(this.originEmitter_) || core.isDocument(this.originEmitter_)) {
-				dom.on(this.originEmitter_, event, this.proxiedEvents_[event]);
-			} else {
-				this.originEmitter_.on(event, this.proxiedEvents_[event]);
-			}
-		};
-
-		/**
-   * Checks if the given event should be proxied.
-   * @param {string} event
-   * @return {boolean}
-   * @protected
-   */
-
-		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
-			if (this.whitelist_ && !this.whitelist_[event]) {
-				return false;
-			}
-			if (this.blacklist_[event]) {
-				return false;
-			}
-			return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || dom.supportsEvent(this.originEmitter_, event));
-		};
-
-		/**
-   * Starts proxying all events from the origin to the target emitter.
-   * @protected
-   */
-
-		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
-			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
-		};
-
-		return EventEmitterProxy;
-	}(Disposable);
-
-	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
-	this.metal.EventEmitterProxy = EventEmitterProxy;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.metal.Disposable;
-
-	/**
-  * EventHandler utility. It's useful for easily removing a group of
-  * listeners from different EventEmitter instances.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventHandler = function (_Disposable) {
-		babelHelpers.inherits(EventHandler, _Disposable);
-
-		function EventHandler() {
-			babelHelpers.classCallCheck(this, EventHandler);
-
-			/**
-    * An array that holds the added event handles, so the listeners can be
-    * removed later.
-    * @type {Array.<EventHandle>}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.eventHandles_ = [];
-			return _this;
-		}
-
-		/**
-   * Adds event handles to be removed later through the `removeAllListeners`
-   * method.
-   * @param {...(!EventHandle)} var_args
-   */
-
-		EventHandler.prototype.add = function add() {
-			for (var i = 0; i < arguments.length; i++) {
-				this.eventHandles_.push(arguments[i]);
-			}
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-		EventHandler.prototype.disposeInternal = function disposeInternal() {
-			this.eventHandles_ = null;
-		};
-
-		/**
-   * Removes all listeners that have been added through the `add` method.
-   */
-
-		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
-			for (var i = 0; i < this.eventHandles_.length; i++) {
-				this.eventHandles_[i].removeListener();
-			}
-
-			this.eventHandles_ = [];
-		};
-
-		return EventHandler;
-	}(Disposable);
-
-	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
-	this.metal.EventHandler = EventHandler;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
+	var core = this.metalNamed.metal.core;
+	var Disposable = this.metalNamed.metal.Disposable;
 	var ComponentCollector = this.metal.ComponentCollector;
-	var Disposable = this.metal.Disposable;
-	var EventHandler = this.metal.EventHandler;
+	var EventHandler = this.metalNamed.events.EventHandler;
 
 	/**
   * Collects inline events from a passed element, detaching previously
@@ -3636,8 +3943,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var object = this.metal.object;
-	var Disposable = this.metal.Disposable;
+	var object = this.metalNamed.metal.object;
+	var Disposable = this.metalNamed.metal.Disposable;
 
 	/**
   * Stores surface data to be used later by Components.
@@ -3730,21 +4037,21 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var array = this.metal.array;
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var features = this.metal.features;
-	var globalEval = this.metal.globalEval;
+	var array = this.metalNamed.metal.array;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
+	var string = this.metalNamed.metal.string;
+	var dom = this.metalNamed.dom.dom;
+	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
+	var features = this.metalNamed.dom.features;
+	var globalEval = this.metalNamed.dom.globalEval;
 	var html = this.metal.html;
-	var object = this.metal.object;
-	var string = this.metal.string;
 	var Attribute = this.metal.Attribute;
 	var ComponentCollector = this.metal.ComponentCollector;
 	var ComponentRegistry = this.metal.ComponentRegistry;
 	var ComponentRenderer = this.metal.ComponentRenderer;
-	var EventEmitterProxy = this.metal.EventEmitterProxy;
-	var EventHandler = this.metal.EventHandler;
 	var EventsCollector = this.metal.EventsCollector;
+	var EventHandler = this.metalNamed.events.EventHandler;
 	var SurfaceCollector = this.metal.SurfaceCollector;
 
 	/**
@@ -3833,9 +4140,9 @@ babelHelpers;
 			_this.delegateEventHandler_ = null;
 
 			/**
-    * Instance of `EventEmitterProxy` which proxies events from the component's
+    * Instance of `DomEventEmitterProxy` which proxies events from the component's
     * element to the component itself.
-    * @type {EventEmitterProxy}
+    * @type {DomEventEmitterProxy}
     * @protected
     */
 			_this.elementEventProxy_ = null;
@@ -3951,7 +4258,7 @@ babelHelpers;
 
 		/**
    * Overrides `addSingleListener_` from `EventEmitter`, so we can create
-   * the `EventEmitterProxy` instance only when it's needed for the first
+   * the `DomEventEmitterProxy` instance only when it's needed for the first
    * time.
    * @param {string} event
    * @param {!Function} listener
@@ -3963,7 +4270,7 @@ babelHelpers;
 
 		Component.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_origin) {
 			if (!this.elementEventProxy_ && dom.supportsEvent(this.constructor.ELEMENT_TAG_NAME_MERGED, event)) {
-				this.elementEventProxy_ = new EventEmitterProxy(this.element, this);
+				this.elementEventProxy_ = new DomEventEmitterProxy(this.element, this);
 			}
 			_Attribute.prototype.addSingleListener_.call(this, event, listener, opt_origin);
 		};
@@ -5556,6 +5863,24 @@ babelHelpers;
 'use strict';
 
 (function () {
+  var Component = this.metal.Component;
+  var ComponentCollector = this.metal.ComponentCollector;
+  var ComponentRegistry = this.metal.ComponentRegistry;
+  var ComponentRenderer = this.metal.ComponentRenderer;
+  var EventsCollector = this.metal.EventsCollector;
+  var SurfaceCollector = this.metal.SurfaceCollector;
+  this.metal.component = Component;
+  this.metalNamed.component = {};
+  this.metalNamed.component.Component = Component;
+  this.metalNamed.component.ComponentCollector = ComponentCollector;
+  this.metalNamed.component.ComponentRegistry = ComponentRegistry;
+  this.metalNamed.component.ComponentRenderer = ComponentRenderer;
+  this.metalNamed.component.EventsCollector = EventsCollector;
+  this.metalNamed.component.SurfaceCollector = SurfaceCollector;
+}).call(this);
+'use strict';
+
+(function () {
 	var templates = {};
 
 	/**
@@ -5684,12 +6009,12 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
-	var object = this.metal.object;
-	var Component = this.metal.Component;
-	var ComponentRegistry = this.metal.ComponentRegistry;
-	var ComponentRenderer = this.metal.ComponentRenderer;
+	var Component = this.metalNamed.component.Component;
+	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
+	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
 	var SoyAop = this.metal.SoyAop;
 	var SoyTemplates = this.metal.SoyTemplates;
 
@@ -6069,11 +6394,23 @@ babelHelpers;
 'use strict';
 
 (function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
   var SoyAop = this.metal.SoyAop;
   var SoyRenderer = this.metal.SoyRenderer;
   var SoyTemplates = this.metal.SoyTemplates;
+  this.metal.index = SoyRenderer;
+  this.metalNamed.index = {};
+  this.metalNamed.index.SoyAop = SoyAop;
+  this.metalNamed.index.SoyRenderer = SoyRenderer;
+  this.metalNamed.index.SoyTemplates = SoyTemplates;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Alert.soy.
@@ -6154,53 +6491,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var features = this.metal.features;
-
-	var mouseEventMap = {
-		mouseenter: 'mouseover',
-		mouseleave: 'mouseout',
-		pointerenter: 'pointerover',
-		pointerleave: 'pointerout'
-	};
-	Object.keys(mouseEventMap).forEach(function (eventName) {
-		dom.registerCustomEvent(eventName, {
-			delegate: true,
-			handler: function handler(callback, event) {
-				var related = event.relatedTarget;
-				var target = event.delegateTarget;
-				if (!related || related !== target && !target.contains(related)) {
-					event.customType = eventName;
-					return callback(event);
-				}
-			},
-			originalEvent: mouseEventMap[eventName]
-		});
-	});
-
-	var animationEventMap = {
-		animation: 'animationend',
-		transition: 'transitionend'
-	};
-	Object.keys(animationEventMap).forEach(function (eventType) {
-		var eventName = animationEventMap[eventType];
-		dom.registerCustomEvent(eventName, {
-			event: true,
-			delegate: true,
-			handler: function handler(callback, event) {
-				event.customType = eventName;
-				return callback(event);
-			},
-			originalEvent: features.checkAnimationEventName()[eventType]
-		});
-	});
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var features = this.metal.features;
+	var core = this.metal.metal;
+	var dom = this.metalNamed.dom.dom;
+	var features = this.metalNamed.dom.features;
 
 	var Anim = function () {
 		function Anim() {
@@ -6297,11 +6590,11 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metalNamed.metal.core;
 	var dom = this.metal.dom;
 	var AlertBase = this.metal.Alert;
 	var Anim = this.metal.Anim;
-	var EventHandler = this.metal.EventHandler;
+	var EventHandler = this.metalNamed.events.EventHandler;
 
 	/**
   * Alert component.
