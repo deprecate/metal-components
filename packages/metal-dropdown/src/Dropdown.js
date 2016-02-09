@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'metal/src/core';
-import dom from 'metal/src/dom/dom';
+import { core } from 'metal';
+import { dom } from 'metal-dom';
+import { EventHandler } from 'metal-events';
 import Align from 'metal-position/src/Align';
-import EventHandler from 'metal/src/events/EventHandler';
 import DropdownBase from './Dropdown.soy';
 
 /**
