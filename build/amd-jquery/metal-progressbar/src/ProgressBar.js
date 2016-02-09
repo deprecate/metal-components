@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _ProgressBar, _JQueryAdapter) {
+define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _ProgressBar, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -32,7 +30,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', '
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -64,7 +62,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', '
 			if (!this.barElement_) {
 				this.barElement_ = this.element.childNodes[0];
 			}
-
 			return this.barElement_;
 		};
 
@@ -72,27 +69,21 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', '
 			if (value < this.min) {
 				value = this.min;
 			}
-
 			if (value > this.max) {
 				value = this.max;
 			}
-
 			return value;
 		};
 
 		ProgressBar.prototype.syncBarClass = function syncBarClass(barClass, prevBarClass) {
 			var barElement = this.getBarElement();
-
 			_dom2.default.removeClasses(barElement, prevBarClass);
-
 			_dom2.default.addClasses(barElement, barClass);
 		};
 
 		ProgressBar.prototype.syncLabel = function syncLabel() {
 			var barElement = this.getBarElement();
-
 			_dom2.default.removeChildren(barElement);
-
 			if (this.label) {
 				_dom2.default.append(barElement, this.label);
 			}
@@ -104,7 +95,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', '
 			} else {
 				this.updateBar_();
 			}
-
 			this.element.setAttribute('aria-valuemax', this.max);
 		};
 
@@ -114,7 +104,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', '
 			} else {
 				this.updateBar_();
 			}
-
 			this.element.setAttribute('aria-valuemin', this.min);
 		};
 
@@ -133,32 +122,72 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './ProgressBar.soy', '
 	}(_ProgressBar2.default);
 
 	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
+
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	ProgressBar.ATTRS = {
+		/**
+   * Optional CSS classes to be added to the inner progress bar element,
+   * like 'progress-bar-danger'.
+   * @type {string}
+   */
 		barClass: {
 			validator: _core2.default.isString
 		},
+
+		/**
+   * An optional label to be rendered inside the progress bar.
+   * @type {string}
+   */
 		label: {
 			validator: function validator(label) {
 				return !_core2.default.isDefAndNotNull(label) || _core2.default.isString(label);
 			}
 		},
+
+		/**
+   * The maximum value of the progress bar. When the value is at its
+   * max, the bar will be fully extended.
+   * @type {number}
+   */
 		max: {
 			validator: _core2.default.isNumber,
 			value: 100
 		},
+
+		/**
+   * The minimum value of the progress bar. When the value is at its
+   * max, the bar will be fully collapsed.
+   * @type {number}
+   */
 		min: {
 			validator: _core2.default.isNumber,
 			value: 0
 		},
+
+		/**
+   * The current value of the progress bar.
+   * @type {number}
+   */
 		value: {
 			setter: 'setterValueFn_',
 			validator: _core2.default.isNumber,
 			value: 0
 		}
 	};
-	ProgressBar.ELEMENT_CLASSES = 'progress';
-	exports.default = ProgressBar;
 
+	/**
+  * Default modal elementClasses.
+  * @type {string}
+  * @static
+  */
+	ProgressBar.ELEMENT_CLASSES = 'progress';
+
+	exports.default = ProgressBar;
 	_JQueryAdapter2.default.register('progressBar', ProgressBar);
 });
 //# sourceMappingURL=ProgressBar.js.map

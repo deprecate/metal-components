@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', './TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', './Tooltip.soy'], function (exports, _TooltipBase2, _JQueryAdapter) {
   'use strict';
 
@@ -28,7 +26,7 @@ define(['exports', './TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', '.
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
   }
 
   function _inherits(subClass, superClass) {
@@ -58,7 +56,6 @@ define(['exports', './TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', '.
 
     Tooltip.prototype.syncVisible = function syncVisible(visible) {
       this.element.style.opacity = visible ? 1 : '';
-
       _TooltipBase.prototype.syncVisible.call(this, visible);
     };
 
@@ -66,10 +63,24 @@ define(['exports', './TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', '.
   }(_TooltipBase3.default);
 
   Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
-  Tooltip.Align = _TooltipBase3.default.Align;
-  Tooltip.ELEMENT_CLASSES = 'tooltip';
-  exports.default = Tooltip;
 
+
+  /**
+   * @inheritDoc
+   * @see `Align` class.
+   * @static
+   */
+  Tooltip.Align = _TooltipBase3.default.Align;
+
+  /**
+   * Default tooltip elementClasses.
+   * @default tooltip
+   * @type {string}
+   * @static
+   */
+  Tooltip.ELEMENT_CLASSES = 'tooltip';
+
+  exports.default = Tooltip;
   _JQueryAdapter2.default.register('tooltip', Tooltip);
 });
 //# sourceMappingURL=Tooltip.js.map

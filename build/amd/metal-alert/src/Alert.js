@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'metal-anim/src/Anim', 'metal/src/events/EventHandler', 'metal/src/dom/events'], function (exports, _core, _dom, _AlertSoy, _Anim, _EventHandler) {
+define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Alert.soy.js', 'metal-anim/src/Anim', 'metal/metal/src/events/EventHandler', 'metal/metal/src/dom/events'], function (exports, _core, _dom, _AlertSoy, _Anim, _EventHandler) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -34,7 +32,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'met
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -65,18 +63,20 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'met
 			return _this;
 		}
 
+		/**
+   * @inheritDoc
+   */
+
+
 		Alert.prototype.detached = function detached() {
 			_AlertBase.prototype.detached.call(this);
-
 			this.eventHandler_.removeAllListeners();
 			clearTimeout(this.delay_);
 		};
 
 		Alert.prototype.close = function close() {
 			_dom2.default.once(this.element, 'animationend', this.dispose.bind(this));
-
 			_dom2.default.once(this.element, 'transitionend', this.dispose.bind(this));
-
 			this.eventHandler_.removeAllListeners();
 			this.syncVisible(false);
 		};
@@ -107,9 +107,9 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'met
 
 		Alert.prototype.syncVisible = function syncVisible(visible) {
 			_dom2.default.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
-
 			_dom2.default.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
-
+			// Some browsers do not fire transitionend events when running in background
+			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
 			_Anim2.default.emulateEnd(this.element);
 
 			if (visible && _core2.default.isNumber(this.hideDelay)) {
@@ -128,8 +128,26 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'met
 	}(_AlertSoy2.default);
 
 	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
+
+
+	/**
+  * Default alert elementClasses.
+  * @default alert
+  * @type {string}
+  * @static
+  */
 	Alert.ELEMENT_CLASSES = 'alert';
+
+	/**
+  * Alert attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	Alert.ATTRS = {
+		/**
+   * The CSS classes that should be added to the alert when being shown/hidden.
+   * @type {!Object}
+   */
 		animClasses: {
 			validator: _core2.default.isObject,
 			value: {
@@ -137,21 +155,50 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Alert.soy.js', 'met
 				hide: 'fade'
 			}
 		},
+
+		/**
+   * The body content of the alert.
+   * @type {string}
+   */
 		body: {
 			value: ''
 		},
+
+		/**
+   * Flag indicating if the alert should be dismissable (closeable).
+   * @type {boolean}
+   * @default true
+   */
 		dismissible: {
 			validator: _core2.default.isBoolean,
 			value: true
 		},
+
+		/**
+   * The CSS classes that should be added to the alert.
+   * @type {string}
+   * @default 'alert-success'
+   */
 		elementClasses: {
 			value: 'alert-success'
 		},
+
+		/**
+   * Delay hiding the alert (ms).
+   * @type {?number}
+   */
 		hideDelay: {},
+
+		/**
+   * Flag indicating if the alert is visible or not.
+   * @type {boolean}
+   * @default false
+   */
 		visible: {
 			value: false
 		}
 	};
+
 	exports.default = Alert;
 });
 //# sourceMappingURL=Alert.js.map

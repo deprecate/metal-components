@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', './Popover.soy'], function (exports, _core, _TooltipBase2) {
 	'use strict';
 
@@ -28,7 +26,7 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', './Popover
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -61,7 +59,6 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', './Popover
 
 			if (alignElement) {
 				var dataContent = alignElement.getAttribute('data-content');
-
 				if (dataContent) {
 					this.content = dataContent;
 				}
@@ -70,7 +67,6 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', './Popover
 
 		Popover.prototype.syncVisible = function syncVisible(visible) {
 			this.element.style.display = visible ? 'block' : '';
-
 			_TooltipBase.prototype.syncVisible.call(this, visible);
 		};
 
@@ -78,17 +74,38 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', './Popover
 	}(_TooltipBase3.default);
 
 	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
+
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	Popover.ATTRS = {
 		content: {
 			validator: _core2.default.isString
 		},
+
+		/**
+   * Trigger events used to bind handlers to show and hide popover.
+   * @type {!Array<string>}
+   * @default ['click', 'click']
+   */
 		triggerEvents: {
 			validator: Array.isArray,
 			value: ['click', 'click']
 		}
 	};
+
+	/**
+  * @inheritDoc
+  * @see `Align` class.
+  * @static
+  */
 	Popover.Align = _TooltipBase3.default.Align;
+
 	Popover.ELEMENT_CLASSES = 'popover';
+
 	exports.default = Popover;
 });
 //# sourceMappingURL=Popover.js.map

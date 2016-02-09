@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/src/events/EventHandler', 'metal-position/src/Position'], function (exports, _dom, _EventEmitter2, _EventHandler, _Position) {
+define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitter', 'metal/metal/src/events/EventHandler', 'metal-position/src/Position'], function (exports, _dom, _EventEmitter2, _EventHandler, _Position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -32,7 +30,7 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -54,19 +52,38 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 	var DragScrollDelta = function (_EventEmitter) {
 		_inherits(DragScrollDelta, _EventEmitter);
 
+		/**
+   * @inheritDoc
+   */
+
 		function DragScrollDelta() {
 			_classCallCheck(this, DragScrollDelta);
 
 			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
 
+			/**
+    * `EventHandler` for the scroll events.
+    * @type {EventHandler}
+    * @protected
+    */
 			_this.handler_ = new _EventHandler2.default();
+
+			/**
+    * The scroll positions for the scroll elements that are being listened to.
+    * @type {Array}
+    * @protected
+    */
 			_this.scrollPositions_ = [];
 			return _this;
 		}
 
+		/**
+   * @inheritDoc
+   */
+
+
 		DragScrollDelta.prototype.disposeInternal = function disposeInternal() {
 			_EventEmitter.prototype.disposeInternal.call(this);
-
 			this.stop();
 			this.handler_ = null;
 		};
@@ -78,6 +95,7 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 			};
 			var position = this.scrollPositions_[index];
 			this.scrollPositions_[index] = newPosition;
+
 			this.emit('scrollDelta', {
 				deltaX: newPosition.scrollLeft - position.scrollLeft,
 				deltaY: newPosition.scrollTop - position.scrollTop
@@ -86,6 +104,8 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 
 		DragScrollDelta.prototype.start = function start(dragNode, scrollContainers) {
 			if (getComputedStyle(dragNode).position === 'fixed') {
+				// If the drag node's position is "fixed", then its coordinates don't need to
+				// be updated when parents are scrolled.
 				return;
 			}
 
@@ -95,6 +115,7 @@ define(['exports', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/
 						scrollLeft: _Position2.default.getScrollLeft(scrollContainers[i]),
 						scrollTop: _Position2.default.getScrollTop(scrollContainers[i])
 					});
+
 					var index = this.scrollPositions_.length - 1;
 					this.handler_.add(_dom2.default.on(scrollContainers[i], 'scroll', this.handleScroll_.bind(this, index)));
 				}

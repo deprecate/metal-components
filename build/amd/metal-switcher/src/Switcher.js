@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Switcher.soy.js'], function (exports, _core, _dom, _SwitcherSoy) {
+define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Switcher.soy.js'], function (exports, _core, _dom, _SwitcherSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -30,7 +28,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Switcher.soy.js'], 
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -74,13 +72,33 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', './Switcher.soy.js'], 
 	}(_SwitcherSoy2.default);
 
 	Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
+
+
+	/**
+  * Default switcher elementClasses.
+  * @default list
+  * @type {string}
+  * @static
+  */
 	Switcher.ELEMENT_CLASSES = 'switcher';
+
+	/**
+  * Switcher attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	Switcher.ATTRS = {
+		/**
+   * Flag indicating if the switcher is currently checked or not.
+   * @type {boolean}
+   * @default false
+   */
 		checked: {
 			validator: _core2.default.isBoolean,
 			value: false
 		}
 	};
+
 	exports.default = Switcher;
 });
 //# sourceMappingURL=Switcher.js.map

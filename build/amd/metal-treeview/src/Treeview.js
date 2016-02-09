@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _dom, _Treeview) {
+define(['exports', 'metal/metal/src/dom/dom', './Treeview.soy'], function (exports, _dom, _Treeview) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -28,7 +26,7 @@ define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _d
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -63,11 +61,9 @@ define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _d
 
 		Treeview.prototype.getNodeObj = function getNodeObj(path) {
 			var obj = this.nodes[path[0]];
-
 			for (var i = 1; i < path.length; i++) {
 				obj = obj.children[path[i]];
 			}
-
 			return obj;
 		};
 
@@ -100,14 +96,11 @@ define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _d
 		Treeview.prototype.toggleExpandedState_ = function toggleExpandedState_(node) {
 			var nodeObj = this.getNodeObjFromId_(node.parentNode.parentNode.id);
 			nodeObj.expanded = !nodeObj.expanded;
-
 			if (nodeObj.expanded) {
 				_dom2.default.addClasses(node.parentNode, 'expanded');
-
 				node.setAttribute('aria-expanded', 'true');
 			} else {
 				_dom2.default.removeClasses(node.parentNode, 'expanded');
-
 				node.setAttribute('aria-expanded', 'false');
 			}
 
@@ -119,8 +112,29 @@ define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _d
 	}(_Treeview2.default);
 
 	Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
+
+
+	/**
+  * Default tree view elementClasses.
+  * @default treeView
+  * @type {string}
+  * @static
+  */
 	Treeview.ELEMENT_CLASSES = 'treeview';
+
+	/**
+  * Treeview attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	Treeview.ATTRS = {
+		/**
+   * This tree view's nodes. Each node should have a name, and can optionally
+   * have nested children nodes. It should also indicate if its children are
+   * expanded or not.
+   * @type {Array<!{children: Array, expanded: boolean?, name: string}>}
+   * @default []
+   */
 		nodes: {
 			validator: Array.isArray,
 			valueFn: function valueFn() {
@@ -128,6 +142,7 @@ define(['exports', 'metal/src/dom/dom', './Treeview.soy'], function (exports, _d
 			}
 		}
 	};
+
 	exports.default = Treeview;
 });
 //# sourceMappingURL=Treeview.js.map

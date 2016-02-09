@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/attribute/Attribute', 'metal-position/src/Position'], function (exports, _core, _Attribute2, _Position) {
+define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'metal-position/src/Position'], function (exports, _core, _Attribute2, _Position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -30,7 +28,7 @@ define(['exports', 'metal/src/core', 'metal/src/attribute/Attribute', 'metal-pos
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -52,18 +50,31 @@ define(['exports', 'metal/src/core', 'metal/src/attribute/Attribute', 'metal-pos
 	var DragAutoScroll = function (_Attribute) {
 		_inherits(DragAutoScroll, _Attribute);
 
+		/**
+   * @inheritDoc
+   */
+
 		function DragAutoScroll(opt_config) {
 			_classCallCheck(this, DragAutoScroll);
 
 			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
 
+			/**
+    * The handler for the current call to `setTimeout`.
+    * @type {?number}
+    * @protected
+    */
 			_this.scrollTimeout_ = null;
 			return _this;
 		}
 
+		/**
+   * @inheritDoc
+   */
+
+
 		DragAutoScroll.prototype.disposeInternal = function disposeInternal() {
 			_Attribute.prototype.disposeInternal.call(this);
-
 			this.stop();
 		};
 
@@ -94,24 +105,19 @@ define(['exports', 'metal/src/core', 'metal/src/attribute/Attribute', 'metal-pos
 		DragAutoScroll.prototype.scrollInternal_ = function scrollInternal_(scrollContainers, mouseX, mouseY) {
 			for (var i = 0; i < scrollContainers.length; i++) {
 				var scrollRegion = this.getRegionWithoutScroll_(scrollContainers[i]);
-
 				if (!_Position2.default.pointInsideRegion(mouseX, mouseY, scrollRegion)) {
 					continue;
 				}
 
 				var deltaX = 0;
 				var deltaY = 0;
-
 				var scrollTop = _Position2.default.getScrollTop(scrollContainers[i]);
-
 				var scrollLeft = _Position2.default.getScrollLeft(scrollContainers[i]);
-
 				if (scrollLeft > 0 && Math.abs(mouseX - scrollRegion.left) <= this.maxDistance) {
 					deltaX -= this.speed;
 				} else if (Math.abs(mouseX - scrollRegion.right) <= this.maxDistance) {
 					deltaX += this.speed;
 				}
-
 				if (scrollTop > 0 && Math.abs(mouseY - scrollRegion.top) <= this.maxDistance) {
 					deltaY -= this.speed;
 				} else if (Math.abs(mouseY - scrollRegion.bottom) <= this.maxDistance) {
@@ -134,20 +140,46 @@ define(['exports', 'metal/src/core', 'metal/src/attribute/Attribute', 'metal-pos
 	}(_Attribute3.default);
 
 	DragAutoScroll.prototype.registerMetalComponent && DragAutoScroll.prototype.registerMetalComponent(DragAutoScroll, 'DragAutoScroll')
+
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	DragAutoScroll.ATTRS = {
+		/**
+   * The delay in ms before an element is scrolled automatically.
+   * @type {number}
+   * @default 200
+   */
 		delay: {
 			validator: _core2.default.isNumber,
 			value: 50
 		},
+
+		/**
+   * The maximum distance the mouse needs to be from an element before
+   * it will be scrolled automatically.
+   * @type {number}
+   * @default 10
+   */
 		maxDistance: {
 			validator: _core2.default.isNumber,
 			value: 20
 		},
+
+		/**
+   * The number of pixels that will be scrolled each time.
+   * @type {number}
+   * @default 10
+   */
 		speed: {
 			validator: _core2.default.isNumber,
 			value: 20
 		}
 	};
+
 	exports.default = DragAutoScroll;
 });
 //# sourceMappingURL=DragAutoScroll.js.map

@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/EventHandler', './Modal.soy'], function (exports, _core, _dom, _EventHandler, _Modal) {
+define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventHandler', './Modal.soy'], function (exports, _core, _dom, _EventHandler, _Modal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -32,7 +30,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -54,6 +52,10 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 	var Modal = function (_ModalBase) {
 		_inherits(Modal, _ModalBase);
 
+		/**
+   * @inheritDoc
+   */
+
 		function Modal(opt_config) {
 			_classCallCheck(this, Modal);
 
@@ -63,6 +65,11 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 			return _this;
 		}
 
+		/**
+   * @inheritDoc
+   */
+
+
 		Modal.prototype.attached = function attached() {
 			this.autoFocus_(this.autoFocus);
 		};
@@ -70,7 +77,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 		Modal.prototype.autoFocus_ = function autoFocus_(autoFocusSelector) {
 			if (this.inDocument && this.visible && autoFocusSelector) {
 				var element = this.element.querySelector(autoFocusSelector);
-
 				if (element) {
 					element.focus();
 				}
@@ -79,15 +85,12 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 
 		Modal.prototype.detached = function detached() {
 			_ModalBase.prototype.detached.call(this);
-
 			this.eventHandler_.removeAllListeners();
 		};
 
 		Modal.prototype.disposeInternal = function disposeInternal() {
 			_dom2.default.exitDocument(this.overlayElement);
-
 			this.unrestrictFocus_();
-
 			_ModalBase.prototype.disposeInternal.call(this);
 		};
 
@@ -132,14 +135,12 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 
 		Modal.prototype.syncOverlay = function syncOverlay(overlay) {
 			var willShowOverlay = overlay && this.visible;
-
 			_dom2.default[willShowOverlay ? 'enterDocument' : 'exitDocument'](this.overlayElement);
 		};
 
 		Modal.prototype.syncVisible = function syncVisible(visible) {
 			this.element.style.display = visible ? 'block' : '';
 			this.syncOverlay(this.overlay);
-
 			if (this.visible) {
 				this.lastFocusedElement_ = document.activeElement;
 				this.autoFocus_(this.autoFocus);
@@ -164,40 +165,94 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/Even
 	}(_Modal2.default);
 
 	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
+
+
+	/**
+  * Default modal elementClasses.
+  * @default modal
+  * @type {string}
+  * @static
+  */
 	Modal.ELEMENT_CLASSES = 'modal';
+
 	Modal.ATTRS = {
+		/**
+   * A selector for the element that should be automatically focused when the modal
+   * becomes visible, or `false` if no auto focus should happen. Defaults to the
+   * modal's close button.
+   * @type {boolean|string}
+   */
 		autoFocus: {
 			validator: function validator(val) {
 				return val === false || _core2.default.isString(val);
 			},
 			value: '.close'
 		},
+
+		/**
+   * Content to be placed inside modal body.
+   * @type {string|SanitizedHtml}
+   */
 		body: {
 			isHtml: true
 		},
+
+		/**
+   * Content to be placed inside modal footer.
+   * @type {string|SanitizedHtml}
+   */
 		footer: {
 			isHtml: true
 		},
+
+		/**
+   * Content to be placed inside modal header.
+   * @type {string|SanitizedHtml}
+   */
 		header: {
 			isHtml: true
 		},
+
+		/**
+   * Whether modal should hide on esc.
+   * @type {boolean}
+   * @default true
+   */
 		hideOnEscape: {
 			validator: _core2.default.isBoolean,
 			value: true
 		},
+
+		/**
+   * Whether overlay should be visible when modal is visible.
+   * @type {boolean}
+   * @default true
+   */
 		overlay: {
 			validator: _core2.default.isBoolean,
 			value: true
 		},
+
+		/**
+   * Element to be used as overlay.
+   * @type {Element}
+   */
 		overlayElement: {
 			initOnly: true,
 			valueFn: 'valueOverlayElementFn_'
 		},
+
+		/**
+   * The ARIA role to be used for this modal.
+   * @type {string}
+   * @default 'dialog'
+   */
 		role: {
 			validator: _core2.default.isString,
 			value: 'dialog'
 		}
 	};
+
 	exports.default = Modal;
 });
 //# sourceMappingURL=Modal.js.map

@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position/src/Position', './Slider.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _Drag, _Position, _Slider, _JQueryAdapter) {
 	'use strict';
 
@@ -34,7 +32,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -56,22 +54,49 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 	var Slider = function (_SliderBase) {
 		_inherits(Slider, _SliderBase);
 
+		/**
+   * @inheritDoc
+   */
+
 		function Slider(opt_config) {
 			_classCallCheck(this, Slider);
 
 			var _this = _possibleConstructorReturn(this, _SliderBase.call(this, opt_config));
 
+			/**
+    * Map of different slider DOM elements. Used as a cache to prevent unnecessary dom lookups
+    * on succesive queries.
+    * @type {Map}
+    * @protected
+    */
 			_this.elements_ = new Map();
 			return _this;
 		}
 
+		/**
+   * @inheritDoc
+   */
+
+
 		Slider.prototype.attached = function attached() {
+			/**
+    * Manages dragging the rail handle to update the slider value.
+    * @type {Drag}
+    * @protected
+    */
 			this.drag_ = new _Drag2.default({
 				constrain: this.getElement_('.rail'),
 				handles: this.getElement_('.handle'),
 				sources: this.getElement_('.rail-handle')
 			});
+
+			/**
+    * Position and dimensions of the slider element.
+    * @type {DOMRect}
+    * @protected
+    */
 			this.elementRegion_ = _Position2.default.getRegion(this.element);
+
 			this.attachDragEvents_();
 		};
 
@@ -93,6 +118,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 
 			if (!element) {
 				element = this.element.querySelector(query);
+
 				this.elements_.set(query, element);
 			}
 
@@ -147,16 +173,41 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 	}(_Slider2.default);
 
 	Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
+
+
 	Slider.ATTRS = {
+		/**
+   * Name of the hidden input field that holds the slider value. Useful when slider is embedded
+   * inside a form so it can automatically send its value.
+   * @type {string}
+   */
 		inputName: {
 			validator: _core2.default.isString
 		},
+
+		/**
+   * Defines the maximum value handled by the slider.
+   * @type {number}
+   * @default 100
+   */
 		max: {
 			value: 100
 		},
+
+		/**
+   * Defines the minimum value handled by the slider.
+   * @type {number}
+   * @default 0
+   */
 		min: {
 			value: 0
 		},
+
+		/**
+   * Defines the currently selected value on the slider.
+   * @type {number}
+   * @default 50
+   */
 		value: {
 			validator: function validator(val) {
 				return _core2.default.isNumber(val) && this.min <= val && val <= this.max;
@@ -164,9 +215,16 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
 			value: 80
 		}
 	};
-	Slider.ELEMENT_CLASSES = 'slider';
-	exports.default = Slider;
 
+	/**
+  * Default slider elementClasses.
+  * @default slider
+  * @type {string}
+  * @static
+  */
+	Slider.ELEMENT_CLASSES = 'slider';
+
+	exports.default = Slider;
 	_JQueryAdapter2.default.register('slider', Slider);
 });
 //# sourceMappingURL=Slider.js.map

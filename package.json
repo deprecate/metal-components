@@ -43,7 +43,7 @@
     "babel-preset-metal": "^2.0.1",
     "chai": "^3.4.1",
     "gulp": "^3.8.11",
-    "gulp-metal": "^0.9.3",
+    "gulp-metal": "^0.10.0",
     "isparta": "^4.0.0",
     "karma": "^0.13.9",
     "karma-babel-preprocessor": "^6.0.1",

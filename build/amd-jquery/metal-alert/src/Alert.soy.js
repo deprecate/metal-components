@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyRenderer', 'metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+define(['exports', 'metal/metal/src/component/Component', 'metal/metal/src/soy/SoyAop', 'metal/metal/src/soy/SoyRenderer', 'metal/metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -32,7 +30,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
   }
 
   function _inherits(subClass, superClass) {
@@ -52,31 +50,55 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   }
 
   var Templates = _SoyTemplates2.default.get();
+  // This file was automatically generated from Alert.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Alert.
+   */
 
   if (typeof Templates.Alert == 'undefined') {
     Templates.Alert = {};
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
   };
-
   if (goog.DEBUG) {
     Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Alert.body = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</div>');
   };
-
   if (goog.DEBUG) {
     Templates.Alert.body.soyTemplateName = 'Templates.Alert.body';
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Alert.dismiss = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-dismiss">' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
   };
-
   if (goog.DEBUG) {
     Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
   }
@@ -98,10 +120,9 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   }(_Component3.default);
 
   Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
+
   Alert.RENDERER = _SoyRenderer2.default;
-
   _SoyAop2.default.registerTemplates('Alert');
-
   exports.default = Alert;
 });
 //# sourceMappingURL=Alert.soy.js.map

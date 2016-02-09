@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', './ListItem.soy.js'], function (exports, _ListItemSoy) {
   'use strict';
 
@@ -26,7 +24,7 @@ define(['exports', './ListItem.soy.js'], function (exports, _ListItemSoy) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
   }
 
   function _inherits(subClass, superClass) {
@@ -58,13 +56,29 @@ define(['exports', './ListItem.soy.js'], function (exports, _ListItemSoy) {
   }(_ListItemSoy2.default);
 
   ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
+
+
+  /**
+   * Default list elementClasses.
+   * @default list
+   * @type {String}
+   * @static
+   */
   ListItem.ELEMENT_CLASSES = 'listitem';
+
+  /**
+   * List attributes definition.
+   * @type {Object}
+   * @static
+   */
   ListItem.ATTRS = {
     item: {},
+
     index: {
       value: -1
     }
   };
+
   exports.default = ListItem;
 });
 //# sourceMappingURL=ListItem.js.map

@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'metal/src/soy/SoyRenderer', 'metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+define(['exports', 'metal/metal/src/component/Component', 'metal/metal/src/soy/SoyAop', 'metal/metal/src/soy/SoyRenderer', 'metal/metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -32,7 +30,7 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
     }
 
-    return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
   }
 
   function _inherits(subClass, superClass) {
@@ -52,39 +50,69 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   }
 
   var Templates = _SoyTemplates2.default.get();
+  // This file was automatically generated from Modal.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Modal.
+   */
 
   if (typeof Templates.Modal == 'undefined') {
     Templates.Modal = {};
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Modal.render = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="modal component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="' + soy.$$escapeHtmlAttribute(opt_data.role ? opt_data.role : 'dialog') + '" aria-labelledby="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header"><div class="modal-dialog" tabindex="0"><div class="modal-content">' + Templates.Modal.header(opt_data, null, opt_ijData) + Templates.Modal.body(opt_data, null, opt_ijData) + Templates.Modal.footer(opt_data, null, opt_ijData) + '</div></div></div>');
   };
-
   if (goog.DEBUG) {
     Templates.Modal.render.soyTemplateName = 'Templates.Modal.render';
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Modal.body = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body" class="modal-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</section>');
   };
-
   if (goog.DEBUG) {
     Templates.Modal.body.soyTemplateName = 'Templates.Modal.body';
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Modal.footer = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<footer id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-footer" class="modal-footer">' + (opt_data.footer ? soy.$$escapeHtml(opt_data.footer) : '') + '</footer>');
   };
-
   if (goog.DEBUG) {
     Templates.Modal.footer.soyTemplateName = 'Templates.Modal.footer';
   }
 
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
   Templates.Modal.header = function (opt_data, opt_ignored, opt_ijData) {
     return soydata.VERY_UNSAFE.ordainSanitizedHtml('<header id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-header" class="modal-header">' + (opt_data.header ? '<button type="button" class="close" data-onclick="hide" aria-label="Close"><span aria-hidden="true">×</span></button>' + soy.$$escapeHtml(opt_data.header) : '') + '</header>');
   };
-
   if (goog.DEBUG) {
     Templates.Modal.header.soyTemplateName = 'Templates.Modal.header';
   }
@@ -107,10 +135,9 @@ define(['exports', 'metal/src/component/Component', 'metal/src/soy/SoyAop', 'met
   }(_Component3.default);
 
   Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
+
   Modal.RENDERER = _SoyRenderer2.default;
-
   _SoyAop2.default.registerTemplates('Modal');
-
   exports.default = Modal;
 });
 //# sourceMappingURL=Modal.soy.js.map

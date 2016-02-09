@@ -32,15 +32,12 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 
 		Position.getClientSize_ = function getClientSize_(node, prop) {
 			var el = node;
-
 			if (_core2.default.isWindow(node)) {
 				el = node.document.documentElement;
 			}
-
 			if (_core2.default.isDocument(node)) {
 				el = node.documentElement;
 			}
-
 			return el['client' + prop];
 		};
 
@@ -70,7 +67,6 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 			if (_core2.default.isDocument(node) || _core2.default.isWindow(node)) {
 				return this.getDocumentRegion_(node);
 			}
-
 			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
 		};
 
@@ -78,11 +74,9 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 			if (_core2.default.isWindow(node)) {
 				return node.pageXOffset;
 			}
-
 			if (_core2.default.isDocument(node)) {
 				return node.defaultView.pageXOffset;
 			}
-
 			return node.scrollLeft;
 		};
 
@@ -90,11 +84,9 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 			if (_core2.default.isWindow(node)) {
 				return node.pageYOffset;
 			}
-
 			if (_core2.default.isDocument(node)) {
 				return node.defaultView.pageYOffset;
 			}
-
 			return node.scrollTop;
 		};
 
@@ -102,29 +94,24 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 			if (_core2.default.isWindow(node)) {
 				return this.getClientSize_(node, prop);
 			}
-
 			if (_core2.default.isDocument(node)) {
 				var docEl = node.documentElement;
 				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
 			}
-
 			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
 		};
 
 		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
 			var style = getComputedStyle(node);
 			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
-
 			if (transform !== 'none') {
 				var values = [];
 				var regex = /([\d-\.\s]+)/g;
 				var matches = regex.exec(transform);
-
 				while (matches) {
 					values.push(matches[1]);
 					matches = regex.exec(transform);
 				}
-
 				return values;
 			}
 		};
@@ -135,12 +122,10 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 				left: 0,
 				top: 0
 			};
-
 			if (values) {
 				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
 				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
 			}
-
 			return translation;
 		};
 
@@ -164,7 +149,6 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 			if (!this.intersectRegion(r1, r2)) {
 				return null;
 			}
-
 			var bottom = Math.min(r1.bottom, r2.bottom);
 			var right = Math.min(r1.right, r2.right);
 			var left = Math.max(r1.left, r2.left);

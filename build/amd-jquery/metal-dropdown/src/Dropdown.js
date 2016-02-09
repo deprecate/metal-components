@@ -1,19 +1,11 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Align', 'metal/src/events/EventHandler', './Dropdown.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Align, _EventHandler, _Dropdown, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/events', 'metal-position/src/Align', './Dropdown.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _index, _events, _Align, _Dropdown, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
-
-	var _dom2 = _interopRequireDefault(_dom);
-
 	var _Align2 = _interopRequireDefault(_Align);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 
 	var _Dropdown2 = _interopRequireDefault(_Dropdown);
 
@@ -36,7 +28,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -58,24 +50,31 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 	var Dropdown = function (_DropdownBase) {
 		_inherits(Dropdown, _DropdownBase);
 
+		/**
+   * @inheritDoc
+   */
+
 		function Dropdown(opt_config) {
 			_classCallCheck(this, Dropdown);
 
 			var _this = _possibleConstructorReturn(this, _DropdownBase.call(this, opt_config));
 
-			_this.eventHandler_ = new _EventHandler2.default();
+			_this.eventHandler_ = new _events.EventHandler();
 			return _this;
 		}
 
+		/**
+   * @inheritDoc
+   */
+
+
 		Dropdown.prototype.attached = function attached() {
 			_DropdownBase.prototype.attached.call(this);
-
-			this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
+			this.eventHandler_.add(_index.dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		};
 
 		Dropdown.prototype.detached = function detached() {
 			_DropdownBase.prototype.detached.call(this);
-
 			this.eventHandler_.removeAllListeners();
 		};
 
@@ -91,7 +90,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 			if (this.element.contains(event.target)) {
 				return;
 			}
-
 			this.close();
 		};
 
@@ -101,26 +99,23 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 
 		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
 			if (expanded) {
-				_dom2.default.addClasses(this.element, 'open');
-
+				_index.dom.addClasses(this.element, 'open');
 				if (this.alignElementSelector) {
 					var alignElement = this.element.querySelector(this.alignElementSelector);
-
 					if (alignElement) {
 						_Align2.default.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
 					}
 				}
 			} else {
-				_dom2.default.removeClasses(this.element, 'open');
+				_index.dom.removeClasses(this.element, 'open');
 			}
 		};
 
 		Dropdown.prototype.syncPosition = function syncPosition(position, oldPosition) {
 			if (oldPosition) {
-				_dom2.default.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
+				_index.dom.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
 			}
-
-			_dom2.default.addClasses(this.element, 'drop' + position.toLowerCase());
+			_index.dom.addClasses(this.element, 'drop' + position.toLowerCase());
 		};
 
 		Dropdown.prototype.toggle = function toggle() {
@@ -132,7 +127,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 				case 'up':
 				case 'down':
 					return true;
-
 				default:
 					return false;
 			}
@@ -146,18 +140,14 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 		Dropdown.prototype.valueHeaderFn_ = function valueHeaderFn_() {
 			if (this.element) {
 				var wrapper = document.createElement('div');
-
 				for (var i = 0; i < this.element.childNodes.length; i++) {
-					if (_dom2.default.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
+					if (_index.dom.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
 						break;
 					}
-
 					wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
 				}
-
 				return wrapper.innerHTML;
 			}
-
 			return '';
 		};
 
@@ -165,33 +155,80 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-position/src/Al
 	}(_Dropdown2.default);
 
 	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
+
+
+	/**
+  * Attrbutes definition.
+  * @type {!Object}
+  * @static
+  */
 	Dropdown.ATTRS = {
+		/**
+   * Optional selector for finding the element that the dropdown should be
+   * aligned to. If given, the dropdown will automatically find the best position
+   * to align, when the specified position doesn't work. Otherwise it will
+   * always just follow the given position, even if it's not ideal.
+   * @type {string}
+   */
 		alignElementSelector: {
-			validator: _core2.default.isString
+			validator: _metal.core.isString
 		},
+
+		/**
+   * The dropdown's body content.
+   * @type {string}
+   */
 		body: {
 			isHtml: true,
 			valueFn: 'valueBodyFn_'
 		},
+
+		/**
+   * The dropdown's header content.
+   * @type {string}
+   */
 		header: {
 			isHtml: true,
 			valueFn: 'valueHeaderFn_'
 		},
+
+		/**
+   * Flag indicating if the dropdown is expanded (open) or not.
+   * @type {boolean}
+   * @default false
+   */
 		expanded: {
 			value: false
 		},
+
+		/**
+   * The position of the dropdown (either 'up' or 'down').
+   * @type {string}
+   * @default 'down'
+   */
 		position: {
 			value: 'down',
 			validator: 'validatePosition_'
 		}
 	};
+
+	/**
+  * Default dropdown elementClasses.
+  * @default dropdown
+  * @type {string}
+  * @static
+  */
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
+
+	/**
+  * A map from the dropdown supported positions to `Align` positions.
+  */
 	Dropdown.POSITION_MAP = {
 		down: _Align2.default.BottomLeft,
 		up: _Align2.default.TopLeft
 	};
-	exports.default = Dropdown;
 
+	exports.default = Dropdown;
 	_JQueryAdapter2.default.register('dropdown', Dropdown);
 });
 //# sourceMappingURL=Dropdown.js.map

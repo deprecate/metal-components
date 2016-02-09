@@ -1,6 +1,4 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/promise/Promise', 'metal/src/component/Component', 'metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Promise, _Component2, _EventHandler, _JQueryAdapter) {
+define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/src/promise/Promise', 'metal/metal/src/component/Component', 'metal/metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Promise, _Component2, _EventHandler, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -36,7 +34,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -58,17 +56,24 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 	var AutocompleteBase = function (_Component) {
 		_inherits(AutocompleteBase, _Component);
 
+		/**
+   * @inheritDoc
+   */
+
 		function AutocompleteBase(opt_config) {
 			_classCallCheck(this, AutocompleteBase);
 
 			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
 
 			_this.eventHandler_ = new _EventHandler2.default();
-
 			_this.on('select', _this.select);
-
 			return _this;
 		}
+
+		/**
+   * @inheritDoc
+   */
+
 
 		AutocompleteBase.prototype.attached = function attached() {
 			if (this.inputElement) {
@@ -92,7 +97,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 			}
 
 			var deferredData = self.data(query);
-
 			if (!_core2.default.isPromise(deferredData)) {
 				deferredData = _Promise2.default.resolve(deferredData);
 			}
@@ -104,6 +108,7 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 					});
 				}
 			});
+
 			return this.pendingRequest;
 		};
 
@@ -113,7 +118,6 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 					return val;
 				};
 			}
-
 			return val;
 		};
 
@@ -121,17 +125,52 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 	}(_Component3.default);
 
 	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
+
+
+	/**
+  * AutocompleteBase attributes definition.
+  * @type {!Object}
+  * @static
+  */
 	AutocompleteBase.ATTRS = {
+		/**
+   * Function or array, which have to return the results from the query.
+   * If function, it should return an `array` or a `Promise`. In case of
+   * Promise, it should be resolved with an array containing the results.
+   * @type {Array.<object>|function}
+   */
 		data: {
 			setter: 'setData_'
 		},
+
+		/**
+   * Function that formats each item of the data.
+   * @type {function}
+   * @default Identity function.
+   */
 		format: {
 			value: _core2.default.identityFunction,
 			validator: _core2.default.isFunction
 		},
+
+		/**
+   * The element which will be used source for the data queries.
+   * @type {DOMElement|string}
+   */
 		inputElement: {
 			setter: _dom2.default.toElement
 		},
+
+		/**
+   * Handles item selection. It will receive two parameters - the selected
+   * value from the user and the current value from the input element.
+   * @type {function}
+   * @default
+   *   function(selectedValue) {
+   *	   this.inputElement.value = selectedValue;
+   *	   this.inputElement.focus();
+   *   }
+   */
 		select: {
 			value: function value(selectedValue) {
 				this.inputElement.value = selectedValue.textPrimary;
@@ -139,13 +178,18 @@ define(['exports', 'metal/src/core', 'metal/src/dom/dom', 'metal-promise/src/pro
 			},
 			validator: _core2.default.isFunction
 		},
+
+		/**
+   * Indicates if the component is visible or not.
+   * @type {boolean}
+   */
 		visible: {
 			validator: _core2.default.isBoolean,
 			value: false
 		}
 	};
-	exports.default = AutocompleteBase;
 
+	exports.default = AutocompleteBase;
 	_JQueryAdapter2.default.register('autocompleteBase', AutocompleteBase);
 });
 //# sourceMappingURL=AutocompleteBase.js.map
