@@ -1,9 +1,9 @@
 'use strict';
 
-import async from 'metal/src/async/async';
-import dom from 'metal/src/dom/dom';
+import { async } from 'metal';
+import dom from 'metal-dom';
 import DragTestHelper from 'metal-drag-drop/test/fixtures/DragTestHelper';
-import Position from 'metal-position/src/Position';
+import Position from 'metal-position';
 import Slider from '../src/Slider';
 
 var slider;

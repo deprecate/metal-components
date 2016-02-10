@@ -1,8 +1,8 @@
 'use strict';
 
-import core from 'metal/src/core';
-import Drag from 'metal-drag-drop/src/Drag';
-import Position from 'metal-position/src/Position';
+import core from 'metal';
+import { Drag } from 'metal-drag-drop';
+import Position from 'metal-position';
 import SliderBase from './Slider.soy';
 
 /**
