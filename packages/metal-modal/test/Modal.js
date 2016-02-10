@@ -1,9 +1,9 @@
 'use strict';
 
-import async from 'metal/src/async/async';
-import dom from 'metal/src/dom/dom';
+import { async } from 'metal';
+import dom from 'metal-dom';
 import Modal from '../src/Modal';
-import SoyTemplates from 'metal/src/soy/SoyTemplates';
+import { SoyTemplates } from 'metal-soy';
 
 var modal;
 

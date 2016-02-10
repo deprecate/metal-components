@@ -1,8 +1,8 @@
 'use strict';
 
-import core from 'metal/src/core';
-import dom from 'metal/src/dom/dom';
-import EventHandler from 'metal/src/events/EventHandler';
+import core from 'metal';
+import dom from 'metal-dom';
+import { EventHandler } from 'metal-events';
 import ModalBase from './Modal.soy';
 
 /**
