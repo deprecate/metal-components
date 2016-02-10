@@ -40,7 +40,7 @@
     "metal-treeview": "metal/metal-treeview#master"
   },
   "devDependencies": {
-    "babel-preset-metal": "^2.0.1",
+    "babel-preset-metal": "^2.1.0",
     "chai": "^3.4.1",
     "gulp": "^3.8.11",
     "gulp-metal": "^0.10.0",
