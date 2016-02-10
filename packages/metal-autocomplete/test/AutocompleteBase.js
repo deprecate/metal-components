@@ -1,7 +1,7 @@
 'use strict';
 
-import dom from 'metal/src/dom/dom';
-import CancellablePromise from 'metal-promise/src/promise/Promise';
+import dom from 'metal-dom';
+import CancellablePromise from 'metal-promise';
 import AutocompleteBase from '../src/AutocompleteBase';
 
 var component;

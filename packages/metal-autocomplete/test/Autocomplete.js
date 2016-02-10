@@ -1,9 +1,9 @@
 'use strict';
 
-import async from 'metal/src/async/async';
-import Align from 'metal-position/src/Align';
+import { async } from 'metal';
+import { Align } from 'metal-position';
 import Autocomplete from '../src/Autocomplete';
-import dom from 'metal/src/dom/dom';
+import dom from 'metal-dom';
 
 var component;
 var input;

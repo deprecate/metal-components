@@ -1,14 +1,14 @@
 'use strict';
 
-import core from 'metal/src/core';
-import debounce from 'metal-debounce/src/debounce';
-import dom from 'metal/src/dom/dom';
-import { CancellablePromise as Promise } from 'metal-promise/src/promise/Promise';
-import Align from 'metal-position/src/Align';
+import core from 'metal';
+import debounce from 'metal-debounce';
+import dom from 'metal-dom';
+import { CancellablePromise as Promise } from 'metal-promise';
+import { Align } from 'metal-position';
 import AutocompleteBase from './AutocompleteBase';
-import SoyRenderer from 'metal/src/soy/SoyRenderer';
+import { SoyRenderer } from 'metal-soy';
 import './Autocomplete.soy';
-import 'metal-list/src/List';
+import 'metal-list';
 
 /*
  * Autocomplete component.
