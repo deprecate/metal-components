@@ -1,9 +1,9 @@
 'use strict';
 
-import async from 'metal/src/async/async';
-import dom from 'metal/src/dom/dom';
-import SoyRenderer from 'metal/src/soy/SoyRenderer';
+import { async } from 'metal';
+import dom from 'metal-dom';
 import List from '../src/List';
+import { SoyRenderer } from 'metal-soy';
 
 var list;
 
