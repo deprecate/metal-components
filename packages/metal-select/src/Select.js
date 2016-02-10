@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'metal/src/core';
-import dom from 'metal/src/dom/dom';
+import core from 'metal';
+import dom from 'metal-dom';
 import SelectBase from './Select.soy';
-import 'metal-dropdown/src/Dropdown';
+import 'metal-dropdown';
 
 /**
  * Responsible for rendering and handling a custom select component, based
