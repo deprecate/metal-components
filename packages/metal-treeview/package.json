@@ -8,6 +8,7 @@
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
   },
+  "main": "src/Treeview.js",
   "files": [
     "src",
     "test"
@@ -22,10 +23,14 @@
   "dependencies": {
     "bootstrap": "^3.3.6",
     "closure-templates": "20140422.0.0",
-    "metal": "metal/metal.js#master"
+    "metal": "metal/metal.js#master",
+    "metal-component": "metal/metal-component#master",
+    "metal-dom": "metal/metal-dom#master",
+    "metal-events": "metal/metal-events#master",
+    "metal-soy": "metal/metal-soy#master"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
-		"gulp-metal": "^0.9.2"
+		"gulp-metal": "^0.10.0"
   }
 }

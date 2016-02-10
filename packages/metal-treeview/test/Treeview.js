@@ -1,8 +1,8 @@
 'use strict';
 
-import dom from 'metal/src/dom/dom';
-import object from 'metal/src/object/object';
-import SoyTemplates from 'metal/src/soy/SoyTemplates';
+import dom from 'metal-dom';
+import { object } from 'metal';
+import { SoyTemplates } from 'metal-soy';
 import Treeview from '../src/Treeview';
 
 var treeview;
