@@ -1,10 +1,10 @@
 'use strict';
 
 import { async } from 'metal';
-import { dom } from 'metal-dom';
-import { SoyTemplates } from 'metal-soy';
-import Align from 'metal-position/src/Align';
+import dom from 'metal-dom';
+import { Align } from 'metal-position';
 import Dropdown from '../src/Dropdown';
+import { SoyTemplates } from 'metal-soy';
 
 describe('Dropdown', function() {
 	var component;
