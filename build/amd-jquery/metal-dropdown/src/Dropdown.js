@@ -1,11 +1,13 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/events', 'metal-position/src/Align', './Dropdown.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _index, _events, _Align, _Dropdown, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', './Dropdown.soy', 'metal-events/src/events', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _position, _Dropdown, _events, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _Align2 = _interopRequireDefault(_Align);
+	var _metal2 = _interopRequireDefault(_metal);
+
+	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Dropdown2 = _interopRequireDefault(_Dropdown);
 
@@ -70,7 +72,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/e
 
 		Dropdown.prototype.attached = function attached() {
 			_DropdownBase.prototype.attached.call(this);
-			this.eventHandler_.add(_index.dom.on(document, 'click', this.handleDocClick_.bind(this)));
+			this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
 		};
 
 		Dropdown.prototype.detached = function detached() {
@@ -99,23 +101,23 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/e
 
 		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
 			if (expanded) {
-				_index.dom.addClasses(this.element, 'open');
+				_dom2.default.addClasses(this.element, 'open');
 				if (this.alignElementSelector) {
 					var alignElement = this.element.querySelector(this.alignElementSelector);
 					if (alignElement) {
-						_Align2.default.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+						_position.Align.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
 					}
 				}
 			} else {
-				_index.dom.removeClasses(this.element, 'open');
+				_dom2.default.removeClasses(this.element, 'open');
 			}
 		};
 
 		Dropdown.prototype.syncPosition = function syncPosition(position, oldPosition) {
 			if (oldPosition) {
-				_index.dom.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
+				_dom2.default.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
 			}
-			_index.dom.addClasses(this.element, 'drop' + position.toLowerCase());
+			_dom2.default.addClasses(this.element, 'drop' + position.toLowerCase());
 		};
 
 		Dropdown.prototype.toggle = function toggle() {
@@ -141,7 +143,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/e
 			if (this.element) {
 				var wrapper = document.createElement('div');
 				for (var i = 0; i < this.element.childNodes.length; i++) {
-					if (_index.dom.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
+					if (_dom2.default.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
 						break;
 					}
 					wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
@@ -171,7 +173,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/e
    * @type {string}
    */
 		alignElementSelector: {
-			validator: _metal.core.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -224,8 +226,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-events/src/e
   * A map from the dropdown supported positions to `Align` positions.
   */
 	Dropdown.POSITION_MAP = {
-		down: _Align2.default.BottomLeft,
-		up: _Align2.default.TopLeft
+		down: _position.Align.BottomLeft,
+		up: _position.Align.TopLeft
 	};
 
 	exports.default = Dropdown;

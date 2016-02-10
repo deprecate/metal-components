@@ -4,6 +4,7 @@ define(['exports', './TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', '.
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.TooltipBase = exports.Tooltip = undefined;
 
   var _TooltipBase3 = _interopRequireDefault(_TooltipBase2);
 
@@ -81,6 +82,8 @@ define(['exports', './TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', '.
   Tooltip.ELEMENT_CLASSES = 'tooltip';
 
   exports.default = Tooltip;
+  exports.Tooltip = Tooltip;
+  exports.TooltipBase = _TooltipBase3.default;
   _JQueryAdapter2.default.register('tooltip', Tooltip);
 });
 //# sourceMappingURL=Tooltip.js.map

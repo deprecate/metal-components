@@ -1,21 +1,17 @@
-define(['exports', 'metal/src/core', 'metal-debounce/src/debounce', 'metal/metal/src/dom/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/Align', './AutocompleteBase', 'metal/metal/src/soy/SoyRenderer', 'metal-jquery-adapter/src/JQueryAdapter', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _core, _debounce, _dom, _Promise, _Align, _AutocompleteBase2, _SoyRenderer, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/index', 'metal-jquery-adapter/src/JQueryAdapter', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _index, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _debounce2 = _interopRequireDefault(_debounce);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Align2 = _interopRequireDefault(_Align);
-
 	var _AutocompleteBase3 = _interopRequireDefault(_AutocompleteBase2);
-
-	var _SoyRenderer2 = _interopRequireDefault(_SoyRenderer);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -79,18 +75,18 @@ define(['exports', 'metal/src/core', 'metal-debounce/src/debounce', 'metal/metal
 
 		Autocomplete.prototype.align = function align() {
 			this.element.style.width = this.inputElement.offsetWidth + 'px';
-			var position = _Align2.default.align(this.element, this.inputElement, _Align2.default.Bottom);
+			var position = _position.Align.align(this.element, this.inputElement, _position.Align.Bottom);
 
 			_dom2.default.removeClasses(this.element, this.positionCss_);
 			switch (position) {
-				case _Align2.default.Top:
-				case _Align2.default.TopLeft:
-				case _Align2.default.TopRight:
+				case _position.Align.Top:
+				case _position.Align.TopLeft:
+				case _position.Align.TopRight:
 					this.positionCss_ = 'autocomplete-top';
 					break;
-				case _Align2.default.Bottom:
-				case _Align2.default.BottomLeft:
-				case _Align2.default.BottomRight:
+				case _position.Align.Bottom:
+				case _position.Align.BottomLeft:
+				case _position.Align.BottomRight:
 					this.positionCss_ = 'autocomplete-bottom';
 					break;
 				default:
@@ -147,7 +143,7 @@ define(['exports', 'metal/src/core', 'metal-debounce/src/debounce', 'metal/metal
 		};
 
 		Autocomplete.prototype.assertItemObjectStructure_ = function assertItemObjectStructure_(item) {
-			if (!_core2.default.isObject(item)) {
+			if (!_metal2.default.isObject(item)) {
 				throw new _Promise.CancellablePromise.CancellationError('Autocomplete item must be an object');
 			}
 			if (!item.hasOwnProperty('textPrimary')) {
@@ -174,7 +170,7 @@ define(['exports', 'metal/src/core', 'metal-debounce/src/debounce', 'metal/metal
    */
 		format: {
 			value: function value(item) {
-				return _core2.default.isString(item) ? {
+				return _metal2.default.isString(item) ? {
 					textPrimary: item
 				} : item;
 			}
@@ -186,7 +182,7 @@ define(['exports', 'metal/src/core', 'metal-debounce/src/debounce', 'metal/metal
   * @type {!Function}
   * @static
   */
-	Autocomplete.RENDERER = _SoyRenderer2.default;
+	Autocomplete.RENDERER = _index.SoyRenderer;
 
 	exports.default = Autocomplete;
 	_JQueryAdapter2.default.register('autocomplete', Autocomplete);

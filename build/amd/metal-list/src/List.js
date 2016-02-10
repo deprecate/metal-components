@@ -1,4 +1,4 @@
-define(['exports', 'metal/metal/src/dom/dom', './List.soy.js', './ListItem.js'], function (exports, _dom, _ListSoy) {
+define(['exports', 'metal-dom/src/all/dom', './List.soy.js', './ListItem.js'], function (exports, _dom, _ListSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {

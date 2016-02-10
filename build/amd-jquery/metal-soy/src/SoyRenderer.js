@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-component/src/index', './SoyAop', './SoyTemplates'], function (exports, _metal, _index, _index3, _SoyAop, _SoyTemplates) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', './SoyAop', './SoyTemplates'], function (exports, _metal, _dom, _component, _SoyAop, _SoyTemplates) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _index2 = _interopRequireDefault(_index);
+	var _dom2 = _interopRequireDefault(_dom);
 
 	var _SoyAop2 = _interopRequireDefault(_SoyAop);
 
@@ -114,7 +114,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-component/sr
 		};
 
 		SoyRenderer.createComponentFromTemplate = function createComponentFromTemplate(templateFn, opt_element, opt_data) {
-			var element = opt_element ? _index2.default.toElement(opt_element) : null;
+			var element = opt_element ? _dom2.default.toElement(opt_element) : null;
 			var data = _metal.object.mixin({
 				id: element ? element.id : null
 			}, opt_data, {
@@ -133,12 +133,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-component/sr
 				}
 
 				return TemplateComponent;
-			}(_index3.Component);
+			}(_component.Component);
 
 			TemplateComponent.prototype.registerMetalComponent && TemplateComponent.prototype.registerMetalComponent(TemplateComponent, 'TemplateComponent')
 
 			TemplateComponent.RENDERER = SoyRenderer;
-			_index3.ComponentRegistry.register(TemplateComponent, name);
+			_component.ComponentRegistry.register(TemplateComponent, name);
 			_SoyTemplates2.default.set(name, {
 				render: function render(opt_attrs, opt_ignored, opt_ijData) {
 					return _SoyAop2.default.getOriginalFn(templateFn)(data, opt_ignored, opt_ijData);
@@ -256,7 +256,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-component/sr
 		};
 
 		return SoyRenderer;
-	}(_index3.ComponentRenderer);
+	}(_component.ComponentRenderer);
 
 	SoyRenderer.prototype.registerMetalComponent && SoyRenderer.prototype.registerMetalComponent(SoyRenderer, 'SoyRenderer')
 

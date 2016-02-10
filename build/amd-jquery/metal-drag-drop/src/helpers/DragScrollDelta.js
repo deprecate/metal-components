@@ -1,4 +1,4 @@
-define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitter', 'metal/metal/src/events/EventHandler', 'metal-position/src/Position'], function (exports, _dom, _EventEmitter2, _EventHandler, _Position) {
+define(['exports', 'metal-dom/src/all/dom', 'metal-events/src/events', 'metal-position/src/all/position'], function (exports, _dom, _events, _position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,11 +7,7 @@ define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitt
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _EventEmitter3 = _interopRequireDefault(_EventEmitter2);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
-
-	var _Position2 = _interopRequireDefault(_Position);
+	var _position2 = _interopRequireDefault(_position);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -66,7 +62,7 @@ define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitt
     * @type {EventHandler}
     * @protected
     */
-			_this.handler_ = new _EventHandler2.default();
+			_this.handler_ = new _events.EventHandler();
 
 			/**
     * The scroll positions for the scroll elements that are being listened to.
@@ -90,8 +86,8 @@ define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitt
 
 		DragScrollDelta.prototype.handleScroll_ = function handleScroll_(index, event) {
 			var newPosition = {
-				scrollLeft: _Position2.default.getScrollLeft(event.currentTarget),
-				scrollTop: _Position2.default.getScrollTop(event.currentTarget)
+				scrollLeft: _position2.default.getScrollLeft(event.currentTarget),
+				scrollTop: _position2.default.getScrollTop(event.currentTarget)
 			};
 			var position = this.scrollPositions_[index];
 			this.scrollPositions_[index] = newPosition;
@@ -112,8 +108,8 @@ define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitt
 			for (var i = 0; i < scrollContainers.length; i++) {
 				if (_dom2.default.contains(scrollContainers[i], dragNode)) {
 					this.scrollPositions_.push({
-						scrollLeft: _Position2.default.getScrollLeft(scrollContainers[i]),
-						scrollTop: _Position2.default.getScrollTop(scrollContainers[i])
+						scrollLeft: _position2.default.getScrollLeft(scrollContainers[i]),
+						scrollTop: _position2.default.getScrollTop(scrollContainers[i])
 					});
 
 					var index = this.scrollPositions_.length - 1;
@@ -128,7 +124,7 @@ define(['exports', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventEmitt
 		};
 
 		return DragScrollDelta;
-	}(_EventEmitter3.default);
+	}(_events.EventEmitter);
 
 	DragScrollDelta.prototype.registerMetalComponent && DragScrollDelta.prototype.registerMetalComponent(DragScrollDelta, 'DragScrollDelta')
 	exports.default = DragScrollDelta;

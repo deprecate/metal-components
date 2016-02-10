@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/html', 'metal-attribute/src/Attribute', './ComponentCollector', './ComponentRegistry', './ComponentRenderer', './EventsCollector', 'metal-events/src/events', './SurfaceCollector'], function (exports, _metal, _index, _html, _Attribute2, _ComponentCollector, _ComponentRegistry, _ComponentRenderer, _EventsCollector, _events, _SurfaceCollector) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/html', 'metal-attribute/src/Attribute', './ComponentCollector', './ComponentRegistry', './ComponentRenderer', './EventsCollector', 'metal-events/src/events', './SurfaceCollector'], function (exports, _metal, _dom, _html, _Attribute2, _ComponentCollector, _ComponentRegistry, _ComponentRenderer, _EventsCollector, _events, _SurfaceCollector) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -203,8 +203,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 		};
 
 		Component.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_origin) {
-			if (!this.elementEventProxy_ && _index.dom.supportsEvent(this.constructor.ELEMENT_TAG_NAME_MERGED, event)) {
-				this.elementEventProxy_ = new _index.DomEventEmitterProxy(this.element, this);
+			if (!this.elementEventProxy_ && _dom.dom.supportsEvent(this.constructor.ELEMENT_TAG_NAME_MERGED, event)) {
+				this.elementEventProxy_ = new _dom.DomEventEmitterProxy(this.element, this);
 			}
 			_Attribute.prototype.addSingleListener_.call(this, event, listener, opt_origin);
 		};
@@ -275,9 +275,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 		Component.prototype.attached = function attached() {};
 
 		Component.prototype.buildFragment_ = function buildFragment_(content) {
-			var frag = _index.dom.buildFragment(content);
+			var frag = _dom.dom.buildFragment(content);
 			if (content.indexOf('<script') !== -1) {
-				_index.globalEval.runScriptsInElement(frag);
+				_dom.globalEval.runScriptsInElement(frag);
 			}
 			return frag;
 		};
@@ -321,7 +321,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 
 		Component.prototype.computeSurfaceCacheState_ = function computeSurfaceCacheState_(value) {
 			value = value || '';
-			if (_index.features.checkAttrOrderChange()) {
+			if (_dom.features.checkAttrOrderChange()) {
 				value = this.convertHtmlToBrowserFormat_(value);
 			}
 			return _metal.string.hashCode(value);
@@ -329,7 +329,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 
 		Component.prototype.convertHtmlToBrowserFormat_ = function convertHtmlToBrowserFormat_(htmlString) {
 			var element = document.createElement('div');
-			_index.dom.append(element, htmlString);
+			_dom.dom.append(element, htmlString);
 			return element.innerHTML;
 		};
 
@@ -360,7 +360,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 		};
 
 		Component.prototype.delegate = function delegate(eventName, selector, callback) {
-			var handle = _index.dom.delegate(this.element, eventName, selector, callback);
+			var handle = _dom.dom.delegate(this.element, eventName, selector, callback);
 			this.delegateEventHandler_.add(handle);
 			return handle;
 		};
@@ -503,7 +503,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 		};
 
 		Component.prototype.findElementInContent_ = function findElementInContent_(id, content) {
-			content = _metal.core.isString(content) ? _index.dom.buildFragment(content) : content;
+			content = _metal.core.isString(content) ? _dom.dom.buildFragment(content) : content;
 			var firstChild = content.childNodes[0];
 			if (firstChild && firstChild.id === id) {
 				return firstChild;
@@ -747,7 +747,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 		};
 
 		Component.prototype.renderAsSubComponent = function renderAsSubComponent(opt_content) {
-			if (opt_content && _index.dom.isEmpty(this.element)) {
+			if (opt_content && _dom.dom.isEmpty(this.element)) {
 				// If we have the rendered content for this component, but it hasn't
 				// been rendered in its element yet, we render it manually here. That
 				// can happen if the subcomponent's element is set before the parent
@@ -788,8 +788,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 			var element = this.element;
 			element.id = this.id;
 			if (opt_siblingElement || !element.parentNode) {
-				var parent = _index.dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
-				parent.insertBefore(element, _index.dom.toElement(opt_siblingElement));
+				var parent = _dom.dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
+				parent.insertBefore(element, _dom.dom.toElement(opt_siblingElement));
 			}
 		};
 
@@ -833,8 +833,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 				this.updateElementAttributes_(element, newElement);
 				newContent = newElement.childNodes;
 			}
-			_index.dom.removeChildren(element);
-			_index.dom.append(element, newContent);
+			_dom.dom.removeChildren(element);
+			_dom.dom.append(element, newContent);
 		};
 
 		Component.prototype.replaceSurfaceContent_ = function replaceSurfaceContent_(surfaceElementId, surface, content) {
@@ -849,10 +849,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 			var element = this.findElementInContent_(surfaceElementId, frag);
 			if (element) {
 				surface.element = element;
-				_index.dom.replace(el, surface.element);
+				_dom.dom.replace(el, surface.element);
 			} else {
-				_index.dom.removeChildren(el);
-				_index.dom.append(el, frag);
+				_dom.dom.removeChildren(el);
+				_dom.dom.append(el, frag);
 			}
 		};
 
@@ -886,7 +886,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 		};
 
 		Component.prototype.setterElementFn_ = function setterElementFn_(val) {
-			var element = _index.dom.toElement(val);
+			var element = _dom.dom.toElement(val);
 			if (!element) {
 				element = this.valueElementFn_();
 			}
@@ -899,9 +899,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 				classesToAdd = classesToAdd + ' ' + newVal;
 			}
 			if (prevVal) {
-				_index.dom.removeClasses(this.element, prevVal);
+				_dom.dom.removeClasses(this.element, prevVal);
 			}
-			_index.dom.addClasses(this.element, classesToAdd);
+			_dom.dom.addClasses(this.element, classesToAdd);
 		};
 
 		Component.prototype.syncVisible = function syncVisible(newVal) {
@@ -929,7 +929,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 			if (surface.componentName) {
 				// Elements of component surfaces are unchangeable, so we need to replace the
 				// rendered element with the component's.
-				_index.dom.replace(this.findElementById_(surfaceElementId), this.getSurfaceElement(surfaceElementId, surface));
+				_dom.dom.replace(this.findElementById_(surfaceElementId), this.getSurfaceElement(surfaceElementId, surface));
 
 				// Component surfaces need to be handled in case some internal details have changed.
 				this.emitRenderSurfaceEvent_(surfaceElementId, collectedData.content, collectedData.cacheContent);
@@ -978,8 +978,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-html/src/htm
 			if (!element) {
 				element = this.findElementInContent_(this.id, this.getComponentHtml(''));
 			}
-			_index.dom.removeChildren(element);
-			_index.dom.exitDocument(element);
+			_dom.dom.removeChildren(element);
+			_dom.dom.exitDocument(element);
 			return element;
 		};
 

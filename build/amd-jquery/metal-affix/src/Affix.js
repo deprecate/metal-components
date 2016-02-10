@@ -1,21 +1,17 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src/attribute/Attribute', 'metal/metal/src/events/EventEmitter', 'metal/metal/src/events/EventEmitterProxy', 'metal-position/src/Position', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Attribute2, _EventEmitter, _EventEmitterProxy, _Position, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/src/Attribute', 'metal-events/src/events', 'metal-position/src/all/position', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Attribute2, _events, _position, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
-
-	var _dom2 = _interopRequireDefault(_dom);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _Attribute3 = _interopRequireDefault(_Attribute2);
 
-	var _EventEmitter2 = _interopRequireDefault(_EventEmitter);
+	var _events2 = _interopRequireDefault(_events);
 
-	var _EventEmitterProxy2 = _interopRequireDefault(_EventEmitterProxy);
-
-	var _Position2 = _interopRequireDefault(_Position);
+	var _position2 = _interopRequireDefault(_position);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -68,8 +64,8 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
 
 			if (!Affix.emitter_) {
-				Affix.emitter_ = new _EventEmitter2.default();
-				Affix.proxy_ = new _EventEmitterProxy2.default(document, Affix.emitter_, null, {
+				Affix.emitter_ = new _events2.default();
+				Affix.proxy_ = new _dom.DomEventEmitterProxy(document, Affix.emitter_, null, {
 					scroll: true
 				});
 			}
@@ -101,7 +97,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 
 
 		Affix.prototype.disposeInternal = function disposeInternal() {
-			_dom2.default.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
+			_dom.dom.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
 			this.scrollHandle_.dispose();
 			_Attribute.prototype.disposeInternal.call(this);
 		};
@@ -117,25 +113,25 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 		};
 
 		Affix.prototype.intersectBottomRegion = function intersectBottomRegion() {
-			if (!_core2.default.isDef(this.offsetBottom)) {
+			if (!_metal2.default.isDef(this.offsetBottom)) {
 				return false;
 			}
-			var clientHeight = _Position2.default.getHeight(this.scrollElement);
-			var scrollElementClientHeight = _Position2.default.getClientHeight(this.scrollElement);
-			return _Position2.default.getScrollTop(this.scrollElement) + scrollElementClientHeight >= clientHeight - this.offsetBottom;
+			var clientHeight = _position2.default.getHeight(this.scrollElement);
+			var scrollElementClientHeight = _position2.default.getClientHeight(this.scrollElement);
+			return _position2.default.getScrollTop(this.scrollElement) + scrollElementClientHeight >= clientHeight - this.offsetBottom;
 		};
 
 		Affix.prototype.intersectTopRegion = function intersectTopRegion() {
-			if (!_core2.default.isDef(this.offsetTop)) {
+			if (!_metal2.default.isDef(this.offsetTop)) {
 				return false;
 			}
-			return _Position2.default.getScrollTop(this.scrollElement) <= this.offsetTop;
+			return _position2.default.getScrollTop(this.scrollElement) <= this.offsetTop;
 		};
 
 		Affix.prototype.syncPosition = function syncPosition(position) {
 			if (this.lastPosition_ !== position) {
-				_dom2.default.addClasses(this.element, position);
-				_dom2.default.removeClasses(this.element, this.lastPosition_);
+				_dom.dom.addClasses(this.element, position);
+				_dom.dom.removeClasses(this.element, this.lastPosition_);
 				this.lastPosition_ = position;
 			}
 		};
@@ -163,7 +159,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @type {Element|Window}
    */
 		scrollElement: {
-			setter: _dom2.default.toElement,
+			setter: _dom.dom.toElement,
 			value: document
 		},
 
@@ -172,7 +168,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @type {number}
    */
 		offsetTop: {
-			validator: _core2.default.isNumber
+			validator: _metal2.default.isNumber
 		},
 
 		/**
@@ -180,7 +176,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @type {number}
    */
 		offsetBottom: {
-			validator: _core2.default.isNumber
+			validator: _metal2.default.isNumber
 		},
 
 		/**
@@ -188,7 +184,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @type {Element}
    */
 		element: {
-			setter: _dom2.default.toElement
+			setter: _dom.dom.toElement
 		}
 	};
 

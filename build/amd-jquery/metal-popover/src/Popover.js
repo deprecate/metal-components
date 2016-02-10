@@ -1,13 +1,11 @@
-define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', 'metal-jquery-adapter/src/JQueryAdapter', './Popover.soy'], function (exports, _core, _TooltipBase2, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-tooltip/src/Tooltip', 'metal-jquery-adapter/src/JQueryAdapter', './Popover.soy'], function (exports, _metal, _Tooltip, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
-
-	var _TooltipBase3 = _interopRequireDefault(_TooltipBase2);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -73,7 +71,7 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', 'metal-jqu
 		};
 
 		return Popover;
-	}(_TooltipBase3.default);
+	}(_Tooltip.TooltipBase);
 
 	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 
@@ -85,7 +83,7 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', 'metal-jqu
   */
 	Popover.ATTRS = {
 		content: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -104,7 +102,7 @@ define(['exports', 'metal/src/core', 'metal-tooltip/src/TooltipBase', 'metal-jqu
   * @see `Align` class.
   * @static
   */
-	Popover.Align = _TooltipBase3.default.Align;
+	Popover.Align = _Tooltip.TooltipBase.Align;
 
 	Popover.ELEMENT_CLASSES = 'popover';
 

@@ -1,15 +1,11 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/object/object', 'metal/metal/src/attribute/Attribute', './helpers/DragAutoScroll', './helpers/DragScrollDelta', './helpers/DragShim', 'metal/metal/src/events/EventHandler', 'metal-position/src/Position'], function (exports, _core, _dom, _object, _Attribute2, _DragAutoScroll, _DragScrollDelta, _DragShim, _EventHandler, _Position) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/src/Attribute', './helpers/DragAutoScroll', './helpers/DragScrollDelta', './helpers/DragShim', 'metal-events/src/events', 'metal-position/src/all/position'], function (exports, _metal, _dom, _Attribute2, _DragAutoScroll, _DragScrollDelta, _DragShim, _events, _position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
-
 	var _dom2 = _interopRequireDefault(_dom);
-
-	var _object2 = _interopRequireDefault(_object);
 
 	var _Attribute3 = _interopRequireDefault(_Attribute2);
 
@@ -19,9 +15,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 
 	var _DragShim2 = _interopRequireDefault(_DragShim);
 
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
-
-	var _Position2 = _interopRequireDefault(_Position);
+	var _position2 = _interopRequireDefault(_position);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -104,7 +98,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
     * @type {!EventHandler}
     * @protected
     */
-			_this.dragHandler_ = new _EventHandler2.default();
+			_this.dragHandler_ = new _events.EventHandler();
 
 			/**
     * `DragScrollDelta` instance.
@@ -133,7 +127,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
     * @type {!EventHandler}
     * @protected
     */
-			_this.sourceHandler_ = new _EventHandler2.default();
+			_this.sourceHandler_ = new _events.EventHandler();
 
 			/**
     * The current region values of the element being dragged, relative to
@@ -176,7 +170,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 			var eventTypes = Object.keys(toAttach);
 			for (var i = 0; i < eventTypes.length; i++) {
 				var listenerFn = toAttach[eventTypes[i]];
-				if (_core2.default.isString(this.sources)) {
+				if (_metal.core.isString(this.sources)) {
 					this.sourceHandler_.add(_dom2.default.delegate(this.container, eventTypes[i], this.sources, listenerFn));
 				} else {
 					this.sourceHandler_.add(_dom2.default.on(this.sources, eventTypes[i], listenerFn));
@@ -196,12 +190,12 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		};
 
 		Drag.prototype.calculateInitialPosition_ = function calculateInitialPosition_(event) {
-			this.sourceRegion_ = _object2.default.mixin({}, _Position2.default.getRegion(this.activeDragSource_, true));
+			this.sourceRegion_ = _metal.object.mixin({}, _position2.default.getRegion(this.activeDragSource_, true));
 			this.sourceRelativePos_ = {
 				x: this.activeDragSource_.offsetLeft,
 				y: this.activeDragSource_.offsetTop
 			};
-			if (_core2.default.isDef(event.clientX)) {
+			if (_metal.core.isDef(event.clientX)) {
 				this.mousePos_ = {
 					x: event.clientX,
 					y: event.clientY
@@ -214,7 +208,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		};
 
 		Drag.prototype.canStartDrag_ = function canStartDrag_(event) {
-			return !this.disabled && (!_core2.default.isDef(event.button) || event.button === 0) && !this.isDragging() && this.isWithinHandle_(event.target);
+			return !this.disabled && (!_metal.core.isDef(event.button) || event.button === 0) && !this.isDragging() && this.isWithinHandle_(event.target);
 		};
 
 		Drag.prototype.cleanUpAfterDragging_ = function cleanUpAfterDragging_() {
@@ -263,8 +257,8 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		Drag.prototype.constrainToRegion_ = function constrainToRegion_(region) {
 			var constrain = this.constrain;
 			if (constrain) {
-				if (_core2.default.isElement(constrain)) {
-					constrain = _Position2.default.getRegion(constrain, true);
+				if (_metal.core.isElement(constrain)) {
+					constrain = _position2.default.getRegion(constrain, true);
 				}
 				if (region.left < constrain.left) {
 					region.left = constrain.left;
@@ -294,7 +288,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 			var dragPlaceholder = this.dragPlaceholder;
 			if (dragPlaceholder === Drag.Placeholder.CLONE) {
 				this.activeDragPlaceholder_ = this.cloneActiveDrag_();
-			} else if (_core2.default.isElement(dragPlaceholder)) {
+			} else if (_metal.core.isElement(dragPlaceholder)) {
 				this.activeDragPlaceholder_ = dragPlaceholder;
 			} else {
 				this.activeDragPlaceholder_ = this.activeDragSource_;
@@ -436,7 +430,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 			var handles = this.handles;
 			if (!handles) {
 				return true;
-			} else if (_core2.default.isString(handles)) {
+			} else if (_metal.core.isString(handles)) {
 				return _dom2.default.match(element, handles + ', ' + handles + ' *');
 			} else {
 				return _dom2.default.contains(handles, element);
@@ -455,7 +449,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		};
 
 		Drag.prototype.setterConstrainFn = function setterConstrainFn(val) {
-			if (_core2.default.isString(val)) {
+			if (_metal.core.isString(val)) {
 				val = _dom2.default.toElement(val);
 			}
 			return val;
@@ -475,7 +469,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		};
 
 		Drag.prototype.toElements_ = function toElements_(elementOrSelector) {
-			if (_core2.default.isString(elementOrSelector)) {
+			if (_metal.core.isString(elementOrSelector)) {
 				var matched = this.container.querySelectorAll(elementOrSelector);
 				return Array.prototype.slice.call(matched, 0);
 			} else if (elementOrSelector) {
@@ -498,7 +492,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		};
 
 		Drag.prototype.updatePositionFromDelta = function updatePositionFromDelta(deltaX, deltaY) {
-			var newRegion = _object2.default.mixin({}, this.sourceRegion_);
+			var newRegion = _metal.object.mixin({}, this.sourceRegion_);
 			newRegion.left += deltaX;
 			newRegion.right += deltaX;
 			newRegion.top += deltaY;
@@ -519,11 +513,11 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
 		};
 
 		Drag.prototype.validateElementOrString_ = function validateElementOrString_(val) {
-			return _core2.default.isString(val) || _core2.default.isElement(val);
+			return _metal.core.isString(val) || _metal.core.isElement(val);
 		};
 
 		Drag.prototype.validatorConstrainFn = function validatorConstrainFn(val) {
-			return _core2.default.isString(val) || _core2.default.isObject(val);
+			return _metal.core.isString(val) || _metal.core.isObject(val);
 		};
 
 		return Drag;
@@ -557,7 +551,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
    * @type {string}
    */
 		axis: {
-			validator: _core2.default.isString
+			validator: _metal.core.isString
 		},
 
 		/**
@@ -593,7 +587,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
    * @default false
    */
 		disabled: {
-			validator: _core2.default.isBoolean,
+			validator: _metal.core.isBoolean,
 			value: false
 		},
 
@@ -603,7 +597,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
    * @default 'dragging'
    */
 		draggingClass: {
-			validator: _core2.default.isString,
+			validator: _metal.core.isString,
 			value: 'dragging'
 		},
 
@@ -633,7 +627,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
    * @default 10
    */
 		keyboardSpeed: {
-			validator: _core2.default.isNumber,
+			validator: _metal.core.isNumber,
 			value: 10
 		},
 
@@ -644,7 +638,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
    * @default 5
    */
 		minimumDragDistance: {
-			validator: _core2.default.isNumber,
+			validator: _metal.core.isNumber,
 			value: 5,
 			writeOnce: true
 		},
@@ -676,7 +670,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/src/objec
    * @type {!{x: number, y: number}}
    */
 		steps: {
-			validator: _core2.default.isObject,
+			validator: _metal.core.isObject,
 			valueFn: function valueFn() {
 				return {
 					x: 1,

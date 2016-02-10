@@ -1,4 +1,4 @@
-define(['exports', 'metal/metal/src/dom/dom', './Treeview.soy'], function (exports, _dom, _Treeview) {
+define(['exports', 'metal-dom/src/all/dom', './Treeview.soy'], function (exports, _dom, _Treeview) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {

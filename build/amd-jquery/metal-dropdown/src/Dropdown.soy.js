@@ -1,11 +1,11 @@
-define(['exports', 'metal-component/src/index', 'metal-soy/src/index'], function (exports, _index, _index3) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/index'], function (exports, _component, _index) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
 
-  var _index2 = _interopRequireDefault(_index);
+  var _component2 = _interopRequireDefault(_component);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -43,7 +43,7 @@ define(['exports', 'metal-component/src/index', 'metal-soy/src/index'], function
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Templates = _index3.SoyTemplates.get();
+  var Templates = _index.SoyTemplates.get();
   // This file was automatically generated from Dropdown.soy.
   // Please don't edit this file by hand.
 
@@ -96,12 +96,12 @@ define(['exports', 'metal-component/src/index', 'metal-soy/src/index'], function
     }
 
     return Dropdown;
-  }(_index2.default);
+  }(_component2.default);
 
   Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 
-  Dropdown.RENDERER = _index3.SoyRenderer;
-  _index3.SoyAop.registerTemplates('Dropdown');
+  Dropdown.RENDERER = _index.SoyRenderer;
+  _index.SoyAop.registerTemplates('Dropdown');
   exports.default = Dropdown;
 });
 //# sourceMappingURL=Dropdown.soy.js.map

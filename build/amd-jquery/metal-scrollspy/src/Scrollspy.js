@@ -1,17 +1,17 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src/attribute/Attribute', 'metal-position/src/Position', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Attribute2, _Position, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/src/Attribute', 'metal-position/src/all/position', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Attribute2, _position, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Attribute3 = _interopRequireDefault(_Attribute2);
 
-	var _Position2 = _interopRequireDefault(_Position);
+	var _position2 = _interopRequireDefault(_position);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -115,7 +115,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 
 		Scrollspy.prototype.checkPosition = function checkPosition() {
 			var scrollHeight = this.getScrollHeight_();
-			var scrollTop = _Position2.default.getScrollTop(this.scrollElement);
+			var scrollTop = _position2.default.getScrollTop(this.scrollElement);
 
 			if (scrollHeight < scrollTop + this.offset) {
 				this.activate(this.regions.length - 1);
@@ -160,9 +160,9 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 		};
 
 		Scrollspy.prototype.getScrollHeight_ = function getScrollHeight_() {
-			var scrollHeight = _Position2.default.getHeight(this.scrollElement);
+			var scrollHeight = _position2.default.getHeight(this.scrollElement);
 			scrollHeight += this.scrollElementRegion_.top;
-			scrollHeight -= _Position2.default.getClientHeight(this.scrollElement);
+			scrollHeight -= _position2.default.getClientHeight(this.scrollElement);
 			return scrollHeight;
 		};
 
@@ -177,18 +177,18 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 			// Removes the "active" class from all current regions.
 			this.deactivateAll();
 
-			this.scrollElementRegion_ = _Position2.default.getRegion(this.scrollElement);
+			this.scrollElementRegion_ = _position2.default.getRegion(this.scrollElement);
 			this.scrollHeight_ = this.getScrollHeight_();
 
 			this.regions = [];
 			var links = this.element.querySelectorAll(this.selector);
-			var scrollTop = _Position2.default.getScrollTop(this.scrollElement);
+			var scrollTop = _position2.default.getScrollTop(this.scrollElement);
 			for (var i = 0; i < links.length; ++i) {
 				var link = links[i];
 				if (link.hash && link.hash.length > 1) {
 					var element = document.getElementById(link.hash.substring(1));
 					if (element) {
-						var region = _Position2.default.getRegion(element);
+						var region = _position2.default.getRegion(element);
 						this.regions.push({
 							link: link,
 							top: region.top + scrollTop,
@@ -224,7 +224,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @type {string}
    */
 		activeClass: {
-			validator: _core2.default.isString,
+			validator: _metal2.default.isString,
 			value: 'active'
 		},
 
@@ -236,8 +236,8 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @default core.identityFunction
    */
 		resolveElement: {
-			validator: _core2.default.isFunction,
-			value: _core2.default.identityFunction
+			validator: _metal2.default.isFunction,
+			value: _metal2.default.identityFunction
 		},
 
 		/**
@@ -256,7 +256,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @default 0
    */
 		offset: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 0
 		},
 
@@ -274,7 +274,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @default 'a'
    */
 		selector: {
-			validator: _core2.default.isString,
+			validator: _metal2.default.isString,
 			value: 'a'
 		}
 	};

@@ -1,4 +1,4 @@
-define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _Attribute3, _core, _dom, _JQueryAdapter) {
+define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _Attribute3, _metal, _dom, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
 
 	var _Attribute4 = _interopRequireDefault(_Attribute3);
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
@@ -113,7 +113,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {!function(!Element)}
    */
 		action: {
-			validator: _core2.default.isFunction,
+			validator: _metal2.default.isFunction,
 			value: function value(delegateTarget) {
 				return delegateTarget.getAttribute('data-action');
 			}
@@ -125,7 +125,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    */
 		selector: {
 			value: '[data-clipboard]',
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -134,7 +134,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {!function(!Element)}
    */
 		target: {
-			validator: _core2.default.isFunction,
+			validator: _metal2.default.isFunction,
 			value: function value(delegateTarget) {
 				return document.querySelector(delegateTarget.getAttribute('data-target'));
 			}
@@ -145,7 +145,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {!function(!Element)}
    */
 		text: {
-			validator: _core2.default.isFunction,
+			validator: _metal2.default.isFunction,
 			value: function value(delegateTarget) {
 				return delegateTarget.getAttribute('data-text');
 			}
@@ -305,7 +305,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {string}
    */
 		selectedText: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -313,7 +313,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {Element}
    */
 		target: {
-			validator: _core2.default.isElement
+			validator: _metal2.default.isElement
 		},
 
 		/**
@@ -321,7 +321,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {string}
    */
 		text: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -329,7 +329,7 @@ define(['exports', 'metal/metal/src/attribute/Attribute', 'metal/src/core', 'met
    * @type {!Element}
    */
 		trigger: {
-			validator: _core2.default.isElement
+			validator: _metal2.default.isElement
 		}
 	};
 

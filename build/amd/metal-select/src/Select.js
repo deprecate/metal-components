@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Select.soy', 'metal-dropdown/src/Dropdown'], function (exports, _core, _dom, _Select) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Select.soy', 'metal-dropdown/src/Dropdown'], function (exports, _metal, _dom, _Select) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
@@ -101,12 +101,12 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Select.soy', 
 						this.getDropdown().close();
 						break;
 					case 38:
-						this.focusedIndex_ = _core2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
+						this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
 						this.focusIndex_(this.focusedIndex_ === 0 ? this.items.length - 1 : this.focusedIndex_ - 1);
 						event.preventDefault();
 						break;
 					case 40:
-						this.focusedIndex_ = _core2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
+						this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
 						this.focusIndex_(this.focusedIndex_ === this.items.length - 1 ? 0 : this.focusedIndex_ + 1);
 						event.preventDefault();
 						break;
@@ -146,7 +146,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Select.soy', 
    * @default 'btn btn-default'
    */
 		buttonClass: {
-			validator: _core2.default.isString,
+			validator: _metal2.default.isString,
 			value: 'btn btn-default'
 		},
 
@@ -155,7 +155,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Select.soy', 
    * @type {string}
    */
 		hiddenInputName: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -181,7 +181,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Select.soy', 
    * @type {string}
    */
 		label: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -189,7 +189,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Select.soy', 
    * @type {number}
    */
 		selectedIndex: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			valueFn: function valueFn() {
 				return this.label || !this.items.length ? -1 : 0;
 			}

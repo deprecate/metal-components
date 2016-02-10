@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _ProgressBar, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ProgressBar.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _ProgressBar, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
@@ -136,7 +136,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.s
    * @type {string}
    */
 		barClass: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -145,7 +145,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.s
    */
 		label: {
 			validator: function validator(label) {
-				return !_core2.default.isDefAndNotNull(label) || _core2.default.isString(label);
+				return !_metal2.default.isDefAndNotNull(label) || _metal2.default.isString(label);
 			}
 		},
 
@@ -155,7 +155,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.s
    * @type {number}
    */
 		max: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 100
 		},
 
@@ -165,7 +165,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.s
    * @type {number}
    */
 		min: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 0
 		},
 
@@ -175,7 +175,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ProgressBar.s
    */
 		value: {
 			setter: 'setterValueFn_',
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 0
 		}
 	};

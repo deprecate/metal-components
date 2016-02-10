@@ -1,19 +1,15 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Alert.soy.js', 'metal-anim/src/Anim', 'metal/metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter', 'metal/metal/src/dom/events'], function (exports, _core, _dom, _AlertSoy, _Anim, _EventHandler, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'metal-anim/src/Anim', 'metal-events/src/events', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Alert, _Anim, _events, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
-
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _AlertSoy2 = _interopRequireDefault(_AlertSoy);
+	var _Alert2 = _interopRequireDefault(_Alert);
 
 	var _Anim2 = _interopRequireDefault(_Anim);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -61,7 +57,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Alert.soy.js'
 
 			var _this = _possibleConstructorReturn(this, _AlertBase.call(this, opt_config));
 
-			_this.eventHandler_ = new _EventHandler2.default();
+			_this.eventHandler_ = new _events.EventHandler();
 			return _this;
 		}
 
@@ -114,20 +110,20 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Alert.soy.js'
 			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
 			_Anim2.default.emulateEnd(this.element);
 
-			if (visible && _core2.default.isNumber(this.hideDelay)) {
+			if (visible && _metal.core.isNumber(this.hideDelay)) {
 				this.syncHideDelay(this.hideDelay);
 			}
 		};
 
 		Alert.prototype.syncHideDelay = function syncHideDelay(hideDelay) {
-			if (_core2.default.isNumber(hideDelay) && this.visible) {
+			if (_metal.core.isNumber(hideDelay) && this.visible) {
 				clearTimeout(this.delay_);
 				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
 			}
 		};
 
 		return Alert;
-	}(_AlertSoy2.default);
+	}(_Alert2.default);
 
 	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
 
@@ -151,7 +147,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Alert.soy.js'
    * @type {!Object}
    */
 		animClasses: {
-			validator: _core2.default.isObject,
+			validator: _metal.core.isObject,
 			value: {
 				show: 'fade in',
 				hide: 'fade'
@@ -172,7 +168,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Alert.soy.js'
    * @default true
    */
 		dismissible: {
-			validator: _core2.default.isBoolean,
+			validator: _metal.core.isBoolean,
 			value: true
 		},
 

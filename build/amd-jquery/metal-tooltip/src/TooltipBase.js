@@ -1,21 +1,15 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-position/src/Align', 'metal/metal/src/component/Component', 'metal/metal/src/events/EventHandler', 'metal/metal/src/soy/SoyRenderer', 'metal-jquery-adapter/src/JQueryAdapter', 'metal/metal/src/dom/events'], function (exports, _core, _dom, _Align, _Component2, _EventHandler, _SoyRenderer, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-soy/src/index', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _position, _component, _events, _index, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Align2 = _interopRequireDefault(_Align);
-
-	var _Component3 = _interopRequireDefault(_Component2);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
-
-	var _SoyRenderer2 = _interopRequireDefault(_SoyRenderer);
+	var _component2 = _interopRequireDefault(_component);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -67,7 +61,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-position/
 
 			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
 
-			_this.eventHandler_ = new _EventHandler2.default();
+			_this.eventHandler_ = new _events.EventHandler();
 			return _this;
 		}
 
@@ -194,7 +188,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-position/
 		};
 
 		return TooltipBase;
-	}(_Component3.default);
+	}(_component2.default);
 
 	TooltipBase.prototype.registerMetalComponent && TooltipBase.prototype.registerMetalComponent(TooltipBase, 'TooltipBase')
 
@@ -204,7 +198,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-position/
   * @see `Align` class.
   * @static
   */
-	TooltipBase.Align = _Align2.default;
+	TooltipBase.Align = _position.Align;
 
 	/**
   * TooltipBase attrbutes definition.
@@ -246,7 +240,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-position/
    * @type {?string}
    */
 		selector: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -281,7 +275,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-position/
   */
 	TooltipBase.PositionToClass = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
 
-	TooltipBase.RENDERER = _SoyRenderer2.default;
+	TooltipBase.RENDERER = _index.SoyRenderer;
 
 	exports.default = TooltipBase;
 	_JQueryAdapter2.default.register('tooltipBase', TooltipBase);

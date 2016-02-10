@@ -1,15 +1,13 @@
-define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position/src/Position', './Slider.soy'], function (exports, _core, _Drag, _Position, _Slider) {
+define(['exports', 'metal/src/metal', 'metal-drag-drop/src/all/drag', 'metal-position/src/all/position', './Slider.soy'], function (exports, _metal, _drag, _position, _Slider) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
-	var _Drag2 = _interopRequireDefault(_Drag);
-
-	var _Position2 = _interopRequireDefault(_Position);
+	var _position2 = _interopRequireDefault(_position);
 
 	var _Slider2 = _interopRequireDefault(_Slider);
 
@@ -82,7 +80,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
     * @type {Drag}
     * @protected
     */
-			this.drag_ = new _Drag2.default({
+			this.drag_ = new _drag.Drag({
 				constrain: this.getElement_('.rail'),
 				handles: this.getElement_('.handle'),
 				sources: this.getElement_('.rail-handle')
@@ -93,14 +91,14 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
     * @type {DOMRect}
     * @protected
     */
-			this.elementRegion_ = _Position2.default.getRegion(this.element);
+			this.elementRegion_ = _position2.default.getRegion(this.element);
 
 			this.attachDragEvents_();
 		};
 
 		Slider.prototype.attachDragEvents_ = function attachDragEvents_() {
-			this.drag_.on(_Drag2.default.Events.DRAG, this.updateValueFromDragData_.bind(this));
-			this.drag_.on(_Drag2.default.Events.END, this.updateValueFromDragData_.bind(this));
+			this.drag_.on(_drag.Drag.Events.DRAG, this.updateValueFromDragData_.bind(this));
+			this.drag_.on(_drag.Drag.Events.END, this.updateValueFromDragData_.bind(this));
 		};
 
 		Slider.prototype.disposeInternal = function disposeInternal() {
@@ -180,7 +178,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
    * @type {string}
    */
 		inputName: {
-			validator: _core2.default.isString
+			validator: _metal2.default.isString
 		},
 
 		/**
@@ -208,7 +206,7 @@ define(['exports', 'metal/src/core', 'metal-drag-drop/src/Drag', 'metal-position
    */
 		value: {
 			validator: function validator(val) {
-				return _core2.default.isNumber(val) && this.min <= val && val <= this.max;
+				return _metal2.default.isNumber(val) && this.min <= val && val <= this.max;
 			},
 			value: 80
 		}

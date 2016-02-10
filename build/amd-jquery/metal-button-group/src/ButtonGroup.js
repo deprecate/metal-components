@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ButtonGroup.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _ButtonGroup, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ButtonGroup.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _ButtonGroup, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
@@ -150,7 +150,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './ButtonGroup.s
    * @default 0
    */
 		minSelected: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 0,
 			writeOnce: true
 		},

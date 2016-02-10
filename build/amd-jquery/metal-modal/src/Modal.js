@@ -1,15 +1,13 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src/events/EventHandler', './Modal.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _EventHandler, _Modal, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src/events', './Modal.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _events, _Modal, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
 
@@ -63,7 +61,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
 
 			var _this = _possibleConstructorReturn(this, _ModalBase.call(this, opt_config));
 
-			_this.eventHandler_ = new _EventHandler2.default();
+			_this.eventHandler_ = new _events.EventHandler();
 			return _this;
 		}
 
@@ -186,7 +184,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    */
 		autoFocus: {
 			validator: function validator(val) {
-				return val === false || _core2.default.isString(val);
+				return val === false || _metal2.default.isString(val);
 			},
 			value: '.close'
 		},
@@ -221,7 +219,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @default true
    */
 		hideOnEscape: {
-			validator: _core2.default.isBoolean,
+			validator: _metal2.default.isBoolean,
 			value: true
 		},
 
@@ -231,7 +229,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @default true
    */
 		overlay: {
-			validator: _core2.default.isBoolean,
+			validator: _metal2.default.isBoolean,
 			value: true
 		},
 
@@ -250,7 +248,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal/metal/src
    * @default 'dialog'
    */
 		role: {
-			validator: _core2.default.isString,
+			validator: _metal2.default.isString,
 			value: 'dialog'
 		}
 	};

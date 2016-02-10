@@ -1,19 +1,17 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/src/promise/Promise', 'metal/metal/src/component/Component', 'metal/metal/src/events/EventHandler', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _Promise, _Component2, _EventHandler, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Promise, _component, _events, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
-	var _Component3 = _interopRequireDefault(_Component2);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
+	var _component2 = _interopRequireDefault(_component);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -65,7 +63,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
 
 			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
 
-			_this.eventHandler_ = new _EventHandler2.default();
+			_this.eventHandler_ = new _events.EventHandler();
 			_this.on('select', _this.select);
 			return _this;
 		}
@@ -97,14 +95,14 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
 			}
 
 			var deferredData = self.data(query);
-			if (!_core2.default.isPromise(deferredData)) {
+			if (!_metal2.default.isPromise(deferredData)) {
 				deferredData = _Promise2.default.resolve(deferredData);
 			}
 
 			this.pendingRequest = deferredData.then(function (data) {
 				if (Array.isArray(data)) {
 					return data.map(self.format.bind(self)).filter(function (val) {
-						return _core2.default.isDefAndNotNull(val);
+						return _metal2.default.isDefAndNotNull(val);
 					});
 				}
 			});
@@ -113,7 +111,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
 		};
 
 		AutocompleteBase.prototype.setData_ = function setData_(val) {
-			if (!_core2.default.isFunction(val)) {
+			if (!_metal2.default.isFunction(val)) {
 				return function () {
 					return val;
 				};
@@ -122,7 +120,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
 		};
 
 		return AutocompleteBase;
-	}(_Component3.default);
+	}(_component2.default);
 
 	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
 
@@ -149,8 +147,8 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
    * @default Identity function.
    */
 		format: {
-			value: _core2.default.identityFunction,
-			validator: _core2.default.isFunction
+			value: _metal2.default.identityFunction,
+			validator: _metal2.default.isFunction
 		},
 
 		/**
@@ -176,7 +174,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
 				this.inputElement.value = selectedValue.textPrimary;
 				this.inputElement.focus();
 			},
-			validator: _core2.default.isFunction
+			validator: _metal2.default.isFunction
 		},
 
 		/**
@@ -184,7 +182,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', 'metal-promise/s
    * @type {boolean}
    */
 		visible: {
-			validator: _core2.default.isBoolean,
+			validator: _metal2.default.isBoolean,
 			value: false
 		}
 	};

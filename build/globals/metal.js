@@ -327,679 +327,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Geometry = function () {
-		function Geometry() {
-			babelHelpers.classCallCheck(this, Geometry);
-		}
-
-		/**
-     * Tests if a rectangle intersects with another.
-     *
-     * <pre>
-     *  x0y0 --------       x2y2 --------
-     *      |       |           |       |
-     *      -------- x1y1       -------- x3y3
-     * </pre>
-     *
-     * Note that coordinates starts from top to down (y), left to right (x):
-     *
-     * <pre>
-     *      ------> (x)
-     *      |
-     *      |
-     *     (y)
-     * </pre>
-     *
-     * @param {number} x0 Horizontal coordinate of P0.
-     * @param {number} y0 Vertical coordinate of P0.
-     * @param {number} x1 Horizontal coordinate of P1.
-     * @param {number} y1 Vertical coordinate of P1.
-     * @param {number} x2 Horizontal coordinate of P2.
-     * @param {number} y2 Vertical coordinate of P2.
-     * @param {number} x3 Horizontal coordinate of P3.
-     * @param {number} y3 Vertical coordinate of P3.
-     * @return {boolean}
-     */
-
-		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
-			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
-		};
-
-		return Geometry;
-	}();
-
-	this.metal.Geometry = Geometry;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var Geometry = this.metal.Geometry;
-
-	/**
-  * Class with static methods responsible for doing browser position checks.
-  */
-
-	var Position = function () {
-		function Position() {
-			babelHelpers.classCallCheck(this, Position);
-		}
-
-		/**
-   * Gets the client height of the specified node. Scroll height is not
-   * included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-		Position.getClientHeight = function getClientHeight(node) {
-			return this.getClientSize_(node, 'Height');
-		};
-
-		/**
-   * Gets the client height or width of the specified node. Scroll height is
-   * not included.
-   * @param {Element|Document|Window=} node
-   * @param {string} `Width` or `Height` property.
-   * @return {number}
-   * @protected
-   */
-
-
-		Position.getClientSize_ = function getClientSize_(node, prop) {
-			var el = node;
-			if (core.isWindow(node)) {
-				el = node.document.documentElement;
-			}
-			if (core.isDocument(node)) {
-				el = node.documentElement;
-			}
-			return el['client' + prop];
-		};
-
-		/**
-   * Gets the client width of the specified node. Scroll width is not
-   * included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-
-		Position.getClientWidth = function getClientWidth(node) {
-			return this.getClientSize_(node, 'Width');
-		};
-
-		/**
-   * Gets the region of the element, document or window.
-   * @param {Element|Document|Window=} opt_element Optional element to test.
-   * @return {!DOMRect} The returned value is a simulated DOMRect object which
-   *     is the union of the rectangles returned by getClientRects() for the
-   *     element, i.e., the CSS border-boxes associated with the element.
-   * @protected
-   */
-
-
-		Position.getDocumentRegion_ = function getDocumentRegion_(opt_element) {
-			var height = this.getHeight(opt_element);
-			var width = this.getWidth(opt_element);
-			return this.makeRegion(height, height, 0, width, 0, width);
-		};
-
-		/**
-   * Gets the height of the specified node. Scroll height is included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-
-		Position.getHeight = function getHeight(node) {
-			return this.getSize_(node, 'Height');
-		};
-
-		/**
-   * Gets the top offset position of the given node. This fixes the `offsetLeft` value of
-   * nodes that were translated, which don't take that into account at all. That makes
-   * the calculation more expensive though, so if you don't want that to be considered
-   * either pass `opt_ignoreTransform` as true or call `offsetLeft` directly on the node.
-   * @param {!Element} node
-   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
-   *   when calculating the position. Defaults to false.
-   * @return {number}
-   */
-
-
-		Position.getOffsetLeft = function getOffsetLeft(node, opt_ignoreTransform) {
-			return node.offsetLeft + (opt_ignoreTransform ? 0 : Position.getTranslation(node).left);
-		};
-
-		/**
-   * Gets the top offset position of the given node. This fixes the `offsetTop` value of
-   * nodes that were translated, which don't take that into account at all. That makes
-   * the calculation more expensive though, so if you don't want that to be considered
-   * either pass `opt_ignoreTransform` as true or call `offsetTop` directly on the node.
-   * @param {!Element} node
-   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
-   *   when calculating the position. Defaults to false.
-   * @return {number}
-   */
-
-
-		Position.getOffsetTop = function getOffsetTop(node, opt_ignoreTransform) {
-			return node.offsetTop + (opt_ignoreTransform ? 0 : Position.getTranslation(node).top);
-		};
-
-		/**
-   * Gets the size of an element and its position relative to the viewport.
-   * @param {!Document|Element|Window} node
-   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
-   *   position should be considered in the element's region coordinates. Defaults
-   *   to false.
-   * @return {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   */
-
-
-		Position.getRegion = function getRegion(node, opt_includeScroll) {
-			if (core.isDocument(node) || core.isWindow(node)) {
-				return this.getDocumentRegion_(node);
-			}
-			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
-		};
-
-		/**
-   * Gets the scroll left position of the specified node.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-
-		Position.getScrollLeft = function getScrollLeft(node) {
-			if (core.isWindow(node)) {
-				return node.pageXOffset;
-			}
-			if (core.isDocument(node)) {
-				return node.defaultView.pageXOffset;
-			}
-			return node.scrollLeft;
-		};
-
-		/**
-   * Gets the scroll top position of the specified node.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-
-		Position.getScrollTop = function getScrollTop(node) {
-			if (core.isWindow(node)) {
-				return node.pageYOffset;
-			}
-			if (core.isDocument(node)) {
-				return node.defaultView.pageYOffset;
-			}
-			return node.scrollTop;
-		};
-
-		/**
-   * Gets the height or width of the specified node. Scroll height is
-   * included.
-   * @param {Element|Document|Window=} node
-   * @param {string} `Width` or `Height` property.
-   * @return {number}
-   * @protected
-   */
-
-
-		Position.getSize_ = function getSize_(node, prop) {
-			if (core.isWindow(node)) {
-				return this.getClientSize_(node, prop);
-			}
-			if (core.isDocument(node)) {
-				var docEl = node.documentElement;
-				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
-			}
-			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
-		};
-
-		/**
-   * Gets the transform matrix values for the given node.
-   * @param {!Element} node
-   * @return {Array<number>}
-   */
-
-
-		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
-			var style = getComputedStyle(node);
-			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
-			if (transform !== 'none') {
-				var values = [];
-				var regex = /([\d-\.\s]+)/g;
-				var matches = regex.exec(transform);
-				while (matches) {
-					values.push(matches[1]);
-					matches = regex.exec(transform);
-				}
-				return values;
-			}
-		};
-
-		/**
-   * Gets the number of translated pixels for the given node, for both the top and
-   * left positions.
-   * @param {!Element} node
-   * @return {number}
-   */
-
-
-		Position.getTranslation = function getTranslation(node) {
-			var values = Position.getTransformMatrixValues(node);
-			var translation = {
-				left: 0,
-				top: 0
-			};
-			if (values) {
-				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
-				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
-			}
-			return translation;
-		};
-
-		/**
-   * Gets the width of the specified node. Scroll width is included.
-   * @param {Element|Document|Window=} node
-   * @return {number}
-   */
-
-
-		Position.getWidth = function getWidth(node) {
-			return this.getSize_(node, 'Width');
-		};
-
-		/**
-   * Tests if a region intersects with another.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {boolean}
-   */
-
-
-		Position.intersectRegion = function intersectRegion(r1, r2) {
-			return Geometry.intersectRect(r1.top, r1.left, r1.bottom, r1.right, r2.top, r2.left, r2.bottom, r2.right);
-		};
-
-		/**
-   * Tests if a region is inside another.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {boolean}
-   */
-
-
-		Position.insideRegion = function insideRegion(r1, r2) {
-			return r2.top >= r1.top && r2.bottom <= r1.bottom && r2.right <= r1.right && r2.left >= r1.left;
-		};
-
-		/**
-   * Tests if a region is inside viewport region.
-   * @param {DOMRect} region
-   * @return {boolean}
-   */
-
-
-		Position.insideViewport = function insideViewport(region) {
-			return this.insideRegion(this.getRegion(window), region);
-		};
-
-		/**
-   * Computes the intersection region between two regions.
-   * @param {DOMRect} r1
-   * @param {DOMRect} r2
-   * @return {?DOMRect} Intersection region or null if regions doesn't
-   *     intersects.
-   */
-
-
-		Position.intersection = function intersection(r1, r2) {
-			if (!this.intersectRegion(r1, r2)) {
-				return null;
-			}
-			var bottom = Math.min(r1.bottom, r2.bottom);
-			var right = Math.min(r1.right, r2.right);
-			var left = Math.max(r1.left, r2.left);
-			var top = Math.max(r1.top, r2.top);
-			return this.makeRegion(bottom, bottom - top, left, right, top, right - left);
-		};
-
-		/**
-   * Makes a region object. It's a writable version of DOMRect.
-   * @param {number} bottom
-   * @param {number} height
-   * @param {number} left
-   * @param {number} right
-   * @param {number} top
-   * @param {number} width
-   * @return {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   */
-
-
-		Position.makeRegion = function makeRegion(bottom, height, left, right, top, width) {
-			return {
-				bottom: bottom,
-				height: height,
-				left: left,
-				right: right,
-				top: top,
-				width: width
-			};
-		};
-
-		/**
-   * Makes a region from a DOMRect result from `getBoundingClientRect`.
-   * @param  {!DOMRect} The returned value is a DOMRect object which is the
-   *     union of the rectangles returned by getClientRects() for the element,
-   *     i.e., the CSS border-boxes associated with the element.
-   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
-   *   position should be considered in the element's region coordinates. Defaults
-   *   to false.
-   * @return {DOMRect} Writable version of DOMRect.
-   * @protected
-   */
-
-
-		Position.makeRegionFromBoundingRect_ = function makeRegionFromBoundingRect_(rect, opt_includeScroll) {
-			var deltaX = opt_includeScroll ? Position.getScrollLeft(document) : 0;
-			var deltaY = opt_includeScroll ? Position.getScrollTop(document) : 0;
-			return this.makeRegion(rect.bottom + deltaY, rect.height, rect.left + deltaX, rect.right + deltaX, rect.top + deltaY, rect.width);
-		};
-
-		/**
-   * Checks if the given point coordinates are inside a region.
-   * @param {number} x
-   * @param {number} y
-   * @param {!Object} region
-   * @return {boolean}
-   */
-
-
-		Position.pointInsideRegion = function pointInsideRegion(x, y, region) {
-			return Position.insideRegion(region, Position.makeRegion(y, 0, x, x, y, 0));
-		};
-
-		return Position;
-	}();
-
-	this.metal.Position = Position;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var Attribute = this.metal.Attribute;
-	var EventEmitter = this.metal.EventEmitter;
-	var EventEmitterProxy = this.metal.EventEmitterProxy;
-	var Position = this.metal.Position;
-
-	/**
-  * Affix utility.
-  */
-
-	var Affix = function (_Attribute) {
-		babelHelpers.inherits(Affix, _Attribute);
-
-		/**
-   * @inheritDoc
-   */
-
-		function Affix(opt_config) {
-			babelHelpers.classCallCheck(this, Affix);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
-
-			if (!Affix.emitter_) {
-				Affix.emitter_ = new EventEmitter();
-				Affix.proxy_ = new EventEmitterProxy(document, Affix.emitter_, null, {
-					scroll: true
-				});
-			}
-
-			/**
-    * Holds the last position.
-    * @type {Position.Bottom|Position.Default|Position.Top}
-    * @private
-    */
-			_this.lastPosition_ = null;
-
-			/**
-    * Holds event handle that listens scroll shared event emitter proxy.
-    * @type {EventHandle}
-    * @protected
-    */
-			_this.scrollHandle_ = Affix.emitter_.on('scroll', _this.checkPosition.bind(_this));
-
-			_this.on('elementChanged', _this.checkPosition);
-			_this.on('offsetTopChanged', _this.checkPosition);
-			_this.on('offsetBottomChanged', _this.checkPosition);
-			_this.checkPosition();
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-
-		Affix.prototype.disposeInternal = function disposeInternal() {
-			dom.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
-			this.scrollHandle_.dispose();
-			_Attribute.prototype.disposeInternal.call(this);
-		};
-
-		/**
-   * Synchronize bottom, top and element regions and checks if position has
-   * changed. If position has changed syncs position.
-   */
-
-
-		Affix.prototype.checkPosition = function checkPosition() {
-			if (this.intersectTopRegion()) {
-				this.syncPosition(Affix.Position.Top);
-			} else if (this.intersectBottomRegion()) {
-				this.syncPosition(Affix.Position.Bottom);
-			} else {
-				this.syncPosition(Affix.Position.Default);
-			}
-		};
-
-		/**
-   * Whether the element is intersecting with bottom region defined by
-   * offsetBottom.
-   * @return {boolean}
-   */
-
-
-		Affix.prototype.intersectBottomRegion = function intersectBottomRegion() {
-			if (!core.isDef(this.offsetBottom)) {
-				return false;
-			}
-			var clientHeight = Position.getHeight(this.scrollElement);
-			var scrollElementClientHeight = Position.getClientHeight(this.scrollElement);
-			return Position.getScrollTop(this.scrollElement) + scrollElementClientHeight >= clientHeight - this.offsetBottom;
-		};
-
-		/**
-   * Whether the element is intersecting with top region defined by
-   * offsetTop.
-   * @return {boolean}
-   */
-
-
-		Affix.prototype.intersectTopRegion = function intersectTopRegion() {
-			if (!core.isDef(this.offsetTop)) {
-				return false;
-			}
-			return Position.getScrollTop(this.scrollElement) <= this.offsetTop;
-		};
-
-		/**
-   * Synchronizes element css classes to match with the specified position.
-   * @param {Position.Bottom|Position.Default|Position.Top} position
-   */
-
-
-		Affix.prototype.syncPosition = function syncPosition(position) {
-			if (this.lastPosition_ !== position) {
-				dom.addClasses(this.element, position);
-				dom.removeClasses(this.element, this.lastPosition_);
-				this.lastPosition_ = position;
-			}
-		};
-
-		return Affix;
-	}(Attribute);
-
-	/**
-  * Holds positions enum.
-  * @enum {string}
-  */
-
-
-	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
-	Affix.Position = {
-		Top: 'affix-top',
-		Bottom: 'affix-bottom',
-		Default: 'affix'
-	};
-
-	Affix.ATTRS = {
-		/**
-   * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
-   * where the scroll event is listened from.
-   * @type {Element|Window}
-   */
-		scrollElement: {
-			setter: dom.toElement,
-			value: document
-		},
-
-		/**
-   * Defines the offset bottom that triggers affix.
-   * @type {number}
-   */
-		offsetTop: {
-			validator: core.isNumber
-		},
-
-		/**
-   * Defines the offset top that triggers affix.
-   * @type {number}
-   */
-		offsetBottom: {
-			validator: core.isNumber
-		},
-
-		/**
-   * Element to be used as alignment reference of affix.
-   * @type {Element}
-   */
-		element: {
-			setter: dom.toElement
-		}
-	};
-
-	this.metal.Affix = Affix;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from Alert.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.Alert.
-   */
-
-  if (typeof Templates.Alert == 'undefined') {
-    Templates.Alert = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Alert.body = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Alert.body.soyTemplateName = 'Templates.Alert.body';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Alert.dismiss = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-dismiss">' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
-  }
-
-  Templates.Alert.render.params = ["id"];
-  Templates.Alert.body.params = ["body", "id"];
-  Templates.Alert.dismiss.params = ["dismissible", "id"];
-
-  var Alert = function (_Component) {
-    babelHelpers.inherits(Alert, _Component);
-
-    function Alert() {
-      babelHelpers.classCallCheck(this, Alert);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return Alert;
-  }(Component);
-
-  Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
-
-  Alert.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('Alert');
-  this.metal.Alert = Alert;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
 	var core = this.metal.core;
 
 	var array = function () {
@@ -3136,6 +2463,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var async = this.metalNamed.metal.async;
 	var dom = this.metal.dom;
 
 	/**
@@ -3150,12 +2478,14 @@ babelHelpers;
 		/**
    * Evaluates the given string in the global scope.
    * @param {string} text
+   * @return {Element} script
    */
 
 		globalEval.run = function run(text) {
 			var script = document.createElement('script');
 			script.text = text;
 			document.head.appendChild(script).parentNode.removeChild(script);
+			return script;
 		};
 
 		/**
@@ -3163,6 +2493,7 @@ babelHelpers;
    * @param {string} src The file's path.
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @return {Element} script
    */
 
 
@@ -3177,6 +2508,8 @@ babelHelpers;
 			dom.on(script, 'load', callback);
 			dom.on(script, 'error', callback);
 			document.head.appendChild(script);
+
+			return script;
 		};
 
 		/**
@@ -3184,22 +2517,26 @@ babelHelpers;
    * @param {!Element} script
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @return {Element} script
    */
 
 
 		globalEval.runScript = function runScript(script, opt_callback) {
-			if (script.type && script.type !== 'text/javascript') {
+			var callback = function callback() {
 				opt_callback && opt_callback();
+			};
+			if (script.type && script.type !== 'text/javascript') {
+				async.nextTick(callback);
 				return;
 			}
 			if (script.parentNode) {
 				script.parentNode.removeChild(script);
 			}
 			if (script.src) {
-				globalEval.runFile(script.src, opt_callback);
+				return globalEval.runFile(script.src, opt_callback);
 			} else {
-				globalEval.run(script.text);
-				opt_callback && opt_callback();
+				async.nextTick(callback);
+				return globalEval.run(script.text);
 			}
 		};
 
@@ -3216,7 +2553,7 @@ babelHelpers;
 			if (scripts.length) {
 				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
 			} else if (opt_callback) {
-				opt_callback();
+				async.nextTick(opt_callback);
 			}
 		};
 
@@ -3234,7 +2571,7 @@ babelHelpers;
 				if (index < scripts.length - 1) {
 					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
 				} else if (opt_callback) {
-					opt_callback();
+					async.nextTick(opt_callback);
 				}
 			});
 		};
@@ -3243,6 +2580,110 @@ babelHelpers;
 	}();
 
 	this.metal.globalEval = globalEval;
+}).call(this);
+'use strict';
+
+(function () {
+	var async = this.metalNamed.metal.async;
+	var dom = this.metal.dom;
+
+	/**
+  * Utility functions for running styles.
+  */
+
+	var globalEvalStyles = function () {
+		function globalEvalStyles() {
+			babelHelpers.classCallCheck(this, globalEvalStyles);
+		}
+
+		/**
+   * Evaluates the given style.
+   * @param {string} text
+   * @return {Element} style
+   */
+
+		globalEvalStyles.run = function run(text) {
+			var style = document.createElement('style');
+			style.innerHTML = text;
+			document.head.appendChild(style);
+			return style;
+		};
+
+		/**
+   * Evaluates the given style file.
+   * @param {string} href The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the styles has been run.
+   * @return {Element} style
+   */
+
+
+		globalEvalStyles.runFile = function runFile(href, opt_callback) {
+			var link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = href;
+			globalEvalStyles.runStyle(link, opt_callback);
+			return link;
+		};
+
+		/**
+   * Evaluates the code referenced by the given style/link element.
+   * @param {!Element} style
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   *  @return {Element} style
+   */
+
+
+		globalEvalStyles.runStyle = function runStyle(style, opt_callback) {
+			var callback = function callback() {
+				opt_callback && opt_callback();
+			};
+			if (style.rel && style.rel !== 'stylesheet') {
+				async.nextTick(callback);
+				return;
+			}
+
+			if (style.tagName === 'STYLE') {
+				async.nextTick(callback);
+			} else {
+				dom.on(style, 'load', callback);
+				dom.on(style, 'error', callback);
+			}
+			document.head.appendChild(style);
+			return style;
+		};
+
+		/**
+   * Evaluates any style present in the given element.
+   * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the style has been run.
+   */
+
+
+		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback) {
+			var styles = element.querySelectorAll('style,link');
+			if (styles.length === 0 && opt_callback) {
+				async.nextTick(opt_callback);
+				return;
+			}
+
+			var loadCount = 0;
+			var callback = function callback() {
+				if (opt_callback && ++loadCount === styles.length) {
+					async.nextTick(opt_callback);
+				}
+			};
+			for (var i = 0; i < styles.length; i++) {
+				globalEvalStyles.runStyle(styles[i], callback);
+			}
+		};
+
+		return globalEvalStyles;
+	}();
+
+	this.metal.globalEvalStyles = globalEvalStyles;
 }).call(this);
 'use strict';
 
@@ -3297,3171 +2738,15 @@ babelHelpers;
   var DomEventHandle = this.metal.DomEventHandle;
   var features = this.metal.features;
   var globalEval = this.metal.globalEval;
-  this.metal.index = dom;
-  this.metalNamed.index = {};
-  this.metalNamed.index.dom = dom;
-  this.metalNamed.index.DomEventEmitterProxy = DomEventEmitterProxy;
-  this.metalNamed.index.DomEventHandle = DomEventHandle;
-  this.metalNamed.index.features = features;
-  this.metalNamed.index.globalEval = globalEval;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.metal;
-	var dom = this.metalNamed.index.dom;
-	var features = this.metalNamed.index.features;
-
-	var Anim = function () {
-		function Anim() {
-			babelHelpers.classCallCheck(this, Anim);
-		}
-
-		/**
-   * Emulates animation or transition end event, the end event with longer
-   * duration will be used by the emulation. If they have the same value,
-   * transitionend will be emulated.
-   * @param {!Element} element
-   * @param {number=} opt_durationMs
-   * @return {!Object} Object containing `abort` function.
-   */
-
-		Anim.emulateEnd = function emulateEnd(element, opt_durationMs) {
-			if (this.getComputedDurationMs(element, 'animation') > this.getComputedDurationMs(element, 'transition')) {
-				return this.emulateEnd_(element, 'animation', opt_durationMs);
-			} else {
-				return this.emulateEnd_(element, 'transition', opt_durationMs);
-			}
-		};
-
-		/**
-   * Emulates animation end event. If `opt_durationMs` not specified the value
-   * will read from computed style for animation-duration.
-   * @param {!Element} element
-   * @param {number=} opt_durationMs
-   * @return {!Object} Object containing `abort` function.
-   */
-
-
-		Anim.emulateAnimationEnd = function emulateAnimationEnd(element, opt_durationMs) {
-			return this.emulateEnd_(element, 'animation', opt_durationMs);
-		};
-
-		/**
-   * Emulates transition end event. If `opt_durationMs` not specified the
-   * value will read from computed style for transition-duration.
-   * @param {!Element} element
-   * @param {number=} opt_durationMs
-   * @return {!Object} Object containing `abort` function.
-   */
-
-
-		Anim.emulateTransitionEnd = function emulateTransitionEnd(element, opt_durationMs) {
-			this.emulateEnd_(element, 'transition', opt_durationMs);
-		};
-
-		/**
-   * Emulates transition or animation end.
-   * @param {!Element} element
-   * @param {string} type
-   * @param {number=} opt_durationMs
-   * @return {!Object} Object containing `abort` function.
-   * @protected
-   */
-
-
-		Anim.emulateEnd_ = function emulateEnd_(element, type, opt_durationMs) {
-			var duration = opt_durationMs;
-			if (!core.isDef(opt_durationMs)) {
-				duration = this.getComputedDurationMs(element, type);
-			}
-
-			var delayed = setTimeout(function () {
-				dom.triggerEvent(element, features.checkAnimationEventName()[type]);
-			}, duration);
-
-			var abort = function abort() {
-				clearTimeout(delayed);
-				hoistedEvtHandler.removeListener();
-			};
-			var hoistedEvtHandler = dom.once(element, type + 'end', abort);
-
-			return {
-				abort: abort
-			};
-		};
-
-		/**
-   * Gets computed style duration for duration.
-   * @param {!Element} element
-   * @param {string} type
-   * @return {number} The computed duration in milliseconds.
-   */
-
-
-		Anim.getComputedDurationMs = function getComputedDurationMs(element, type) {
-			return (parseFloat(window.getComputedStyle(element, null).getPropertyValue(type + '-duration')) || 0) * 1000;
-		};
-
-		return Anim;
-	}();
-
-	this.metal.Anim = Anim;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var AlertBase = this.metal.Alert;
-	var Anim = this.metal.Anim;
-	var EventHandler = this.metal.EventHandler;
-
-
-	/**
-  * Alert component.
-  */
-
-	var Alert = function (_AlertBase) {
-		babelHelpers.inherits(Alert, _AlertBase);
-
-		function Alert(opt_config) {
-			babelHelpers.classCallCheck(this, Alert);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _AlertBase.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-
-		Alert.prototype.detached = function detached() {
-			_AlertBase.prototype.detached.call(this);
-			this.eventHandler_.removeAllListeners();
-			clearTimeout(this.delay_);
-		};
-
-		/**
-   * Closes the alert, disposing it once the animation ends.
-   */
-
-
-		Alert.prototype.close = function close() {
-			dom.once(this.element, 'animationend', this.dispose.bind(this));
-			dom.once(this.element, 'transitionend', this.dispose.bind(this));
-			this.eventHandler_.removeAllListeners();
-			this.syncVisible(false);
-		};
-
-		/**
-   * Handles document click in order to close the alert.
-   * @param {!Event} event
-   * @protected
-   */
-
-
-		Alert.prototype.handleDocClick_ = function handleDocClick_(event) {
-			if (!this.element.contains(event.target)) {
-				this.hide();
-			}
-		};
-
-		/**
-   * Hide the alert.
-   */
-
-
-		Alert.prototype.hide = function hide() {
-			this.visible = false;
-		};
-
-		/**
-   * Toggles the visibility of the alert.
-   */
-
-
-		Alert.prototype.toggle = function toggle() {
-			this.visible = !this.visible;
-		};
-
-		/**
-   * Synchronization logic for `dismissible` attribute.
-   * @param {boolean} dismissible
-   */
-
-
-		Alert.prototype.syncDismissible = function syncDismissible(dismissible) {
-			if (dismissible) {
-				this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
-			} else {
-				this.eventHandler_.removeAllListeners();
-			}
-
-			dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
-		};
-
-		/**
-   * Synchronization logic for `visible` attribute.
-   * @param {boolean} visible
-   */
-
-
-		Alert.prototype.syncVisible = function syncVisible(visible) {
-			dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
-			dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
-			// Some browsers do not fire transitionend events when running in background
-			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
-			Anim.emulateEnd(this.element);
-
-			if (visible && core.isNumber(this.hideDelay)) {
-				this.syncHideDelay(this.hideDelay);
-			}
-		};
-
-		/**
-   * Synchronization logic for `hideDelay` attribute.
-   * @param {?number} hideDelay
-   */
-
-
-		Alert.prototype.syncHideDelay = function syncHideDelay(hideDelay) {
-			if (core.isNumber(hideDelay) && this.visible) {
-				clearTimeout(this.delay_);
-				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
-			}
-		};
-
-		return Alert;
-	}(AlertBase);
-
-	/**
-  * Default alert elementClasses.
-  * @default alert
-  * @type {string}
-  * @static
-  */
-
-
-	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
-	Alert.ELEMENT_CLASSES = 'alert';
-
-	/**
-  * Alert attributes definition.
-  * @type {!Object}
-  * @static
-  */
-	Alert.ATTRS = {
-		/**
-   * The CSS classes that should be added to the alert when being shown/hidden.
-   * @type {!Object}
-   */
-		animClasses: {
-			validator: core.isObject,
-			value: {
-				show: 'fade in',
-				hide: 'fade'
-			}
-		},
-
-		/**
-   * The body content of the alert.
-   * @type {string}
-   */
-		body: {
-			value: ''
-		},
-
-		/**
-   * Flag indicating if the alert should be dismissable (closeable).
-   * @type {boolean}
-   * @default true
-   */
-		dismissible: {
-			validator: core.isBoolean,
-			value: true
-		},
-
-		/**
-   * The CSS classes that should be added to the alert.
-   * @type {string}
-   * @default 'alert-success'
-   */
-		elementClasses: {
-			value: 'alert-success'
-		},
-
-		/**
-   * Delay hiding the alert (ms).
-   * @type {?number}
-   */
-		hideDelay: {},
-
-		/**
-   * Flag indicating if the alert is visible or not.
-   * @type {boolean}
-   * @default false
-   */
-		visible: {
-			value: false
-		}
-	};
-
-	this.metal.Alert = Alert;
-}).call(this);
-'use strict';
-
-/**
-  * Debounces function execution.
-  * @param {!function()} fn
-  * @param {number} delay
-  * @return {!function()}
-  */
-
-(function () {
-	function debounce(fn, delay) {
-		var id;
-		return function () {
-			var args = arguments;
-			clearTimeout(id);
-			id = setTimeout(function () {
-				fn.apply(null, args);
-			}, delay);
-		};
-	}
-
-	this.metal.debounce = debounce;
-}).call(this);
-/*!
- * Promises polyfill from Google's Closure Library.
- *
- *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
- *
- * NOTE(eduardo): Promise support is not ready on all supported browsers,
- * therefore core.js is temporarily using Google's promises as polyfill. It
- * supports cancellable promises and has clean and fast implementation.
- */
-
-'use strict';
-
-(function () {
-  var core = this.metalNamed.metal.core;
-  var async = this.metalNamed.metal.async;
-
-  /**
-   * Provides a more strict interface for Thenables in terms of
-   * http://promisesaplus.com for interop with {@see CancellablePromise}.
-   *
-   * @interface
-   * @extends {IThenable.<TYPE>}
-   * @template TYPE
-   */
-
-  var Thenable = function Thenable() {};
-
-  /**
-   * Adds callbacks that will operate on the result of the Thenable, returning a
-   * new child Promise.
-   *
-   * If the Thenable is fulfilled, the {@code onFulfilled} callback will be
-   * invoked with the fulfillment value as argument, and the child Promise will
-   * be fulfilled with the return value of the callback. If the callback throws
-   * an exception, the child Promise will be rejected with the thrown value
-   * instead.
-   *
-   * If the Thenable is rejected, the {@code onRejected} callback will be invoked
-   * with the rejection reason as argument, and the child Promise will be rejected
-   * with the return value of the callback or thrown value.
-   *
-   * @param {?(function(this:THIS, TYPE):
-   *             (RESULT|IThenable.<RESULT>|Thenable))=} opt_onFulfilled A
-   *     function that will be invoked with the fulfillment value if the Promise
-   *     is fullfilled.
-   * @param {?(function(*): *)=} opt_onRejected A function that will be invoked
-   *     with the rejection reason if the Promise is rejected.
-   * @param {THIS=} opt_context An optional context object that will be the
-   *     execution context for the callbacks. By default, functions are executed
-   *     with the default this.
-   * @return {!CancellablePromise.<RESULT>} A new Promise that will receive the
-   *     result of the fulfillment or rejection callback.
-   * @template RESULT,THIS
-   */
-  Thenable.prototype.then = function () {};
-
-  /**
-   * An expando property to indicate that an object implements
-   * {@code Thenable}.
-   *
-   * {@see addImplementation}.
-   *
-   * @const
-   */
-  Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
-
-  /**
-   * Marks a given class (constructor) as an implementation of Thenable, so
-   * that we can query that fact at runtime. The class must have already
-   * implemented the interface.
-   * Exports a 'then' method on the constructor prototype, so that the objects
-   * also implement the extern {@see Thenable} interface for interop with
-   * other Promise implementations.
-   * @param {function(new:Thenable,...[?])} ctor The class constructor. The
-   *     corresponding class must have already implemented the interface.
-   */
-  Thenable.addImplementation = function (ctor) {
-    ctor.prototype.then = ctor.prototype.then;
-    ctor.prototype.$goog_Thenable = true;
-  };
-
-  /**
-   * @param {*} object
-   * @return {boolean} Whether a given instance implements {@code Thenable}.
-   *     The class/superclass of the instance must call {@code addImplementation}.
-   */
-  Thenable.isImplementedBy = function (object) {
-    if (!object) {
-      return false;
-    }
-    try {
-      return !!object.$goog_Thenable;
-    } catch (e) {
-      // Property access seems to be forbidden.
-      return false;
-    }
-  };
-
-  /**
-   * Like bind(), except that a 'this object' is not required. Useful when the
-   * target function is already bound.
-   *
-   * Usage:
-   * var g = partial(f, arg1, arg2);
-   * g(arg3, arg4);
-   *
-   * @param {Function} fn A function to partially apply.
-   * @param {...*} var_args Additional arguments that are partially applied to fn.
-   * @return {!Function} A partially-applied form of the function bind() was
-   *     invoked as a method of.
-   */
-  var partial = function partial(fn) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return function () {
-      // Clone the array (with slice()) and append additional arguments
-      // to the existing arguments.
-      var newArgs = args.slice();
-      newArgs.push.apply(newArgs, arguments);
-      return fn.apply(this, newArgs);
-    };
-  };
-
-  /**
-   * Promises provide a result that may be resolved asynchronously. A Promise may
-   * be resolved by being fulfilled or rejected with a value, which will be known
-   * as the fulfillment value or the rejection reason. Whether fulfilled or
-   * rejected, the Promise result is immutable once it is set.
-   *
-   * Promises may represent results of any type, including undefined. Rejection
-   * reasons are typically Errors, but may also be of any type. Closure Promises
-   * allow for optional type annotations that enforce that fulfillment values are
-   * of the appropriate types at compile time.
-   *
-   * The result of a Promise is accessible by calling {@code then} and registering
-   * {@code onFulfilled} and {@code onRejected} callbacks. Once the Promise
-   * resolves, the relevant callbacks are invoked with the fulfillment value or
-   * rejection reason as argument. Callbacks are always invoked in the order they
-   * were registered, even when additional {@code then} calls are made from inside
-   * another callback. A callback is always run asynchronously sometime after the
-   * scope containing the registering {@code then} invocation has returned.
-   *
-   * If a Promise is resolved with another Promise, the first Promise will block
-   * until the second is resolved, and then assumes the same result as the second
-   * Promise. This allows Promises to depend on the results of other Promises,
-   * linking together multiple asynchronous operations.
-   *
-   * This implementation is compatible with the Promises/A+ specification and
-   * passes that specification's conformance test suite. A Closure Promise may be
-   * resolved with a Promise instance (or sufficiently compatible Promise-like
-   * object) created by other Promise implementations. From the specification,
-   * Promise-like objects are known as "Thenables".
-   *
-   * @see http://promisesaplus.com/
-   *
-   * @param {function(
-   *             this:RESOLVER_CONTEXT,
-   *             function((TYPE|IThenable.<TYPE>|Thenable)),
-   *             function(*)): void} resolver
-   *     Initialization function that is invoked immediately with {@code resolve}
-   *     and {@code reject} functions as arguments. The Promise is resolved or
-   *     rejected with the first argument passed to either function.
-   * @param {RESOLVER_CONTEXT=} opt_context An optional context for executing the
-   *     resolver function. If unspecified, the resolver function will be executed
-   *     in the default scope.
-   * @constructor
-   * @struct
-   * @final
-   * @implements {Thenable.<TYPE>}
-   * @template TYPE,RESOLVER_CONTEXT
-   */
-  var CancellablePromise = function CancellablePromise(resolver, opt_context) {
-    /**
-     * The internal state of this Promise. Either PENDING, FULFILLED, REJECTED, or
-     * BLOCKED.
-     * @private {CancellablePromise.State_}
-     */
-    this.state_ = CancellablePromise.State_.PENDING;
-
-    /**
-     * The resolved result of the Promise. Immutable once set with either a
-     * fulfillment value or rejection reason.
-     * @private {*}
-     */
-    this.result_ = undefined;
-
-    /**
-     * For Promises created by calling {@code then()}, the originating parent.
-     * @private {CancellablePromise}
-     */
-    this.parent_ = null;
-
-    /**
-     * The list of {@code onFulfilled} and {@code onRejected} callbacks added to
-     * this Promise by calls to {@code then()}.
-     * @private {Array.<CancellablePromise.CallbackEntry_>}
-     */
-    this.callbackEntries_ = null;
-
-    /**
-     * Whether the Promise is in the queue of Promises to execute.
-     * @private {boolean}
-     */
-    this.executing_ = false;
-
-    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
-      /**
-       * A timeout ID used when the {@code UNHANDLED_REJECTION_DELAY} is greater
-       * than 0 milliseconds. The ID is set when the Promise is rejected, and
-       * cleared only if an {@code onRejected} callback is invoked for the
-       * Promise (or one of its descendants) before the delay is exceeded.
-       *
-       * If the rejection is not handled before the timeout completes, the
-       * rejection reason is passed to the unhandled rejection handler.
-       * @private {number}
-       */
-      this.unhandledRejectionId_ = 0;
-    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
-      /**
-       * When the {@code UNHANDLED_REJECTION_DELAY} is set to 0 milliseconds, a
-       * boolean that is set if the Promise is rejected, and reset to false if an
-       * {@code onRejected} callback is invoked for the Promise (or one of its
-       * descendants). If the rejection is not handled before the next timestep,
-       * the rejection reason is passed to the unhandled rejection handler.
-       * @private {boolean}
-       */
-      this.hadUnhandledRejection_ = false;
-    }
-
-    try {
-      var self = this;
-      resolver.call(opt_context, function (value) {
-        self.resolve_(CancellablePromise.State_.FULFILLED, value);
-      }, function (reason) {
-        self.resolve_(CancellablePromise.State_.REJECTED, reason);
-      });
-    } catch (e) {
-      this.resolve_(CancellablePromise.State_.REJECTED, e);
-    }
-  };
-
-  /**
-   * @define {number} The delay in milliseconds before a rejected Promise's reason
-   * is passed to the rejection handler. By default, the rejection handler
-   * rethrows the rejection reason so that it appears in the developer console or
-   * {@code window.onerror} handler.
-   *
-   * Rejections are rethrown as quickly as possible by default. A negative value
-   * disables rejection handling entirely.
-   */
-  CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
-
-  /**
-   * The possible internal states for a Promise. These states are not directly
-   * observable to external callers.
-   * @enum {number}
-   * @private
-   */
-  CancellablePromise.State_ = {
-    /** The Promise is waiting for resolution. */
-    PENDING: 0,
-
-    /** The Promise is blocked waiting for the result of another Thenable. */
-    BLOCKED: 1,
-
-    /** The Promise has been resolved with a fulfillment value. */
-    FULFILLED: 2,
-
-    /** The Promise has been resolved with a rejection reason. */
-    REJECTED: 3
-  };
-
-  /**
-   * Typedef for entries in the callback chain. Each call to {@code then},
-   * {@code thenCatch}, or {@code thenAlways} creates an entry containing the
-   * functions that may be invoked once the Promise is resolved.
-   *
-   * @typedef {{
-   *   child: CancellablePromise,
-   *   onFulfilled: function(*),
-   *   onRejected: function(*)
-   * }}
-   * @private
-   */
-  CancellablePromise.CallbackEntry_ = null;
-
-  /**
-   * @param {(TYPE|Thenable.<TYPE>|Thenable)=} opt_value
-   * @return {!CancellablePromise.<TYPE>} A new Promise that is immediately resolved
-   *     with the given value.
-   * @template TYPE
-   */
-  CancellablePromise.resolve = function (opt_value) {
-    return new CancellablePromise(function (resolve) {
-      resolve(opt_value);
-    });
-  };
-
-  /**
-   * @param {*=} opt_reason
-   * @return {!CancellablePromise} A new Promise that is immediately rejected with the
-   *     given reason.
-   */
-  CancellablePromise.reject = function (opt_reason) {
-    return new CancellablePromise(function (resolve, reject) {
-      reject(opt_reason);
-    });
-  };
-
-  /**
-   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
-   * @return {!CancellablePromise.<TYPE>} A Promise that receives the result of the
-   *     first Promise (or Promise-like) input to complete.
-   * @template TYPE
-   */
-  CancellablePromise.race = function (promises) {
-    return new CancellablePromise(function (resolve, reject) {
-      if (!promises.length) {
-        resolve(undefined);
-      }
-      for (var i = 0, promise; promise = promises[i]; i++) {
-        promise.then(resolve, reject);
-      }
-    });
-  };
-
-  /**
-   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
-   * @return {!CancellablePromise.<!Array.<TYPE>>} A Promise that receives a list of
-   *     every fulfilled value once every input Promise (or Promise-like) is
-   *     successfully fulfilled, or is rejected by the first rejection result.
-   * @template TYPE
-   */
-  CancellablePromise.all = function (promises) {
-    return new CancellablePromise(function (resolve, reject) {
-      var toFulfill = promises.length;
-      var values = [];
-
-      if (!toFulfill) {
-        resolve(values);
-        return;
-      }
-
-      var onFulfill = function onFulfill(index, value) {
-        toFulfill--;
-        values[index] = value;
-        if (toFulfill === 0) {
-          resolve(values);
-        }
-      };
-
-      var onReject = function onReject(reason) {
-        reject(reason);
-      };
-
-      for (var i = 0, promise; promise = promises[i]; i++) {
-        promise.then(partial(onFulfill, i), onReject);
-      }
-    });
-  };
-
-  /**
-   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
-   * @return {!CancellablePromise.<TYPE>} A Promise that receives the value of
-   *     the first input to be fulfilled, or is rejected with a list of every
-   *     rejection reason if all inputs are rejected.
-   * @template TYPE
-   */
-  CancellablePromise.firstFulfilled = function (promises) {
-    return new CancellablePromise(function (resolve, reject) {
-      var toReject = promises.length;
-      var reasons = [];
-
-      if (!toReject) {
-        resolve(undefined);
-        return;
-      }
-
-      var onFulfill = function onFulfill(value) {
-        resolve(value);
-      };
-
-      var onReject = function onReject(index, reason) {
-        toReject--;
-        reasons[index] = reason;
-        if (toReject === 0) {
-          reject(reasons);
-        }
-      };
-
-      for (var i = 0, promise; promise = promises[i]; i++) {
-        promise.then(onFulfill, partial(onReject, i));
-      }
-    });
-  };
-
-  /**
-   * Adds callbacks that will operate on the result of the Promise, returning a
-   * new child Promise.
-   *
-   * If the Promise is fulfilled, the {@code onFulfilled} callback will be invoked
-   * with the fulfillment value as argument, and the child Promise will be
-   * fulfilled with the return value of the callback. If the callback throws an
-   * exception, the child Promise will be rejected with the thrown value instead.
-   *
-   * If the Promise is rejected, the {@code onRejected} callback will be invoked
-   * with the rejection reason as argument, and the child Promise will be rejected
-   * with the return value (or thrown value) of the callback.
-   *
-   * @override
-   */
-  CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
-    return this.addChildPromise_(core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
-  };
-  Thenable.addImplementation(CancellablePromise);
-
-  /**
-   * Adds a callback that will be invoked whether the Promise is fulfilled or
-   * rejected. The callback receives no argument, and no new child Promise is
-   * created. This is useful for ensuring that cleanup takes place after certain
-   * asynchronous operations. Callbacks added with {@code thenAlways} will be
-   * executed in the same order with other calls to {@code then},
-   * {@code thenAlways}, or {@code thenCatch}.
-   *
-   * Since it does not produce a new child Promise, cancellation propagation is
-   * not prevented by adding callbacks with {@code thenAlways}. A Promise that has
-   * a cleanup handler added with {@code thenAlways} will be canceled if all of
-   * its children created by {@code then} (or {@code thenCatch}) are canceled.
-   *
-   * @param {function(this:THIS): void} onResolved A function that will be invoked
-   *     when the Promise is resolved.
-   * @param {THIS=} opt_context An optional context object that will be the
-   *     execution context for the callbacks. By default, functions are executed
-   *     in the global scope.
-   * @return {!CancellablePromise.<TYPE>} This Promise, for chaining additional calls.
-   * @template THIS
-   */
-  CancellablePromise.prototype.thenAlways = function (onResolved, opt_context) {
-    var callback = function callback() {
-      try {
-        // Ensure that no arguments are passed to onResolved.
-        onResolved.call(opt_context);
-      } catch (err) {
-        CancellablePromise.handleRejection_.call(null, err);
-      }
-    };
-
-    this.addCallbackEntry_({
-      child: null,
-      onRejected: callback,
-      onFulfilled: callback
-    });
-    return this;
-  };
-
-  /**
-   * Adds a callback that will be invoked only if the Promise is rejected. This
-   * is equivalent to {@code then(null, onRejected)}.
-   *
-   * @param {!function(this:THIS, *): *} onRejected A function that will be
-   *     invoked with the rejection reason if the Promise is rejected.
-   * @param {THIS=} opt_context An optional context object that will be the
-   *     execution context for the callbacks. By default, functions are executed
-   *     in the global scope.
-   * @return {!CancellablePromise} A new Promise that will receive the result of the
-   *     callback.
-   * @template THIS
-   */
-  CancellablePromise.prototype.thenCatch = function (onRejected, opt_context) {
-    return this.addChildPromise_(null, onRejected, opt_context);
-  };
-
-  /**
-   * Alias of {@link CancellablePromise.prototype.thenCatch}
-   */
-  CancellablePromise.prototype.catch = CancellablePromise.prototype.thenCatch;
-
-  /**
-   * Cancels the Promise if it is still pending by rejecting it with a cancel
-   * Error. No action is performed if the Promise is already resolved.
-   *
-   * All child Promises of the canceled Promise will be rejected with the same
-   * cancel error, as with normal Promise rejection. If the Promise to be canceled
-   * is the only child of a pending Promise, the parent Promise will also be
-   * canceled. Cancellation may propagate upward through multiple generations.
-   *
-   * @param {string=} opt_message An optional debugging message for describing the
-   *     cancellation reason.
-   */
-  CancellablePromise.prototype.cancel = function (opt_message) {
-    if (this.state_ === CancellablePromise.State_.PENDING) {
-      async.run(function () {
-        var err = new CancellablePromise.CancellationError(opt_message);
-        err.IS_CANCELLATION_ERROR = true;
-        this.cancelInternal_(err);
-      }, this);
-    }
-  };
-
-  /**
-   * Cancels this Promise with the given error.
-   *
-   * @param {!Error} err The cancellation error.
-   * @private
-   */
-  CancellablePromise.prototype.cancelInternal_ = function (err) {
-    if (this.state_ === CancellablePromise.State_.PENDING) {
-      if (this.parent_) {
-        // Cancel the Promise and remove it from the parent's child list.
-        this.parent_.cancelChild_(this, err);
-      } else {
-        this.resolve_(CancellablePromise.State_.REJECTED, err);
-      }
-    }
-  };
-
-  /**
-   * Cancels a child Promise from the list of callback entries. If the Promise has
-   * not already been resolved, reject it with a cancel error. If there are no
-   * other children in the list of callback entries, propagate the cancellation
-   * by canceling this Promise as well.
-   *
-   * @param {!CancellablePromise} childPromise The Promise to cancel.
-   * @param {!Error} err The cancel error to use for rejecting the Promise.
-   * @private
-   */
-  CancellablePromise.prototype.cancelChild_ = function (childPromise, err) {
-    if (!this.callbackEntries_) {
-      return;
-    }
-    var childCount = 0;
-    var childIndex = -1;
-
-    // Find the callback entry for the childPromise, and count whether there are
-    // additional child Promises.
-    for (var i = 0, entry; entry = this.callbackEntries_[i]; i++) {
-      var child = entry.child;
-      if (child) {
-        childCount++;
-        if (child === childPromise) {
-          childIndex = i;
-        }
-        if (childIndex >= 0 && childCount > 1) {
-          break;
-        }
-      }
-    }
-
-    // If the child Promise was the only child, cancel this Promise as well.
-    // Otherwise, reject only the child Promise with the cancel error.
-    if (childIndex >= 0) {
-      if (this.state_ === CancellablePromise.State_.PENDING && childCount === 1) {
-        this.cancelInternal_(err);
-      } else {
-        var callbackEntry = this.callbackEntries_.splice(childIndex, 1)[0];
-        this.executeCallback_(callbackEntry, CancellablePromise.State_.REJECTED, err);
-      }
-    }
-  };
-
-  /**
-   * Adds a callback entry to the current Promise, and schedules callback
-   * execution if the Promise has already been resolved.
-   *
-   * @param {CancellablePromise.CallbackEntry_} callbackEntry Record containing
-   *     {@code onFulfilled} and {@code onRejected} callbacks to execute after
-   *     the Promise is resolved.
-   * @private
-   */
-  CancellablePromise.prototype.addCallbackEntry_ = function (callbackEntry) {
-    if ((!this.callbackEntries_ || !this.callbackEntries_.length) && (this.state_ === CancellablePromise.State_.FULFILLED || this.state_ === CancellablePromise.State_.REJECTED)) {
-      this.scheduleCallbacks_();
-    }
-    if (!this.callbackEntries_) {
-      this.callbackEntries_ = [];
-    }
-    this.callbackEntries_.push(callbackEntry);
-  };
-
-  /**
-   * Creates a child Promise and adds it to the callback entry list. The result of
-   * the child Promise is determined by the state of the parent Promise and the
-   * result of the {@code onFulfilled} or {@code onRejected} callbacks as
-   * specified in the Promise resolution procedure.
-   *
-   * @see http://promisesaplus.com/#the__method
-   *
-   * @param {?function(this:THIS, TYPE):
-   *          (RESULT|CancellablePromise.<RESULT>|Thenable)} onFulfilled A callback that
-   *     will be invoked if the Promise is fullfilled, or null.
-   * @param {?function(this:THIS, *): *} onRejected A callback that will be
-   *     invoked if the Promise is rejected, or null.
-   * @param {THIS=} opt_context An optional execution context for the callbacks.
-   *     in the default calling context.
-   * @return {!CancellablePromise} The child Promise.
-   * @template RESULT,THIS
-   * @private
-   */
-  CancellablePromise.prototype.addChildPromise_ = function (onFulfilled, onRejected, opt_context) {
-
-    var callbackEntry = {
-      child: null,
-      onFulfilled: null,
-      onRejected: null
-    };
-
-    callbackEntry.child = new CancellablePromise(function (resolve, reject) {
-      // Invoke onFulfilled, or resolve with the parent's value if absent.
-      callbackEntry.onFulfilled = onFulfilled ? function (value) {
-        try {
-          var result = onFulfilled.call(opt_context, value);
-          resolve(result);
-        } catch (err) {
-          reject(err);
-        }
-      } : resolve;
-
-      // Invoke onRejected, or reject with the parent's reason if absent.
-      callbackEntry.onRejected = onRejected ? function (reason) {
-        try {
-          var result = onRejected.call(opt_context, reason);
-          if (!core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
-            // Propagate cancellation to children if no other result is returned.
-            reject(reason);
-          } else {
-            resolve(result);
-          }
-        } catch (err) {
-          reject(err);
-        }
-      } : reject;
-    });
-
-    callbackEntry.child.parent_ = this;
-    this.addCallbackEntry_(
-    /** @type {CancellablePromise.CallbackEntry_} */callbackEntry);
-    return callbackEntry.child;
-  };
-
-  /**
-   * Unblocks the Promise and fulfills it with the given value.
-   *
-   * @param {TYPE} value
-   * @private
-   */
-  CancellablePromise.prototype.unblockAndFulfill_ = function (value) {
-    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
-      throw new Error('CancellablePromise is not blocked.');
-    }
-    this.state_ = CancellablePromise.State_.PENDING;
-    this.resolve_(CancellablePromise.State_.FULFILLED, value);
-  };
-
-  /**
-   * Unblocks the Promise and rejects it with the given rejection reason.
-   *
-   * @param {*} reason
-   * @private
-   */
-  CancellablePromise.prototype.unblockAndReject_ = function (reason) {
-    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
-      throw new Error('CancellablePromise is not blocked.');
-    }
-    this.state_ = CancellablePromise.State_.PENDING;
-    this.resolve_(CancellablePromise.State_.REJECTED, reason);
-  };
-
-  /**
-   * Attempts to resolve a Promise with a given resolution state and value. This
-   * is a no-op if the given Promise has already been resolved.
-   *
-   * If the given result is a Thenable (such as another Promise), the Promise will
-   * be resolved with the same state and result as the Thenable once it is itself
-   * resolved.
-   *
-   * If the given result is not a Thenable, the Promise will be fulfilled or
-   * rejected with that result based on the given state.
-   *
-   * @see http://promisesaplus.com/#the_promise_resolution_procedure
-   *
-   * @param {CancellablePromise.State_} state
-   * @param {*} x The result to apply to the Promise.
-   * @private
-   */
-  CancellablePromise.prototype.resolve_ = function (state, x) {
-    if (this.state_ !== CancellablePromise.State_.PENDING) {
-      return;
-    }
-
-    if (this === x) {
-      state = CancellablePromise.State_.REJECTED;
-      x = new TypeError('CancellablePromise cannot resolve to itself');
-    } else if (Thenable.isImplementedBy(x)) {
-      x = /** @type {!Thenable} */x;
-      this.state_ = CancellablePromise.State_.BLOCKED;
-      x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
-      return;
-    } else if (core.isObject(x)) {
-      try {
-        var then = x.then;
-        if (core.isFunction(then)) {
-          this.tryThen_(x, then);
-          return;
-        }
-      } catch (e) {
-        state = CancellablePromise.State_.REJECTED;
-        x = e;
-      }
-    }
-
-    this.result_ = x;
-    this.state_ = state;
-    this.scheduleCallbacks_();
-
-    if (state === CancellablePromise.State_.REJECTED && !x.IS_CANCELLATION_ERROR) {
-      CancellablePromise.addUnhandledRejection_(this, x);
-    }
-  };
-
-  /**
-   * Attempts to call the {@code then} method on an object in the hopes that it is
-   * a Promise-compatible instance. This allows interoperation between different
-   * Promise implementations, however a non-compliant object may cause a Promise
-   * to hang indefinitely. If the {@code then} method throws an exception, the
-   * dependent Promise will be rejected with the thrown value.
-   *
-   * @see http://promisesaplus.com/#point-70
-   *
-   * @param {Thenable} thenable An object with a {@code then} method that may be
-   *     compatible with the Promise/A+ specification.
-   * @param {!Function} then The {@code then} method of the Thenable object.
-   * @private
-   */
-  CancellablePromise.prototype.tryThen_ = function (thenable, then) {
-    this.state_ = CancellablePromise.State_.BLOCKED;
-    var promise = this;
-    var called = false;
-
-    var resolve = function resolve(value) {
-      if (!called) {
-        called = true;
-        promise.unblockAndFulfill_(value);
-      }
-    };
-
-    var reject = function reject(reason) {
-      if (!called) {
-        called = true;
-        promise.unblockAndReject_(reason);
-      }
-    };
-
-    try {
-      then.call(thenable, resolve, reject);
-    } catch (e) {
-      reject(e);
-    }
-  };
-
-  /**
-   * Executes the pending callbacks of a resolved Promise after a timeout.
-   *
-   * Section 2.2.4 of the Promises/A+ specification requires that Promise
-   * callbacks must only be invoked from a call stack that only contains Promise
-   * implementation code, which we accomplish by invoking callback execution after
-   * a timeout. If {@code startExecution_} is called multiple times for the same
-   * Promise, the callback chain will be evaluated only once. Additional callbacks
-   * may be added during the evaluation phase, and will be executed in the same
-   * event loop.
-   *
-   * All Promises added to the waiting list during the same browser event loop
-   * will be executed in one batch to avoid using a separate timeout per Promise.
-   *
-   * @private
-   */
-  CancellablePromise.prototype.scheduleCallbacks_ = function () {
-    if (!this.executing_) {
-      this.executing_ = true;
-      async.run(this.executeCallbacks_, this);
-    }
-  };
-
-  /**
-   * Executes all pending callbacks for this Promise.
-   *
-   * @private
-   */
-  CancellablePromise.prototype.executeCallbacks_ = function () {
-    while (this.callbackEntries_ && this.callbackEntries_.length) {
-      var entries = this.callbackEntries_;
-      this.callbackEntries_ = [];
-
-      for (var i = 0; i < entries.length; i++) {
-        this.executeCallback_(entries[i], this.state_, this.result_);
-      }
-    }
-    this.executing_ = false;
-  };
-
-  /**
-   * Executes a pending callback for this Promise. Invokes an {@code onFulfilled}
-   * or {@code onRejected} callback based on the resolved state of the Promise.
-   *
-   * @param {!CancellablePromise.CallbackEntry_} callbackEntry An entry containing the
-   *     onFulfilled and/or onRejected callbacks for this step.
-   * @param {CancellablePromise.State_} state The resolution status of the Promise,
-   *     either FULFILLED or REJECTED.
-   * @param {*} result The resolved result of the Promise.
-   * @private
-   */
-  CancellablePromise.prototype.executeCallback_ = function (callbackEntry, state, result) {
-    if (state === CancellablePromise.State_.FULFILLED) {
-      callbackEntry.onFulfilled(result);
-    } else {
-      this.removeUnhandledRejection_();
-      callbackEntry.onRejected(result);
-    }
-  };
-
-  /**
-   * Marks this rejected Promise as having being handled. Also marks any parent
-   * Promises in the rejected state as handled. The rejection handler will no
-   * longer be invoked for this Promise (if it has not been called already).
-   *
-   * @private
-   */
-  CancellablePromise.prototype.removeUnhandledRejection_ = function () {
-    var p;
-    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
-      for (p = this; p && p.unhandledRejectionId_; p = p.parent_) {
-        clearTimeout(p.unhandledRejectionId_);
-        p.unhandledRejectionId_ = 0;
-      }
-    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
-      for (p = this; p && p.hadUnhandledRejection_; p = p.parent_) {
-        p.hadUnhandledRejection_ = false;
-      }
-    }
-  };
-
-  /**
-   * Marks this rejected Promise as unhandled. If no {@code onRejected} callback
-   * is called for this Promise before the {@code UNHANDLED_REJECTION_DELAY}
-   * expires, the reason will be passed to the unhandled rejection handler. The
-   * handler typically rethrows the rejection reason so that it becomes visible in
-   * the developer console.
-   *
-   * @param {!CancellablePromise} promise The rejected Promise.
-   * @param {*} reason The Promise rejection reason.
-   * @private
-   */
-  CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
-    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
-      promise.unhandledRejectionId_ = setTimeout(function () {
-        CancellablePromise.handleRejection_.call(null, reason);
-      }, CancellablePromise.UNHANDLED_REJECTION_DELAY);
-    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
-      promise.hadUnhandledRejection_ = true;
-      async.run(function () {
-        if (promise.hadUnhandledRejection_) {
-          CancellablePromise.handleRejection_.call(null, reason);
-        }
-      });
-    }
-  };
-
-  /**
-   * A method that is invoked with the rejection reasons for Promises that are
-   * rejected but have no {@code onRejected} callbacks registered yet.
-   * @type {function(*)}
-   * @private
-   */
-  CancellablePromise.handleRejection_ = async.throwException;
-
-  /**
-   * Sets a handler that will be called with reasons from unhandled rejected
-   * Promises. If the rejected Promise (or one of its descendants) has an
-   * {@code onRejected} callback registered, the rejection will be considered
-   * handled, and the rejection handler will not be called.
-   *
-   * By default, unhandled rejections are rethrown so that the error may be
-   * captured by the developer console or a {@code window.onerror} handler.
-   *
-   * @param {function(*)} handler A function that will be called with reasons from
-   *     rejected Promises. Defaults to {@code async.throwException}.
-   */
-  CancellablePromise.setUnhandledRejectionHandler = function (handler) {
-    CancellablePromise.handleRejection_ = handler;
-  };
-
-  /**
-   * Error used as a rejection reason for canceled Promises.
-   *
-   * @param {string=} opt_message
-   * @constructor
-   * @extends {Error}
-   * @final
-   */
-  CancellablePromise.CancellationError = function (_Error) {
-    babelHelpers.inherits(_class, _Error);
-
-    function _class(opt_message) {
-      babelHelpers.classCallCheck(this, _class);
-
-      var _this = babelHelpers.possibleConstructorReturn(this, _Error.call(this, opt_message));
-
-      if (opt_message) {
-        _this.message = opt_message;
-      }
-      return _this;
-    }
-
-    return _class;
-  }(Error);
-
-  /** @override */
-  CancellablePromise.CancellationError.prototype.name = 'cancel';
-
-  this.metalNamed.Promise = {};
-  this.metalNamed.Promise.CancellablePromise = CancellablePromise;
-  this.metal.Promise = CancellablePromise;
-}).call(this);
-'use strict';
-
-(function () {
-	var Position = this.metal.Position;
-
-	/**
-  * Align utility. Computes region or best region to align an element with
-  * another. Regions are relative to viewport, make sure to use element with
-  * position fixed, or position absolute when the element first positioned
-  * parent is the body element.
-  */
-
-	var Align = function () {
-		function Align() {
-			babelHelpers.classCallCheck(this, Align);
-		}
-
-		/**
-   * Aligns the element with the best region around alignElement. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {string} The final chosen position for the aligned element.
-   * @static
-   */
-
-		Align.align = function align(element, alignElement, position) {
-			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
-			var bestRegion = suggestion.region;
-
-			var computedStyle = window.getComputedStyle(element, null);
-			if (computedStyle.getPropertyValue('position') !== 'fixed') {
-				bestRegion.top += window.pageYOffset;
-				bestRegion.left += window.pageXOffset;
-
-				var offsetParent = element;
-				while (offsetParent = offsetParent.offsetParent) {
-					bestRegion.top -= Position.getOffsetTop(offsetParent);
-					bestRegion.left -= Position.getOffsetLeft(offsetParent);
-				}
-			}
-
-			element.style.top = bestRegion.top + 'px';
-			element.style.left = bestRegion.left + 'px';
-			return suggestion.position;
-		};
-
-		/**
-   * Returns the best region to align element with alignElement. This is similar
-   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
-   * while `Align.suggestAlignBestRegion` also returns the chosen position.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Best region to align element.
-   * @static
-   */
-
-
-		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
-			return Align.suggestAlignBestRegion(element, alignElement, position).region;
-		};
-
-		/**
-   * Returns the region to align element with alignElement. The element is
-   * always aligned in the middle of alignElement axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The position to align. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {DOMRect} Region to align element.
-   * @static
-   */
-
-
-		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
-			var r1 = Position.getRegion(alignElement);
-			var r2 = Position.getRegion(element);
-			var top = 0;
-			var left = 0;
-
-			switch (position) {
-				case Align.TopCenter:
-					top = r1.top - r2.height;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.RightCenter:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left + r1.width;
-					break;
-				case Align.BottomCenter:
-					top = r1.bottom;
-					left = r1.left + r1.width / 2 - r2.width / 2;
-					break;
-				case Align.LeftCenter:
-					top = r1.top + r1.height / 2 - r2.height / 2;
-					left = r1.left - r2.width;
-					break;
-				case Align.TopRight:
-					top = r1.top - r2.height;
-					left = r1.right - r2.width;
-					break;
-				case Align.BottomRight:
-					top = r1.bottom;
-					left = r1.right - r2.width;
-					break;
-				case Align.BottomLeft:
-					top = r1.bottom;
-					left = r1.left;
-					break;
-				case Align.TopLeft:
-					top = r1.top - r2.height;
-					left = r1.left;
-					break;
-			}
-
-			return {
-				bottom: top + r2.height,
-				height: r2.height,
-				left: left,
-				right: left + r2.width,
-				top: top,
-				width: r2.width
-			};
-		};
-
-		/**
-   * Checks if specified value is a valid position. Options `Align.Top`,
-   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
-   * @return {boolean} Returns true if value is a valid position.
-   * @static
-   */
-
-
-		Align.isValidPosition = function isValidPosition(val) {
-			return 0 <= val && val <= 8;
-		};
-
-		/**
-   * Looks for the best region for aligning the given element. The best
-   * region is defined by clockwise rotation starting from the specified
-   * `position`. The element is always aligned in the middle of alignElement
-   * axis.
-   * @param {!Element} element Element to be aligned.
-   * @param {!Element} alignElement Element to align with.
-   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
-   *     The initial position to try. Options `Align.Top`, `Align.Right`,
-   *     `Align.Bottom`, `Align.Left`.
-   * @return {{position: string, region: DOMRect}} Best region to align element.
-   * @static
-   */
-
-
-		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
-			var bestArea = 0;
-			var bestPosition = position;
-			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
-			var tryPosition = bestPosition;
-			var tryRegion = bestRegion;
-			var viewportRegion = Position.getRegion(window);
-
-			for (var i = 0; i < 8;) {
-				if (Position.intersectRegion(viewportRegion, tryRegion)) {
-					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
-					var area = visibleRegion.width * visibleRegion.height;
-					if (area > bestArea) {
-						bestArea = area;
-						bestRegion = tryRegion;
-						bestPosition = tryPosition;
-					}
-					if (Position.insideViewport(tryRegion)) {
-						break;
-					}
-				}
-				tryPosition = (position + ++i) % 8;
-				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
-			}
-
-			return {
-				position: bestPosition,
-				region: bestRegion
-			};
-		};
-
-		return Align;
-	}();
-
-	/**
-  * Constants that represent the supported positions for `Align`.
-  * @type {number}
-  * @static
-  */
-
-	Align.TopCenter = 0;
-	Align.TopRight = 1;
-	Align.RightCenter = 2;
-	Align.BottomRight = 3;
-	Align.BottomCenter = 4;
-	Align.BottomLeft = 5;
-	Align.LeftCenter = 6;
-	Align.TopLeft = 7;
-
-	/**
-  * Aliases for position constants.
-  * @type {number}
-  * @static
-  */
-	Align.Top = Align.TopCenter;
-	Align.Right = Align.RightCenter;
-	Align.Bottom = Align.BottomCenter;
-	Align.Left = Align.LeftCenter;
-
-	this.metal.Align = Align;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var CancellablePromise = this.metal.Promise;
-	var Component = this.metal.Component;
-	var EventHandler = this.metal.EventHandler;
-
-	/*
-  * AutocompleteBase component.
-  */
-
-	var AutocompleteBase = function (_Component) {
-		babelHelpers.inherits(AutocompleteBase, _Component);
-
-		/**
-   * @inheritDoc
-   */
-
-		function AutocompleteBase(opt_config) {
-			babelHelpers.classCallCheck(this, AutocompleteBase);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			_this.on('select', _this.select);
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-
-		AutocompleteBase.prototype.attached = function attached() {
-			if (this.inputElement) {
-				this.eventHandler_.add(dom.on(this.inputElement, 'input', this.handleUserInput_.bind(this)));
-			}
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-
-		AutocompleteBase.prototype.detached = function detached() {
-			this.eventHandler_.removeAllListeners();
-		};
-
-		/**
-   * Handles the user input.
-   * @param {!Event} event
-   * @protected
-   */
-
-
-		AutocompleteBase.prototype.handleUserInput_ = function handleUserInput_() {
-			this.request(this.inputElement.value);
-		};
-
-		/**
-   * Cancels pending request and starts a request for the user input.
-   * @param {string} query
-   * @return {!CancellablePromise} Deferred request.
-   */
-
-
-		AutocompleteBase.prototype.request = function request(query) {
-			var self = this;
-
-			if (this.pendingRequest) {
-				this.pendingRequest.cancel('Cancelled by another request');
-			}
-
-			var deferredData = self.data(query);
-			if (!core.isPromise(deferredData)) {
-				deferredData = CancellablePromise.resolve(deferredData);
-			}
-
-			this.pendingRequest = deferredData.then(function (data) {
-				if (Array.isArray(data)) {
-					return data.map(self.format.bind(self)).filter(function (val) {
-						return core.isDefAndNotNull(val);
-					});
-				}
-			});
-
-			return this.pendingRequest;
-		};
-
-		/**
-   * Normalizes the provided data value. If the value is not a function, the
-   * value will be wrapped in a function which returns the provided value.
-   * @param {Array.<object>|Promise|function} val The provided value which
-   *     have to be normalized.
-   * @protected
-   */
-
-
-		AutocompleteBase.prototype.setData_ = function setData_(val) {
-			if (!core.isFunction(val)) {
-				return function () {
-					return val;
-				};
-			}
-			return val;
-		};
-
-		return AutocompleteBase;
-	}(Component);
-
-	/**
-  * AutocompleteBase attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-
-	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
-	AutocompleteBase.ATTRS = {
-		/**
-   * Function or array, which have to return the results from the query.
-   * If function, it should return an `array` or a `Promise`. In case of
-   * Promise, it should be resolved with an array containing the results.
-   * @type {Array.<object>|function}
-   */
-		data: {
-			setter: 'setData_'
-		},
-
-		/**
-   * Function that formats each item of the data.
-   * @type {function}
-   * @default Identity function.
-   */
-		format: {
-			value: core.identityFunction,
-			validator: core.isFunction
-		},
-
-		/**
-   * The element which will be used source for the data queries.
-   * @type {DOMElement|string}
-   */
-		inputElement: {
-			setter: dom.toElement
-		},
-
-		/**
-   * Handles item selection. It will receive two parameters - the selected
-   * value from the user and the current value from the input element.
-   * @type {function}
-   * @default
-   *   function(selectedValue) {
-   *	   this.inputElement.value = selectedValue;
-   *	   this.inputElement.focus();
-   *   }
-   */
-		select: {
-			value: function value(selectedValue) {
-				this.inputElement.value = selectedValue.textPrimary;
-				this.inputElement.focus();
-			},
-			validator: core.isFunction
-		},
-
-		/**
-   * Indicates if the component is visible or not.
-   * @type {boolean}
-   */
-		visible: {
-			validator: core.isBoolean,
-			value: false
-		}
-	};
-
-	this.metal.AutocompleteBase = AutocompleteBase;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from Autocomplete.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.Autocomplete.
-   */
-
-  if (typeof Templates.Autocomplete == 'undefined') {
-    Templates.Autocomplete = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Autocomplete.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="autocomplete autocomplete-list component ' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + soy.$$escapeHtml(Templates.List.render({ events: { itemSelected: opt_data.id + ':onListItemSelected_' }, id: opt_data.id + '-list' }, null, opt_ijData)) + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Autocomplete.render.soyTemplateName = 'Templates.Autocomplete.render';
-  }
-
-  Templates.Autocomplete.render.params = ["id"];
-
-  var Autocomplete = function (_Component) {
-    babelHelpers.inherits(Autocomplete, _Component);
-
-    function Autocomplete() {
-      babelHelpers.classCallCheck(this, Autocomplete);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return Autocomplete;
-  }(Component);
-
-  Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
-
-  Autocomplete.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('Autocomplete');
-  this.metal.Autocomplete = Autocomplete;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from List.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.List.
-   */
-
-  if (typeof Templates.List == 'undefined') {
-    Templates.List = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.List.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.List.render.soyTemplateName = 'Templates.List.render';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.List.items = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" class="list-group" data-onclick="handleClick">';
-    if (opt_data.itemsHtml != null) {
-      output += soy.$$escapeHtml(opt_data.itemsHtml);
-    } else {
-      var itemList18 = opt_data.items;
-      var itemListLen18 = itemList18.length;
-      for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
-        var itemData18 = itemList18[itemIndex18];
-        output += Templates.ListItem.render({ id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18 }, null, opt_ijData);
-      }
-    }
-    output += '</ul>';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.List.items.soyTemplateName = 'Templates.List.items';
-  }
-
-  Templates.List.render.params = ["id"];
-  Templates.List.items.params = ["id", "items", "itemsHtml"];
-
-  var List = function (_Component) {
-    babelHelpers.inherits(List, _Component);
-
-    function List() {
-      babelHelpers.classCallCheck(this, List);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return List;
-  }(Component);
-
-  List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
-
-  List.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('List');
-  this.metal.List = List;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from ListItem.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.ListItem.
-   */
-
-  if (typeof Templates.ListItem == 'undefined') {
-    Templates.ListItem = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ListItem.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
-  };
-  if (goog.DEBUG) {
-    Templates.ListItem.render.soyTemplateName = 'Templates.ListItem.render';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ListItem.item = function (opt_data, opt_ignored, opt_ijData) {
-    var output = (opt_data.item.avatar ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + (opt_data.item.textSecondary ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
-    if (opt_data.item.icons) {
-      output += '<div class="list-icons pull-right">';
-      var iconList56 = opt_data.item.icons;
-      var iconListLen56 = iconList56.length;
-      for (var iconIndex56 = 0; iconIndex56 < iconListLen56; iconIndex56++) {
-        var iconData56 = iconList56[iconIndex56];
-        output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData56) + '"></span>';
-      }
-      output += '</div>';
-    }
-    if (opt_data.item.iconsHtml) {
-      output += '<div class="list-icons pull-right">';
-      var iconHtmlList65 = opt_data.item.iconsHtml;
-      var iconHtmlListLen65 = iconHtmlList65.length;
-      for (var iconHtmlIndex65 = 0; iconHtmlIndex65 < iconHtmlListLen65; iconHtmlIndex65++) {
-        var iconHtmlData65 = iconHtmlList65[iconHtmlIndex65];
-        output += soy.$$escapeHtml(iconHtmlData65);
-      }
-      output += '</div>';
-    }
-    output += opt_data.item.label ? '<span class="label list-label pull-right ' + soy.$$escapeHtmlAttribute(opt_data.item.label['class']) + '">' + soy.$$escapeHtml(opt_data.item.label.content) + '</span>' : '';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
-  }
-
-  Templates.ListItem.render.params = ["id", "index", "item"];
-  Templates.ListItem.item.params = ["item"];
-
-  var ListItem = function (_Component) {
-    babelHelpers.inherits(ListItem, _Component);
-
-    function ListItem() {
-      babelHelpers.classCallCheck(this, ListItem);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return ListItem;
-  }(Component);
-
-  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
-
-  ListItem.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('ListItem');
-  this.metal.ListItem = ListItem;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-  var ListItemBase = this.metal.ListItem;
-
-  /**
-   * List component.
-   */
-
-  var ListItem = function (_ListItemBase) {
-    babelHelpers.inherits(ListItem, _ListItemBase);
-
-    function ListItem(opt_config) {
-      babelHelpers.classCallCheck(this, ListItem);
-      return babelHelpers.possibleConstructorReturn(this, _ListItemBase.call(this, opt_config));
-    }
-
-    return ListItem;
-  }(ListItemBase);
-
-  /**
-   * Default list elementClasses.
-   * @default list
-   * @type {String}
-   * @static
-   */
-
-
-  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
-  ListItem.ELEMENT_CLASSES = 'listitem';
-
-  /**
-   * List attributes definition.
-   * @type {Object}
-   * @static
-   */
-  ListItem.ATTRS = {
-    item: {},
-
-    index: {
-      value: -1
-    }
-  };
-
-  this.metal.ListItem = ListItem;
-}).call(this);
-'use strict';
-
-(function () {
-	var dom = this.metal.dom;
-	var ListBase = this.metal.List;
-
-
-	/**
-  * List component.
-  */
-
-	var List = function (_ListBase) {
-		babelHelpers.inherits(List, _ListBase);
-
-		/**
-   * @inheritDoc
-   */
-
-		function List(opt_config) {
-			babelHelpers.classCallCheck(this, List);
-			return babelHelpers.possibleConstructorReturn(this, _ListBase.call(this, opt_config));
-		}
-
-		/**
-   * Handles click event on the list. The function fires an
-   * {@code itemSelected} event.
-   * @param {!Event} event The native click event
-   */
-
-
-		List.prototype.handleClick = function handleClick(event) {
-			var target = event.target;
-			while (target) {
-				if (dom.match(target, '.listitem')) {
-					break;
-				}
-				target = target.parentNode;
-			}
-			this.emit('itemSelected', target);
-		};
-
-		return List;
-	}(ListBase);
-
-	/**
-  * Default list elementClasses.
-  * @default list
-  * @type {string}
-  * @static
-  */
-
-
-	List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
-	List.ELEMENT_CLASSES = 'list';
-
-	/**
-  * List attributes definition.
-  * @type {!Object}
-  * @static
-  */
-	List.ATTRS = {
-		/**
-   * The list items. Each is represented by an object that can have the following keys:
-   *   - textPrimary: The item's main content.
-   *   - textSecondary: (Optional) The item's help content.
-   *   - icons: (Optional) A list of icon css classes to render on the right side.
-   *   - iconsHtml: (Optional) A list of icon css classes to render on the right side.
-   *   - avatar: (Optional) An object that specifies the avatar's content and, optionally, a css
-   *       class it should use.
-   * @type {!Array<!Object>}
-   * @default []
-   */
-		items: {
-			validator: Array.isArray,
-			valueFn: function valueFn() {
-				return [];
-			}
-		},
-
-		/**
-   * The list items as HTML to be added directly to the list.
-   * @type {string}
-   */
-		itemsHtml: {}
-	};
-
-	this.metal.List = List;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var debounce = this.metal.debounce;
-	var dom = this.metal.dom;
-	var Promise = this.metalNamed.Promise.CancellablePromise;
-	var Align = this.metal.Align;
-	var AutocompleteBase = this.metal.AutocompleteBase;
-	var SoyRenderer = this.metal.SoyRenderer;
-
-
-	/*
-  * Autocomplete component.
-  */
-
-	var Autocomplete = function (_AutocompleteBase) {
-		babelHelpers.inherits(Autocomplete, _AutocompleteBase);
-
-		function Autocomplete() {
-			babelHelpers.classCallCheck(this, Autocomplete);
-			return babelHelpers.possibleConstructorReturn(this, _AutocompleteBase.apply(this, arguments));
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-		Autocomplete.prototype.attached = function attached() {
-			_AutocompleteBase.prototype.attached.call(this);
-			this.on('click', function (event) {
-				return event.stopPropagation();
-			});
-			this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
-			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
-			this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
-			if (this.visible) {
-				this.align();
-			}
-		};
-
-		/**
-   * Aligns main element to the input element.
-   */
-
-
-		Autocomplete.prototype.align = function align() {
-			this.element.style.width = this.inputElement.offsetWidth + 'px';
-			var position = Align.align(this.element, this.inputElement, Align.Bottom);
-
-			dom.removeClasses(this.element, this.positionCss_);
-			switch (position) {
-				case Align.Top:
-				case Align.TopLeft:
-				case Align.TopRight:
-					this.positionCss_ = 'autocomplete-top';
-					break;
-				case Align.Bottom:
-				case Align.BottomLeft:
-				case Align.BottomRight:
-					this.positionCss_ = 'autocomplete-bottom';
-					break;
-				default:
-					this.positionCss_ = null;
-
-			}
-			dom.addClasses(this.element, this.positionCss_);
-		};
-
-		/**
-   * Returns the `List` component being used to render the matched items.
-   * @return {!List}
-   */
-
-
-		Autocomplete.prototype.getList = function getList() {
-			return this.components[this.id + '-list'];
-		};
-
-		/**
-   * Handles document click in order to hide autocomplete. If input element is
-   * focused autocomplete will not hide.
-   * @param {!Event} event
-   */
-
-
-		Autocomplete.prototype.handleDocClick_ = function handleDocClick_() {
-			if (document.activeElement === this.inputElement) {
-				return;
-			}
-			this.visible = false;
-		};
-
-		/**
-   * Handles input focus.
-   * @param {!Event} event
-   */
-
-
-		Autocomplete.prototype.handleInputFocus_ = function handleInputFocus_() {
-			this.request(this.inputElement.value);
-		};
-
-		/**
-   * Handles window resize events. Realigns the autocomplete results list to
-   * the input field.
-   */
-
-
-		Autocomplete.prototype.handleWindowResize_ = function handleWindowResize_() {
-			if (this.visible) {
-				this.align();
-			}
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-
-		Autocomplete.prototype.request = function request(query) {
-			var self = this;
-			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
-				if (data) {
-					data.forEach(self.assertItemObjectStructure_);
-					self.getList().items = data;
-				}
-				self.visible = !!(data && data.length > 0);
-			});
-		};
-
-		/**
-   * Emits a `select` event with the information about the selected item and
-   * hides the element.
-   * @param {!Element} item The list selected item.
-   * @protected
-   */
-
-
-		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
-			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
-			this.emit('select', this.getList().items[selectedIndex]);
-			this.visible = false;
-		};
-
-		/**
-   * Synchronization logic for `visible` attribute.
-   * @param {boolean} visible
-   */
-
-
-		Autocomplete.prototype.syncVisible = function syncVisible(visible) {
-			_AutocompleteBase.prototype.syncVisible.call(this, visible);
-
-			if (visible) {
-				this.align();
-			}
-		};
-
-		/**
-   * Asserts that formatted data is valid. Throws error if item is not in the
-   * valid syntax.
-   * @param {*} item
-   * @protected
-   */
-
-
-		Autocomplete.prototype.assertItemObjectStructure_ = function assertItemObjectStructure_(item) {
-			if (!core.isObject(item)) {
-				throw new Promise.CancellationError('Autocomplete item must be an object');
-			}
-			if (!item.hasOwnProperty('textPrimary')) {
-				throw new Promise.CancellationError('Autocomplete item must be an object with \'textPrimary\' key');
-			}
-		};
-
-		return Autocomplete;
-	}(AutocompleteBase);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-
-	Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
-	Autocomplete.ATTRS = {
-		/**
-   * Function that converts a given item to the format that should be used by
-   * the autocomplete.
-   * @type {!function()}
-   */
-		format: {
-			value: function value(item) {
-				return core.isString(item) ? {
-					textPrimary: item
-				} : item;
-			}
-		}
-	};
-
-	/**
-  * The class that will be used as this component's renderer.
-  * @type {!Function}
-  * @static
-  */
-	Autocomplete.RENDERER = SoyRenderer;
-
-	this.metal.Autocomplete = Autocomplete;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from ButtonGroup.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.ButtonGroup.
-   */
-
-  if (typeof Templates.ButtonGroup == 'undefined') {
-    Templates.ButtonGroup = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ButtonGroup.render = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="btn-group component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">';
-    var buttonList8 = opt_data.buttons;
-    var buttonListLen8 = buttonList8.length;
-    for (var buttonIndex8 = 0; buttonIndex8 < buttonListLen8; buttonIndex8++) {
-      var buttonData8 = buttonList8[buttonIndex8];
-      var type__soy9 = buttonData8.type ? buttonData8.type : 'button';
-      var cssClass__soy10 = buttonData8.cssClass ? buttonData8.cssClass : 'btn btn-default';
-      output += '<button type="' + soy.$$escapeHtmlAttribute(type__soy9) + '" class="' + soy.$$escapeHtmlAttribute(cssClass__soy10) + soy.$$escapeHtmlAttribute(Templates.ButtonGroup.selectedClass({ label: buttonData8.label, selected: opt_data.selected }, null, opt_ijData)) + '" data-index="' + soy.$$escapeHtmlAttribute(buttonIndex8) + '" data-onclick="handleClick_"><span class="btn-group-label">' + soy.$$escapeHtml(buttonData8.label ? buttonData8.label : '') + '</span>' + (buttonData8.icon ? '<span class="' + soy.$$escapeHtmlAttribute(buttonData8.icon) + '"></span>' : '') + '</button>';
-    }
-    output += '</div>';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.ButtonGroup.render.soyTemplateName = 'Templates.ButtonGroup.render';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ButtonGroup.selectedClass = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '';
-    if (opt_data.selected) {
-      var selectedValueList34 = opt_data.selected;
-      var selectedValueListLen34 = selectedValueList34.length;
-      for (var selectedValueIndex34 = 0; selectedValueIndex34 < selectedValueListLen34; selectedValueIndex34++) {
-        var selectedValueData34 = selectedValueList34[selectedValueIndex34];
-        output += selectedValueData34 == opt_data.label ? ' btn-group-selected' : '';
-      }
-    }
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.ButtonGroup.selectedClass.soyTemplateName = 'Templates.ButtonGroup.selectedClass';
-  }
-
-  Templates.ButtonGroup.render.params = ["buttons", "id"];
-  Templates.ButtonGroup.selectedClass.private = true;
-
-  var ButtonGroup = function (_Component) {
-    babelHelpers.inherits(ButtonGroup, _Component);
-
-    function ButtonGroup() {
-      babelHelpers.classCallCheck(this, ButtonGroup);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return ButtonGroup;
-  }(Component);
-
-  ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
-
-  ButtonGroup.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('ButtonGroup');
-  this.metal.ButtonGroup = ButtonGroup;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-	var ButtonGroupBase = this.metal.ButtonGroup;
-
-	/**
-  * Responsible for handling groups of buttons.
-  */
-
-	var ButtonGroup = function (_ButtonGroupBase) {
-		babelHelpers.inherits(ButtonGroup, _ButtonGroupBase);
-
-		/**
-   * @inheritDoc
-   */
-
-		function ButtonGroup(opt_config) {
-			babelHelpers.classCallCheck(this, ButtonGroup);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _ButtonGroupBase.call(this, opt_config));
-
-			_this.buttonElements_ = null;
-
-			_this.on('selectedChanged', _this.defaultSelectedChanged_, true);
-			return _this;
-		}
-
-		/**
-   * The default behavior of the `selectedChanged` event. Adds or removes the CSS
-   * class defined by `ButtonGroup.SELECTED_CLASS` to each button.
-   * @param {!Object} event
-   * @protected
-   */
-
-
-		ButtonGroup.prototype.defaultSelectedChanged_ = function defaultSelectedChanged_(event) {
-			for (var i = 0; i < this.buttonElements_.length; i++) {
-				if (event.newVal.indexOf(this.buttons[i].label) !== -1) {
-					dom.addClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
-				} else {
-					dom.removeClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
-				}
-			}
-		};
-
-		/**
-   * Handles a `click` event fired on one of the buttons. Appropriately selects
-   * or deselects the clicked button.
-   * @param {!Event} event
-   * @protected
-   */
-
-
-		ButtonGroup.prototype.handleClick_ = function handleClick_(event) {
-			var button = event.delegateTarget;
-			var index = button.getAttribute('data-index');
-			var selectedIndex = this.selected.indexOf(this.buttons[index].label);
-			if (selectedIndex === -1) {
-				this.selected.push(this.buttons[index].label);
-				this.selected = this.selected;
-			} else if (this.selected.length > this.minSelected) {
-				this.selected.splice(selectedIndex, 1);
-				this.selected = this.selected;
-			}
-		};
-
-		/**
-   * Setter function for the `selected` attribute. Checks if the minimum number
-   * of buttons is selected. If not, the remaining number of buttons needed to
-   * reach the minimum will be selected.
-   * @param {!Object<number, boolean>|!Array<string>} selected
-   * @return {!Object<number, boolean>}
-   * @protected
-   */
-
-
-		ButtonGroup.prototype.setterSelectedFn_ = function setterSelectedFn_(selected) {
-			var minSelected = Math.min(this.minSelected, this.buttons.length);
-			var i = 0;
-			while (selected.length < minSelected) {
-				if (selected.indexOf(this.buttons[i].label) === -1) {
-					selected.push(this.buttons[i].label);
-				}
-				i++;
-			}
-			return selected;
-		};
-
-		/**
-   * Called whenever the `buttons` attr changes, as well as on the first
-   * render. This just stores the new button elements for later use.
-   */
-
-
-		ButtonGroup.prototype.syncButtons = function syncButtons() {
-			this.buttonElements_ = this.element.querySelectorAll('button');
-		};
-
-		return ButtonGroup;
-	}(ButtonGroupBase);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-
-	ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
-	ButtonGroup.ATTRS = {
-		/**
-   * Configuration for the buttons that should be rendered in this group.
-   * Each button config should be given as an object. Supported options are:
-   * label, type and cssClass.
-   * @type {!Array<!Object>}
-   * @default []
-   */
-		buttons: {
-			validator: function validator(val) {
-				return val instanceof Array;
-			},
-			valueFn: function valueFn() {
-				return [];
-			}
-		},
-
-		/**
-   * The minimum number of buttons that need to be selected at a time. If the
-   * minimum number of buttons is not already initially selected, this will
-   * automaticaly select the first `minSelected` buttons.
-   * @type {number}
-   * @default 0
-   */
-		minSelected: {
-			validator: core.isNumber,
-			value: 0,
-			writeOnce: true
-		},
-
-		/**
-   * An array with the labels of the buttons that should be selected.
-   * @type {!Array<string>}
-   */
-		selected: {
-			setter: 'setterSelectedFn_',
-			validator: Array.isArray,
-			valueFn: function valueFn() {
-				return [];
-			}
-		}
-	};
-
-	/**
-  * Default element classes.
-  * @type {string}
-  * @static
-  */
-	ButtonGroup.ELEMENT_CLASSES = 'btn-group';
-
-	/**
-  * The CSS class added to selected buttons.
-  * @type {string}
-  * @static
-  */
-	ButtonGroup.SELECTED_CLASS = 'btn-group-selected';
-
-	this.metal.ButtonGroup = ButtonGroup;
-}).call(this);
-'use strict';
-
-(function () {
-	var Attribute = this.metal.Attribute;
-	var core = this.metal.core;
-	var dom = this.metal.dom;
-
-	/**
-  * Clipboard component.
-  */
-
-	var Clipboard = function (_Attribute) {
-		babelHelpers.inherits(Clipboard, _Attribute);
-
-		/**
-   * Delegates a click event to the passed selector.
-   */
-
-		function Clipboard(opt_config) {
-			babelHelpers.classCallCheck(this, Clipboard);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
-
-			_this.listener_ = dom.on(_this.selector, 'click', function (e) {
-				return _this.initialize(e);
-			});
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-
-		Clipboard.prototype.disposeInternal = function disposeInternal() {
-			this.listener_.dispose();
-			this.listener_ = null;
-			if (this.clipboardAction_) {
-				this.clipboardAction_.dispose();
-				this.clipboardAction_ = null;
-			}
-		};
-
-		/**
-   * Defines a new `ClipboardAction` on each click event.
-   * @param {!Event} e
-   */
-
-
-		Clipboard.prototype.initialize = function initialize(e) {
-			if (this.clipboardAction_) {
-				this.clipboardAction_ = null;
-			}
-
-			this.clipboardAction_ = new ClipboardAction({
-				host: this,
-				action: this.action(e.delegateTarget),
-				target: this.target(e.delegateTarget),
-				text: this.text(e.delegateTarget),
-				trigger: e.delegateTarget
-			});
-		};
-
-		return Clipboard;
-	}(Attribute);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-
-	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
-	Clipboard.ATTRS = {
-		/**
-   * A function that returns the name of the clipboard action that should be done
-   * when for the given element (either 'copy' or 'cut').
-   * @type {!function(!Element)}
-   */
-		action: {
-			validator: core.isFunction,
-			value: function value(delegateTarget) {
-				return delegateTarget.getAttribute('data-action');
-			}
-		},
-
-		/**
-   * The selector for all elements that should be listened for clipboard actions.
-   * @type {string}
-   */
-		selector: {
-			value: '[data-clipboard]',
-			validator: core.isString
-		},
-
-		/**
-   * A function that returns an element that has the content to be copied to the
-   * clipboard.
-   * @type {!function(!Element)}
-   */
-		target: {
-			validator: core.isFunction,
-			value: function value(delegateTarget) {
-				return document.querySelector(delegateTarget.getAttribute('data-target'));
-			}
-		},
-
-		/**
-   * A function that returns the text to be copied to the clipboard.
-   * @type {!function(!Element)}
-   */
-		text: {
-			validator: core.isFunction,
-			value: function value(delegateTarget) {
-				return delegateTarget.getAttribute('data-text');
-			}
-		}
-	};
-
-	/**
-  * ClipboardAction component.
-  */
-
-	var ClipboardAction = function (_Attribute2) {
-		babelHelpers.inherits(ClipboardAction, _Attribute2);
-
-		/**
-   * Initializes selection either from a `text` or `target` attribute.
-   */
-
-		function ClipboardAction(opt_config) {
-			babelHelpers.classCallCheck(this, ClipboardAction);
-
-			var _this2 = babelHelpers.possibleConstructorReturn(this, _Attribute2.call(this, opt_config));
-
-			if (_this2.text) {
-				_this2.selectValue();
-			} else if (_this2.target) {
-				_this2.selectTarget();
-			}
-			return _this2;
-		}
-
-		/**
-   * Removes current selection and focus from `target` element.
-   */
-
-
-		ClipboardAction.prototype.clearSelection = function clearSelection() {
-			if (this.target) {
-				this.target.blur();
-			}
-
-			window.getSelection().removeAllRanges();
-		};
-
-		/**
-   * Executes the copy operation based on the current selection.
-   */
-
-
-		ClipboardAction.prototype.copyText = function copyText() {
-			var succeeded = undefined;
-
-			try {
-				succeeded = document.execCommand(this.action);
-			} catch (err) {
-				succeeded = false;
-			}
-
-			this.handleResult(succeeded);
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-
-		ClipboardAction.prototype.disposeInternal = function disposeInternal() {
-			this.removeFakeElement();
-			_Attribute2.prototype.disposeInternal.call(this);
-		};
-
-		/**
-   * Emits an event based on the copy operation result.
-   * @param {boolean} succeeded
-   */
-
-
-		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
-			if (succeeded) {
-				this.host.emit('success', {
-					action: this.action,
-					text: this.selectedText,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			} else {
-				this.host.emit('error', {
-					action: this.action,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			}
-		};
-
-		/**
-   * Removes the fake element that was added to the document, as well as its
-   * listener.
-   */
-
-
-		ClipboardAction.prototype.removeFakeElement = function removeFakeElement() {
-			if (this.fake) {
-				dom.exitDocument(this.fake);
-			}
-
-			if (this.removeFakeHandler) {
-				this.removeFakeHandler.removeListener();
-			}
-		};
-
-		/**
-   * Selects the content from element passed on `target` attribute.
-   */
-
-
-		ClipboardAction.prototype.selectTarget = function selectTarget() {
-			if (this.target.nodeName === 'INPUT' || this.target.nodeName === 'TEXTAREA') {
-				this.target.select();
-				this.selectedText = this.target.value;
-			} else {
-				var range = document.createRange();
-				var selection = window.getSelection();
-
-				range.selectNodeContents(this.target);
-				selection.addRange(range);
-				this.selectedText = selection.toString();
-			}
-
-			this.copyText();
-		};
-
-		/**
-   * Selects the content from value passed on `text` attribute.
-   */
-
-
-		ClipboardAction.prototype.selectValue = function selectValue() {
-			this.removeFakeElement();
-			this.removeFakeHandler = dom.once(document, 'click', this.removeFakeElement.bind(this));
-
-			this.fake = document.createElement('textarea');
-			this.fake.style.position = 'fixed';
-			this.fake.style.left = '-9999px';
-			this.fake.setAttribute('readonly', '');
-			this.fake.value = this.text;
-			this.selectedText = this.text;
-
-			dom.enterDocument(this.fake);
-
-			this.fake.select();
-			this.copyText();
-		};
-
-		return ClipboardAction;
-	}(Attribute);
-
-	/**
-  * Attributes definition.
-  * @type {!Object}
-  * @static
-  */
-
-
-	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
-	ClipboardAction.ATTRS = {
-		/**
-   * The action to be performed (either 'copy' or 'cut').
-   * @type {string}
-   * @default 'copy'
-   */
-		action: {
-			value: 'copy',
-			validator: function validator(val) {
-				return val === 'copy' || val === 'cut';
-			}
-		},
-
-		/**
-   * A reference to the `Clipboard` base class.
-   * @type {!Clipboard}
-   */
-		host: {
-			validator: function validator(val) {
-				return val instanceof Clipboard;
-			}
-		},
-
-		/**
-   * The text that is current selected.
-   * @type {string}
-   */
-		selectedText: {
-			validator: core.isString
-		},
-
-		/**
-   * The ID of an element that will be have its content copied.
-   * @type {Element}
-   */
-		target: {
-			validator: core.isElement
-		},
-
-		/**
-   * The text to be copied.
-   * @type {string}
-   */
-		text: {
-			validator: core.isString
-		},
-
-		/**
-   * The element that when clicked initiates a clipboard action.
-   * @type {!Element}
-   */
-		trigger: {
-			validator: core.isElement
-		}
-	};
-
-	this.metal.Clipboard = Clipboard;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metalNamed.metal.core;
-	var string = this.metalNamed.metal.string;
-
-	var html = function () {
-		function html() {
-			babelHelpers.classCallCheck(this, html);
-		}
-
-		/**
-   * Minifies given HTML source by removing extra white spaces, comments and
-   * other unneeded characters without breaking the content structure. As a
-   * result HTML become smaller in size.
-   * - Contents within <code>, <pre>, <script>, <style>, <textarea> and
-   *   conditional comments tags are preserved.
-   * - Comments are removed.
-   * - Conditional comments are preserved.
-   * - Breaking spaces are collapsed into a single space.
-   * - Unneeded spaces inside tags (around = and before />) are removed.
-   * - Spaces between tags are removed, even from inline-block elements.
-   * - Spaces surrounding tags are removed.
-   * - DOCTYPE declaration is simplified to <!DOCTYPE html>.
-   * - Does not remove default attributes from <script>, <style>, <link>,
-   *   <form>, <input>.
-   * - Does not remove values from boolean tag attributes.
-   * - Does not remove "javascript:" from in-line event handlers.
-   * - Does not remove http:// and https:// protocols.
-   * @param {string} htmlString Input HTML to be compressed.
-   * @return {string} Compressed version of the HTML.
-   */
-
-		html.compress = function compress(htmlString) {
-			var preserved = {};
-			htmlString = html.preserveBlocks_(htmlString, preserved);
-			htmlString = html.simplifyDoctype_(htmlString);
-			htmlString = html.removeComments_(htmlString);
-			htmlString = html.removeIntertagSpaces_(htmlString);
-			htmlString = html.collapseBreakingSpaces_(htmlString);
-			htmlString = html.removeSpacesInsideTags_(htmlString);
-			htmlString = html.removeSurroundingSpaces_(htmlString);
-			htmlString = html.returnBlocks_(htmlString, preserved);
-			return htmlString.trim();
-		};
-
-		/**
-   * Collapses breaking spaces into a single space.
-   * @param {string} htmlString
-   * @return {string}
-   * @protected
-   */
-
-
-		html.collapseBreakingSpaces_ = function collapseBreakingSpaces_(htmlString) {
-			return string.collapseBreakingSpaces(htmlString);
-		};
-
-		/**
-   * Searches for first occurrence of the specified open tag string pattern
-   * and from that point finds next ">" position, identified as possible tag
-   * end position.
-   * @param {string} htmlString
-   * @param {string} openTag Open tag string pattern without open tag ending
-   *     character, e.g. "<textarea" or "<code".
-   * @return {string}
-   * @protected
-   */
-
-
-		html.lookupPossibleTagBoundary_ = function lookupPossibleTagBoundary_(htmlString, openTag) {
-			var tagPos = htmlString.indexOf(openTag);
-			if (tagPos > -1) {
-				tagPos += htmlString.substring(tagPos).indexOf('>') + 1;
-			}
-			return tagPos;
-		};
-
-		/**
-   * Preserves contents inside any <code>, <pre>, <script>, <style>,
-   * <textarea> and conditional comment tags. When preserved, original content
-   * are replaced with an unique generated block id and stored into
-   * `preserved` map.
-   * @param {string} htmlString
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {html} The preserved HTML.
-   * @protected
-   */
-
-
-		html.preserveBlocks_ = function preserveBlocks_(htmlString, preserved) {
-			htmlString = html.preserveOuterHtml_(htmlString, '<!--[if', '<![endif]-->', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<code', '</code', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<pre', '</pre', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<script', '</script', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<style', '</style', preserved);
-			htmlString = html.preserveInnerHtml_(htmlString, '<textarea', '</textarea', preserved);
-			return htmlString;
-		};
-
-		/**
-   * Preserves inner contents inside the specified tag. When preserved,
-   * original content are replaced with an unique generated block id and
-   * stored into `preserved` map.
-   * @param {string} htmlString
-   * @param {string} openTag Open tag string pattern without open tag ending
-   *     character, e.g. "<textarea" or "<code".
-   * @param {string} closeTag Close tag string pattern without close tag
-   *     ending character, e.g. "</textarea" or "</code".
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {html} The preserved HTML.
-   * @protected
-   */
-
-
-		html.preserveInnerHtml_ = function preserveInnerHtml_(htmlString, openTag, closeTag, preserved) {
-			var tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
-			while (tagPosEnd > -1) {
-				var tagEndPos = htmlString.indexOf(closeTag);
-				htmlString = html.preserveInterval_(htmlString, tagPosEnd, tagEndPos, preserved);
-				htmlString = htmlString.replace(openTag, '%%%~1~%%%');
-				htmlString = htmlString.replace(closeTag, '%%%~2~%%%');
-				tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
-			}
-			htmlString = htmlString.replace(/%%%~1~%%%/g, openTag);
-			htmlString = htmlString.replace(/%%%~2~%%%/g, closeTag);
-			return htmlString;
-		};
-
-		/**
-   * Preserves interval of the specified HTML into the preserved map replacing
-   * original contents with an unique generated id.
-   * @param {string} htmlString
-   * @param {Number} start Start interval position to be replaced.
-   * @param {Number} end End interval position to be replaced.
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {string} The HTML with replaced interval.
-   * @protected
-   */
-
-
-		html.preserveInterval_ = function preserveInterval_(htmlString, start, end, preserved) {
-			var blockId = '%%%~BLOCK~' + core.getUid() + '~%%%';
-			preserved[blockId] = htmlString.substring(start, end);
-			return string.replaceInterval(htmlString, start, end, blockId);
-		};
-
-		/**
-   * Preserves outer contents inside the specified tag. When preserved,
-   * original content are replaced with an unique generated block id and
-   * stored into `preserved` map.
-   * @param {string} htmlString
-   * @param {string} openTag Open tag string pattern without open tag ending
-   *     character, e.g. "<textarea" or "<code".
-   * @param {string} closeTag Close tag string pattern without close tag
-   *     ending character, e.g. "</textarea" or "</code".
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {html} The preserved HTML.
-   * @protected
-   */
-
-
-		html.preserveOuterHtml_ = function preserveOuterHtml_(htmlString, openTag, closeTag, preserved) {
-			var tagPos = htmlString.indexOf(openTag);
-			while (tagPos > -1) {
-				var tagEndPos = htmlString.indexOf(closeTag) + closeTag.length;
-				htmlString = html.preserveInterval_(htmlString, tagPos, tagEndPos, preserved);
-				tagPos = htmlString.indexOf(openTag);
-			}
-			return htmlString;
-		};
-
-		/**
-   * Removes all comments of the HTML. Including conditional comments and
-   * "<![CDATA[" blocks.
-   * @param {string} htmlString
-   * @return {string} The HTML without comments.
-   * @protected
-   */
-
-
-		html.removeComments_ = function removeComments_(htmlString) {
-			var preserved = {};
-			htmlString = html.preserveOuterHtml_(htmlString, '<![CDATA[', ']]>', preserved);
-			htmlString = html.preserveOuterHtml_(htmlString, '<!--', '-->', preserved);
-			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '');
-			return htmlString;
-		};
-
-		/**
-   * Removes spaces between tags, even from inline-block elements.
-   * @param {string} htmlString
-   * @return {string} The HTML without spaces between tags.
-   * @protected
-   */
-
-
-		html.removeIntertagSpaces_ = function removeIntertagSpaces_(htmlString) {
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_CUSTOM, '~%%%%%%~');
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_TAG, '~%%%<');
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG, '><');
-			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG_CUSTOM, '>%%%~');
-			return htmlString;
-		};
-
-		/**
-   * Removes spaces inside tags.
-   * @param {string} htmlString
-   * @return {string} The HTML without spaces inside tags.
-   * @protected
-   */
-
-
-		html.removeSpacesInsideTags_ = function removeSpacesInsideTags_(htmlString) {
-			htmlString = htmlString.replace(html.Patterns.TAG_END_SPACES, '$1$2');
-			htmlString = htmlString.replace(html.Patterns.TAG_QUOTE_SPACES, '=$1$2$3');
-			return htmlString;
-		};
-
-		/**
-   * Removes spaces surrounding tags.
-   * @param {string} htmlString
-   * @return {string} The HTML without spaces surrounding tags.
-   * @protected
-   */
-
-
-		html.removeSurroundingSpaces_ = function removeSurroundingSpaces_(htmlString) {
-			return htmlString.replace(html.Patterns.SURROUNDING_SPACES, '$1');
-		};
-
-		/**
-   * Restores preserved map keys inside the HTML. Note that the passed HTML
-   * should contain the unique generated block ids to be replaced.
-   * @param {string} htmlString
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @param {string} replaceValue The value to replace any block id inside the
-   * HTML.
-   * @return {string}
-   * @protected
-   */
-
-
-		html.replacePreservedBlocks_ = function replacePreservedBlocks_(htmlString, preserved, replaceValue) {
-			for (var blockId in preserved) {
-				htmlString = htmlString.replace(blockId, replaceValue);
-			}
-			return htmlString;
-		};
-
-		/**
-   * Simplifies DOCTYPE declaration to <!DOCTYPE html>.
-   * @param {string} htmlString
-   * @return {string}
-   * @protected
-   */
-
-
-		html.simplifyDoctype_ = function simplifyDoctype_(htmlString) {
-			var preserved = {};
-			htmlString = html.preserveOuterHtml_(htmlString, '<!DOCTYPE', '>', preserved);
-			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '<!DOCTYPE html>');
-			return htmlString;
-		};
-
-		/**
-   * Restores preserved map original contents inside the HTML. Note that the
-   * passed HTML should contain the unique generated block ids to be restored.
-   * @param {string} htmlString
-   * @param {Object} preserved Object to preserve the content indexed by an
-   *     unique generated block id.
-   * @return {string}
-   * @protected
-   */
-
-
-		html.returnBlocks_ = function returnBlocks_(htmlString, preserved) {
-			for (var blockId in preserved) {
-				htmlString = htmlString.replace(blockId, preserved[blockId]);
-			}
-			return htmlString;
-		};
-
-		return html;
-	}();
-
-	/**
-  * HTML regex patterns.
-  * @enum {RegExp}
-  * @protected
-  */
-
-
-	html.Patterns = {
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_CUSTOM_CUSTOM: /~%%%\s+%%%~/g,
-
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_TAG_CUSTOM: />\s+%%%~/g,
-
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_CUSTOM_TAG: /~%%%\s+</g,
-
-		/**
-   * @type {RegExp}
-   */
-		INTERTAG_TAG: />\s+</g,
-
-		/**
-   * @type {RegExp}
-   */
-		SURROUNDING_SPACES: /\s*(<[^>]+>)\s*/g,
-
-		/**
-   * @type {RegExp}
-   */
-		TAG_END_SPACES: /(<(?:[^>]+?))(?:\s+?)(\/?>)/g,
-
-		/**
-   * @type {RegExp}
-   */
-		TAG_QUOTE_SPACES: /\s*=\s*(["']?)\s*(.*?)\s*(\1)/g
-	};
-
-	this.metal.html = html;
+  var globalEvalStyles = this.metal.globalEvalStyles;
+  this.metal.dom = dom;
+  this.metalNamed.dom = {};
+  this.metalNamed.dom.dom = dom;
+  this.metalNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
+  this.metalNamed.dom.DomEventHandle = DomEventHandle;
+  this.metalNamed.dom.features = features;
+  this.metalNamed.dom.globalEval = globalEval;
+  this.metalNamed.dom.globalEvalStyles = globalEvalStyles;
 }).call(this);
 'use strict';
 
@@ -7068,6 +3353,1166 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var Geometry = function () {
+		function Geometry() {
+			babelHelpers.classCallCheck(this, Geometry);
+		}
+
+		/**
+     * Tests if a rectangle intersects with another.
+     *
+     * <pre>
+     *  x0y0 --------       x2y2 --------
+     *      |       |           |       |
+     *      -------- x1y1       -------- x3y3
+     * </pre>
+     *
+     * Note that coordinates starts from top to down (y), left to right (x):
+     *
+     * <pre>
+     *      ------> (x)
+     *      |
+     *      |
+     *     (y)
+     * </pre>
+     *
+     * @param {number} x0 Horizontal coordinate of P0.
+     * @param {number} y0 Vertical coordinate of P0.
+     * @param {number} x1 Horizontal coordinate of P1.
+     * @param {number} y1 Vertical coordinate of P1.
+     * @param {number} x2 Horizontal coordinate of P2.
+     * @param {number} y2 Vertical coordinate of P2.
+     * @param {number} x3 Horizontal coordinate of P3.
+     * @param {number} y3 Vertical coordinate of P3.
+     * @return {boolean}
+     */
+
+		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
+			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
+		};
+
+		return Geometry;
+	}();
+
+	this.metal.Geometry = Geometry;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var Geometry = this.metal.Geometry;
+
+	/**
+  * Class with static methods responsible for doing browser position checks.
+  */
+
+	var Position = function () {
+		function Position() {
+			babelHelpers.classCallCheck(this, Position);
+		}
+
+		/**
+   * Gets the client height of the specified node. Scroll height is not
+   * included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+		Position.getClientHeight = function getClientHeight(node) {
+			return this.getClientSize_(node, 'Height');
+		};
+
+		/**
+   * Gets the client height or width of the specified node. Scroll height is
+   * not included.
+   * @param {Element|Document|Window=} node
+   * @param {string} `Width` or `Height` property.
+   * @return {number}
+   * @protected
+   */
+
+
+		Position.getClientSize_ = function getClientSize_(node, prop) {
+			var el = node;
+			if (core.isWindow(node)) {
+				el = node.document.documentElement;
+			}
+			if (core.isDocument(node)) {
+				el = node.documentElement;
+			}
+			return el['client' + prop];
+		};
+
+		/**
+   * Gets the client width of the specified node. Scroll width is not
+   * included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+
+		Position.getClientWidth = function getClientWidth(node) {
+			return this.getClientSize_(node, 'Width');
+		};
+
+		/**
+   * Gets the region of the element, document or window.
+   * @param {Element|Document|Window=} opt_element Optional element to test.
+   * @return {!DOMRect} The returned value is a simulated DOMRect object which
+   *     is the union of the rectangles returned by getClientRects() for the
+   *     element, i.e., the CSS border-boxes associated with the element.
+   * @protected
+   */
+
+
+		Position.getDocumentRegion_ = function getDocumentRegion_(opt_element) {
+			var height = this.getHeight(opt_element);
+			var width = this.getWidth(opt_element);
+			return this.makeRegion(height, height, 0, width, 0, width);
+		};
+
+		/**
+   * Gets the height of the specified node. Scroll height is included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+
+		Position.getHeight = function getHeight(node) {
+			return this.getSize_(node, 'Height');
+		};
+
+		/**
+   * Gets the top offset position of the given node. This fixes the `offsetLeft` value of
+   * nodes that were translated, which don't take that into account at all. That makes
+   * the calculation more expensive though, so if you don't want that to be considered
+   * either pass `opt_ignoreTransform` as true or call `offsetLeft` directly on the node.
+   * @param {!Element} node
+   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
+   *   when calculating the position. Defaults to false.
+   * @return {number}
+   */
+
+
+		Position.getOffsetLeft = function getOffsetLeft(node, opt_ignoreTransform) {
+			return node.offsetLeft + (opt_ignoreTransform ? 0 : Position.getTranslation(node).left);
+		};
+
+		/**
+   * Gets the top offset position of the given node. This fixes the `offsetTop` value of
+   * nodes that were translated, which don't take that into account at all. That makes
+   * the calculation more expensive though, so if you don't want that to be considered
+   * either pass `opt_ignoreTransform` as true or call `offsetTop` directly on the node.
+   * @param {!Element} node
+   * @param {boolean=} opt_ignoreTransform When set to true will ignore transform css
+   *   when calculating the position. Defaults to false.
+   * @return {number}
+   */
+
+
+		Position.getOffsetTop = function getOffsetTop(node, opt_ignoreTransform) {
+			return node.offsetTop + (opt_ignoreTransform ? 0 : Position.getTranslation(node).top);
+		};
+
+		/**
+   * Gets the size of an element and its position relative to the viewport.
+   * @param {!Document|Element|Window} node
+   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
+   *   position should be considered in the element's region coordinates. Defaults
+   *   to false.
+   * @return {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   */
+
+
+		Position.getRegion = function getRegion(node, opt_includeScroll) {
+			if (core.isDocument(node) || core.isWindow(node)) {
+				return this.getDocumentRegion_(node);
+			}
+			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
+		};
+
+		/**
+   * Gets the scroll left position of the specified node.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+
+		Position.getScrollLeft = function getScrollLeft(node) {
+			if (core.isWindow(node)) {
+				return node.pageXOffset;
+			}
+			if (core.isDocument(node)) {
+				return node.defaultView.pageXOffset;
+			}
+			return node.scrollLeft;
+		};
+
+		/**
+   * Gets the scroll top position of the specified node.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+
+		Position.getScrollTop = function getScrollTop(node) {
+			if (core.isWindow(node)) {
+				return node.pageYOffset;
+			}
+			if (core.isDocument(node)) {
+				return node.defaultView.pageYOffset;
+			}
+			return node.scrollTop;
+		};
+
+		/**
+   * Gets the height or width of the specified node. Scroll height is
+   * included.
+   * @param {Element|Document|Window=} node
+   * @param {string} `Width` or `Height` property.
+   * @return {number}
+   * @protected
+   */
+
+
+		Position.getSize_ = function getSize_(node, prop) {
+			if (core.isWindow(node)) {
+				return this.getClientSize_(node, prop);
+			}
+			if (core.isDocument(node)) {
+				var docEl = node.documentElement;
+				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
+			}
+			return Math.max(node['client' + prop], node['scroll' + prop], node['offset' + prop]);
+		};
+
+		/**
+   * Gets the transform matrix values for the given node.
+   * @param {!Element} node
+   * @return {Array<number>}
+   */
+
+
+		Position.getTransformMatrixValues = function getTransformMatrixValues(node) {
+			var style = getComputedStyle(node);
+			var transform = style.msTransform || style.transform || style.webkitTransform || style.mozTransform;
+			if (transform !== 'none') {
+				var values = [];
+				var regex = /([\d-\.\s]+)/g;
+				var matches = regex.exec(transform);
+				while (matches) {
+					values.push(matches[1]);
+					matches = regex.exec(transform);
+				}
+				return values;
+			}
+		};
+
+		/**
+   * Gets the number of translated pixels for the given node, for both the top and
+   * left positions.
+   * @param {!Element} node
+   * @return {number}
+   */
+
+
+		Position.getTranslation = function getTranslation(node) {
+			var values = Position.getTransformMatrixValues(node);
+			var translation = {
+				left: 0,
+				top: 0
+			};
+			if (values) {
+				translation.left = parseFloat(values.length === 6 ? values[4] : values[13]);
+				translation.top = parseFloat(values.length === 6 ? values[5] : values[14]);
+			}
+			return translation;
+		};
+
+		/**
+   * Gets the width of the specified node. Scroll width is included.
+   * @param {Element|Document|Window=} node
+   * @return {number}
+   */
+
+
+		Position.getWidth = function getWidth(node) {
+			return this.getSize_(node, 'Width');
+		};
+
+		/**
+   * Tests if a region intersects with another.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {boolean}
+   */
+
+
+		Position.intersectRegion = function intersectRegion(r1, r2) {
+			return Geometry.intersectRect(r1.top, r1.left, r1.bottom, r1.right, r2.top, r2.left, r2.bottom, r2.right);
+		};
+
+		/**
+   * Tests if a region is inside another.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {boolean}
+   */
+
+
+		Position.insideRegion = function insideRegion(r1, r2) {
+			return r2.top >= r1.top && r2.bottom <= r1.bottom && r2.right <= r1.right && r2.left >= r1.left;
+		};
+
+		/**
+   * Tests if a region is inside viewport region.
+   * @param {DOMRect} region
+   * @return {boolean}
+   */
+
+
+		Position.insideViewport = function insideViewport(region) {
+			return this.insideRegion(this.getRegion(window), region);
+		};
+
+		/**
+   * Computes the intersection region between two regions.
+   * @param {DOMRect} r1
+   * @param {DOMRect} r2
+   * @return {?DOMRect} Intersection region or null if regions doesn't
+   *     intersects.
+   */
+
+
+		Position.intersection = function intersection(r1, r2) {
+			if (!this.intersectRegion(r1, r2)) {
+				return null;
+			}
+			var bottom = Math.min(r1.bottom, r2.bottom);
+			var right = Math.min(r1.right, r2.right);
+			var left = Math.max(r1.left, r2.left);
+			var top = Math.max(r1.top, r2.top);
+			return this.makeRegion(bottom, bottom - top, left, right, top, right - left);
+		};
+
+		/**
+   * Makes a region object. It's a writable version of DOMRect.
+   * @param {number} bottom
+   * @param {number} height
+   * @param {number} left
+   * @param {number} right
+   * @param {number} top
+   * @param {number} width
+   * @return {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   */
+
+
+		Position.makeRegion = function makeRegion(bottom, height, left, right, top, width) {
+			return {
+				bottom: bottom,
+				height: height,
+				left: left,
+				right: right,
+				top: top,
+				width: width
+			};
+		};
+
+		/**
+   * Makes a region from a DOMRect result from `getBoundingClientRect`.
+   * @param  {!DOMRect} The returned value is a DOMRect object which is the
+   *     union of the rectangles returned by getClientRects() for the element,
+   *     i.e., the CSS border-boxes associated with the element.
+   * @param {boolean=} opt_includeScroll Flag indicating if the document scroll
+   *   position should be considered in the element's region coordinates. Defaults
+   *   to false.
+   * @return {DOMRect} Writable version of DOMRect.
+   * @protected
+   */
+
+
+		Position.makeRegionFromBoundingRect_ = function makeRegionFromBoundingRect_(rect, opt_includeScroll) {
+			var deltaX = opt_includeScroll ? Position.getScrollLeft(document) : 0;
+			var deltaY = opt_includeScroll ? Position.getScrollTop(document) : 0;
+			return this.makeRegion(rect.bottom + deltaY, rect.height, rect.left + deltaX, rect.right + deltaX, rect.top + deltaY, rect.width);
+		};
+
+		/**
+   * Checks if the given point coordinates are inside a region.
+   * @param {number} x
+   * @param {number} y
+   * @param {!Object} region
+   * @return {boolean}
+   */
+
+
+		Position.pointInsideRegion = function pointInsideRegion(x, y, region) {
+			return Position.insideRegion(region, Position.makeRegion(y, 0, x, x, y, 0));
+		};
+
+		return Position;
+	}();
+
+	this.metal.Position = Position;
+}).call(this);
+'use strict';
+
+(function () {
+	var Position = this.metal.Position;
+
+	/**
+  * Align utility. Computes region or best region to align an element with
+  * another. Regions are relative to viewport, make sure to use element with
+  * position fixed, or position absolute when the element first positioned
+  * parent is the body element.
+  */
+
+	var Align = function () {
+		function Align() {
+			babelHelpers.classCallCheck(this, Align);
+		}
+
+		/**
+   * Aligns the element with the best region around alignElement. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {string} The final chosen position for the aligned element.
+   * @static
+   */
+
+		Align.align = function align(element, alignElement, position) {
+			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
+			var bestRegion = suggestion.region;
+
+			var computedStyle = window.getComputedStyle(element, null);
+			if (computedStyle.getPropertyValue('position') !== 'fixed') {
+				bestRegion.top += window.pageYOffset;
+				bestRegion.left += window.pageXOffset;
+
+				var offsetParent = element;
+				while (offsetParent = offsetParent.offsetParent) {
+					bestRegion.top -= Position.getOffsetTop(offsetParent);
+					bestRegion.left -= Position.getOffsetLeft(offsetParent);
+				}
+			}
+
+			element.style.top = bestRegion.top + 'px';
+			element.style.left = bestRegion.left + 'px';
+			return suggestion.position;
+		};
+
+		/**
+   * Returns the best region to align element with alignElement. This is similar
+   * to `Align.suggestAlignBestRegion`, but it only returns the region information,
+   * while `Align.suggestAlignBestRegion` also returns the chosen position.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Best region to align element.
+   * @static
+   */
+
+
+		Align.getAlignBestRegion = function getAlignBestRegion(element, alignElement, position) {
+			return Align.suggestAlignBestRegion(element, alignElement, position).region;
+		};
+
+		/**
+   * Returns the region to align element with alignElement. The element is
+   * always aligned in the middle of alignElement axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The position to align. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {DOMRect} Region to align element.
+   * @static
+   */
+
+
+		Align.getAlignRegion = function getAlignRegion(element, alignElement, position) {
+			var r1 = Position.getRegion(alignElement);
+			var r2 = Position.getRegion(element);
+			var top = 0;
+			var left = 0;
+
+			switch (position) {
+				case Align.TopCenter:
+					top = r1.top - r2.height;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.RightCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left + r1.width;
+					break;
+				case Align.BottomCenter:
+					top = r1.bottom;
+					left = r1.left + r1.width / 2 - r2.width / 2;
+					break;
+				case Align.LeftCenter:
+					top = r1.top + r1.height / 2 - r2.height / 2;
+					left = r1.left - r2.width;
+					break;
+				case Align.TopRight:
+					top = r1.top - r2.height;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomRight:
+					top = r1.bottom;
+					left = r1.right - r2.width;
+					break;
+				case Align.BottomLeft:
+					top = r1.bottom;
+					left = r1.left;
+					break;
+				case Align.TopLeft:
+					top = r1.top - r2.height;
+					left = r1.left;
+					break;
+			}
+
+			return {
+				bottom: top + r2.height,
+				height: r2.height,
+				left: left,
+				right: left + r2.width,
+				top: top,
+				width: r2.width
+			};
+		};
+
+		/**
+   * Checks if specified value is a valid position. Options `Align.Top`,
+   *     `Align.Right`, `Align.Bottom`, `Align.Left`.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} val
+   * @return {boolean} Returns true if value is a valid position.
+   * @static
+   */
+
+
+		Align.isValidPosition = function isValidPosition(val) {
+			return 0 <= val && val <= 8;
+		};
+
+		/**
+   * Looks for the best region for aligning the given element. The best
+   * region is defined by clockwise rotation starting from the specified
+   * `position`. The element is always aligned in the middle of alignElement
+   * axis.
+   * @param {!Element} element Element to be aligned.
+   * @param {!Element} alignElement Element to align with.
+   * @param {Align.Top|Align.Right|Align.Bottom|Align.Left} pos
+   *     The initial position to try. Options `Align.Top`, `Align.Right`,
+   *     `Align.Bottom`, `Align.Left`.
+   * @return {{position: string, region: DOMRect}} Best region to align element.
+   * @static
+   */
+
+
+		Align.suggestAlignBestRegion = function suggestAlignBestRegion(element, alignElement, position) {
+			var bestArea = 0;
+			var bestPosition = position;
+			var bestRegion = this.getAlignRegion(element, alignElement, bestPosition);
+			var tryPosition = bestPosition;
+			var tryRegion = bestRegion;
+			var viewportRegion = Position.getRegion(window);
+
+			for (var i = 0; i < 8;) {
+				if (Position.intersectRegion(viewportRegion, tryRegion)) {
+					var visibleRegion = Position.intersection(viewportRegion, tryRegion);
+					var area = visibleRegion.width * visibleRegion.height;
+					if (area > bestArea) {
+						bestArea = area;
+						bestRegion = tryRegion;
+						bestPosition = tryPosition;
+					}
+					if (Position.insideViewport(tryRegion)) {
+						break;
+					}
+				}
+				tryPosition = (position + ++i) % 8;
+				tryRegion = this.getAlignRegion(element, alignElement, tryPosition);
+			}
+
+			return {
+				position: bestPosition,
+				region: bestRegion
+			};
+		};
+
+		return Align;
+	}();
+
+	/**
+  * Constants that represent the supported positions for `Align`.
+  * @type {number}
+  * @static
+  */
+
+	Align.TopCenter = 0;
+	Align.TopRight = 1;
+	Align.RightCenter = 2;
+	Align.BottomRight = 3;
+	Align.BottomCenter = 4;
+	Align.BottomLeft = 5;
+	Align.LeftCenter = 6;
+	Align.TopLeft = 7;
+
+	/**
+  * Aliases for position constants.
+  * @type {number}
+  * @static
+  */
+	Align.Top = Align.TopCenter;
+	Align.Right = Align.RightCenter;
+	Align.Bottom = Align.BottomCenter;
+	Align.Left = Align.LeftCenter;
+
+	this.metal.Align = Align;
+}).call(this);
+'use strict';
+
+(function () {
+  var Align = this.metal.Align;
+  var Geometry = this.metal.Geometry;
+  var Position = this.metal.Position;
+  this.metal.position = Position;
+  this.metalNamed.position = {};
+  this.metalNamed.position.Align = Align;
+  this.metalNamed.position.Geometry = Geometry;
+  this.metalNamed.position.Position = Position;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var dom = this.metalNamed.dom.dom;
+	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
+	var Attribute = this.metal.Attribute;
+	var EventEmitter = this.metal.events;
+	var Position = this.metal.position;
+
+	/**
+  * Affix utility.
+  */
+
+	var Affix = function (_Attribute) {
+		babelHelpers.inherits(Affix, _Attribute);
+
+		/**
+   * @inheritDoc
+   */
+
+		function Affix(opt_config) {
+			babelHelpers.classCallCheck(this, Affix);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+
+			if (!Affix.emitter_) {
+				Affix.emitter_ = new EventEmitter();
+				Affix.proxy_ = new DomEventEmitterProxy(document, Affix.emitter_, null, {
+					scroll: true
+				});
+			}
+
+			/**
+    * Holds the last position.
+    * @type {Position.Bottom|Position.Default|Position.Top}
+    * @private
+    */
+			_this.lastPosition_ = null;
+
+			/**
+    * Holds event handle that listens scroll shared event emitter proxy.
+    * @type {EventHandle}
+    * @protected
+    */
+			_this.scrollHandle_ = Affix.emitter_.on('scroll', _this.checkPosition.bind(_this));
+
+			_this.on('elementChanged', _this.checkPosition);
+			_this.on('offsetTopChanged', _this.checkPosition);
+			_this.on('offsetBottomChanged', _this.checkPosition);
+			_this.checkPosition();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Affix.prototype.disposeInternal = function disposeInternal() {
+			dom.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
+			this.scrollHandle_.dispose();
+			_Attribute.prototype.disposeInternal.call(this);
+		};
+
+		/**
+   * Synchronize bottom, top and element regions and checks if position has
+   * changed. If position has changed syncs position.
+   */
+
+
+		Affix.prototype.checkPosition = function checkPosition() {
+			if (this.intersectTopRegion()) {
+				this.syncPosition(Affix.Position.Top);
+			} else if (this.intersectBottomRegion()) {
+				this.syncPosition(Affix.Position.Bottom);
+			} else {
+				this.syncPosition(Affix.Position.Default);
+			}
+		};
+
+		/**
+   * Whether the element is intersecting with bottom region defined by
+   * offsetBottom.
+   * @return {boolean}
+   */
+
+
+		Affix.prototype.intersectBottomRegion = function intersectBottomRegion() {
+			if (!core.isDef(this.offsetBottom)) {
+				return false;
+			}
+			var clientHeight = Position.getHeight(this.scrollElement);
+			var scrollElementClientHeight = Position.getClientHeight(this.scrollElement);
+			return Position.getScrollTop(this.scrollElement) + scrollElementClientHeight >= clientHeight - this.offsetBottom;
+		};
+
+		/**
+   * Whether the element is intersecting with top region defined by
+   * offsetTop.
+   * @return {boolean}
+   */
+
+
+		Affix.prototype.intersectTopRegion = function intersectTopRegion() {
+			if (!core.isDef(this.offsetTop)) {
+				return false;
+			}
+			return Position.getScrollTop(this.scrollElement) <= this.offsetTop;
+		};
+
+		/**
+   * Synchronizes element css classes to match with the specified position.
+   * @param {Position.Bottom|Position.Default|Position.Top} position
+   */
+
+
+		Affix.prototype.syncPosition = function syncPosition(position) {
+			if (this.lastPosition_ !== position) {
+				dom.addClasses(this.element, position);
+				dom.removeClasses(this.element, this.lastPosition_);
+				this.lastPosition_ = position;
+			}
+		};
+
+		return Affix;
+	}(Attribute);
+
+	/**
+  * Holds positions enum.
+  * @enum {string}
+  */
+
+
+	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
+	Affix.Position = {
+		Top: 'affix-top',
+		Bottom: 'affix-bottom',
+		Default: 'affix'
+	};
+
+	Affix.ATTRS = {
+		/**
+   * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
+   * where the scroll event is listened from.
+   * @type {Element|Window}
+   */
+		scrollElement: {
+			setter: dom.toElement,
+			value: document
+		},
+
+		/**
+   * Defines the offset bottom that triggers affix.
+   * @type {number}
+   */
+		offsetTop: {
+			validator: core.isNumber
+		},
+
+		/**
+   * Defines the offset top that triggers affix.
+   * @type {number}
+   */
+		offsetBottom: {
+			validator: core.isNumber
+		},
+
+		/**
+   * Element to be used as alignment reference of affix.
+   * @type {Element}
+   */
+		element: {
+			setter: dom.toElement
+		}
+	};
+
+	this.metal.Affix = Affix;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metalNamed.metal.core;
+	var string = this.metalNamed.metal.string;
+
+	var html = function () {
+		function html() {
+			babelHelpers.classCallCheck(this, html);
+		}
+
+		/**
+   * Minifies given HTML source by removing extra white spaces, comments and
+   * other unneeded characters without breaking the content structure. As a
+   * result HTML become smaller in size.
+   * - Contents within <code>, <pre>, <script>, <style>, <textarea> and
+   *   conditional comments tags are preserved.
+   * - Comments are removed.
+   * - Conditional comments are preserved.
+   * - Breaking spaces are collapsed into a single space.
+   * - Unneeded spaces inside tags (around = and before />) are removed.
+   * - Spaces between tags are removed, even from inline-block elements.
+   * - Spaces surrounding tags are removed.
+   * - DOCTYPE declaration is simplified to <!DOCTYPE html>.
+   * - Does not remove default attributes from <script>, <style>, <link>,
+   *   <form>, <input>.
+   * - Does not remove values from boolean tag attributes.
+   * - Does not remove "javascript:" from in-line event handlers.
+   * - Does not remove http:// and https:// protocols.
+   * @param {string} htmlString Input HTML to be compressed.
+   * @return {string} Compressed version of the HTML.
+   */
+
+		html.compress = function compress(htmlString) {
+			var preserved = {};
+			htmlString = html.preserveBlocks_(htmlString, preserved);
+			htmlString = html.simplifyDoctype_(htmlString);
+			htmlString = html.removeComments_(htmlString);
+			htmlString = html.removeIntertagSpaces_(htmlString);
+			htmlString = html.collapseBreakingSpaces_(htmlString);
+			htmlString = html.removeSpacesInsideTags_(htmlString);
+			htmlString = html.removeSurroundingSpaces_(htmlString);
+			htmlString = html.returnBlocks_(htmlString, preserved);
+			return htmlString.trim();
+		};
+
+		/**
+   * Collapses breaking spaces into a single space.
+   * @param {string} htmlString
+   * @return {string}
+   * @protected
+   */
+
+
+		html.collapseBreakingSpaces_ = function collapseBreakingSpaces_(htmlString) {
+			return string.collapseBreakingSpaces(htmlString);
+		};
+
+		/**
+   * Searches for first occurrence of the specified open tag string pattern
+   * and from that point finds next ">" position, identified as possible tag
+   * end position.
+   * @param {string} htmlString
+   * @param {string} openTag Open tag string pattern without open tag ending
+   *     character, e.g. "<textarea" or "<code".
+   * @return {string}
+   * @protected
+   */
+
+
+		html.lookupPossibleTagBoundary_ = function lookupPossibleTagBoundary_(htmlString, openTag) {
+			var tagPos = htmlString.indexOf(openTag);
+			if (tagPos > -1) {
+				tagPos += htmlString.substring(tagPos).indexOf('>') + 1;
+			}
+			return tagPos;
+		};
+
+		/**
+   * Preserves contents inside any <code>, <pre>, <script>, <style>,
+   * <textarea> and conditional comment tags. When preserved, original content
+   * are replaced with an unique generated block id and stored into
+   * `preserved` map.
+   * @param {string} htmlString
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {html} The preserved HTML.
+   * @protected
+   */
+
+
+		html.preserveBlocks_ = function preserveBlocks_(htmlString, preserved) {
+			htmlString = html.preserveOuterHtml_(htmlString, '<!--[if', '<![endif]-->', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<code', '</code', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<pre', '</pre', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<script', '</script', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<style', '</style', preserved);
+			htmlString = html.preserveInnerHtml_(htmlString, '<textarea', '</textarea', preserved);
+			return htmlString;
+		};
+
+		/**
+   * Preserves inner contents inside the specified tag. When preserved,
+   * original content are replaced with an unique generated block id and
+   * stored into `preserved` map.
+   * @param {string} htmlString
+   * @param {string} openTag Open tag string pattern without open tag ending
+   *     character, e.g. "<textarea" or "<code".
+   * @param {string} closeTag Close tag string pattern without close tag
+   *     ending character, e.g. "</textarea" or "</code".
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {html} The preserved HTML.
+   * @protected
+   */
+
+
+		html.preserveInnerHtml_ = function preserveInnerHtml_(htmlString, openTag, closeTag, preserved) {
+			var tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
+			while (tagPosEnd > -1) {
+				var tagEndPos = htmlString.indexOf(closeTag);
+				htmlString = html.preserveInterval_(htmlString, tagPosEnd, tagEndPos, preserved);
+				htmlString = htmlString.replace(openTag, '%%%~1~%%%');
+				htmlString = htmlString.replace(closeTag, '%%%~2~%%%');
+				tagPosEnd = html.lookupPossibleTagBoundary_(htmlString, openTag);
+			}
+			htmlString = htmlString.replace(/%%%~1~%%%/g, openTag);
+			htmlString = htmlString.replace(/%%%~2~%%%/g, closeTag);
+			return htmlString;
+		};
+
+		/**
+   * Preserves interval of the specified HTML into the preserved map replacing
+   * original contents with an unique generated id.
+   * @param {string} htmlString
+   * @param {Number} start Start interval position to be replaced.
+   * @param {Number} end End interval position to be replaced.
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {string} The HTML with replaced interval.
+   * @protected
+   */
+
+
+		html.preserveInterval_ = function preserveInterval_(htmlString, start, end, preserved) {
+			var blockId = '%%%~BLOCK~' + core.getUid() + '~%%%';
+			preserved[blockId] = htmlString.substring(start, end);
+			return string.replaceInterval(htmlString, start, end, blockId);
+		};
+
+		/**
+   * Preserves outer contents inside the specified tag. When preserved,
+   * original content are replaced with an unique generated block id and
+   * stored into `preserved` map.
+   * @param {string} htmlString
+   * @param {string} openTag Open tag string pattern without open tag ending
+   *     character, e.g. "<textarea" or "<code".
+   * @param {string} closeTag Close tag string pattern without close tag
+   *     ending character, e.g. "</textarea" or "</code".
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {html} The preserved HTML.
+   * @protected
+   */
+
+
+		html.preserveOuterHtml_ = function preserveOuterHtml_(htmlString, openTag, closeTag, preserved) {
+			var tagPos = htmlString.indexOf(openTag);
+			while (tagPos > -1) {
+				var tagEndPos = htmlString.indexOf(closeTag) + closeTag.length;
+				htmlString = html.preserveInterval_(htmlString, tagPos, tagEndPos, preserved);
+				tagPos = htmlString.indexOf(openTag);
+			}
+			return htmlString;
+		};
+
+		/**
+   * Removes all comments of the HTML. Including conditional comments and
+   * "<![CDATA[" blocks.
+   * @param {string} htmlString
+   * @return {string} The HTML without comments.
+   * @protected
+   */
+
+
+		html.removeComments_ = function removeComments_(htmlString) {
+			var preserved = {};
+			htmlString = html.preserveOuterHtml_(htmlString, '<![CDATA[', ']]>', preserved);
+			htmlString = html.preserveOuterHtml_(htmlString, '<!--', '-->', preserved);
+			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '');
+			return htmlString;
+		};
+
+		/**
+   * Removes spaces between tags, even from inline-block elements.
+   * @param {string} htmlString
+   * @return {string} The HTML without spaces between tags.
+   * @protected
+   */
+
+
+		html.removeIntertagSpaces_ = function removeIntertagSpaces_(htmlString) {
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_CUSTOM, '~%%%%%%~');
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_CUSTOM_TAG, '~%%%<');
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG, '><');
+			htmlString = htmlString.replace(html.Patterns.INTERTAG_TAG_CUSTOM, '>%%%~');
+			return htmlString;
+		};
+
+		/**
+   * Removes spaces inside tags.
+   * @param {string} htmlString
+   * @return {string} The HTML without spaces inside tags.
+   * @protected
+   */
+
+
+		html.removeSpacesInsideTags_ = function removeSpacesInsideTags_(htmlString) {
+			htmlString = htmlString.replace(html.Patterns.TAG_END_SPACES, '$1$2');
+			htmlString = htmlString.replace(html.Patterns.TAG_QUOTE_SPACES, '=$1$2$3');
+			return htmlString;
+		};
+
+		/**
+   * Removes spaces surrounding tags.
+   * @param {string} htmlString
+   * @return {string} The HTML without spaces surrounding tags.
+   * @protected
+   */
+
+
+		html.removeSurroundingSpaces_ = function removeSurroundingSpaces_(htmlString) {
+			return htmlString.replace(html.Patterns.SURROUNDING_SPACES, '$1');
+		};
+
+		/**
+   * Restores preserved map keys inside the HTML. Note that the passed HTML
+   * should contain the unique generated block ids to be replaced.
+   * @param {string} htmlString
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @param {string} replaceValue The value to replace any block id inside the
+   * HTML.
+   * @return {string}
+   * @protected
+   */
+
+
+		html.replacePreservedBlocks_ = function replacePreservedBlocks_(htmlString, preserved, replaceValue) {
+			for (var blockId in preserved) {
+				htmlString = htmlString.replace(blockId, replaceValue);
+			}
+			return htmlString;
+		};
+
+		/**
+   * Simplifies DOCTYPE declaration to <!DOCTYPE html>.
+   * @param {string} htmlString
+   * @return {string}
+   * @protected
+   */
+
+
+		html.simplifyDoctype_ = function simplifyDoctype_(htmlString) {
+			var preserved = {};
+			htmlString = html.preserveOuterHtml_(htmlString, '<!DOCTYPE', '>', preserved);
+			htmlString = html.replacePreservedBlocks_(htmlString, preserved, '<!DOCTYPE html>');
+			return htmlString;
+		};
+
+		/**
+   * Restores preserved map original contents inside the HTML. Note that the
+   * passed HTML should contain the unique generated block ids to be restored.
+   * @param {string} htmlString
+   * @param {Object} preserved Object to preserve the content indexed by an
+   *     unique generated block id.
+   * @return {string}
+   * @protected
+   */
+
+
+		html.returnBlocks_ = function returnBlocks_(htmlString, preserved) {
+			for (var blockId in preserved) {
+				htmlString = htmlString.replace(blockId, preserved[blockId]);
+			}
+			return htmlString;
+		};
+
+		return html;
+	}();
+
+	/**
+  * HTML regex patterns.
+  * @enum {RegExp}
+  * @protected
+  */
+
+
+	html.Patterns = {
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_CUSTOM_CUSTOM: /~%%%\s+%%%~/g,
+
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_TAG_CUSTOM: />\s+%%%~/g,
+
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_CUSTOM_TAG: /~%%%\s+</g,
+
+		/**
+   * @type {RegExp}
+   */
+		INTERTAG_TAG: />\s+</g,
+
+		/**
+   * @type {RegExp}
+   */
+		SURROUNDING_SPACES: /\s*(<[^>]+>)\s*/g,
+
+		/**
+   * @type {RegExp}
+   */
+		TAG_END_SPACES: /(<(?:[^>]+?))(?:\s+?)(\/?>)/g,
+
+		/**
+   * @type {RegExp}
+   */
+		TAG_QUOTE_SPACES: /\s*=\s*(["']?)\s*(.*?)\s*(\1)/g
+	};
+
+	this.metal.html = html;
+}).call(this);
+'use strict';
+
+(function () {
 	var core = this.metalNamed.metal.core;
 
 	/**
@@ -7586,10 +5031,10 @@ babelHelpers;
 	var core = this.metalNamed.metal.core;
 	var object = this.metalNamed.metal.object;
 	var string = this.metalNamed.metal.string;
-	var dom = this.metalNamed.index.dom;
-	var DomEventEmitterProxy = this.metalNamed.index.DomEventEmitterProxy;
-	var features = this.metalNamed.index.features;
-	var globalEval = this.metalNamed.index.globalEval;
+	var dom = this.metalNamed.dom.dom;
+	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
+	var features = this.metalNamed.dom.features;
+	var globalEval = this.metalNamed.dom.globalEval;
 	var html = this.metal.html;
 	var Attribute = this.metal.Attribute;
 	var ComponentCollector = this.metal.ComponentCollector;
@@ -9503,14 +6948,14 @@ babelHelpers;
   var ComponentRenderer = this.metal.ComponentRenderer;
   var EventsCollector = this.metal.EventsCollector;
   var SurfaceCollector = this.metal.SurfaceCollector;
-  this.metal.index = Component;
-  this.metalNamed.index = {};
-  this.metalNamed.index.Component = Component;
-  this.metalNamed.index.ComponentCollector = ComponentCollector;
-  this.metalNamed.index.ComponentRegistry = ComponentRegistry;
-  this.metalNamed.index.ComponentRenderer = ComponentRenderer;
-  this.metalNamed.index.EventsCollector = EventsCollector;
-  this.metalNamed.index.SurfaceCollector = SurfaceCollector;
+  this.metal.component = Component;
+  this.metalNamed.component = {};
+  this.metalNamed.component.Component = Component;
+  this.metalNamed.component.ComponentCollector = ComponentCollector;
+  this.metalNamed.component.ComponentRegistry = ComponentRegistry;
+  this.metalNamed.component.ComponentRenderer = ComponentRenderer;
+  this.metalNamed.component.EventsCollector = EventsCollector;
+  this.metalNamed.component.SurfaceCollector = SurfaceCollector;
 }).call(this);
 'use strict';
 
@@ -9647,10 +7092,10 @@ babelHelpers;
 (function () {
 	var core = this.metalNamed.metal.core;
 	var object = this.metalNamed.metal.object;
-	var dom = this.metal.index;
-	var Component = this.metalNamed.index.Component;
-	var ComponentRegistry = this.metalNamed.index.ComponentRegistry;
-	var ComponentRenderer = this.metalNamed.index.ComponentRenderer;
+	var dom = this.metal.dom;
+	var Component = this.metalNamed.component.Component;
+	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
+	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
 	var SoyAop = this.metal.SoyAop;
 	var SoyTemplates = this.metal.SoyTemplates;
 
@@ -10059,7 +7504,2699 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.index;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Alert.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Alert.
+   */
+
+  if (typeof Templates.Alert == 'undefined') {
+    Templates.Alert = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Alert.body = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Alert.body.soyTemplateName = 'Templates.Alert.body';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Alert.dismiss = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-dismiss">' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
+  }
+
+  Templates.Alert.render.params = ["id"];
+  Templates.Alert.body.params = ["body", "id"];
+  Templates.Alert.dismiss.params = ["dismissible", "id"];
+
+  var Alert = function (_Component) {
+    babelHelpers.inherits(Alert, _Component);
+
+    function Alert() {
+      babelHelpers.classCallCheck(this, Alert);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Alert;
+  }(Component);
+
+  Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
+
+  Alert.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Alert');
+  this.metal.Alert = Alert;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var dom = this.metalNamed.dom.dom;
+	var features = this.metalNamed.dom.features;
+
+	var Anim = function () {
+		function Anim() {
+			babelHelpers.classCallCheck(this, Anim);
+		}
+
+		/**
+   * Emulates animation or transition end event, the end event with longer
+   * duration will be used by the emulation. If they have the same value,
+   * transitionend will be emulated.
+   * @param {!Element} element
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   */
+
+		Anim.emulateEnd = function emulateEnd(element, opt_durationMs) {
+			if (this.getComputedDurationMs(element, 'animation') > this.getComputedDurationMs(element, 'transition')) {
+				return this.emulateEnd_(element, 'animation', opt_durationMs);
+			} else {
+				return this.emulateEnd_(element, 'transition', opt_durationMs);
+			}
+		};
+
+		/**
+   * Emulates animation end event. If `opt_durationMs` not specified the value
+   * will read from computed style for animation-duration.
+   * @param {!Element} element
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   */
+
+
+		Anim.emulateAnimationEnd = function emulateAnimationEnd(element, opt_durationMs) {
+			return this.emulateEnd_(element, 'animation', opt_durationMs);
+		};
+
+		/**
+   * Emulates transition end event. If `opt_durationMs` not specified the
+   * value will read from computed style for transition-duration.
+   * @param {!Element} element
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   */
+
+
+		Anim.emulateTransitionEnd = function emulateTransitionEnd(element, opt_durationMs) {
+			this.emulateEnd_(element, 'transition', opt_durationMs);
+		};
+
+		/**
+   * Emulates transition or animation end.
+   * @param {!Element} element
+   * @param {string} type
+   * @param {number=} opt_durationMs
+   * @return {!Object} Object containing `abort` function.
+   * @protected
+   */
+
+
+		Anim.emulateEnd_ = function emulateEnd_(element, type, opt_durationMs) {
+			var duration = opt_durationMs;
+			if (!core.isDef(opt_durationMs)) {
+				duration = this.getComputedDurationMs(element, type);
+			}
+
+			var delayed = setTimeout(function () {
+				dom.triggerEvent(element, features.checkAnimationEventName()[type]);
+			}, duration);
+
+			var abort = function abort() {
+				clearTimeout(delayed);
+				hoistedEvtHandler.removeListener();
+			};
+			var hoistedEvtHandler = dom.once(element, type + 'end', abort);
+
+			return {
+				abort: abort
+			};
+		};
+
+		/**
+   * Gets computed style duration for duration.
+   * @param {!Element} element
+   * @param {string} type
+   * @return {number} The computed duration in milliseconds.
+   */
+
+
+		Anim.getComputedDurationMs = function getComputedDurationMs(element, type) {
+			return (parseFloat(window.getComputedStyle(element, null).getPropertyValue(type + '-duration')) || 0) * 1000;
+		};
+
+		return Anim;
+	}();
+
+	this.metal.Anim = Anim;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metalNamed.metal.core;
+	var dom = this.metal.dom;
+	var AlertBase = this.metal.Alert;
+	var Anim = this.metal.Anim;
+	var EventHandler = this.metalNamed.events.EventHandler;
+
+	/**
+  * Alert component.
+  */
+
+	var Alert = function (_AlertBase) {
+		babelHelpers.inherits(Alert, _AlertBase);
+
+		function Alert(opt_config) {
+			babelHelpers.classCallCheck(this, Alert);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _AlertBase.call(this, opt_config));
+
+			_this.eventHandler_ = new EventHandler();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Alert.prototype.detached = function detached() {
+			_AlertBase.prototype.detached.call(this);
+			this.eventHandler_.removeAllListeners();
+			clearTimeout(this.delay_);
+		};
+
+		/**
+   * Closes the alert, disposing it once the animation ends.
+   */
+
+
+		Alert.prototype.close = function close() {
+			dom.once(this.element, 'animationend', this.dispose.bind(this));
+			dom.once(this.element, 'transitionend', this.dispose.bind(this));
+			this.eventHandler_.removeAllListeners();
+			this.syncVisible(false);
+		};
+
+		/**
+   * Handles document click in order to close the alert.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		Alert.prototype.handleDocClick_ = function handleDocClick_(event) {
+			if (!this.element.contains(event.target)) {
+				this.hide();
+			}
+		};
+
+		/**
+   * Hide the alert.
+   */
+
+
+		Alert.prototype.hide = function hide() {
+			this.visible = false;
+		};
+
+		/**
+   * Toggles the visibility of the alert.
+   */
+
+
+		Alert.prototype.toggle = function toggle() {
+			this.visible = !this.visible;
+		};
+
+		/**
+   * Synchronization logic for `dismissible` attribute.
+   * @param {boolean} dismissible
+   */
+
+
+		Alert.prototype.syncDismissible = function syncDismissible(dismissible) {
+			if (dismissible) {
+				this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+			} else {
+				this.eventHandler_.removeAllListeners();
+			}
+
+			dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
+		};
+
+		/**
+   * Synchronization logic for `visible` attribute.
+   * @param {boolean} visible
+   */
+
+
+		Alert.prototype.syncVisible = function syncVisible(visible) {
+			dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
+			dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
+			// Some browsers do not fire transitionend events when running in background
+			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
+			Anim.emulateEnd(this.element);
+
+			if (visible && core.isNumber(this.hideDelay)) {
+				this.syncHideDelay(this.hideDelay);
+			}
+		};
+
+		/**
+   * Synchronization logic for `hideDelay` attribute.
+   * @param {?number} hideDelay
+   */
+
+
+		Alert.prototype.syncHideDelay = function syncHideDelay(hideDelay) {
+			if (core.isNumber(hideDelay) && this.visible) {
+				clearTimeout(this.delay_);
+				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
+			}
+		};
+
+		return Alert;
+	}(AlertBase);
+
+	/**
+  * Default alert elementClasses.
+  * @default alert
+  * @type {string}
+  * @static
+  */
+
+
+	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
+	Alert.ELEMENT_CLASSES = 'alert';
+
+	/**
+  * Alert attributes definition.
+  * @type {!Object}
+  * @static
+  */
+	Alert.ATTRS = {
+		/**
+   * The CSS classes that should be added to the alert when being shown/hidden.
+   * @type {!Object}
+   */
+		animClasses: {
+			validator: core.isObject,
+			value: {
+				show: 'fade in',
+				hide: 'fade'
+			}
+		},
+
+		/**
+   * The body content of the alert.
+   * @type {string}
+   */
+		body: {
+			value: ''
+		},
+
+		/**
+   * Flag indicating if the alert should be dismissable (closeable).
+   * @type {boolean}
+   * @default true
+   */
+		dismissible: {
+			validator: core.isBoolean,
+			value: true
+		},
+
+		/**
+   * The CSS classes that should be added to the alert.
+   * @type {string}
+   * @default 'alert-success'
+   */
+		elementClasses: {
+			value: 'alert-success'
+		},
+
+		/**
+   * Delay hiding the alert (ms).
+   * @type {?number}
+   */
+		hideDelay: {},
+
+		/**
+   * Flag indicating if the alert is visible or not.
+   * @type {boolean}
+   * @default false
+   */
+		visible: {
+			value: false
+		}
+	};
+
+	this.metal.Alert = Alert;
+}).call(this);
+'use strict';
+
+/**
+  * Debounces function execution.
+  * @param {!function()} fn
+  * @param {number} delay
+  * @return {!function()}
+  */
+
+(function () {
+	function debounce(fn, delay) {
+		var id;
+		return function () {
+			var args = arguments;
+			clearTimeout(id);
+			id = setTimeout(function () {
+				fn.apply(null, args);
+			}, delay);
+		};
+	}
+
+	this.metal.debounce = debounce;
+}).call(this);
+/*!
+ * Promises polyfill from Google's Closure Library.
+ *
+ *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
+ *
+ * NOTE(eduardo): Promise support is not ready on all supported browsers,
+ * therefore core.js is temporarily using Google's promises as polyfill. It
+ * supports cancellable promises and has clean and fast implementation.
+ */
+
+'use strict';
+
+(function () {
+  var core = this.metalNamed.metal.core;
+  var async = this.metalNamed.metal.async;
+
+  /**
+   * Provides a more strict interface for Thenables in terms of
+   * http://promisesaplus.com for interop with {@see CancellablePromise}.
+   *
+   * @interface
+   * @extends {IThenable.<TYPE>}
+   * @template TYPE
+   */
+
+  var Thenable = function Thenable() {};
+
+  /**
+   * Adds callbacks that will operate on the result of the Thenable, returning a
+   * new child Promise.
+   *
+   * If the Thenable is fulfilled, the {@code onFulfilled} callback will be
+   * invoked with the fulfillment value as argument, and the child Promise will
+   * be fulfilled with the return value of the callback. If the callback throws
+   * an exception, the child Promise will be rejected with the thrown value
+   * instead.
+   *
+   * If the Thenable is rejected, the {@code onRejected} callback will be invoked
+   * with the rejection reason as argument, and the child Promise will be rejected
+   * with the return value of the callback or thrown value.
+   *
+   * @param {?(function(this:THIS, TYPE):
+   *             (RESULT|IThenable.<RESULT>|Thenable))=} opt_onFulfilled A
+   *     function that will be invoked with the fulfillment value if the Promise
+   *     is fullfilled.
+   * @param {?(function(*): *)=} opt_onRejected A function that will be invoked
+   *     with the rejection reason if the Promise is rejected.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     with the default this.
+   * @return {!CancellablePromise.<RESULT>} A new Promise that will receive the
+   *     result of the fulfillment or rejection callback.
+   * @template RESULT,THIS
+   */
+  Thenable.prototype.then = function () {};
+
+  /**
+   * An expando property to indicate that an object implements
+   * {@code Thenable}.
+   *
+   * {@see addImplementation}.
+   *
+   * @const
+   */
+  Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
+
+  /**
+   * Marks a given class (constructor) as an implementation of Thenable, so
+   * that we can query that fact at runtime. The class must have already
+   * implemented the interface.
+   * Exports a 'then' method on the constructor prototype, so that the objects
+   * also implement the extern {@see Thenable} interface for interop with
+   * other Promise implementations.
+   * @param {function(new:Thenable,...[?])} ctor The class constructor. The
+   *     corresponding class must have already implemented the interface.
+   */
+  Thenable.addImplementation = function (ctor) {
+    ctor.prototype.then = ctor.prototype.then;
+    ctor.prototype.$goog_Thenable = true;
+  };
+
+  /**
+   * @param {*} object
+   * @return {boolean} Whether a given instance implements {@code Thenable}.
+   *     The class/superclass of the instance must call {@code addImplementation}.
+   */
+  Thenable.isImplementedBy = function (object) {
+    if (!object) {
+      return false;
+    }
+    try {
+      return !!object.$goog_Thenable;
+    } catch (e) {
+      // Property access seems to be forbidden.
+      return false;
+    }
+  };
+
+  /**
+   * Like bind(), except that a 'this object' is not required. Useful when the
+   * target function is already bound.
+   *
+   * Usage:
+   * var g = partial(f, arg1, arg2);
+   * g(arg3, arg4);
+   *
+   * @param {Function} fn A function to partially apply.
+   * @param {...*} var_args Additional arguments that are partially applied to fn.
+   * @return {!Function} A partially-applied form of the function bind() was
+   *     invoked as a method of.
+   */
+  var partial = function partial(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return function () {
+      // Clone the array (with slice()) and append additional arguments
+      // to the existing arguments.
+      var newArgs = args.slice();
+      newArgs.push.apply(newArgs, arguments);
+      return fn.apply(this, newArgs);
+    };
+  };
+
+  /**
+   * Promises provide a result that may be resolved asynchronously. A Promise may
+   * be resolved by being fulfilled or rejected with a value, which will be known
+   * as the fulfillment value or the rejection reason. Whether fulfilled or
+   * rejected, the Promise result is immutable once it is set.
+   *
+   * Promises may represent results of any type, including undefined. Rejection
+   * reasons are typically Errors, but may also be of any type. Closure Promises
+   * allow for optional type annotations that enforce that fulfillment values are
+   * of the appropriate types at compile time.
+   *
+   * The result of a Promise is accessible by calling {@code then} and registering
+   * {@code onFulfilled} and {@code onRejected} callbacks. Once the Promise
+   * resolves, the relevant callbacks are invoked with the fulfillment value or
+   * rejection reason as argument. Callbacks are always invoked in the order they
+   * were registered, even when additional {@code then} calls are made from inside
+   * another callback. A callback is always run asynchronously sometime after the
+   * scope containing the registering {@code then} invocation has returned.
+   *
+   * If a Promise is resolved with another Promise, the first Promise will block
+   * until the second is resolved, and then assumes the same result as the second
+   * Promise. This allows Promises to depend on the results of other Promises,
+   * linking together multiple asynchronous operations.
+   *
+   * This implementation is compatible with the Promises/A+ specification and
+   * passes that specification's conformance test suite. A Closure Promise may be
+   * resolved with a Promise instance (or sufficiently compatible Promise-like
+   * object) created by other Promise implementations. From the specification,
+   * Promise-like objects are known as "Thenables".
+   *
+   * @see http://promisesaplus.com/
+   *
+   * @param {function(
+   *             this:RESOLVER_CONTEXT,
+   *             function((TYPE|IThenable.<TYPE>|Thenable)),
+   *             function(*)): void} resolver
+   *     Initialization function that is invoked immediately with {@code resolve}
+   *     and {@code reject} functions as arguments. The Promise is resolved or
+   *     rejected with the first argument passed to either function.
+   * @param {RESOLVER_CONTEXT=} opt_context An optional context for executing the
+   *     resolver function. If unspecified, the resolver function will be executed
+   *     in the default scope.
+   * @constructor
+   * @struct
+   * @final
+   * @implements {Thenable.<TYPE>}
+   * @template TYPE,RESOLVER_CONTEXT
+   */
+  var CancellablePromise = function CancellablePromise(resolver, opt_context) {
+    /**
+     * The internal state of this Promise. Either PENDING, FULFILLED, REJECTED, or
+     * BLOCKED.
+     * @private {CancellablePromise.State_}
+     */
+    this.state_ = CancellablePromise.State_.PENDING;
+
+    /**
+     * The resolved result of the Promise. Immutable once set with either a
+     * fulfillment value or rejection reason.
+     * @private {*}
+     */
+    this.result_ = undefined;
+
+    /**
+     * For Promises created by calling {@code then()}, the originating parent.
+     * @private {CancellablePromise}
+     */
+    this.parent_ = null;
+
+    /**
+     * The list of {@code onFulfilled} and {@code onRejected} callbacks added to
+     * this Promise by calls to {@code then()}.
+     * @private {Array.<CancellablePromise.CallbackEntry_>}
+     */
+    this.callbackEntries_ = null;
+
+    /**
+     * Whether the Promise is in the queue of Promises to execute.
+     * @private {boolean}
+     */
+    this.executing_ = false;
+
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      /**
+       * A timeout ID used when the {@code UNHANDLED_REJECTION_DELAY} is greater
+       * than 0 milliseconds. The ID is set when the Promise is rejected, and
+       * cleared only if an {@code onRejected} callback is invoked for the
+       * Promise (or one of its descendants) before the delay is exceeded.
+       *
+       * If the rejection is not handled before the timeout completes, the
+       * rejection reason is passed to the unhandled rejection handler.
+       * @private {number}
+       */
+      this.unhandledRejectionId_ = 0;
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      /**
+       * When the {@code UNHANDLED_REJECTION_DELAY} is set to 0 milliseconds, a
+       * boolean that is set if the Promise is rejected, and reset to false if an
+       * {@code onRejected} callback is invoked for the Promise (or one of its
+       * descendants). If the rejection is not handled before the next timestep,
+       * the rejection reason is passed to the unhandled rejection handler.
+       * @private {boolean}
+       */
+      this.hadUnhandledRejection_ = false;
+    }
+
+    try {
+      var self = this;
+      resolver.call(opt_context, function (value) {
+        self.resolve_(CancellablePromise.State_.FULFILLED, value);
+      }, function (reason) {
+        self.resolve_(CancellablePromise.State_.REJECTED, reason);
+      });
+    } catch (e) {
+      this.resolve_(CancellablePromise.State_.REJECTED, e);
+    }
+  };
+
+  /**
+   * @define {number} The delay in milliseconds before a rejected Promise's reason
+   * is passed to the rejection handler. By default, the rejection handler
+   * rethrows the rejection reason so that it appears in the developer console or
+   * {@code window.onerror} handler.
+   *
+   * Rejections are rethrown as quickly as possible by default. A negative value
+   * disables rejection handling entirely.
+   */
+  CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
+
+  /**
+   * The possible internal states for a Promise. These states are not directly
+   * observable to external callers.
+   * @enum {number}
+   * @private
+   */
+  CancellablePromise.State_ = {
+    /** The Promise is waiting for resolution. */
+    PENDING: 0,
+
+    /** The Promise is blocked waiting for the result of another Thenable. */
+    BLOCKED: 1,
+
+    /** The Promise has been resolved with a fulfillment value. */
+    FULFILLED: 2,
+
+    /** The Promise has been resolved with a rejection reason. */
+    REJECTED: 3
+  };
+
+  /**
+   * Typedef for entries in the callback chain. Each call to {@code then},
+   * {@code thenCatch}, or {@code thenAlways} creates an entry containing the
+   * functions that may be invoked once the Promise is resolved.
+   *
+   * @typedef {{
+   *   child: CancellablePromise,
+   *   onFulfilled: function(*),
+   *   onRejected: function(*)
+   * }}
+   * @private
+   */
+  CancellablePromise.CallbackEntry_ = null;
+
+  /**
+   * @param {(TYPE|Thenable.<TYPE>|Thenable)=} opt_value
+   * @return {!CancellablePromise.<TYPE>} A new Promise that is immediately resolved
+   *     with the given value.
+   * @template TYPE
+   */
+  CancellablePromise.resolve = function (opt_value) {
+    return new CancellablePromise(function (resolve) {
+      resolve(opt_value);
+    });
+  };
+
+  /**
+   * @param {*=} opt_reason
+   * @return {!CancellablePromise} A new Promise that is immediately rejected with the
+   *     given reason.
+   */
+  CancellablePromise.reject = function (opt_reason) {
+    return new CancellablePromise(function (resolve, reject) {
+      reject(opt_reason);
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<TYPE>} A Promise that receives the result of the
+   *     first Promise (or Promise-like) input to complete.
+   * @template TYPE
+   */
+  CancellablePromise.race = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      if (!promises.length) {
+        resolve(undefined);
+      }
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(resolve, reject);
+      }
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<!Array.<TYPE>>} A Promise that receives a list of
+   *     every fulfilled value once every input Promise (or Promise-like) is
+   *     successfully fulfilled, or is rejected by the first rejection result.
+   * @template TYPE
+   */
+  CancellablePromise.all = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      var toFulfill = promises.length;
+      var values = [];
+
+      if (!toFulfill) {
+        resolve(values);
+        return;
+      }
+
+      var onFulfill = function onFulfill(index, value) {
+        toFulfill--;
+        values[index] = value;
+        if (toFulfill === 0) {
+          resolve(values);
+        }
+      };
+
+      var onReject = function onReject(reason) {
+        reject(reason);
+      };
+
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(partial(onFulfill, i), onReject);
+      }
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<TYPE>} A Promise that receives the value of
+   *     the first input to be fulfilled, or is rejected with a list of every
+   *     rejection reason if all inputs are rejected.
+   * @template TYPE
+   */
+  CancellablePromise.firstFulfilled = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      var toReject = promises.length;
+      var reasons = [];
+
+      if (!toReject) {
+        resolve(undefined);
+        return;
+      }
+
+      var onFulfill = function onFulfill(value) {
+        resolve(value);
+      };
+
+      var onReject = function onReject(index, reason) {
+        toReject--;
+        reasons[index] = reason;
+        if (toReject === 0) {
+          reject(reasons);
+        }
+      };
+
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(onFulfill, partial(onReject, i));
+      }
+    });
+  };
+
+  /**
+   * Adds callbacks that will operate on the result of the Promise, returning a
+   * new child Promise.
+   *
+   * If the Promise is fulfilled, the {@code onFulfilled} callback will be invoked
+   * with the fulfillment value as argument, and the child Promise will be
+   * fulfilled with the return value of the callback. If the callback throws an
+   * exception, the child Promise will be rejected with the thrown value instead.
+   *
+   * If the Promise is rejected, the {@code onRejected} callback will be invoked
+   * with the rejection reason as argument, and the child Promise will be rejected
+   * with the return value (or thrown value) of the callback.
+   *
+   * @override
+   */
+  CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
+    return this.addChildPromise_(core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+  };
+  Thenable.addImplementation(CancellablePromise);
+
+  /**
+   * Adds a callback that will be invoked whether the Promise is fulfilled or
+   * rejected. The callback receives no argument, and no new child Promise is
+   * created. This is useful for ensuring that cleanup takes place after certain
+   * asynchronous operations. Callbacks added with {@code thenAlways} will be
+   * executed in the same order with other calls to {@code then},
+   * {@code thenAlways}, or {@code thenCatch}.
+   *
+   * Since it does not produce a new child Promise, cancellation propagation is
+   * not prevented by adding callbacks with {@code thenAlways}. A Promise that has
+   * a cleanup handler added with {@code thenAlways} will be canceled if all of
+   * its children created by {@code then} (or {@code thenCatch}) are canceled.
+   *
+   * @param {function(this:THIS): void} onResolved A function that will be invoked
+   *     when the Promise is resolved.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     in the global scope.
+   * @return {!CancellablePromise.<TYPE>} This Promise, for chaining additional calls.
+   * @template THIS
+   */
+  CancellablePromise.prototype.thenAlways = function (onResolved, opt_context) {
+    var callback = function callback() {
+      try {
+        // Ensure that no arguments are passed to onResolved.
+        onResolved.call(opt_context);
+      } catch (err) {
+        CancellablePromise.handleRejection_.call(null, err);
+      }
+    };
+
+    this.addCallbackEntry_({
+      child: null,
+      onRejected: callback,
+      onFulfilled: callback
+    });
+    return this;
+  };
+
+  /**
+   * Adds a callback that will be invoked only if the Promise is rejected. This
+   * is equivalent to {@code then(null, onRejected)}.
+   *
+   * @param {!function(this:THIS, *): *} onRejected A function that will be
+   *     invoked with the rejection reason if the Promise is rejected.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     in the global scope.
+   * @return {!CancellablePromise} A new Promise that will receive the result of the
+   *     callback.
+   * @template THIS
+   */
+  CancellablePromise.prototype.thenCatch = function (onRejected, opt_context) {
+    return this.addChildPromise_(null, onRejected, opt_context);
+  };
+
+  /**
+   * Alias of {@link CancellablePromise.prototype.thenCatch}
+   */
+  CancellablePromise.prototype.catch = CancellablePromise.prototype.thenCatch;
+
+  /**
+   * Cancels the Promise if it is still pending by rejecting it with a cancel
+   * Error. No action is performed if the Promise is already resolved.
+   *
+   * All child Promises of the canceled Promise will be rejected with the same
+   * cancel error, as with normal Promise rejection. If the Promise to be canceled
+   * is the only child of a pending Promise, the parent Promise will also be
+   * canceled. Cancellation may propagate upward through multiple generations.
+   *
+   * @param {string=} opt_message An optional debugging message for describing the
+   *     cancellation reason.
+   */
+  CancellablePromise.prototype.cancel = function (opt_message) {
+    if (this.state_ === CancellablePromise.State_.PENDING) {
+      async.run(function () {
+        var err = new CancellablePromise.CancellationError(opt_message);
+        err.IS_CANCELLATION_ERROR = true;
+        this.cancelInternal_(err);
+      }, this);
+    }
+  };
+
+  /**
+   * Cancels this Promise with the given error.
+   *
+   * @param {!Error} err The cancellation error.
+   * @private
+   */
+  CancellablePromise.prototype.cancelInternal_ = function (err) {
+    if (this.state_ === CancellablePromise.State_.PENDING) {
+      if (this.parent_) {
+        // Cancel the Promise and remove it from the parent's child list.
+        this.parent_.cancelChild_(this, err);
+      } else {
+        this.resolve_(CancellablePromise.State_.REJECTED, err);
+      }
+    }
+  };
+
+  /**
+   * Cancels a child Promise from the list of callback entries. If the Promise has
+   * not already been resolved, reject it with a cancel error. If there are no
+   * other children in the list of callback entries, propagate the cancellation
+   * by canceling this Promise as well.
+   *
+   * @param {!CancellablePromise} childPromise The Promise to cancel.
+   * @param {!Error} err The cancel error to use for rejecting the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.cancelChild_ = function (childPromise, err) {
+    if (!this.callbackEntries_) {
+      return;
+    }
+    var childCount = 0;
+    var childIndex = -1;
+
+    // Find the callback entry for the childPromise, and count whether there are
+    // additional child Promises.
+    for (var i = 0, entry; entry = this.callbackEntries_[i]; i++) {
+      var child = entry.child;
+      if (child) {
+        childCount++;
+        if (child === childPromise) {
+          childIndex = i;
+        }
+        if (childIndex >= 0 && childCount > 1) {
+          break;
+        }
+      }
+    }
+
+    // If the child Promise was the only child, cancel this Promise as well.
+    // Otherwise, reject only the child Promise with the cancel error.
+    if (childIndex >= 0) {
+      if (this.state_ === CancellablePromise.State_.PENDING && childCount === 1) {
+        this.cancelInternal_(err);
+      } else {
+        var callbackEntry = this.callbackEntries_.splice(childIndex, 1)[0];
+        this.executeCallback_(callbackEntry, CancellablePromise.State_.REJECTED, err);
+      }
+    }
+  };
+
+  /**
+   * Adds a callback entry to the current Promise, and schedules callback
+   * execution if the Promise has already been resolved.
+   *
+   * @param {CancellablePromise.CallbackEntry_} callbackEntry Record containing
+   *     {@code onFulfilled} and {@code onRejected} callbacks to execute after
+   *     the Promise is resolved.
+   * @private
+   */
+  CancellablePromise.prototype.addCallbackEntry_ = function (callbackEntry) {
+    if ((!this.callbackEntries_ || !this.callbackEntries_.length) && (this.state_ === CancellablePromise.State_.FULFILLED || this.state_ === CancellablePromise.State_.REJECTED)) {
+      this.scheduleCallbacks_();
+    }
+    if (!this.callbackEntries_) {
+      this.callbackEntries_ = [];
+    }
+    this.callbackEntries_.push(callbackEntry);
+  };
+
+  /**
+   * Creates a child Promise and adds it to the callback entry list. The result of
+   * the child Promise is determined by the state of the parent Promise and the
+   * result of the {@code onFulfilled} or {@code onRejected} callbacks as
+   * specified in the Promise resolution procedure.
+   *
+   * @see http://promisesaplus.com/#the__method
+   *
+   * @param {?function(this:THIS, TYPE):
+   *          (RESULT|CancellablePromise.<RESULT>|Thenable)} onFulfilled A callback that
+   *     will be invoked if the Promise is fullfilled, or null.
+   * @param {?function(this:THIS, *): *} onRejected A callback that will be
+   *     invoked if the Promise is rejected, or null.
+   * @param {THIS=} opt_context An optional execution context for the callbacks.
+   *     in the default calling context.
+   * @return {!CancellablePromise} The child Promise.
+   * @template RESULT,THIS
+   * @private
+   */
+  CancellablePromise.prototype.addChildPromise_ = function (onFulfilled, onRejected, opt_context) {
+
+    var callbackEntry = {
+      child: null,
+      onFulfilled: null,
+      onRejected: null
+    };
+
+    callbackEntry.child = new CancellablePromise(function (resolve, reject) {
+      // Invoke onFulfilled, or resolve with the parent's value if absent.
+      callbackEntry.onFulfilled = onFulfilled ? function (value) {
+        try {
+          var result = onFulfilled.call(opt_context, value);
+          resolve(result);
+        } catch (err) {
+          reject(err);
+        }
+      } : resolve;
+
+      // Invoke onRejected, or reject with the parent's reason if absent.
+      callbackEntry.onRejected = onRejected ? function (reason) {
+        try {
+          var result = onRejected.call(opt_context, reason);
+          if (!core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
+            // Propagate cancellation to children if no other result is returned.
+            reject(reason);
+          } else {
+            resolve(result);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      } : reject;
+    });
+
+    callbackEntry.child.parent_ = this;
+    this.addCallbackEntry_(
+    /** @type {CancellablePromise.CallbackEntry_} */callbackEntry);
+    return callbackEntry.child;
+  };
+
+  /**
+   * Unblocks the Promise and fulfills it with the given value.
+   *
+   * @param {TYPE} value
+   * @private
+   */
+  CancellablePromise.prototype.unblockAndFulfill_ = function (value) {
+    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
+      throw new Error('CancellablePromise is not blocked.');
+    }
+    this.state_ = CancellablePromise.State_.PENDING;
+    this.resolve_(CancellablePromise.State_.FULFILLED, value);
+  };
+
+  /**
+   * Unblocks the Promise and rejects it with the given rejection reason.
+   *
+   * @param {*} reason
+   * @private
+   */
+  CancellablePromise.prototype.unblockAndReject_ = function (reason) {
+    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
+      throw new Error('CancellablePromise is not blocked.');
+    }
+    this.state_ = CancellablePromise.State_.PENDING;
+    this.resolve_(CancellablePromise.State_.REJECTED, reason);
+  };
+
+  /**
+   * Attempts to resolve a Promise with a given resolution state and value. This
+   * is a no-op if the given Promise has already been resolved.
+   *
+   * If the given result is a Thenable (such as another Promise), the Promise will
+   * be resolved with the same state and result as the Thenable once it is itself
+   * resolved.
+   *
+   * If the given result is not a Thenable, the Promise will be fulfilled or
+   * rejected with that result based on the given state.
+   *
+   * @see http://promisesaplus.com/#the_promise_resolution_procedure
+   *
+   * @param {CancellablePromise.State_} state
+   * @param {*} x The result to apply to the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.resolve_ = function (state, x) {
+    if (this.state_ !== CancellablePromise.State_.PENDING) {
+      return;
+    }
+
+    if (this === x) {
+      state = CancellablePromise.State_.REJECTED;
+      x = new TypeError('CancellablePromise cannot resolve to itself');
+    } else if (Thenable.isImplementedBy(x)) {
+      x = /** @type {!Thenable} */x;
+      this.state_ = CancellablePromise.State_.BLOCKED;
+      x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
+      return;
+    } else if (core.isObject(x)) {
+      try {
+        var then = x.then;
+        if (core.isFunction(then)) {
+          this.tryThen_(x, then);
+          return;
+        }
+      } catch (e) {
+        state = CancellablePromise.State_.REJECTED;
+        x = e;
+      }
+    }
+
+    this.result_ = x;
+    this.state_ = state;
+    this.scheduleCallbacks_();
+
+    if (state === CancellablePromise.State_.REJECTED && !x.IS_CANCELLATION_ERROR) {
+      CancellablePromise.addUnhandledRejection_(this, x);
+    }
+  };
+
+  /**
+   * Attempts to call the {@code then} method on an object in the hopes that it is
+   * a Promise-compatible instance. This allows interoperation between different
+   * Promise implementations, however a non-compliant object may cause a Promise
+   * to hang indefinitely. If the {@code then} method throws an exception, the
+   * dependent Promise will be rejected with the thrown value.
+   *
+   * @see http://promisesaplus.com/#point-70
+   *
+   * @param {Thenable} thenable An object with a {@code then} method that may be
+   *     compatible with the Promise/A+ specification.
+   * @param {!Function} then The {@code then} method of the Thenable object.
+   * @private
+   */
+  CancellablePromise.prototype.tryThen_ = function (thenable, then) {
+    this.state_ = CancellablePromise.State_.BLOCKED;
+    var promise = this;
+    var called = false;
+
+    var resolve = function resolve(value) {
+      if (!called) {
+        called = true;
+        promise.unblockAndFulfill_(value);
+      }
+    };
+
+    var reject = function reject(reason) {
+      if (!called) {
+        called = true;
+        promise.unblockAndReject_(reason);
+      }
+    };
+
+    try {
+      then.call(thenable, resolve, reject);
+    } catch (e) {
+      reject(e);
+    }
+  };
+
+  /**
+   * Executes the pending callbacks of a resolved Promise after a timeout.
+   *
+   * Section 2.2.4 of the Promises/A+ specification requires that Promise
+   * callbacks must only be invoked from a call stack that only contains Promise
+   * implementation code, which we accomplish by invoking callback execution after
+   * a timeout. If {@code startExecution_} is called multiple times for the same
+   * Promise, the callback chain will be evaluated only once. Additional callbacks
+   * may be added during the evaluation phase, and will be executed in the same
+   * event loop.
+   *
+   * All Promises added to the waiting list during the same browser event loop
+   * will be executed in one batch to avoid using a separate timeout per Promise.
+   *
+   * @private
+   */
+  CancellablePromise.prototype.scheduleCallbacks_ = function () {
+    if (!this.executing_) {
+      this.executing_ = true;
+      async.run(this.executeCallbacks_, this);
+    }
+  };
+
+  /**
+   * Executes all pending callbacks for this Promise.
+   *
+   * @private
+   */
+  CancellablePromise.prototype.executeCallbacks_ = function () {
+    while (this.callbackEntries_ && this.callbackEntries_.length) {
+      var entries = this.callbackEntries_;
+      this.callbackEntries_ = [];
+
+      for (var i = 0; i < entries.length; i++) {
+        this.executeCallback_(entries[i], this.state_, this.result_);
+      }
+    }
+    this.executing_ = false;
+  };
+
+  /**
+   * Executes a pending callback for this Promise. Invokes an {@code onFulfilled}
+   * or {@code onRejected} callback based on the resolved state of the Promise.
+   *
+   * @param {!CancellablePromise.CallbackEntry_} callbackEntry An entry containing the
+   *     onFulfilled and/or onRejected callbacks for this step.
+   * @param {CancellablePromise.State_} state The resolution status of the Promise,
+   *     either FULFILLED or REJECTED.
+   * @param {*} result The resolved result of the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.executeCallback_ = function (callbackEntry, state, result) {
+    if (state === CancellablePromise.State_.FULFILLED) {
+      callbackEntry.onFulfilled(result);
+    } else {
+      this.removeUnhandledRejection_();
+      callbackEntry.onRejected(result);
+    }
+  };
+
+  /**
+   * Marks this rejected Promise as having being handled. Also marks any parent
+   * Promises in the rejected state as handled. The rejection handler will no
+   * longer be invoked for this Promise (if it has not been called already).
+   *
+   * @private
+   */
+  CancellablePromise.prototype.removeUnhandledRejection_ = function () {
+    var p;
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      for (p = this; p && p.unhandledRejectionId_; p = p.parent_) {
+        clearTimeout(p.unhandledRejectionId_);
+        p.unhandledRejectionId_ = 0;
+      }
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      for (p = this; p && p.hadUnhandledRejection_; p = p.parent_) {
+        p.hadUnhandledRejection_ = false;
+      }
+    }
+  };
+
+  /**
+   * Marks this rejected Promise as unhandled. If no {@code onRejected} callback
+   * is called for this Promise before the {@code UNHANDLED_REJECTION_DELAY}
+   * expires, the reason will be passed to the unhandled rejection handler. The
+   * handler typically rethrows the rejection reason so that it becomes visible in
+   * the developer console.
+   *
+   * @param {!CancellablePromise} promise The rejected Promise.
+   * @param {*} reason The Promise rejection reason.
+   * @private
+   */
+  CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      promise.unhandledRejectionId_ = setTimeout(function () {
+        CancellablePromise.handleRejection_.call(null, reason);
+      }, CancellablePromise.UNHANDLED_REJECTION_DELAY);
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      promise.hadUnhandledRejection_ = true;
+      async.run(function () {
+        if (promise.hadUnhandledRejection_) {
+          CancellablePromise.handleRejection_.call(null, reason);
+        }
+      });
+    }
+  };
+
+  /**
+   * A method that is invoked with the rejection reasons for Promises that are
+   * rejected but have no {@code onRejected} callbacks registered yet.
+   * @type {function(*)}
+   * @private
+   */
+  CancellablePromise.handleRejection_ = async.throwException;
+
+  /**
+   * Sets a handler that will be called with reasons from unhandled rejected
+   * Promises. If the rejected Promise (or one of its descendants) has an
+   * {@code onRejected} callback registered, the rejection will be considered
+   * handled, and the rejection handler will not be called.
+   *
+   * By default, unhandled rejections are rethrown so that the error may be
+   * captured by the developer console or a {@code window.onerror} handler.
+   *
+   * @param {function(*)} handler A function that will be called with reasons from
+   *     rejected Promises. Defaults to {@code async.throwException}.
+   */
+  CancellablePromise.setUnhandledRejectionHandler = function (handler) {
+    CancellablePromise.handleRejection_ = handler;
+  };
+
+  /**
+   * Error used as a rejection reason for canceled Promises.
+   *
+   * @param {string=} opt_message
+   * @constructor
+   * @extends {Error}
+   * @final
+   */
+  CancellablePromise.CancellationError = function (_Error) {
+    babelHelpers.inherits(_class, _Error);
+
+    function _class(opt_message) {
+      babelHelpers.classCallCheck(this, _class);
+
+      var _this = babelHelpers.possibleConstructorReturn(this, _Error.call(this, opt_message));
+
+      if (opt_message) {
+        _this.message = opt_message;
+      }
+      return _this;
+    }
+
+    return _class;
+  }(Error);
+
+  /** @override */
+  CancellablePromise.CancellationError.prototype.name = 'cancel';
+
+  this.metalNamed.Promise = {};
+  this.metalNamed.Promise.CancellablePromise = CancellablePromise;
+  this.metal.Promise = CancellablePromise;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var dom = this.metal.dom;
+	var CancellablePromise = this.metal.Promise;
+	var Component = this.metal.component;
+	var EventHandler = this.metalNamed.events.EventHandler;
+
+	/*
+  * AutocompleteBase component.
+  */
+
+	var AutocompleteBase = function (_Component) {
+		babelHelpers.inherits(AutocompleteBase, _Component);
+
+		/**
+   * @inheritDoc
+   */
+
+		function AutocompleteBase(opt_config) {
+			babelHelpers.classCallCheck(this, AutocompleteBase);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
+
+			_this.eventHandler_ = new EventHandler();
+			_this.on('select', _this.select);
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		AutocompleteBase.prototype.attached = function attached() {
+			if (this.inputElement) {
+				this.eventHandler_.add(dom.on(this.inputElement, 'input', this.handleUserInput_.bind(this)));
+			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		AutocompleteBase.prototype.detached = function detached() {
+			this.eventHandler_.removeAllListeners();
+		};
+
+		/**
+   * Handles the user input.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		AutocompleteBase.prototype.handleUserInput_ = function handleUserInput_() {
+			this.request(this.inputElement.value);
+		};
+
+		/**
+   * Cancels pending request and starts a request for the user input.
+   * @param {string} query
+   * @return {!CancellablePromise} Deferred request.
+   */
+
+
+		AutocompleteBase.prototype.request = function request(query) {
+			var self = this;
+
+			if (this.pendingRequest) {
+				this.pendingRequest.cancel('Cancelled by another request');
+			}
+
+			var deferredData = self.data(query);
+			if (!core.isPromise(deferredData)) {
+				deferredData = CancellablePromise.resolve(deferredData);
+			}
+
+			this.pendingRequest = deferredData.then(function (data) {
+				if (Array.isArray(data)) {
+					return data.map(self.format.bind(self)).filter(function (val) {
+						return core.isDefAndNotNull(val);
+					});
+				}
+			});
+
+			return this.pendingRequest;
+		};
+
+		/**
+   * Normalizes the provided data value. If the value is not a function, the
+   * value will be wrapped in a function which returns the provided value.
+   * @param {Array.<object>|Promise|function} val The provided value which
+   *     have to be normalized.
+   * @protected
+   */
+
+
+		AutocompleteBase.prototype.setData_ = function setData_(val) {
+			if (!core.isFunction(val)) {
+				return function () {
+					return val;
+				};
+			}
+			return val;
+		};
+
+		return AutocompleteBase;
+	}(Component);
+
+	/**
+  * AutocompleteBase attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+
+	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
+	AutocompleteBase.ATTRS = {
+		/**
+   * Function or array, which have to return the results from the query.
+   * If function, it should return an `array` or a `Promise`. In case of
+   * Promise, it should be resolved with an array containing the results.
+   * @type {Array.<object>|function}
+   */
+		data: {
+			setter: 'setData_'
+		},
+
+		/**
+   * Function that formats each item of the data.
+   * @type {function}
+   * @default Identity function.
+   */
+		format: {
+			value: core.identityFunction,
+			validator: core.isFunction
+		},
+
+		/**
+   * The element which will be used source for the data queries.
+   * @type {DOMElement|string}
+   */
+		inputElement: {
+			setter: dom.toElement
+		},
+
+		/**
+   * Handles item selection. It will receive two parameters - the selected
+   * value from the user and the current value from the input element.
+   * @type {function}
+   * @default
+   *   function(selectedValue) {
+   *	   this.inputElement.value = selectedValue;
+   *	   this.inputElement.focus();
+   *   }
+   */
+		select: {
+			value: function value(selectedValue) {
+				this.inputElement.value = selectedValue.textPrimary;
+				this.inputElement.focus();
+			},
+			validator: core.isFunction
+		},
+
+		/**
+   * Indicates if the component is visible or not.
+   * @type {boolean}
+   */
+		visible: {
+			validator: core.isBoolean,
+			value: false
+		}
+	};
+
+	this.metal.AutocompleteBase = AutocompleteBase;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Autocomplete.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Autocomplete.
+   */
+
+  if (typeof Templates.Autocomplete == 'undefined') {
+    Templates.Autocomplete = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Autocomplete.render = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="autocomplete autocomplete-list component ' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + soy.$$escapeHtml(Templates.List.render({ events: { itemSelected: opt_data.id + ':onListItemSelected_' }, id: opt_data.id + '-list' }, null, opt_ijData)) + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.Autocomplete.render.soyTemplateName = 'Templates.Autocomplete.render';
+  }
+
+  Templates.Autocomplete.render.params = ["id"];
+
+  var Autocomplete = function (_Component) {
+    babelHelpers.inherits(Autocomplete, _Component);
+
+    function Autocomplete() {
+      babelHelpers.classCallCheck(this, Autocomplete);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Autocomplete;
+  }(Component);
+
+  Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
+
+  Autocomplete.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Autocomplete');
+  this.metal.Autocomplete = Autocomplete;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from List.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.List.
+   */
+
+  if (typeof Templates.List == 'undefined') {
+    Templates.List = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.List.render = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
+  };
+  if (goog.DEBUG) {
+    Templates.List.render.soyTemplateName = 'Templates.List.render';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.List.items = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" class="list-group" data-onclick="handleClick">';
+    if (opt_data.itemsHtml != null) {
+      output += soy.$$escapeHtml(opt_data.itemsHtml);
+    } else {
+      var itemList18 = opt_data.items;
+      var itemListLen18 = itemList18.length;
+      for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
+        var itemData18 = itemList18[itemIndex18];
+        output += Templates.ListItem.render({ id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18 }, null, opt_ijData);
+      }
+    }
+    output += '</ul>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.List.items.soyTemplateName = 'Templates.List.items';
+  }
+
+  Templates.List.render.params = ["id"];
+  Templates.List.items.params = ["id", "items", "itemsHtml"];
+
+  var List = function (_Component) {
+    babelHelpers.inherits(List, _Component);
+
+    function List() {
+      babelHelpers.classCallCheck(this, List);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return List;
+  }(Component);
+
+  List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
+
+  List.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('List');
+  this.metal.List = List;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from ListItem.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.ListItem.
+   */
+
+  if (typeof Templates.ListItem == 'undefined') {
+    Templates.ListItem = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ListItem.render = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
+  };
+  if (goog.DEBUG) {
+    Templates.ListItem.render.soyTemplateName = 'Templates.ListItem.render';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ListItem.item = function (opt_data, opt_ignored, opt_ijData) {
+    var output = (opt_data.item.avatar ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + (opt_data.item.textSecondary ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
+    if (opt_data.item.icons) {
+      output += '<div class="list-icons pull-right">';
+      var iconList56 = opt_data.item.icons;
+      var iconListLen56 = iconList56.length;
+      for (var iconIndex56 = 0; iconIndex56 < iconListLen56; iconIndex56++) {
+        var iconData56 = iconList56[iconIndex56];
+        output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData56) + '"></span>';
+      }
+      output += '</div>';
+    }
+    if (opt_data.item.iconsHtml) {
+      output += '<div class="list-icons pull-right">';
+      var iconHtmlList65 = opt_data.item.iconsHtml;
+      var iconHtmlListLen65 = iconHtmlList65.length;
+      for (var iconHtmlIndex65 = 0; iconHtmlIndex65 < iconHtmlListLen65; iconHtmlIndex65++) {
+        var iconHtmlData65 = iconHtmlList65[iconHtmlIndex65];
+        output += soy.$$escapeHtml(iconHtmlData65);
+      }
+      output += '</div>';
+    }
+    output += opt_data.item.label ? '<span class="label list-label pull-right ' + soy.$$escapeHtmlAttribute(opt_data.item.label['class']) + '">' + soy.$$escapeHtml(opt_data.item.label.content) + '</span>' : '';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
+  }
+
+  Templates.ListItem.render.params = ["id", "index", "item"];
+  Templates.ListItem.item.params = ["item"];
+
+  var ListItem = function (_Component) {
+    babelHelpers.inherits(ListItem, _Component);
+
+    function ListItem() {
+      babelHelpers.classCallCheck(this, ListItem);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return ListItem;
+  }(Component);
+
+  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
+
+  ListItem.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('ListItem');
+  this.metal.ListItem = ListItem;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  var ListItemBase = this.metal.ListItem;
+
+  /**
+   * List component.
+   */
+
+  var ListItem = function (_ListItemBase) {
+    babelHelpers.inherits(ListItem, _ListItemBase);
+
+    function ListItem(opt_config) {
+      babelHelpers.classCallCheck(this, ListItem);
+      return babelHelpers.possibleConstructorReturn(this, _ListItemBase.call(this, opt_config));
+    }
+
+    return ListItem;
+  }(ListItemBase);
+
+  /**
+   * Default list elementClasses.
+   * @default list
+   * @type {String}
+   * @static
+   */
+
+
+  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
+  ListItem.ELEMENT_CLASSES = 'listitem';
+
+  /**
+   * List attributes definition.
+   * @type {Object}
+   * @static
+   */
+  ListItem.ATTRS = {
+    item: {},
+
+    index: {
+      value: -1
+    }
+  };
+
+  this.metal.ListItem = ListItem;
+}).call(this);
+'use strict';
+
+(function () {
+	var dom = this.metal.dom;
+	var ListBase = this.metal.List;
+
+
+	/**
+  * List component.
+  */
+
+	var List = function (_ListBase) {
+		babelHelpers.inherits(List, _ListBase);
+
+		/**
+   * @inheritDoc
+   */
+
+		function List(opt_config) {
+			babelHelpers.classCallCheck(this, List);
+			return babelHelpers.possibleConstructorReturn(this, _ListBase.call(this, opt_config));
+		}
+
+		/**
+   * Handles click event on the list. The function fires an
+   * {@code itemSelected} event.
+   * @param {!Event} event The native click event
+   */
+
+
+		List.prototype.handleClick = function handleClick(event) {
+			var target = event.target;
+			while (target) {
+				if (dom.match(target, '.listitem')) {
+					break;
+				}
+				target = target.parentNode;
+			}
+			this.emit('itemSelected', target);
+		};
+
+		return List;
+	}(ListBase);
+
+	/**
+  * Default list elementClasses.
+  * @default list
+  * @type {string}
+  * @static
+  */
+
+
+	List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
+	List.ELEMENT_CLASSES = 'list';
+
+	/**
+  * List attributes definition.
+  * @type {!Object}
+  * @static
+  */
+	List.ATTRS = {
+		/**
+   * The list items. Each is represented by an object that can have the following keys:
+   *   - textPrimary: The item's main content.
+   *   - textSecondary: (Optional) The item's help content.
+   *   - icons: (Optional) A list of icon css classes to render on the right side.
+   *   - iconsHtml: (Optional) A list of icon css classes to render on the right side.
+   *   - avatar: (Optional) An object that specifies the avatar's content and, optionally, a css
+   *       class it should use.
+   * @type {!Array<!Object>}
+   * @default []
+   */
+		items: {
+			validator: Array.isArray,
+			valueFn: function valueFn() {
+				return [];
+			}
+		},
+
+		/**
+   * The list items as HTML to be added directly to the list.
+   * @type {string}
+   */
+		itemsHtml: {}
+	};
+
+	this.metal.List = List;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var debounce = this.metal.debounce;
+	var dom = this.metal.dom;
+	var Promise = this.metalNamed.Promise.CancellablePromise;
+	var Align = this.metalNamed.position.Align;
+	var AutocompleteBase = this.metal.AutocompleteBase;
+	var SoyRenderer = this.metalNamed.index.SoyRenderer;
+
+
+	/*
+  * Autocomplete component.
+  */
+
+	var Autocomplete = function (_AutocompleteBase) {
+		babelHelpers.inherits(Autocomplete, _AutocompleteBase);
+
+		function Autocomplete() {
+			babelHelpers.classCallCheck(this, Autocomplete);
+			return babelHelpers.possibleConstructorReturn(this, _AutocompleteBase.apply(this, arguments));
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Autocomplete.prototype.attached = function attached() {
+			_AutocompleteBase.prototype.attached.call(this);
+			this.on('click', function (event) {
+				return event.stopPropagation();
+			});
+			this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
+			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+			this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
+			if (this.visible) {
+				this.align();
+			}
+		};
+
+		/**
+   * Aligns main element to the input element.
+   */
+
+
+		Autocomplete.prototype.align = function align() {
+			this.element.style.width = this.inputElement.offsetWidth + 'px';
+			var position = Align.align(this.element, this.inputElement, Align.Bottom);
+
+			dom.removeClasses(this.element, this.positionCss_);
+			switch (position) {
+				case Align.Top:
+				case Align.TopLeft:
+				case Align.TopRight:
+					this.positionCss_ = 'autocomplete-top';
+					break;
+				case Align.Bottom:
+				case Align.BottomLeft:
+				case Align.BottomRight:
+					this.positionCss_ = 'autocomplete-bottom';
+					break;
+				default:
+					this.positionCss_ = null;
+
+			}
+			dom.addClasses(this.element, this.positionCss_);
+		};
+
+		/**
+   * Returns the `List` component being used to render the matched items.
+   * @return {!List}
+   */
+
+
+		Autocomplete.prototype.getList = function getList() {
+			return this.components[this.id + '-list'];
+		};
+
+		/**
+   * Handles document click in order to hide autocomplete. If input element is
+   * focused autocomplete will not hide.
+   * @param {!Event} event
+   */
+
+
+		Autocomplete.prototype.handleDocClick_ = function handleDocClick_() {
+			if (document.activeElement === this.inputElement) {
+				return;
+			}
+			this.visible = false;
+		};
+
+		/**
+   * Handles input focus.
+   * @param {!Event} event
+   */
+
+
+		Autocomplete.prototype.handleInputFocus_ = function handleInputFocus_() {
+			this.request(this.inputElement.value);
+		};
+
+		/**
+   * Handles window resize events. Realigns the autocomplete results list to
+   * the input field.
+   */
+
+
+		Autocomplete.prototype.handleWindowResize_ = function handleWindowResize_() {
+			if (this.visible) {
+				this.align();
+			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Autocomplete.prototype.request = function request(query) {
+			var self = this;
+			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
+				if (data) {
+					data.forEach(self.assertItemObjectStructure_);
+					self.getList().items = data;
+				}
+				self.visible = !!(data && data.length > 0);
+			});
+		};
+
+		/**
+   * Emits a `select` event with the information about the selected item and
+   * hides the element.
+   * @param {!Element} item The list selected item.
+   * @protected
+   */
+
+
+		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
+			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+			this.emit('select', this.getList().items[selectedIndex]);
+			this.visible = false;
+		};
+
+		/**
+   * Synchronization logic for `visible` attribute.
+   * @param {boolean} visible
+   */
+
+
+		Autocomplete.prototype.syncVisible = function syncVisible(visible) {
+			_AutocompleteBase.prototype.syncVisible.call(this, visible);
+
+			if (visible) {
+				this.align();
+			}
+		};
+
+		/**
+   * Asserts that formatted data is valid. Throws error if item is not in the
+   * valid syntax.
+   * @param {*} item
+   * @protected
+   */
+
+
+		Autocomplete.prototype.assertItemObjectStructure_ = function assertItemObjectStructure_(item) {
+			if (!core.isObject(item)) {
+				throw new Promise.CancellationError('Autocomplete item must be an object');
+			}
+			if (!item.hasOwnProperty('textPrimary')) {
+				throw new Promise.CancellationError('Autocomplete item must be an object with \'textPrimary\' key');
+			}
+		};
+
+		return Autocomplete;
+	}(AutocompleteBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+
+	Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
+	Autocomplete.ATTRS = {
+		/**
+   * Function that converts a given item to the format that should be used by
+   * the autocomplete.
+   * @type {!function()}
+   */
+		format: {
+			value: function value(item) {
+				return core.isString(item) ? {
+					textPrimary: item
+				} : item;
+			}
+		}
+	};
+
+	/**
+  * The class that will be used as this component's renderer.
+  * @type {!Function}
+  * @static
+  */
+	Autocomplete.RENDERER = SoyRenderer;
+
+	this.metal.Autocomplete = Autocomplete;
+}).call(this);
+'use strict';
+
+(function () {
+  var Autocomplete = this.metal.Autocomplete;
+  var AutocompleteBase = this.metal.AutocompleteBase;
+  this.metal.autocomplete = Autocomplete;
+  this.metalNamed.autocomplete = {};
+  this.metalNamed.autocomplete.Autocomplete = Autocomplete;
+  this.metalNamed.autocomplete.AutocompleteBase = AutocompleteBase;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from ButtonGroup.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.ButtonGroup.
+   */
+
+  if (typeof Templates.ButtonGroup == 'undefined') {
+    Templates.ButtonGroup = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ButtonGroup.render = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="btn-group component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">';
+    var buttonList8 = opt_data.buttons;
+    var buttonListLen8 = buttonList8.length;
+    for (var buttonIndex8 = 0; buttonIndex8 < buttonListLen8; buttonIndex8++) {
+      var buttonData8 = buttonList8[buttonIndex8];
+      var type__soy9 = buttonData8.type ? buttonData8.type : 'button';
+      var cssClass__soy10 = buttonData8.cssClass ? buttonData8.cssClass : 'btn btn-default';
+      output += '<button type="' + soy.$$escapeHtmlAttribute(type__soy9) + '" class="' + soy.$$escapeHtmlAttribute(cssClass__soy10) + soy.$$escapeHtmlAttribute(Templates.ButtonGroup.selectedClass({ label: buttonData8.label, selected: opt_data.selected }, null, opt_ijData)) + '" data-index="' + soy.$$escapeHtmlAttribute(buttonIndex8) + '" data-onclick="handleClick_"><span class="btn-group-label">' + soy.$$escapeHtml(buttonData8.label ? buttonData8.label : '') + '</span>' + (buttonData8.icon ? '<span class="' + soy.$$escapeHtmlAttribute(buttonData8.icon) + '"></span>' : '') + '</button>';
+    }
+    output += '</div>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.ButtonGroup.render.soyTemplateName = 'Templates.ButtonGroup.render';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.ButtonGroup.selectedClass = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '';
+    if (opt_data.selected) {
+      var selectedValueList34 = opt_data.selected;
+      var selectedValueListLen34 = selectedValueList34.length;
+      for (var selectedValueIndex34 = 0; selectedValueIndex34 < selectedValueListLen34; selectedValueIndex34++) {
+        var selectedValueData34 = selectedValueList34[selectedValueIndex34];
+        output += selectedValueData34 == opt_data.label ? ' btn-group-selected' : '';
+      }
+    }
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.ButtonGroup.selectedClass.soyTemplateName = 'Templates.ButtonGroup.selectedClass';
+  }
+
+  Templates.ButtonGroup.render.params = ["buttons", "id"];
+  Templates.ButtonGroup.selectedClass.private = true;
+
+  var ButtonGroup = function (_Component) {
+    babelHelpers.inherits(ButtonGroup, _Component);
+
+    function ButtonGroup() {
+      babelHelpers.classCallCheck(this, ButtonGroup);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return ButtonGroup;
+  }(Component);
+
+  ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
+
+  ButtonGroup.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('ButtonGroup');
+  this.metal.ButtonGroup = ButtonGroup;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var dom = this.metal.dom;
+	var ButtonGroupBase = this.metal.ButtonGroup;
+
+	/**
+  * Responsible for handling groups of buttons.
+  */
+
+	var ButtonGroup = function (_ButtonGroupBase) {
+		babelHelpers.inherits(ButtonGroup, _ButtonGroupBase);
+
+		/**
+   * @inheritDoc
+   */
+
+		function ButtonGroup(opt_config) {
+			babelHelpers.classCallCheck(this, ButtonGroup);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _ButtonGroupBase.call(this, opt_config));
+
+			_this.buttonElements_ = null;
+
+			_this.on('selectedChanged', _this.defaultSelectedChanged_, true);
+			return _this;
+		}
+
+		/**
+   * The default behavior of the `selectedChanged` event. Adds or removes the CSS
+   * class defined by `ButtonGroup.SELECTED_CLASS` to each button.
+   * @param {!Object} event
+   * @protected
+   */
+
+
+		ButtonGroup.prototype.defaultSelectedChanged_ = function defaultSelectedChanged_(event) {
+			for (var i = 0; i < this.buttonElements_.length; i++) {
+				if (event.newVal.indexOf(this.buttons[i].label) !== -1) {
+					dom.addClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
+				} else {
+					dom.removeClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
+				}
+			}
+		};
+
+		/**
+   * Handles a `click` event fired on one of the buttons. Appropriately selects
+   * or deselects the clicked button.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		ButtonGroup.prototype.handleClick_ = function handleClick_(event) {
+			var button = event.delegateTarget;
+			var index = button.getAttribute('data-index');
+			var selectedIndex = this.selected.indexOf(this.buttons[index].label);
+			if (selectedIndex === -1) {
+				this.selected.push(this.buttons[index].label);
+				this.selected = this.selected;
+			} else if (this.selected.length > this.minSelected) {
+				this.selected.splice(selectedIndex, 1);
+				this.selected = this.selected;
+			}
+		};
+
+		/**
+   * Setter function for the `selected` attribute. Checks if the minimum number
+   * of buttons is selected. If not, the remaining number of buttons needed to
+   * reach the minimum will be selected.
+   * @param {!Object<number, boolean>|!Array<string>} selected
+   * @return {!Object<number, boolean>}
+   * @protected
+   */
+
+
+		ButtonGroup.prototype.setterSelectedFn_ = function setterSelectedFn_(selected) {
+			var minSelected = Math.min(this.minSelected, this.buttons.length);
+			var i = 0;
+			while (selected.length < minSelected) {
+				if (selected.indexOf(this.buttons[i].label) === -1) {
+					selected.push(this.buttons[i].label);
+				}
+				i++;
+			}
+			return selected;
+		};
+
+		/**
+   * Called whenever the `buttons` attr changes, as well as on the first
+   * render. This just stores the new button elements for later use.
+   */
+
+
+		ButtonGroup.prototype.syncButtons = function syncButtons() {
+			this.buttonElements_ = this.element.querySelectorAll('button');
+		};
+
+		return ButtonGroup;
+	}(ButtonGroupBase);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+
+	ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
+	ButtonGroup.ATTRS = {
+		/**
+   * Configuration for the buttons that should be rendered in this group.
+   * Each button config should be given as an object. Supported options are:
+   * label, type and cssClass.
+   * @type {!Array<!Object>}
+   * @default []
+   */
+		buttons: {
+			validator: function validator(val) {
+				return val instanceof Array;
+			},
+			valueFn: function valueFn() {
+				return [];
+			}
+		},
+
+		/**
+   * The minimum number of buttons that need to be selected at a time. If the
+   * minimum number of buttons is not already initially selected, this will
+   * automaticaly select the first `minSelected` buttons.
+   * @type {number}
+   * @default 0
+   */
+		minSelected: {
+			validator: core.isNumber,
+			value: 0,
+			writeOnce: true
+		},
+
+		/**
+   * An array with the labels of the buttons that should be selected.
+   * @type {!Array<string>}
+   */
+		selected: {
+			setter: 'setterSelectedFn_',
+			validator: Array.isArray,
+			valueFn: function valueFn() {
+				return [];
+			}
+		}
+	};
+
+	/**
+  * Default element classes.
+  * @type {string}
+  * @static
+  */
+	ButtonGroup.ELEMENT_CLASSES = 'btn-group';
+
+	/**
+  * The CSS class added to selected buttons.
+  * @type {string}
+  * @static
+  */
+	ButtonGroup.SELECTED_CLASS = 'btn-group-selected';
+
+	this.metal.ButtonGroup = ButtonGroup;
+}).call(this);
+'use strict';
+
+(function () {
+	var Attribute = this.metal.Attribute;
+	var core = this.metal.metal;
+	var dom = this.metal.dom;
+
+	/**
+  * Clipboard component.
+  */
+
+	var Clipboard = function (_Attribute) {
+		babelHelpers.inherits(Clipboard, _Attribute);
+
+		/**
+   * Delegates a click event to the passed selector.
+   */
+
+		function Clipboard(opt_config) {
+			babelHelpers.classCallCheck(this, Clipboard);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+
+			_this.listener_ = dom.on(_this.selector, 'click', function (e) {
+				return _this.initialize(e);
+			});
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Clipboard.prototype.disposeInternal = function disposeInternal() {
+			this.listener_.dispose();
+			this.listener_ = null;
+			if (this.clipboardAction_) {
+				this.clipboardAction_.dispose();
+				this.clipboardAction_ = null;
+			}
+		};
+
+		/**
+   * Defines a new `ClipboardAction` on each click event.
+   * @param {!Event} e
+   */
+
+
+		Clipboard.prototype.initialize = function initialize(e) {
+			if (this.clipboardAction_) {
+				this.clipboardAction_ = null;
+			}
+
+			this.clipboardAction_ = new ClipboardAction({
+				host: this,
+				action: this.action(e.delegateTarget),
+				target: this.target(e.delegateTarget),
+				text: this.text(e.delegateTarget),
+				trigger: e.delegateTarget
+			});
+		};
+
+		return Clipboard;
+	}(Attribute);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+
+	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
+	Clipboard.ATTRS = {
+		/**
+   * A function that returns the name of the clipboard action that should be done
+   * when for the given element (either 'copy' or 'cut').
+   * @type {!function(!Element)}
+   */
+		action: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return delegateTarget.getAttribute('data-action');
+			}
+		},
+
+		/**
+   * The selector for all elements that should be listened for clipboard actions.
+   * @type {string}
+   */
+		selector: {
+			value: '[data-clipboard]',
+			validator: core.isString
+		},
+
+		/**
+   * A function that returns an element that has the content to be copied to the
+   * clipboard.
+   * @type {!function(!Element)}
+   */
+		target: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return document.querySelector(delegateTarget.getAttribute('data-target'));
+			}
+		},
+
+		/**
+   * A function that returns the text to be copied to the clipboard.
+   * @type {!function(!Element)}
+   */
+		text: {
+			validator: core.isFunction,
+			value: function value(delegateTarget) {
+				return delegateTarget.getAttribute('data-text');
+			}
+		}
+	};
+
+	/**
+  * ClipboardAction component.
+  */
+
+	var ClipboardAction = function (_Attribute2) {
+		babelHelpers.inherits(ClipboardAction, _Attribute2);
+
+		/**
+   * Initializes selection either from a `text` or `target` attribute.
+   */
+
+		function ClipboardAction(opt_config) {
+			babelHelpers.classCallCheck(this, ClipboardAction);
+
+			var _this2 = babelHelpers.possibleConstructorReturn(this, _Attribute2.call(this, opt_config));
+
+			if (_this2.text) {
+				_this2.selectValue();
+			} else if (_this2.target) {
+				_this2.selectTarget();
+			}
+			return _this2;
+		}
+
+		/**
+   * Removes current selection and focus from `target` element.
+   */
+
+
+		ClipboardAction.prototype.clearSelection = function clearSelection() {
+			if (this.target) {
+				this.target.blur();
+			}
+
+			window.getSelection().removeAllRanges();
+		};
+
+		/**
+   * Executes the copy operation based on the current selection.
+   */
+
+
+		ClipboardAction.prototype.copyText = function copyText() {
+			var succeeded = undefined;
+
+			try {
+				succeeded = document.execCommand(this.action);
+			} catch (err) {
+				succeeded = false;
+			}
+
+			this.handleResult(succeeded);
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		ClipboardAction.prototype.disposeInternal = function disposeInternal() {
+			this.removeFakeElement();
+			_Attribute2.prototype.disposeInternal.call(this);
+		};
+
+		/**
+   * Emits an event based on the copy operation result.
+   * @param {boolean} succeeded
+   */
+
+
+		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
+			if (succeeded) {
+				this.host.emit('success', {
+					action: this.action,
+					text: this.selectedText,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			} else {
+				this.host.emit('error', {
+					action: this.action,
+					trigger: this.trigger,
+					clearSelection: this.clearSelection.bind(this)
+				});
+			}
+		};
+
+		/**
+   * Removes the fake element that was added to the document, as well as its
+   * listener.
+   */
+
+
+		ClipboardAction.prototype.removeFakeElement = function removeFakeElement() {
+			if (this.fake) {
+				dom.exitDocument(this.fake);
+			}
+
+			if (this.removeFakeHandler) {
+				this.removeFakeHandler.removeListener();
+			}
+		};
+
+		/**
+   * Selects the content from element passed on `target` attribute.
+   */
+
+
+		ClipboardAction.prototype.selectTarget = function selectTarget() {
+			if (this.target.nodeName === 'INPUT' || this.target.nodeName === 'TEXTAREA') {
+				this.target.select();
+				this.selectedText = this.target.value;
+			} else {
+				var range = document.createRange();
+				var selection = window.getSelection();
+
+				range.selectNodeContents(this.target);
+				selection.addRange(range);
+				this.selectedText = selection.toString();
+			}
+
+			this.copyText();
+		};
+
+		/**
+   * Selects the content from value passed on `text` attribute.
+   */
+
+
+		ClipboardAction.prototype.selectValue = function selectValue() {
+			this.removeFakeElement();
+			this.removeFakeHandler = dom.once(document, 'click', this.removeFakeElement.bind(this));
+
+			this.fake = document.createElement('textarea');
+			this.fake.style.position = 'fixed';
+			this.fake.style.left = '-9999px';
+			this.fake.setAttribute('readonly', '');
+			this.fake.value = this.text;
+			this.selectedText = this.text;
+
+			dom.enterDocument(this.fake);
+
+			this.fake.select();
+			this.copyText();
+		};
+
+		return ClipboardAction;
+	}(Attribute);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+
+	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
+	ClipboardAction.ATTRS = {
+		/**
+   * The action to be performed (either 'copy' or 'cut').
+   * @type {string}
+   * @default 'copy'
+   */
+		action: {
+			value: 'copy',
+			validator: function validator(val) {
+				return val === 'copy' || val === 'cut';
+			}
+		},
+
+		/**
+   * A reference to the `Clipboard` base class.
+   * @type {!Clipboard}
+   */
+		host: {
+			validator: function validator(val) {
+				return val instanceof Clipboard;
+			}
+		},
+
+		/**
+   * The text that is current selected.
+   * @type {string}
+   */
+		selectedText: {
+			validator: core.isString
+		},
+
+		/**
+   * The ID of an element that will be have its content copied.
+   * @type {Element}
+   */
+		target: {
+			validator: core.isElement
+		},
+
+		/**
+   * The text to be copied.
+   * @type {string}
+   */
+		text: {
+			validator: core.isString
+		},
+
+		/**
+   * The element that when clicked initiates a clipboard action.
+   * @type {!Element}
+   */
+		trigger: {
+			validator: core.isElement
+		}
+	};
+
+	this.metal.Clipboard = Clipboard;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
   var SoyAop = this.metalNamed.index.SoyAop;
   var SoyRenderer = this.metalNamed.index.SoyRenderer;
   var SoyTemplates = this.metalNamed.index.SoyTemplates;
@@ -10128,11 +10265,11 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var dom = this.metalNamed.index.dom;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var Align = this.metal.Align;
+	var core = this.metal.metal;
+	var dom = this.metal.dom;
+	var Align = this.metalNamed.position.Align;
 	var DropdownBase = this.metal.Dropdown;
+	var EventHandler = this.metalNamed.events.EventHandler;
 
 	/**
   * Dropdown component.
@@ -10393,10 +10530,10 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Modal.soy.
@@ -10492,9 +10629,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
-	var EventHandler = this.metal.EventHandler;
+	var EventHandler = this.metalNamed.events.EventHandler;
 	var ModalBase = this.metal.Modal;
 
 	/**
@@ -10796,13 +10933,12 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
-	var Align = this.metal.Align;
-	var Component = this.metal.Component;
-	var EventHandler = this.metal.EventHandler;
-	var SoyRenderer = this.metal.SoyRenderer;
-
+	var Align = this.metalNamed.position.Align;
+	var Component = this.metal.component;
+	var EventHandler = this.metalNamed.events.EventHandler;
+	var SoyRenderer = this.metalNamed.index.SoyRenderer;
 
 	/**
   * The base class to be shared between components that have tooltip behavior.
@@ -11133,10 +11269,140 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+
+  var Templates = SoyTemplates.get();
+  // This file was automatically generated from Tooltip.soy.
+  // Please don't edit this file by hand.
+
+  /**
+   * @fileoverview Templates in namespace Templates.Tooltip.
+   */
+
+  if (typeof Templates.Tooltip == 'undefined') {
+    Templates.Tooltip = {};
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Tooltip.render = function (opt_data, opt_ignored, opt_ijData) {
+    var output = '';
+    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
+    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
+    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="tooltip component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="tooltip-arrow"></div>' + Templates.Tooltip.inner(opt_data, null, opt_ijData) + '</div>';
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+  };
+  if (goog.DEBUG) {
+    Templates.Tooltip.render.soyTemplateName = 'Templates.Tooltip.render';
+  }
+
+  /**
+   * @param {Object.<string, *>=} opt_data
+   * @param {(null|undefined)=} opt_ignored
+   * @param {Object.<string, *>=} opt_ijData
+   * @return {!soydata.SanitizedHtml}
+   * @suppress {checkTypes}
+   */
+  Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.title ? opt_data.title : '') + '</section>');
+  };
+  if (goog.DEBUG) {
+    Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
+  }
+
+  Templates.Tooltip.render.params = ["id"];
+  Templates.Tooltip.inner.params = ["title", "id"];
+
+  var Tooltip = function (_Component) {
+    babelHelpers.inherits(Tooltip, _Component);
+
+    function Tooltip() {
+      babelHelpers.classCallCheck(this, Tooltip);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Tooltip;
+  }(Component);
+
+  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
+
+  Tooltip.RENDERER = SoyRenderer;
+  SoyAop.registerTemplates('Tooltip');
+  this.metal.Tooltip = Tooltip;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+  var TooltipBase = this.metal.TooltipBase;
+
+
+  /**
+   * Tooltip component.
+   */
+
+  var Tooltip = function (_TooltipBase) {
+    babelHelpers.inherits(Tooltip, _TooltipBase);
+
+    function Tooltip() {
+      babelHelpers.classCallCheck(this, Tooltip);
+      return babelHelpers.possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
+    }
+
+    /**
+     * Attribute synchronization logic for `visible` attribute. Updates the
+     * element's opacity, since bootstrap uses opacity instead of display
+     * for tooltip visibility.
+     * @param {boolean} visible
+     */
+
+    Tooltip.prototype.syncVisible = function syncVisible(visible) {
+      this.element.style.opacity = visible ? 1 : '';
+      _TooltipBase.prototype.syncVisible.call(this, visible);
+    };
+
+    return Tooltip;
+  }(TooltipBase);
+
+  /**
+   * @inheritDoc
+   * @see `Align` class.
+   * @static
+   */
+
+
+  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
+  Tooltip.Align = TooltipBase.Align;
+
+  /**
+   * Default tooltip elementClasses.
+   * @default tooltip
+   * @type {string}
+   * @static
+   */
+  Tooltip.ELEMENT_CLASSES = 'tooltip';
+
+  this.metal.Tooltip = Tooltip;
+  this.metalNamed.Tooltip = {};
+  this.metalNamed.Tooltip.Tooltip = Tooltip;
+  this.metalNamed.Tooltip.TooltipBase = TooltipBase;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Popover.soy.
@@ -11221,8 +11487,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-	var TooltipBase = this.metal.TooltipBase;
+	var core = this.metal.metal;
+	var TooltipBase = this.metalNamed.Tooltip.TooltipBase;
 
 
 	/**
@@ -11304,10 +11570,10 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from ProgressBar.soy.
@@ -11358,7 +11624,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var ProgressBarBase = this.metal.ProgressBar;
 
@@ -11558,10 +11824,10 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var Attribute = this.metal.Attribute;
-	var Position = this.metal.Position;
+	var Position = this.metal.position;
 
 	/**
   * Scrollspy utility.
@@ -11859,10 +12125,10 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Select.soy.
@@ -11925,7 +12191,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var SelectBase = this.metal.Select;
 
@@ -12137,9 +12403,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var Attribute = this.metal.Attribute;
-	var Position = this.metal.Position;
+	var Position = this.metal.position;
 
 	/**
   * Helper called by the `Drag` instance that scrolls elements when the
@@ -12326,9 +12592,9 @@ babelHelpers;
 
 (function () {
 	var dom = this.metal.dom;
-	var EventEmitter = this.metal.EventEmitter;
-	var EventHandler = this.metal.EventHandler;
-	var Position = this.metal.Position;
+	var EventEmitter = this.metalNamed.events.EventEmitter;
+	var EventHandler = this.metalNamed.events.EventHandler;
+	var Position = this.metal.position;
 
 	/**
   * Helper called by the `Drag` instance that emits an event whenever
@@ -12547,15 +12813,15 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
-	var object = this.metal.object;
 	var Attribute = this.metal.Attribute;
 	var DragAutoScroll = this.metal.DragAutoScroll;
 	var DragScrollDelta = this.metal.DragScrollDelta;
 	var DragShim = this.metal.DragShim;
-	var EventHandler = this.metal.EventHandler;
-	var Position = this.metal.Position;
+	var EventHandler = this.metalNamed.events.EventHandler;
+	var Position = this.metal.position;
 
 	/**
   * Responsible for making elements draggable. Handles all the logic
@@ -13479,11 +13745,265 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var array = this.metalNamed.metal.array;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
+	var dom = this.metal.dom;
+	var Drag = this.metal.Drag;
+	var Position = this.metal.position;
+
+
+	/**
+  * Adds the functionality of dropping dragged elements to specific
+  * targets to the `Drag` class.
+  * @extends {Drag}
+  */
+
+	var DragDrop = function (_Drag) {
+		babelHelpers.inherits(DragDrop, _Drag);
+
+		/**
+   * @inheritDoc
+   */
+
+		function DragDrop(opt_config) {
+			babelHelpers.classCallCheck(this, DragDrop);
+
+
+			/**
+    * The currently active targets, that is, the ones that the dragged source is over.
+    * @type {!Array<!Element>}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Drag.call(this, opt_config));
+
+			_this.activeTargets_ = [];
+			return _this;
+		}
+
+		/**
+   * Adds a target to this `DragDrop` instance.
+   * @param {!Element} target
+   */
+
+
+		DragDrop.prototype.addTarget = function addTarget(target) {
+			this.targets.push(target);
+			this.targets = this.targets;
+		};
+
+		/**
+   * Overrides the original method from `Drag` to include the target on the event object.
+   * @return {!Object}
+   * @protected
+   * @override
+   */
+
+
+		DragDrop.prototype.buildEventObject_ = function buildEventObject_() {
+			var obj = _Drag.prototype.buildEventObject_.call(this);
+			obj.target = this.activeTargets_[0];
+			obj.allActiveTargets = this.activeTargets_;
+			return obj;
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		DragDrop.prototype.cleanUpAfterDragging_ = function cleanUpAfterDragging_() {
+			_Drag.prototype.cleanUpAfterDragging_.call(this);
+			this.targets.forEach(function (target) {
+				return target.removeAttribute('aria-dropeffect');
+			});
+			if (this.activeTargets_.length) {
+				dom.removeClasses(this.activeTargets_[0], this.targetOverClass);
+			}
+			this.activeTargets_ = [];
+		};
+
+		/**
+   * Finds all targets that the dragged element is currently over.
+   * @return {!Array<!Element>} The current active targets.
+   * @protected
+   */
+
+
+		DragDrop.prototype.findAllActiveTargets_ = function findAllActiveTargets_() {
+			var activeTargets = [];
+			var mainRegion;
+			var sourceRegion = this.getSourceRegion_();
+			var targets = this.targets;
+			targets.forEach(function (target, index) {
+				var region = Position.getRegion(target);
+				if (targets[index] !== this.activeDragPlaceholder_ && Position.intersectRegion(region, sourceRegion)) {
+					if (!mainRegion || Position.insideRegion(mainRegion, region)) {
+						activeTargets = [targets[index]].concat(activeTargets);
+						mainRegion = region;
+					} else {
+						activeTargets.push(targets[index]);
+					}
+				}
+			}.bind(this));
+			return activeTargets;
+		};
+
+		/**
+   * Gets the active source's region, to be used when calculating which targets are active.
+   * @return {!Object}
+   * @protected
+   */
+
+
+		DragDrop.prototype.getSourceRegion_ = function getSourceRegion_() {
+			if (core.isDefAndNotNull(this.mousePos_)) {
+				var x = this.mousePos_.x;
+				var y = this.mousePos_.y;
+				return Position.makeRegion(y, 0, x, x, y, 0);
+			} else {
+				// We need to remove the scroll data from the region, since the other regions we'll
+				// be comparing to won't take that information into account.
+				var region = object.mixin({}, this.sourceRegion_);
+				region.left -= document.body.scrollLeft;
+				region.right -= document.body.scrollLeft;
+				region.top -= document.body.scrollTop;
+				region.bottom -= document.body.scrollTop;
+				return region;
+			}
+		};
+
+		/**
+   * Removes a target from this `DragDrop` instance.
+   * @param {!Element} target
+   */
+
+
+		DragDrop.prototype.removeTarget = function removeTarget(target) {
+			array.remove(this.targets, target);
+			this.targets = this.targets;
+		};
+
+		/**
+   * Overrides the original method from `Drag` to also set the "aria-dropeffect"
+   * attribute, if set, for all targets.
+   * @return {[type]} [description]
+   */
+
+
+		DragDrop.prototype.startDragging_ = function startDragging_() {
+			var _this2 = this;
+
+			if (this.ariaDropEffect) {
+				this.targets.forEach(function (target) {
+					return target.setAttribute('aria-dropeffect', _this2.ariaDropEffect);
+				});
+			}
+			_Drag.prototype.startDragging_.call(this);
+		};
+
+		/**
+   * Overrides original method from `Drag` to also be enable finding the target
+   * the dragged element is over at the new position.
+   * @param {number} deltaX
+   * @param {number} deltaY
+   * @override
+   */
+
+
+		DragDrop.prototype.updatePosition = function updatePosition(deltaX, deltaY) {
+			_Drag.prototype.updatePosition.call(this, deltaX, deltaY);
+
+			var newTargets = this.findAllActiveTargets_();
+			if (newTargets[0] !== this.activeTargets_[0]) {
+				if (this.activeTargets_[0]) {
+					dom.removeClasses(this.activeTargets_[0], this.targetOverClass);
+					this.emit(DragDrop.Events.TARGET_LEAVE, this.buildEventObject_());
+				}
+
+				this.activeTargets_ = newTargets;
+				if (this.activeTargets_[0]) {
+					dom.addClasses(this.activeTargets_[0], this.targetOverClass);
+					this.emit(DragDrop.Events.TARGET_ENTER, this.buildEventObject_());
+				}
+			}
+		};
+
+		return DragDrop;
+	}(Drag);
+
+	/**
+  * Attributes definition.
+  * @type {!Object}
+  * @static
+  */
+
+
+	DragDrop.prototype.registerMetalComponent && DragDrop.prototype.registerMetalComponent(DragDrop, 'DragDrop')
+	DragDrop.ATTRS = {
+		/**
+   * The "aria-dropeffect" value to be set for all targets. If not set,
+   * this html attribute will have to be set manually on the targets.
+   * @type {string}
+   */
+		ariaDropEffect: {
+			validator: core.isString
+		},
+
+		/**
+   * The CSS class that should be added to drop targets when a source
+   * is being dragged over them.
+   * @type {string}
+   * @default 'dropOver'
+   */
+		targetOverClass: {
+			validator: core.isString,
+			value: 'targetOver'
+		},
+
+		/**
+   * Elements that the sources can be dropped on. Can be either a single
+   * element or a selector for multiple elements.
+   * @type {!Element|string}
+   */
+		targets: {
+			setter: 'toElements_',
+			validator: 'validateElementOrString_'
+		}
+	};
+
+	/**
+  * Holds the names of events that can be emitted by `DragDrop`.
+  * @type {!Object}
+  * @static
+  */
+	DragDrop.Events = {
+		DRAG: 'drag',
+		END: 'end',
+		TARGET_ENTER: 'targetEnter',
+		TARGET_LEAVE: 'targetLeave'
+	};
+
+	this.metal.DragDrop = DragDrop;
+}).call(this);
+'use strict';
+
+(function () {
+  var Drag = this.metal.Drag;
+  var DragDrop = this.metal.DragDrop;
+  this.metalNamed.drag = {};
+  this.metalNamed.drag.Drag = Drag;
+  this.metalNamed.drag.DragDrop = DragDrop;
+}).call(this);
+'use strict';
+
+(function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Slider.soy.
@@ -13579,9 +14099,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-	var Drag = this.metal.Drag;
-	var Position = this.metal.Position;
+	var core = this.metal.metal;
+	var Drag = this.metalNamed.drag.Drag;
+	var Position = this.metal.position;
 	var SliderBase = this.metal.Slider;
 
 	/**
@@ -13834,10 +14354,10 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Switcher.soy.
@@ -13888,7 +14408,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var SwitcherBase = this.metal.Switcher;
 
@@ -13968,137 +14488,10 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
-
-  var Templates = SoyTemplates.get();
-  // This file was automatically generated from Tooltip.soy.
-  // Please don't edit this file by hand.
-
-  /**
-   * @fileoverview Templates in namespace Templates.Tooltip.
-   */
-
-  if (typeof Templates.Tooltip == 'undefined') {
-    Templates.Tooltip = {};
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Tooltip.render = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '';
-    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
-    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
-    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="tooltip component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="tooltip-arrow"></div>' + Templates.Tooltip.inner(opt_data, null, opt_ijData) + '</div>';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.Tooltip.render.soyTemplateName = 'Templates.Tooltip.render';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Tooltip.inner = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<section id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-inner" class="tooltip-inner">' + soy.$$escapeHtml(opt_data.title ? opt_data.title : '') + '</section>');
-  };
-  if (goog.DEBUG) {
-    Templates.Tooltip.inner.soyTemplateName = 'Templates.Tooltip.inner';
-  }
-
-  Templates.Tooltip.render.params = ["id"];
-  Templates.Tooltip.inner.params = ["title", "id"];
-
-  var Tooltip = function (_Component) {
-    babelHelpers.inherits(Tooltip, _Component);
-
-    function Tooltip() {
-      babelHelpers.classCallCheck(this, Tooltip);
-      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
-    }
-
-    return Tooltip;
-  }(Component);
-
-  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
-
-  Tooltip.RENDERER = SoyRenderer;
-  SoyAop.registerTemplates('Tooltip');
-  this.metal.Tooltip = Tooltip;
-  /* jshint ignore:end */
-}).call(this);
-'use strict';
-
-(function () {
-  var TooltipBase = this.metal.TooltipBase;
-
-
-  /**
-   * Tooltip component.
-   */
-
-  var Tooltip = function (_TooltipBase) {
-    babelHelpers.inherits(Tooltip, _TooltipBase);
-
-    function Tooltip() {
-      babelHelpers.classCallCheck(this, Tooltip);
-      return babelHelpers.possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
-    }
-
-    /**
-     * Attribute synchronization logic for `visible` attribute. Updates the
-     * element's opacity, since bootstrap uses opacity instead of display
-     * for tooltip visibility.
-     * @param {boolean} visible
-     */
-
-    Tooltip.prototype.syncVisible = function syncVisible(visible) {
-      this.element.style.opacity = visible ? 1 : '';
-      _TooltipBase.prototype.syncVisible.call(this, visible);
-    };
-
-    return Tooltip;
-  }(TooltipBase);
-
-  /**
-   * @inheritDoc
-   * @see `Align` class.
-   * @static
-   */
-
-
-  Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
-  Tooltip.Align = TooltipBase.Align;
-
-  /**
-   * Default tooltip elementClasses.
-   * @default tooltip
-   * @type {string}
-   * @static
-   */
-  Tooltip.ELEMENT_CLASSES = 'tooltip';
-
-  this.metal.Tooltip = Tooltip;
-}).call(this);
-'use strict';
-
-(function () {
-  /* jshint ignore:start */
-  var Component = this.metal.Component;
-  var SoyAop = this.metal.SoyAop;
-  var SoyRenderer = this.metal.SoyRenderer;
-  var SoyTemplates = this.metal.SoyTemplates;
+  var Component = this.metal.component;
+  var SoyAop = this.metalNamed.index.SoyAop;
+  var SoyRenderer = this.metalNamed.index.SoyRenderer;
+  var SoyTemplates = this.metalNamed.index.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Treeview.soy.

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/index'], function (exports, _metal, _index) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom'], function (exports, _metal, _dom) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -47,14 +47,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index'], function (exports,
 			}
 
 			var delayed = setTimeout(function () {
-				_index.dom.triggerEvent(element, _index.features.checkAnimationEventName()[type]);
+				_dom.dom.triggerEvent(element, _dom.features.checkAnimationEventName()[type]);
 			}, duration);
 
 			var abort = function abort() {
 				clearTimeout(delayed);
 				hoistedEvtHandler.removeListener();
 			};
-			var hoistedEvtHandler = _index.dom.once(element, type + 'end', abort);
+			var hoistedEvtHandler = _dom.dom.once(element, type + 'end', abort);
 
 			return {
 				abort: abort

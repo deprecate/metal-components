@@ -1,17 +1,11 @@
-define(['exports', 'metal/metal/src/component/Component', 'metal/metal/src/soy/SoyAop', 'metal/metal/src/soy/SoyRenderer', 'metal/metal/src/soy/SoyTemplates'], function (exports, _Component2, _SoyAop, _SoyRenderer, _SoyTemplates) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/index'], function (exports, _component, _index) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
 
-  var _Component3 = _interopRequireDefault(_Component2);
-
-  var _SoyAop2 = _interopRequireDefault(_SoyAop);
-
-  var _SoyRenderer2 = _interopRequireDefault(_SoyRenderer);
-
-  var _SoyTemplates2 = _interopRequireDefault(_SoyTemplates);
+  var _component2 = _interopRequireDefault(_component);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -49,7 +43,7 @@ define(['exports', 'metal/metal/src/component/Component', 'metal/metal/src/soy/S
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Templates = _SoyTemplates2.default.get();
+  var Templates = _index.SoyTemplates.get();
   // This file was automatically generated from Autocomplete.soy.
   // Please don't edit this file by hand.
 
@@ -87,12 +81,12 @@ define(['exports', 'metal/metal/src/component/Component', 'metal/metal/src/soy/S
     }
 
     return Autocomplete;
-  }(_Component3.default);
+  }(_component2.default);
 
   Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
 
-  Autocomplete.RENDERER = _SoyRenderer2.default;
-  _SoyAop2.default.registerTemplates('Autocomplete');
+  Autocomplete.RENDERER = _index.SoyRenderer;
+  _index.SoyAop.registerTemplates('Autocomplete');
   exports.default = Autocomplete;
 });
 //# sourceMappingURL=Autocomplete.soy.js.map

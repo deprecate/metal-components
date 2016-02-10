@@ -1,4 +1,4 @@
-define(['exports', 'metal/metal/src/dom/dom'], function (exports, _dom) {
+define(['exports', 'metal-dom/src/all/dom'], function (exports, _dom) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {

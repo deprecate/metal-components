@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Switcher.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _core, _dom, _SwitcherSoy, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Switcher.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _SwitcherSoy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
 
@@ -96,7 +96,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/dom/dom', './Switcher.soy.
    * @default false
    */
 		checked: {
-			validator: _core2.default.isBoolean,
+			validator: _metal2.default.isBoolean,
 			value: false
 		}
 	};

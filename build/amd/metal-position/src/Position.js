@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _Geometry) {
+define(['exports', 'metal/src/metal', './Geometry'], function (exports, _metal, _Geometry) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _Geometry2 = _interopRequireDefault(_Geometry);
 
@@ -32,10 +32,10 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 
 		Position.getClientSize_ = function getClientSize_(node, prop) {
 			var el = node;
-			if (_core2.default.isWindow(node)) {
+			if (_metal2.default.isWindow(node)) {
 				el = node.document.documentElement;
 			}
-			if (_core2.default.isDocument(node)) {
+			if (_metal2.default.isDocument(node)) {
 				el = node.documentElement;
 			}
 			return el['client' + prop];
@@ -64,37 +64,37 @@ define(['exports', 'metal/src/core', './Geometry'], function (exports, _core, _G
 		};
 
 		Position.getRegion = function getRegion(node, opt_includeScroll) {
-			if (_core2.default.isDocument(node) || _core2.default.isWindow(node)) {
+			if (_metal2.default.isDocument(node) || _metal2.default.isWindow(node)) {
 				return this.getDocumentRegion_(node);
 			}
 			return this.makeRegionFromBoundingRect_(node.getBoundingClientRect(), opt_includeScroll);
 		};
 
 		Position.getScrollLeft = function getScrollLeft(node) {
-			if (_core2.default.isWindow(node)) {
+			if (_metal2.default.isWindow(node)) {
 				return node.pageXOffset;
 			}
-			if (_core2.default.isDocument(node)) {
+			if (_metal2.default.isDocument(node)) {
 				return node.defaultView.pageXOffset;
 			}
 			return node.scrollLeft;
 		};
 
 		Position.getScrollTop = function getScrollTop(node) {
-			if (_core2.default.isWindow(node)) {
+			if (_metal2.default.isWindow(node)) {
 				return node.pageYOffset;
 			}
-			if (_core2.default.isDocument(node)) {
+			if (_metal2.default.isDocument(node)) {
 				return node.defaultView.pageYOffset;
 			}
 			return node.scrollTop;
 		};
 
 		Position.getSize_ = function getSize_(node, prop) {
-			if (_core2.default.isWindow(node)) {
+			if (_metal2.default.isWindow(node)) {
 				return this.getClientSize_(node, prop);
 			}
-			if (_core2.default.isDocument(node)) {
+			if (_metal2.default.isDocument(node)) {
 				var docEl = node.documentElement;
 				return Math.max(node.body['scroll' + prop], docEl['scroll' + prop], node.body['offset' + prop], docEl['offset' + prop], docEl['client' + prop]);
 			}

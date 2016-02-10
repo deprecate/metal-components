@@ -1,4 +1,4 @@
-define(['exports', 'metal/metal/src/dom/dom', './Treeview.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _dom, _Treeview, _JQueryAdapter) {
+define(['exports', 'metal-dom/src/all/dom', './Treeview.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _dom, _Treeview, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {

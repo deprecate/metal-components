@@ -1,15 +1,15 @@
-define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'metal-position/src/Position'], function (exports, _core, _Attribute2, _Position) {
+define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-position/src/all/position'], function (exports, _metal, _Attribute2, _position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _metal2 = _interopRequireDefault(_metal);
 
 	var _Attribute3 = _interopRequireDefault(_Attribute2);
 
-	var _Position2 = _interopRequireDefault(_Position);
+	var _position2 = _interopRequireDefault(_position);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -79,12 +79,12 @@ define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'met
 		};
 
 		DragAutoScroll.prototype.getRegionWithoutScroll_ = function getRegionWithoutScroll_(scrollContainer) {
-			if (_core2.default.isDocument(scrollContainer)) {
+			if (_metal2.default.isDocument(scrollContainer)) {
 				var height = window.innerHeight;
 				var width = window.innerWidth;
-				return _Position2.default.makeRegion(height, height, 0, width, 0, width);
+				return _position2.default.makeRegion(height, height, 0, width, 0, width);
 			} else {
-				return _Position2.default.getRegion(scrollContainer);
+				return _position2.default.getRegion(scrollContainer);
 			}
 		};
 
@@ -94,7 +94,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'met
 		};
 
 		DragAutoScroll.prototype.scrollElement_ = function scrollElement_(element, deltaX, deltaY) {
-			if (_core2.default.isDocument(element)) {
+			if (_metal2.default.isDocument(element)) {
 				window.scrollBy(deltaX, deltaY);
 			} else {
 				element.scrollTop += deltaY;
@@ -105,14 +105,14 @@ define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'met
 		DragAutoScroll.prototype.scrollInternal_ = function scrollInternal_(scrollContainers, mouseX, mouseY) {
 			for (var i = 0; i < scrollContainers.length; i++) {
 				var scrollRegion = this.getRegionWithoutScroll_(scrollContainers[i]);
-				if (!_Position2.default.pointInsideRegion(mouseX, mouseY, scrollRegion)) {
+				if (!_position2.default.pointInsideRegion(mouseX, mouseY, scrollRegion)) {
 					continue;
 				}
 
 				var deltaX = 0;
 				var deltaY = 0;
-				var scrollTop = _Position2.default.getScrollTop(scrollContainers[i]);
-				var scrollLeft = _Position2.default.getScrollLeft(scrollContainers[i]);
+				var scrollTop = _position2.default.getScrollTop(scrollContainers[i]);
+				var scrollLeft = _position2.default.getScrollLeft(scrollContainers[i]);
 				if (scrollLeft > 0 && Math.abs(mouseX - scrollRegion.left) <= this.maxDistance) {
 					deltaX -= this.speed;
 				} else if (Math.abs(mouseX - scrollRegion.right) <= this.maxDistance) {
@@ -154,7 +154,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'met
    * @default 200
    */
 		delay: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 50
 		},
 
@@ -165,7 +165,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'met
    * @default 10
    */
 		maxDistance: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 20
 		},
 
@@ -175,7 +175,7 @@ define(['exports', 'metal/src/core', 'metal/metal/src/attribute/Attribute', 'met
    * @default 10
    */
 		speed: {
-			validator: _core2.default.isNumber,
+			validator: _metal2.default.isNumber,
 			value: 20
 		}
 	};
