@@ -1,7 +1,7 @@
 'use strict';
 
-import dom from 'metal/src/dom/dom';
-import SoyTemplates from 'metal/src/soy/SoyTemplates';
+import dom from 'metal-dom';
+import { SoyTemplates } from 'metal-soy';
 import Popover from '../src/Popover';
 
 describe('Popover', function() {

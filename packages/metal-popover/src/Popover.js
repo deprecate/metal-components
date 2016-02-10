@@ -1,7 +1,7 @@
 'use strict';
 
-import core from 'metal/src/core';
-import TooltipBase from 'metal-tooltip/src/TooltipBase';
+import core from 'metal';
+import { TooltipBase } from 'metal-tooltip';
 import './Popover.soy';
 
 /**
