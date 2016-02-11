@@ -2478,13 +2478,20 @@ babelHelpers;
 		/**
    * Evaluates the given string in the global scope.
    * @param {string} text
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    * @return {Element} script
    */
 
-		globalEval.run = function run(text) {
+		globalEval.run = function run(text, opt_appendFn) {
 			var script = document.createElement('script');
 			script.text = text;
-			document.head.appendChild(script).parentNode.removeChild(script);
+			if (opt_appendFn) {
+				opt_appendFn(script);
+			} else {
+				document.head.appendChild(script);
+			}
+			dom.exitDocument(script);
 			return script;
 		};
 
@@ -2493,21 +2500,28 @@ babelHelpers;
    * @param {string} src The file's path.
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    * @return {Element} script
    */
 
 
-		globalEval.runFile = function runFile(src, opt_callback) {
+		globalEval.runFile = function runFile(src, opt_callback, opt_appendFn) {
 			var script = document.createElement('script');
 			script.src = src;
 
 			var callback = function callback() {
-				script.parentNode.removeChild(script);
+				dom.exitDocument(script);
 				opt_callback && opt_callback();
 			};
 			dom.on(script, 'load', callback);
 			dom.on(script, 'error', callback);
-			document.head.appendChild(script);
+
+			if (opt_appendFn) {
+				opt_appendFn(script);
+			} else {
+				document.head.appendChild(script);
+			}
 
 			return script;
 		};
@@ -2517,11 +2531,13 @@ babelHelpers;
    * @param {!Element} script
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    * @return {Element} script
    */
 
 
-		globalEval.runScript = function runScript(script, opt_callback) {
+		globalEval.runScript = function runScript(script, opt_callback, opt_appendFn) {
 			var callback = function callback() {
 				opt_callback && opt_callback();
 			};
@@ -2529,14 +2545,12 @@ babelHelpers;
 				async.nextTick(callback);
 				return;
 			}
-			if (script.parentNode) {
-				script.parentNode.removeChild(script);
-			}
+			dom.exitDocument(script);
 			if (script.src) {
-				return globalEval.runFile(script.src, opt_callback);
+				return globalEval.runFile(script.src, opt_callback, opt_appendFn);
 			} else {
 				async.nextTick(callback);
-				return globalEval.run(script.text);
+				return globalEval.run(script.text, opt_appendFn);
 			}
 		};
 
@@ -2545,13 +2559,15 @@ babelHelpers;
    * @params {!Element} element
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    */
 
 
-		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
+		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback, opt_appendFn) {
 			var scripts = element.querySelectorAll('script');
 			if (scripts.length) {
-				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
+				globalEval.runScriptsInOrder(scripts, 0, opt_callback, opt_appendFn);
 			} else if (opt_callback) {
 				async.nextTick(opt_callback);
 			}
@@ -2563,17 +2579,19 @@ babelHelpers;
    * @param {number} index
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    */
 
 
-		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
+		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback, opt_appendFn) {
 			globalEval.runScript(scripts.item(index), function () {
 				if (index < scripts.length - 1) {
-					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
+					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback, opt_appendFn);
 				} else if (opt_callback) {
 					async.nextTick(opt_callback);
 				}
-			});
+			}, opt_appendFn);
 		};
 
 		return globalEval;
@@ -2599,13 +2617,19 @@ babelHelpers;
 		/**
    * Evaluates the given style.
    * @param {string} text
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    * @return {Element} style
    */
 
-		globalEvalStyles.run = function run(text) {
+		globalEvalStyles.run = function run(text, opt_appendFn) {
 			var style = document.createElement('style');
 			style.innerHTML = text;
-			document.head.appendChild(style);
+			if (opt_appendFn) {
+				opt_appendFn(style);
+			} else {
+				document.head.appendChild(style);
+			}
 			return style;
 		};
 
