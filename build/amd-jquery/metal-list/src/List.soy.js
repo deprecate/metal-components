@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/all/component', 'metal-soy/src/index'], function (exports, _component, _index) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], function (exports, _component, _soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -43,7 +43,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/index'], 
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Templates = _index.SoyTemplates.get();
+  var Templates = _soy.SoyTemplates.get();
   // This file was automatically generated from List.soy.
   // Please don't edit this file by hand.
 
@@ -112,8 +112,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/index'], 
 
   List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
 
-  List.RENDERER = _index.SoyRenderer;
-  _index.SoyAop.registerTemplates('List');
+  List.RENDERER = _soy.SoyRenderer;
+  _soy.SoyAop.registerTemplates('List');
   exports.default = List;
 });
 //# sourceMappingURL=List.soy.js.map

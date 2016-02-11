@@ -2614,15 +2614,17 @@ babelHelpers;
    * @param {string} href The file's path.
    * @param {function()=} opt_callback Optional function to be called
    *   when the styles has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    * @return {Element} style
    */
 
 
-		globalEvalStyles.runFile = function runFile(href, opt_callback) {
+		globalEvalStyles.runFile = function runFile(href, opt_callback, opt_appendFn) {
 			var link = document.createElement('link');
 			link.rel = 'stylesheet';
 			link.href = href;
-			globalEvalStyles.runStyle(link, opt_callback);
+			globalEvalStyles.runStyle(link, opt_callback, opt_appendFn);
 			return link;
 		};
 
@@ -2631,11 +2633,13 @@ babelHelpers;
    * @param {!Element} style
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    *  @return {Element} style
    */
 
 
-		globalEvalStyles.runStyle = function runStyle(style, opt_callback) {
+		globalEvalStyles.runStyle = function runStyle(style, opt_callback, opt_appendFn) {
 			var callback = function callback() {
 				opt_callback && opt_callback();
 			};
@@ -2650,19 +2654,27 @@ babelHelpers;
 				dom.on(style, 'load', callback);
 				dom.on(style, 'error', callback);
 			}
-			document.head.appendChild(style);
+
+			if (opt_appendFn) {
+				opt_appendFn(style);
+			} else {
+				document.head.appendChild(style);
+			}
+
 			return style;
 		};
 
 		/**
    * Evaluates any style present in the given element.
    * @params {!Element} element
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the style has been run.
+   * @param {function()=} opt_callback Optional function to be called when the
+   *   style has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    */
 
 
-		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback) {
+		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback, opt_appendFn) {
 			var styles = element.querySelectorAll('style,link');
 			if (styles.length === 0 && opt_callback) {
 				async.nextTick(opt_callback);
@@ -2676,7 +2688,7 @@ babelHelpers;
 				}
 			};
 			for (var i = 0; i < styles.length; i++) {
-				globalEvalStyles.runStyle(styles[i], callback);
+				globalEvalStyles.runStyle(styles[i], callback, opt_appendFn);
 			}
 		};
 
@@ -7494,20 +7506,20 @@ babelHelpers;
   var SoyAop = this.metal.SoyAop;
   var SoyRenderer = this.metal.SoyRenderer;
   var SoyTemplates = this.metal.SoyTemplates;
-  this.metal.index = SoyRenderer;
-  this.metalNamed.index = {};
-  this.metalNamed.index.SoyAop = SoyAop;
-  this.metalNamed.index.SoyRenderer = SoyRenderer;
-  this.metalNamed.index.SoyTemplates = SoyTemplates;
+  this.metal.soy = SoyRenderer;
+  this.metalNamed.soy = {};
+  this.metalNamed.soy.SoyAop = SoyAop;
+  this.metalNamed.soy.SoyRenderer = SoyRenderer;
+  this.metalNamed.soy.SoyTemplates = SoyTemplates;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Alert.soy.
@@ -9019,9 +9031,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Autocomplete.soy.
@@ -9074,9 +9086,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from List.soy.
@@ -9156,9 +9168,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from ListItem.soy.
@@ -9386,7 +9398,7 @@ babelHelpers;
 	var Promise = this.metalNamed.Promise.CancellablePromise;
 	var Align = this.metalNamed.position.Align;
 	var AutocompleteBase = this.metal.AutocompleteBase;
-	var SoyRenderer = this.metalNamed.index.SoyRenderer;
+	var SoyRenderer = this.metalNamed.soy.SoyRenderer;
 
 
 	/*
@@ -9603,9 +9615,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from ButtonGroup.soy.
@@ -10197,9 +10209,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Dropdown.soy.
@@ -10531,9 +10543,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Modal.soy.
@@ -10938,7 +10950,7 @@ babelHelpers;
 	var Align = this.metalNamed.position.Align;
 	var Component = this.metal.component;
 	var EventHandler = this.metalNamed.events.EventHandler;
-	var SoyRenderer = this.metalNamed.index.SoyRenderer;
+	var SoyRenderer = this.metalNamed.soy.SoyRenderer;
 
 	/**
   * The base class to be shared between components that have tooltip behavior.
@@ -11270,9 +11282,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Tooltip.soy.
@@ -11400,9 +11412,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Popover.soy.
@@ -11571,9 +11583,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from ProgressBar.soy.
@@ -12126,9 +12138,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Select.soy.
@@ -14001,9 +14013,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Slider.soy.
@@ -14355,9 +14367,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Switcher.soy.
@@ -14489,9 +14501,9 @@ babelHelpers;
 (function () {
   /* jshint ignore:start */
   var Component = this.metal.component;
-  var SoyAop = this.metalNamed.index.SoyAop;
-  var SoyRenderer = this.metalNamed.index.SoyRenderer;
-  var SoyTemplates = this.metalNamed.index.SoyTemplates;
+  var SoyAop = this.metalNamed.soy.SoyAop;
+  var SoyRenderer = this.metalNamed.soy.SoyRenderer;
+  var SoyTemplates = this.metalNamed.soy.SoyTemplates;
 
   var Templates = SoyTemplates.get();
   // This file was automatically generated from Treeview.soy.

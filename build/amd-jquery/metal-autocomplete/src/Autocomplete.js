@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/index', 'metal-jquery-adapter/src/JQueryAdapter', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _index, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/soy', 'metal-jquery-adapter/src/JQueryAdapter', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _soy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -182,7 +182,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
   * @type {!Function}
   * @static
   */
-	Autocomplete.RENDERER = _index.SoyRenderer;
+	Autocomplete.RENDERER = _soy.SoyRenderer;
 
 	exports.default = Autocomplete;
 	_JQueryAdapter2.default.register('autocomplete', Autocomplete);

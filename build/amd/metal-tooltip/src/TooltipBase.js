@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-soy/src/index'], function (exports, _metal, _dom, _position, _component, _events, _index) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-soy/src/soy'], function (exports, _metal, _dom, _position, _component, _events, _soy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -273,7 +273,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
   */
 	TooltipBase.PositionToClass = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
 
-	TooltipBase.RENDERER = _index.SoyRenderer;
+	TooltipBase.RENDERER = _soy.SoyRenderer;
 
 	exports.default = TooltipBase;
 });
