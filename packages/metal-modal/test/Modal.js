@@ -16,12 +16,12 @@ describe('Modal', function() {
 
 	it('should render with default attributes', function() {
 		modal = new Modal().render();
-		var header = modal.getSurfaceElement('header').innerHTML;
-		var body = modal.getSurfaceElement('body').innerHTML;
-		var footer = modal.getSurfaceElement('footer').innerHTML;
-		assert.strictEqual('', header);
-		assert.strictEqual('', body);
-		assert.strictEqual('', footer);
+		var header = modal.element.querySelector('.modal-header');
+		var body = modal.element.querySelector('.modal-body');
+		var footer = modal.element.querySelector('.modal-footer');
+		assert.strictEqual('', header.innerHTML);
+		assert.strictEqual('', body.innerHTML);
+		assert.strictEqual('', footer.innerHTML);
 		assert.strictEqual('block', modal.element.style.display);
 	});
 
@@ -29,9 +29,9 @@ describe('Modal', function() {
 		modal = new Modal({
 			header: 'header'
 		}).render();
-		var headerElement = modal.getSurfaceElement('header');
-		var body = modal.getSurfaceElement('body').innerHTML;
-		var footer = modal.getSurfaceElement('footer').innerHTML;
+		var headerElement = modal.element.querySelector('.modal-header');
+		var body = modal.element.querySelector('.modal-body').innerHTML;
+		var footer = modal.element.querySelector('.modal-footer').innerHTML;
 		assert.strictEqual('header', headerElement.childNodes[1].textContent);
 		assert.ok(dom.hasClass(headerElement.childNodes[0], 'close'));
 		assert.strictEqual('', body);
@@ -42,9 +42,9 @@ describe('Modal', function() {
 		modal = new Modal({
 			body: 'body'
 		}).render();
-		var header = modal.getSurfaceElement('header').innerHTML;
-		var body = modal.getSurfaceElement('body').innerHTML;
-		var footer = modal.getSurfaceElement('footer').innerHTML;
+		var header = modal.element.querySelector('.modal-header').innerHTML;
+		var body = modal.element.querySelector('.modal-body').innerHTML;
+		var footer = modal.element.querySelector('.modal-footer').innerHTML;
 		assert.strictEqual('', header);
 		assert.strictEqual('body', body);
 		assert.strictEqual('', footer);
@@ -54,9 +54,9 @@ describe('Modal', function() {
 		modal = new Modal({
 			footer: 'footer'
 		}).render();
-		var header = modal.getSurfaceElement('header').innerHTML;
-		var body = modal.getSurfaceElement('body').innerHTML;
-		var footer = modal.getSurfaceElement('footer').innerHTML;
+		var header = modal.element.querySelector('.modal-header').innerHTML;
+		var body = modal.element.querySelector('.modal-body').innerHTML;
+		var footer = modal.element.querySelector('.modal-footer').innerHTML;
 		assert.strictEqual('', header);
 		assert.strictEqual('', body);
 		assert.strictEqual('footer', footer);
@@ -66,7 +66,7 @@ describe('Modal', function() {
 		modal = new Modal().render();
 		modal.body = 'body';
 		async.nextTick(function() {
-			var body = modal.getSurfaceElement('body').innerHTML;
+			var body = modal.element.querySelector('.modal-body').innerHTML;
 			assert.strictEqual('body', body);
 			done();
 		});
@@ -76,7 +76,7 @@ describe('Modal', function() {
 		modal = new Modal().render();
 		modal.header = 'header';
 		async.nextTick(function() {
-			var header = modal.getSurfaceElement('header');
+			var header = modal.element.querySelector('.modal-header');
 			assert.strictEqual('header', header.childNodes[1].textContent);
 			assert.ok(dom.hasClass(header.childNodes[0], 'close'));
 			done();
@@ -87,7 +87,7 @@ describe('Modal', function() {
 		modal = new Modal().render();
 		modal.footer = 'footer';
 		async.nextTick(function() {
-			var footer = modal.getSurfaceElement('footer').innerHTML;
+			var footer = modal.element.querySelector('.modal-footer').innerHTML;
 			assert.strictEqual('footer', footer);
 			done();
 		});
