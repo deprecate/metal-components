@@ -12,7 +12,7 @@ class Treeview extends TreeviewBase {
 	 */
 	attached() {
 		this.on('nodesChanged', this.onNodesChanged_);
-		this.on('renderSurface', this.handleRenderSurface_);
+		this.getRenderer().on('renderSurface', this.handleRenderSurface_.bind(this));
 	}
 
 	/**
