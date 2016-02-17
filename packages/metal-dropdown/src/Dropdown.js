@@ -78,7 +78,8 @@ class Dropdown extends DropdownBase {
 			if (this.alignElementSelector) {
 				var alignElement = this.element.querySelector(this.alignElementSelector);
 				if (alignElement) {
-					Align.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+					var bodyElement = this.getRenderer().getSurfaceElement('body');
+					Align.align(bodyElement, alignElement, Dropdown.POSITION_MAP[this.position]);
 				}
 			}
 		} else {
