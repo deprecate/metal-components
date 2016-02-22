@@ -11,7 +11,12 @@ import Scrollspy from 'metal-scrollspy';
  */
 class ReadingProgress extends Scrollspy {
 	/**
-	 * @inheritDoc
+	 * Initializes the main behavior. This is being overriden instead of the
+	 * constructor because the events need to be attached before the `Scrollspy`
+	 * super class init code runs. Unfortunately, it's not possible to reference
+	 * `this` before calling `super` on ES2015 constructors (compilers like babel
+	 * throw errors).
+	 * @override
 	 */
 	init() {
 		this.on('activeIndexChanged', this.handleActiveIndexChanged);
