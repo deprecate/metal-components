@@ -1,6 +1,6 @@
 # metal-reading-progress
 
-An reading progress indicator
+A reading progress indicator
 
 ## Setup
 
