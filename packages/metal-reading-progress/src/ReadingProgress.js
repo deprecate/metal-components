@@ -41,7 +41,7 @@ class ReadingProgress extends Scrollspy {
 	 * @param {!Object} data
 	 */
 	handleActiveIndexChanged(data) {
-		if (data.prevVal && data.prevVal >= 0) {
+		if (core.isDef(data.prevVal) && data.prevVal >= 0) {
 			var prevElement = this.getElementForIndex(data.prevVal);
 			prevElement.removeAttribute('data-reading-progress');
 		}
