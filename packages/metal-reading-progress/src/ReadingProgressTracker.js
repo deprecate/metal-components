@@ -9,7 +9,7 @@ import Scrollspy from 'metal-scrollspy';
  * has already been covered by the scrolling, instead of just marking the one
  * being currently viewed.
  */
-class ReadingProgress extends Scrollspy {
+class ReadingProgressTracker extends Scrollspy {
 	/**
 	 * Initializes the main behavior. This is being overriden instead of the
 	 * constructor because the events need to be attached before the `Scrollspy`
@@ -98,10 +98,10 @@ class ReadingProgress extends Scrollspy {
 }
 
 /**
- * ReadingProgress' attributes config.
+ * ReadingProgressTracker' attributes config.
  * @type {!Object}
  */
-ReadingProgress.ATTRS = {
+ReadingProgressTracker.ATTRS = {
 	/**
 	 * The CSS class that will be added to links that reach 100% percentage.
 	 * @type {string}
@@ -121,4 +121,4 @@ ReadingProgress.ATTRS = {
 	}
 };
 
-export default ReadingProgress;
+export default ReadingProgressTracker;

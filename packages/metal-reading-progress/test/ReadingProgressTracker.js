@@ -1,9 +1,9 @@
 'use strict';
 
 import dom from 'metal-dom';
-import ReadingProgress from '../src/ReadingProgress';
+import ReadingProgressTracker from '../src/ReadingProgressTracker';
 
-describe('ReadingProgress', function() {
+describe('ReadingProgressTracker', function() {
 	var readingProgress;
 
 	before(function() {
@@ -31,7 +31,7 @@ describe('ReadingProgress', function() {
 	});
 
 	it('should update progress while scrolling', function(done) {
-		readingProgress = new ReadingProgress({
+		readingProgress = new ReadingProgressTracker({
 			element: '#links'
 		});
 		dom.once(document, 'scroll', function() {
@@ -49,7 +49,7 @@ describe('ReadingProgress', function() {
 	});
 
 	it('should set "data-reading-progress" to the progress percentage', function(done) {
-		readingProgress = new ReadingProgress({
+		readingProgress = new ReadingProgressTracker({
 			element: '#links'
 		});
 		var contents = document.querySelectorAll('#links a');
@@ -73,7 +73,7 @@ describe('ReadingProgress', function() {
 	});
 
 	it('should mark as complete/incomplete while scrolling', function(done) {
-		readingProgress = new ReadingProgress({
+		readingProgress = new ReadingProgressTracker({
 			element: '#links'
 		});
 		var contents = document.querySelectorAll('#links a');
@@ -110,7 +110,7 @@ describe('ReadingProgress', function() {
 
 	it('should not set progress on any link if none is active', function(done) {
 		dom.enterDocument('<style id="style">body{ margin-top: 100px; }');
-		readingProgress = new ReadingProgress({
+		readingProgress = new ReadingProgressTracker({
 			element: '#links'
 		});
 		var links = document.querySelectorAll('#links a');
