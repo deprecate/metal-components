@@ -43,7 +43,7 @@ if (goog.DEBUG) {
  * @suppress {checkTypes}
  */
 Templates.ReadingProgress.item = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.surfaceId) + '"><a href="' + soy.$$escapeHtmlAttribute(soy.$$filterNormalizeUri(opt_data.item.href)) + '">' + ((opt_data.item.title) ? '<em>' + soy.$$escapeHtml(opt_data.item.title) + '</em>' : '') + ((opt_data.item.time) ? '<b>' + soy.$$escapeHtml(opt_data.item.time < 60 ? opt_data.item.time + ' sec read' : Math.round(opt_data.item.time / 60) + ' min read') + '</b>' : '') + '<svg x="0px" y="0px" width="36px" height="36px" viewBox="0 0 36 36"><circle fill="none" stroke-width="2" cx="18" cy="18" r="16" stroke-dasharray="100 100" transform="rotate(-90 18 18)"></circle></svg></a></li>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.surfaceId) + '"><a href="' + soy.$$escapeHtmlAttribute(soy.$$filterNormalizeUri(opt_data.item.href)) + '">' + ((opt_data.item.title) ? '<span class="reading-title">' + soy.$$escapeHtml(opt_data.item.title) + '</span>' : '') + ((opt_data.item.time) ? '<span class="reading-subtitle">' + soy.$$escapeHtml(opt_data.item.time < 60 ? opt_data.item.time + ' sec read' : Math.round(opt_data.item.time / 60) + ' min read') + '</span>' : '') + '<svg x="0px" y="0px" width="36px" height="36px" viewBox="0 0 36 36"><circle fill="none" stroke-width="2" cx="18" cy="18" r="16" stroke-dasharray="100 100" transform="rotate(-90 18 18)"></circle></svg></a></li>');
 };
 if (goog.DEBUG) {
   Templates.ReadingProgress.item.soyTemplateName = 'Templates.ReadingProgress.item';

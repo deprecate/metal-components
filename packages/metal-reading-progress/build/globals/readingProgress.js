@@ -5726,12 +5726,13 @@ babelHelpers;
    * been attached.
    * @param {string} eventType
    * @param {string} fnNamesString
-   * @param {boolean} permanent
-   * @protected
+   * @param {string=} groupName
    */
 
 
-		EventsCollector.prototype.attachListener_ = function attachListener_(eventType, fnNamesString, groupName) {
+		EventsCollector.prototype.attachListener = function attachListener(eventType, fnNamesString) {
+			var groupName = arguments.length <= 2 || arguments[2] === undefined ? 'element' : arguments[2];
+
 			var selector = '[data-on' + eventType + '="' + fnNamesString + '"]';
 
 			this.groupHasListener_[groupName][selector] = true;
@@ -5749,34 +5750,23 @@ babelHelpers;
 		};
 
 		/**
-   * Attaches all listeners declared as attributes on the given element and
-   * its children.
-   * @param {string} content
-   * @param {boolean} groupName
-   */
-
-
-		EventsCollector.prototype.attachListeners = function attachListeners(content, groupName) {
-			this.groupHasListener_[groupName] = {};
-			this.attachListenersFromHtml_(content, groupName);
-		};
-
-		/**
    * Attaches listeners found in the given html content.
    * @param {string} content
-   * @param {boolean} groupName
-   * @protected
+   * @param {string=} groupName
    */
 
 
-		EventsCollector.prototype.attachListenersFromHtml_ = function attachListenersFromHtml_(content, groupName) {
+		EventsCollector.prototype.attachListenersFromHtml = function attachListenersFromHtml(content) {
+			var groupName = arguments.length <= 1 || arguments[1] === undefined ? 'element' : arguments[1];
+
+			this.startCollecting(groupName);
 			if (content.indexOf('data-on') === -1) {
 				return;
 			}
 			var regex = /data-on([a-z]+)=['"]([^'"]+)['"]/g;
 			var match = regex.exec(content);
 			while (match) {
-				this.attachListener_(match[1], match[2], groupName);
+				this.attachListener(match[1], match[2], groupName);
 				match = regex.exec(content);
 			}
 		};
@@ -5861,6 +5851,19 @@ babelHelpers;
 				event.handledByComponent = this.component_;
 				return fn(event);
 			}
+		};
+
+		/**
+   * Prepares the collector to start collecting listeners for the given group.
+   * Should be called before all calls to `attachListener` for that group.
+   * @param {string=} groupName
+   */
+
+
+		EventsCollector.prototype.startCollecting = function startCollecting() {
+			var groupName = arguments.length <= 0 || arguments[0] === undefined ? 'element' : arguments[0];
+
+			this.groupHasListener_[groupName] = {};
 		};
 
 		return EventsCollector;
@@ -6747,7 +6750,7 @@ babelHelpers;
 			if (cacheHit) {
 				this.renderPlaceholderSurfaceContents_(cacheContent, surfaceElementId);
 			} else {
-				this.eventsCollector_.attachListeners(cacheContent, surfaceElementId);
+				this.eventsCollector_.attachListenersFromHtml(cacheContent, surfaceElementId);
 				this.replaceSurfaceContent_(surfaceElementId, surface, content);
 			}
 		};
@@ -6863,7 +6866,7 @@ babelHelpers;
 
 		SurfaceRenderer.prototype.getElementExtendedContent = function getElementExtendedContent() {
 			var content = this.getElementContent_() || '';
-			this.eventsCollector_.attachListeners(content, this.component_.id);
+			this.eventsCollector_.attachListenersFromHtml(content, this.component_.id);
 			this.cacheSurfaceContent(this.component_.id, content);
 			return this.replaceSurfacePlaceholders_(content, this.component_.id, this.getSurface(this.component_.id));
 		};
@@ -7411,7 +7414,7 @@ babelHelpers;
 				// listeners and cache its content manually.
 				surface.element = null;
 				this.cacheSurfaceContent(surfaceElementId, collectedData.cacheContent);
-				this.eventsCollector_.attachListeners(collectedData.cacheContent, surfaceElementId);
+				this.eventsCollector_.attachListenersFromHtml(collectedData.cacheContent, surfaceElementId);
 			}
 		};
 
@@ -8085,7 +8088,7 @@ babelHelpers;
    * @suppress {checkTypes}
    */
   Templates.ReadingProgress.item = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.surfaceId) + '"><a href="' + soy.$$escapeHtmlAttribute(soy.$$filterNormalizeUri(opt_data.item.href)) + '">' + (opt_data.item.title ? '<em>' + soy.$$escapeHtml(opt_data.item.title) + '</em>' : '') + (opt_data.item.time ? '<b>' + soy.$$escapeHtml(opt_data.item.time < 60 ? opt_data.item.time + ' sec read' : Math.round(opt_data.item.time / 60) + ' min read') + '</b>' : '') + '<svg x="0px" y="0px" width="36px" height="36px" viewBox="0 0 36 36"><circle fill="none" stroke-width="2" cx="18" cy="18" r="16" stroke-dasharray="100 100" transform="rotate(-90 18 18)"></circle></svg></a></li>');
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.surfaceId) + '"><a href="' + soy.$$escapeHtmlAttribute(soy.$$filterNormalizeUri(opt_data.item.href)) + '">' + (opt_data.item.title ? '<span class="reading-title">' + soy.$$escapeHtml(opt_data.item.title) + '</span>' : '') + (opt_data.item.time ? '<span class="reading-subtitle">' + soy.$$escapeHtml(opt_data.item.time < 60 ? opt_data.item.time + ' sec read' : Math.round(opt_data.item.time / 60) + ' min read') + '</span>' : '') + '<svg x="0px" y="0px" width="36px" height="36px" viewBox="0 0 36 36"><circle fill="none" stroke-width="2" cx="18" cy="18" r="16" stroke-dasharray="100 100" transform="rotate(-90 18 18)"></circle></svg></a></li>');
   };
   if (goog.DEBUG) {
     Templates.ReadingProgress.item.soyTemplateName = 'Templates.ReadingProgress.item';
