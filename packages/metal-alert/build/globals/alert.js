@@ -6942,13 +6942,13 @@ babelHelpers;
    * @suppress {checkTypes}
    */
   Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert"><span class="alert-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + (opt_data.spinner ? '<span class="alert-spinner' + soy.$$escapeHtmlAttribute(opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + '"></span>' : '') + '<span class="alert-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
   };
   if (goog.DEBUG) {
     Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
   }
 
-  Templates.Alert.render.params = ["body", "dismissible", "id"];
+  Templates.Alert.render.params = ["body", "dismissible", "id", "spinner", "spinnerClasses"];
 
   var Alert = function (_Component) {
     babelHelpers.inherits(Alert, _Component);
@@ -7197,6 +7197,22 @@ babelHelpers;
 			}
 		};
 
+		/**
+   * Synchronization logic for `spinnerDone` attribute.
+   * @param {boolean} spinnerDone
+   */
+
+
+		Alert.prototype.syncSpinnerDone = function syncSpinnerDone(spinnerDone) {
+			if (this.spinner) {
+				var spinnerElement = this.element.querySelector('.alert-spinner');
+				dom.removeClasses(spinnerElement, 'alert-spinner-done');
+				if (spinnerDone) {
+					dom.addClasses(spinnerElement, 'alert-spinner-done');
+				}
+			}
+		};
+
 		return Alert;
 	}(AlertBase);
 
@@ -7261,6 +7277,30 @@ babelHelpers;
    * @type {?number}
    */
 		hideDelay: {},
+
+		/**
+   * Spinner indicating.
+   * @type {boolean}
+   * @default false
+   */
+		spinner: {
+			value: false
+		},
+
+		/**
+   * The CSS classes that should be added to the spinner.
+   * @type {string}
+   */
+		spinnerClasses: {},
+
+		/**
+   * Spinner is marked as done.
+   * @type {boolean}
+   * @default false
+   */
+		spinnerDone: {
+			value: false
+		},
 
 		/**
    * Flag indicating if the alert is visible or not.

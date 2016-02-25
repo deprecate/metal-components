@@ -20,13 +20,13 @@ if (typeof Templates.Alert == 'undefined') { Templates.Alert = {}; }
  * @suppress {checkTypes}
  */
 Templates.Alert.render = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert"><span class="alert-body">' + ((opt_data.body) ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + ((opt_data.dismissible) ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">\u00D7</span></button>' : '') + '</div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + ((opt_data.spinner) ? '<span class="alert-spinner' + soy.$$escapeHtmlAttribute(opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + '"></span>' : '') + '<span class="alert-body">' + ((opt_data.body) ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + ((opt_data.dismissible) ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">\u00D7</span></button>' : '') + '</div>');
 };
 if (goog.DEBUG) {
   Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
 }
 
-Templates.Alert.render.params = ["body","dismissible","id"];
+Templates.Alert.render.params = ["body","dismissible","id","spinner","spinnerClasses"];
 
 class Alert extends Component {}
 Alert.RENDERER = SoyRenderer;
