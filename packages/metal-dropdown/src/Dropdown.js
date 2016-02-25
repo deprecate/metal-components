@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'metal';
+import { core, object } from 'metal';
 import dom from 'metal-dom';
 import { Align } from 'metal-position';
 import DropdownBase from './Dropdown.soy';
@@ -69,6 +69,30 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
+	 * The setter function for the `classMap` attribute.
+	 * @param {Object} val
+	 * @return {!Object}
+	 * @protected
+	 */
+	setterClassMapFn_(val) {
+		return object.mixin(this.valueClassMapFn_(), val);
+	}
+
+	/**
+	 * The setter function for the `position` attribute. Converts the supported
+	 * string positions into the appropriate `Align` position constants.
+	 * @param {string|number} val
+	 * @return {number}
+	 * @protected
+	 */
+	setterPositionFn_(val) {
+		if (core.isNumber(val)) {
+			return val;
+		}
+		return val.toLowerCase() === 'up' ? Align.TopLeft : Align.BottomLeft;
+	}
+
+	/**
 	 * Synchronization logic for `expanded` attribute.
 	 * @param {boolean} expanded
 	 */
@@ -79,7 +103,8 @@ class Dropdown extends DropdownBase {
 				var alignElement = this.element.querySelector(this.alignElementSelector);
 				if (alignElement) {
 					var bodyElement = this.getRenderer().getSurfaceElement('body');
-					Align.align(bodyElement, alignElement, Dropdown.POSITION_MAP[this.position]);
+					var position = Align.align(bodyElement, alignElement, this.position);
+					this.updatePositionCss_(position);
 				}
 			}
 		} else {
@@ -90,13 +115,9 @@ class Dropdown extends DropdownBase {
 	/**
 	 * Synchronization logic for `position` attribute.
 	 * @param {string} position
-	 * @param {string} oldPosition
 	 */
-	syncPosition(position, oldPosition) {
-		if (oldPosition) {
-			dom.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
-		}
-		dom.addClasses(this.element, 'drop' + position.toLowerCase());
+	syncPosition(position) {
+		this.updatePositionCss_(position);
 	}
 
 	/**
@@ -107,12 +128,32 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * Validator for the `position` attribute.
+	 * Updates the component's css class according to the position it's aligned to.
 	 * @param {string} position
+	 * @protected
+	 */
+	updatePositionCss_(position) {
+		var element = this.element;
+		if (this.positionClassOnMenu) {
+			element = element.querySelector('.dropdown-menu');
+		}
+		if (this.alignedPosition_) {
+			dom.removeClasses(element, this.classMap[this.alignedPosition_]);
+		}
+		dom.addClasses(element, this.classMap[position]);
+		this.alignedPosition_ = position;
+	}
+
+	/**
+	 * Validator for the `position` attribute.
+	 * @param {string|number} position
 	 * @return {boolean}
 	 * @protected
 	 */
 	validatePosition_(position) {
+		if (Align.isValidPosition(position)) {
+			return true;
+		}
 		switch (position.toLowerCase()) {
 			case 'up':
 			case 'down':
@@ -126,6 +167,7 @@ class Dropdown extends DropdownBase {
 	 * Gets the default value for the `body` attribute. Retrieves existing
 	 * html for the body from the element, if there is any.
 	 * @return {?string}
+	 * @protected
 	 */
 	valueBodyFn_() {
 		var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
@@ -133,9 +175,28 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
+	 * Gets the default value for the `classMap` attribute.
+	 * @return {!Object}
+	 * @protected
+	 */
+	valueClassMapFn_() {
+		return {
+			[Align.TopLeft]: 'dropup',
+			[Align.TopCenter]: 'dropup',
+			[Align.TopRight]: 'dropup',
+			[Align.BottomLeft]: 'dropdown',
+			[Align.BottomCenter]: 'dropdown',
+			[Align.BottomRight]: 'dropdown',
+			[Align.RightCenter]: 'dropright',
+			[Align.LeftCenter]: 'dropleft'
+		};
+	}
+
+	/**
 	 * Gets the default value for the `header` attribute. Retrieves existing
 	 * html for the header from the element, if there is any.
 	 * @return {?string}
+	 * @protected
 	 */
 	valueHeaderFn_() {
 		if (this.element) {
@@ -179,6 +240,17 @@ Dropdown.ATTRS = {
 	},
 
 	/**
+	 * A map from `Align` position constants to the CSS class that should be
+	 * added to the dropdown when it's aligned in that position.
+	 * @type {!Object}
+	 */
+	classMap: {
+		setter: 'setterClassMapFn_',
+		validator: core.isObject,
+		valueFn: 'valueClassMapFn_'
+	},
+
+	/**
 	 * The dropdown's header content.
 	 * @type {string}
 	 */
@@ -197,13 +269,24 @@ Dropdown.ATTRS = {
 	},
 
 	/**
-	 * The position of the dropdown (either 'up' or 'down').
-	 * @type {string}
-	 * @default 'down'
+	 * The position of the dropdown (either 'up', 'down' or any of the position
+	 * constants available in `Align`).
+	 * @type {string|number}
+	 * @default Align.BottomLeft
 	 */
 	position: {
-		value: 'down',
+		setter: 'setterPositionFn_',
+		value: Align.BottomLeft,
 		validator: 'validatePosition_'
+	},
+
+	/**
+	 * Flag indicating if the position class (specified by `classMap` attribute)
+	 * should be added on the "dropdown-menu" element, instead of the main element.
+	 * @type {boolean}
+	 */
+	positionClassOnMenu: {
+		value: false
 	}
 };
 
@@ -214,13 +297,5 @@ Dropdown.ATTRS = {
  * @static
  */
 Dropdown.ELEMENT_CLASSES = 'dropdown';
-
-/**
- * A map from the dropdown supported positions to `Align` positions.
- */
-Dropdown.POSITION_MAP = {
-	down: Align.BottomLeft,
-	up: Align.TopLeft
-};
 
 export default Dropdown;

@@ -118,6 +118,28 @@ describe('Dropdown', function() {
 		});
 	});
 
+	it('should set position css class on dropdown-menu when positionClassOnMenu is true', function() {
+		component = new Dropdown({
+			position: Align.RightCenter,
+			positionClassOnMenu: true
+		}).render();
+		var element = component.element;
+		assert.ok(!dom.hasClass(element, 'dropright'));
+		assert.ok(dom.hasClass(element.querySelector('.dropdown-menu'), 'dropright'));
+	});
+
+	it('should set class for the current position according to `classMap` attribute', function() {
+		component = new Dropdown({
+			classMap: {
+				[Align.RightCenter]: 'my-right-class'
+			},
+			position: Align.RightCenter
+		}).render();
+		var element = component.element;
+		assert.ok(!dom.hasClass(element, 'dropright'));
+		assert.ok(dom.hasClass(element, 'my-right-class'));
+	});
+
 	describe('Align', function() {
 		beforeEach(function() {
 			sinon.spy(Align, 'align');
