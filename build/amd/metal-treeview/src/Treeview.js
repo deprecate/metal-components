@@ -56,7 +56,7 @@ define(['exports', 'metal-dom/src/all/dom', './Treeview.soy'], function (exports
 
 		Treeview.prototype.attached = function attached() {
 			this.on('nodesChanged', this.onNodesChanged_);
-			this.on('renderSurface', this.handleRenderSurface_);
+			this.getRenderer().on('renderSurface', this.handleRenderSurface_.bind(this));
 		};
 
 		Treeview.prototype.getNodeObj = function getNodeObj(path) {

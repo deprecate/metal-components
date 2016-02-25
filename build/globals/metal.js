@@ -14,6 +14,21 @@ babelHelpers.classCallCheck = function (instance, Constructor) {
   }
 };
 
+babelHelpers.defineProperty = function (obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+};
+
 babelHelpers.inherits = function (subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
     throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
@@ -3120,6 +3135,19 @@ babelHelpers;
 		};
 
 		/**
+   * Checks if the value of the attribute with the given name has already been
+   * set. Note that this doesn't run the attribute's getter.
+   * @param {string} name The name of the attribute.
+   * @return {boolean}
+   */
+
+
+		Attribute.prototype.hasBeenSet = function hasBeenSet(name) {
+			var info = this.attrsInfo_[name];
+			return info.state === Attribute.States.INITIALIZED || info.initialValue;
+		};
+
+		/**
    * Informs of changes to an attributes value through an event. Won't trigger
    * the event if the value hasn't changed or if it's being initialized.
    * @param {string} name The name of the attribute.
@@ -4213,6 +4241,1456 @@ babelHelpers;
 
 (function () {
 	var core = this.metalNamed.metal.core;
+
+	/**
+  * The component registry is used to register components, so they can
+  * be accessible by name.
+  * @type {Object}
+  */
+
+	var ComponentRegistry = function () {
+		function ComponentRegistry() {
+			babelHelpers.classCallCheck(this, ComponentRegistry);
+		}
+
+		/**
+   * Gets the constructor function for the given component name, or
+   * undefined if it hasn't been registered yet.
+   * @param {string} name The component's name.
+   * @return {?function}
+   * @static
+   */
+
+		ComponentRegistry.getConstructor = function getConstructor(name) {
+			var constructorFn = ComponentRegistry.components_[name];
+			if (!constructorFn) {
+				console.error('There\'s no constructor registered for the component ' + 'named ' + name + '. Components need to be registered via ' + 'ComponentRegistry.register.');
+			}
+			return constructorFn;
+		};
+
+		/**
+   * Registers a component, so it can be found by its name.
+   * @param {!Function} constructorFn The component's constructor function.
+   * @param {string=} opt_name Name of the registered component. If none is given
+   *   the name defined by the NAME static variable will be used instead. If that
+   *   isn't set as well, the name of the constructor function will be used.
+   * @static
+   */
+
+
+		ComponentRegistry.register = function register(constructorFn, opt_name) {
+			var name = opt_name;
+			if (!name) {
+				if (constructorFn.hasOwnProperty('NAME')) {
+					name = constructorFn.NAME;
+				} else {
+					name = core.getFunctionName(constructorFn);
+				}
+			}
+			constructorFn.NAME = name;
+			ComponentRegistry.components_[name] = constructorFn;
+		};
+
+		return ComponentRegistry;
+	}();
+
+	/**
+  * Holds all registered components, indexed by their names.
+  * @type {!Object<string, function()>}
+  * @protected
+  * @static
+  */
+
+
+	ComponentRegistry.components_ = {};
+
+	this.metal.ComponentRegistry = ComponentRegistry;
+}).call(this);
+'use strict';
+
+(function () {
+	var ComponentRegistry = this.metal.ComponentRegistry;
+	var Disposable = this.metalNamed.metal.Disposable;
+
+	var ComponentCollector = function (_Disposable) {
+		babelHelpers.inherits(ComponentCollector, _Disposable);
+
+		function ComponentCollector() {
+			babelHelpers.classCallCheck(this, ComponentCollector);
+			return babelHelpers.possibleConstructorReturn(this, _Disposable.apply(this, arguments));
+		}
+
+		/**
+   * Adds a component to this collector.
+   * @param {!Component} component
+   */
+
+		ComponentCollector.prototype.addComponent = function addComponent(component) {
+			ComponentCollector.components[component.id] = component;
+		};
+
+		/**
+   * Creates the appropriate component from the given config data if it doesn't
+   * exist yet.
+   * @param {string} componentName The name of the component to be created.
+   * @param {string} id The id of the component to be created.
+   * @param {Object=} opt_data
+   * @return {!Component} The component instance.
+   */
+
+
+		ComponentCollector.prototype.createComponent = function createComponent(componentName, id, opt_data) {
+			var component = ComponentCollector.components[id];
+			if (!component) {
+				var ConstructorFn = ComponentRegistry.getConstructor(componentName);
+				var data = opt_data || {};
+				data.id = id;
+				data.element = '#' + id;
+				component = new ConstructorFn(data);
+			}
+			return component;
+		};
+
+		/**
+   * Removes the given component from this collector.
+   * @param {!Component} component
+   */
+
+
+		ComponentCollector.prototype.removeComponent = function removeComponent(component) {
+			delete ComponentCollector.components[component.id];
+		};
+
+		/**
+   * Updates an existing component instance with new attributes.
+   * @param {string} id The id of the component to be created or updated.
+   * @param {Object=} opt_data
+   * @return {Component} The extracted component instance.
+   */
+
+
+		ComponentCollector.prototype.updateComponent = function updateComponent(id, opt_data) {
+			var component = ComponentCollector.components[id];
+			if (component && opt_data) {
+				component.setAttrs(opt_data);
+			}
+			return component;
+		};
+
+		return ComponentCollector;
+	}(Disposable);
+
+	/**
+  * Holds all collected components, indexed by their id.
+  * @type {!Object<string, !Component>}
+  */
+
+
+	ComponentCollector.prototype.registerMetalComponent && ComponentCollector.prototype.registerMetalComponent(ComponentCollector, 'ComponentCollector')
+	ComponentCollector.components = {};
+
+	this.metal.ComponentCollector = ComponentCollector;
+}).call(this);
+'use strict';
+
+(function () {
+	var EventEmitter = this.metalNamed.events.EventEmitter;
+	var EventHandler = this.metalNamed.events.EventHandler;
+
+	/**
+  * Base class that component renderers should extend from. It defines the
+  * required methods all renderers should have.
+  */
+
+	var ComponentRenderer = function (_EventEmitter) {
+		babelHelpers.inherits(ComponentRenderer, _EventEmitter);
+
+		/**
+   * Constructor function for `ComponentRenderer`.
+   * @param {!Component} component The component that this renderer is
+   *     responsible for.
+   */
+
+		function ComponentRenderer(component) {
+			babelHelpers.classCallCheck(this, ComponentRenderer);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
+
+			_this.component_ = component;
+			_this.componentRendererEvents_ = new EventHandler();
+			_this.componentRendererEvents_.add(_this.component_.on('attrsChanged', _this.handleComponentRendererAttrsChanged_.bind(_this)), _this.component_.once('render', _this.render.bind(_this)));
+			return _this;
+		}
+
+		/**
+   * Builds and returns the component's main element, without any content. This
+   * is used by Component when building the element attribute from scratch,
+   * which can happen before the first render, whenever the attribute is first
+   * accessed.
+   * Subclasses should override this to customize the creation of the default
+   * component element.
+   * @return {!Element}
+   */
+
+
+		ComponentRenderer.prototype.buildElement = function buildElement() {
+			return document.createElement('div');
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		ComponentRenderer.prototype.disposeInternal = function disposeInternal() {
+			this.componentRendererEvents_.removeAllListeners();
+			this.componentRendererEvents_ = null;
+		};
+
+		/**
+   * Handles an `attrsChanged` event from this renderer's component. Calls the
+   * `update` function if the component has already been rendered for the first
+   * time.
+   * @param {Object.<string, Object>} changes Object containing the names
+   *     of all changed attributes as keys, each mapped to an object with its
+   *     new (newVal) and previous (prevVal) values.
+   */
+
+
+		ComponentRenderer.prototype.handleComponentRendererAttrsChanged_ = function handleComponentRendererAttrsChanged_(changes) {
+			if (this.component_.wasRendered) {
+				this.update(changes);
+			}
+		};
+
+		/**
+   * Renders the component's whole content. When decorating this should avoid
+   * replacing the existing content if it's already correct.
+   * @param {decorating: boolean} data
+   */
+
+
+		ComponentRenderer.prototype.render = function render() {};
+
+		/**
+   * Updates the component's element html. This is automatically called by
+   * the component when the value of at least one of its attributes has changed.
+   * @param {Object.<string, Object>} changes Object containing the names
+   *     of all changed attributes as keys, each mapped to an object with its
+   *     new (newVal) and previous (prevVal) values.
+   */
+
+
+		ComponentRenderer.prototype.update = function update() {};
+
+		return ComponentRenderer;
+	}(EventEmitter);
+
+	ComponentRenderer.prototype.registerMetalComponent && ComponentRenderer.prototype.registerMetalComponent(ComponentRenderer, 'ComponentRenderer')
+	this.metal.ComponentRenderer = ComponentRenderer;
+}).call(this);
+'use strict';
+
+(function () {
+	var array = this.metalNamed.metal.array;
+	var core = this.metalNamed.metal.core;
+	var dom = this.metalNamed.dom.dom;
+	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
+	var Attribute = this.metal.Attribute;
+	var ComponentCollector = this.metal.ComponentCollector;
+	var ComponentRegistry = this.metal.ComponentRegistry;
+	var ComponentRenderer = this.metal.ComponentRenderer;
+	var EventHandler = this.metalNamed.events.EventHandler;
+
+	/**
+  * Component collects common behaviors to be followed by UI components, such
+  * as Lifecycle, CSS classes management, events encapsulation and support for
+  * different types of rendering.
+  * Rendering logic can be done by either:
+  *     - Listening to the `render` event and adding the rendering logic to the
+  *       listener.
+  *     - Using an existing implementation of `ComponentRenderer` like
+  *       `SurfaceRenderer` or `SoyRenderer`, and following its patterns.
+  *     - Building your own implementation of a `ComponentRenderer`.
+  * Specifying the renderer that will be used can be done by setting the RENDERER
+  * static variable to the renderer's constructor function.
+  *
+  * Example:
+  *
+  * <code>
+  * class CustomComponent extends Component {
+  *   constructor(config) {
+  *     super(config);
+  *   }
+  *
+  *   attached() {
+  *   }
+  *
+  *   detached() {
+  *   }
+  * }
+  *
+  * CustomComponent.RENDERER = MyRenderer;
+  *
+  * CustomComponent.ATTRS = {
+  *   title: { value: 'Title' },
+  *   fontSize: { value: '10px' }
+  * };
+  * </code>
+  *
+  * @param {!Object} opt_config An object with the initial values for this component's
+  *   attributes.
+  * @constructor
+  * @extends {Attribute}
+  */
+
+	var Component = function (_Attribute) {
+		babelHelpers.inherits(Component, _Attribute);
+
+		function Component(opt_config) {
+			babelHelpers.classCallCheck(this, Component);
+
+
+			/**
+    * Gets all nested components.
+    * @type {!Array<!Component>}
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+
+			_this.components = {};
+
+			/**
+    * Whether the element is being decorated.
+    * @type {boolean}
+    * @protected
+    */
+			_this.decorating_ = false;
+
+			/**
+    * Holds events that were listened through the `delegate` Component function.
+    * @type {EventHandler}
+    * @protected
+    */
+			_this.delegateEventHandler_ = null;
+
+			/**
+    * Instance of `DomEventEmitterProxy` which proxies events from the component's
+    * element to the component itself.
+    * @type {DomEventEmitterProxy}
+    * @protected
+    */
+			_this.elementEventProxy_ = null;
+
+			/**
+    * The `EventHandler` instance for events attached from the `events` attribute.
+    * @type {!EventHandler}
+    * @protected
+    */
+			_this.eventsAttrHandler_ = new EventHandler();
+
+			/**
+    * Whether the element is in document.
+    * @type {boolean}
+    */
+			_this.inDocument = false;
+
+			/**
+    * The initial config option passed to this constructor.
+    * @type {!Object}
+    * @protected
+    */
+			_this.initialConfig_ = opt_config || {};
+
+			/**
+    * Whether the element was rendered.
+    * @type {boolean}
+    */
+			_this.wasRendered = false;
+
+			/**
+    * The component's element will be appended to the element this variable is
+    * set to, unless the user specifies another parent when calling `render` or
+    * `attach`.
+    * @type {!Element}
+    */
+			_this.DEFAULT_ELEMENT_PARENT = document.body;
+
+			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
+			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_TAG_NAME', array.firstDefinedValue);
+			core.mergeSuperClassesProperty(_this.constructor, 'RENDERER', array.firstDefinedValue);
+
+			_this.renderer_ = new _this.constructor.RENDERER_MERGED(_this);
+			_this.delegateEventHandler_ = new EventHandler();
+
+			_this.created_();
+			return _this;
+		}
+
+		/**
+   * Adds the listeners specified in the given object.
+   * @param {Object} events
+   * @protected
+   */
+
+
+		Component.prototype.addListenersFromObj_ = function addListenersFromObj_(events) {
+			var eventNames = Object.keys(events || {});
+			for (var i = 0; i < eventNames.length; i++) {
+				var info = this.extractListenerInfo_(events[eventNames[i]]);
+				if (info.fn) {
+					var handler;
+					if (info.selector) {
+						handler = this.delegate(eventNames[i], info.selector, info.fn);
+					} else {
+						handler = this.on(eventNames[i], info.fn);
+					}
+					this.eventsAttrHandler_.add(handler);
+				}
+			}
+		};
+
+		/**
+   * Overrides `addSingleListener_` from `EventEmitter`, so we can create
+   * the `DomEventEmitterProxy` instance only when it's needed for the first
+   * time.
+   * @param {string} event
+   * @param {!Function} listener
+   * @param {boolean} opt_default Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @param {Function=} opt_origin The original function that was added as a
+   *   listener, if there is any.
+   * @protected
+   * @override
+   */
+
+
+		Component.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_default, opt_origin) {
+			if (!this.elementEventProxy_ && dom.supportsEvent(this.constructor.ELEMENT_TAG_NAME_MERGED, event)) {
+				this.elementEventProxy_ = new DomEventEmitterProxy(this.element, this);
+			}
+			_Attribute.prototype.addSingleListener_.call(this, event, listener, opt_default, opt_origin);
+		};
+
+		/**
+   * Invokes the attached Lifecycle. When attached, the component element is
+   * appended to the DOM and any other action to be performed must be
+   * implemented in this method, such as, binding DOM events. A component can
+   * be re-attached multiple times.
+   * @param {(string|Element)=} opt_parentElement Optional parent element
+   *     to render the component.
+   * @param {(string|Element)=} opt_siblingElement Optional sibling element
+   *     to render the component before it. Relevant when the component needs
+   *     to be rendered before an existing element in the DOM, e.g.
+   *     `component.render(null, existingElement)`.
+   * @protected
+   * @chainable
+   */
+
+
+		Component.prototype.attach = function attach(opt_parentElement, opt_siblingElement) {
+			if (!this.inDocument) {
+				this.renderElement_(opt_parentElement, opt_siblingElement);
+				this.inDocument = true;
+				this.emit('attached');
+				this.attached();
+			}
+			return this;
+		};
+
+		/**
+   * Lifecycle. When attached, the component element is appended to the DOM
+   * and any other action to be performed must be implemented in this method,
+   * such as, binding DOM events. A component can be re-attached multiple
+   * times, therefore the undo behavior for any action performed in this phase
+   * must be implemented on the detach phase.
+   */
+
+
+		Component.prototype.attached = function attached() {};
+
+		/**
+   * Internal implementation for the creation phase of the component.
+   * @protected
+   */
+
+
+		Component.prototype.created_ = function created_() {
+			this.on('eventsChanged', this.onEventsChanged_);
+			this.addListenersFromObj_(this.events);
+
+			this.on('attrsChanged', this.handleAttributesChanges_);
+			Component.componentsCollector.addComponent(this);
+		};
+
+		/**
+   * Adds a sub component, creating it if it doesn't yet exist.
+   * @param {string} componentName
+   * @param {string} componentId
+   * @param {Object=} opt_componentData
+   * @return {!Component}
+   */
+
+
+		Component.prototype.addSubComponent = function addSubComponent(componentName, componentId, opt_componentData) {
+			this.components[componentId] = Component.componentsCollector.createComponent(componentName, componentId, opt_componentData);
+			return this.components[componentId];
+		};
+
+		/**
+   * Lifecycle. Creates the component using existing DOM elements. Often the
+   * component can be created using existing elements in the DOM to leverage
+   * progressive enhancement. Any extra operation necessary to prepare the
+   * component DOM must be implemented in this phase. Decorate phase replaces
+   * render phase.
+   * @chainable
+   */
+
+
+		Component.prototype.decorate = function decorate() {
+			this.decorating_ = true;
+			this.render();
+			this.decorating_ = false;
+			return this;
+		};
+
+		/**
+   * Listens to a delegate event on the component's element.
+   * @param {string} eventName The name of the event to listen to.
+   * @param {string} selector The selector that matches the child elements that
+   *   the event should be triggered for.
+   * @param {!function(!Object)} callback Function to be called when the event is
+   *   triggered. It will receive the normalized event object.
+   * @return {!DomEventHandle} Can be used to remove the listener.
+   */
+
+
+		Component.prototype.delegate = function delegate(eventName, selector, callback) {
+			var handle = dom.delegate(this.element, eventName, selector, callback);
+			this.delegateEventHandler_.add(handle);
+			return handle;
+		};
+
+		/**
+   * Invokes the detached Lifecycle. When detached, the component element is
+   * removed from the DOM and any other action to be performed must be
+   * implemented in this method, such as, unbinding DOM events. A component
+   * can be detached multiple times.
+   * @chainable
+   */
+
+
+		Component.prototype.detach = function detach() {
+			if (this.inDocument) {
+				if (this.element.parentNode) {
+					this.element.parentNode.removeChild(this.element);
+				}
+				this.inDocument = false;
+				this.detached();
+			}
+			this.emit('detached');
+			return this;
+		};
+
+		/**
+   * Lifecycle. When detached, the component element is removed from the DOM
+   * and any other action to be performed must be implemented in this method,
+   * such as, unbinding DOM events. A component can be detached multiple
+   * times, therefore the undo behavior for any action performed in this phase
+   * must be implemented on the attach phase.
+   */
+
+
+		Component.prototype.detached = function detached() {};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Component.prototype.disposeInternal = function disposeInternal() {
+			this.detach();
+
+			if (this.elementEventProxy_) {
+				this.elementEventProxy_.dispose();
+				this.elementEventProxy_ = null;
+			}
+
+			this.delegateEventHandler_.removeAllListeners();
+			this.delegateEventHandler_ = null;
+
+			this.disposeSubComponents(Object.keys(this.components));
+			this.components = null;
+
+			this.renderer_.dispose();
+			this.renderer_ = null;
+
+			_Attribute.prototype.disposeInternal.call(this);
+		};
+
+		/**
+   * Calls `dispose` on all subcomponents.
+   * @param {!Array<string>} ids
+   */
+
+
+		Component.prototype.disposeSubComponents = function disposeSubComponents(ids) {
+			for (var i = 0; i < ids.length; i++) {
+				var component = this.components[ids[i]];
+				if (!component.isDisposed()) {
+					Component.componentsCollector.removeComponent(component);
+					component.dispose();
+					delete this.components[ids[i]];
+				}
+			}
+		};
+
+		/**
+   * Extracts listener info from the given value.
+   * @param {function()|string|{selector:string,fn:function()|string}} value
+   * @return {!{selector:string,fn:function()}}
+   * @protected
+   */
+
+
+		Component.prototype.extractListenerInfo_ = function extractListenerInfo_(value) {
+			var info = {
+				fn: value
+			};
+			if (core.isObject(value) && !core.isFunction(value)) {
+				info.selector = value.selector;
+				info.fn = value.fn;
+			}
+			if (core.isString(info.fn)) {
+				info.fn = this.getListenerFn(info.fn);
+			}
+			return info;
+		};
+
+		/**
+   * Gets the configuration object that was passed to this component's constructor.
+   * @return {!Object}
+   */
+
+
+		Component.prototype.getInitialConfig = function getInitialConfig() {
+			return this.initialConfig_;
+		};
+
+		/**
+   * Gets the listener function from its name. If the name is prefixed with a
+   * component id, the function will be called on that specified component. Otherwise
+   * it will be called on this component instead.
+   * @param {string} fnName
+   * @return {function()}
+   */
+
+
+		Component.prototype.getListenerFn = function getListenerFn(fnName) {
+			var fnComponent;
+			var split = fnName.split(':');
+			if (split.length === 2) {
+				fnName = split[1];
+				fnComponent = ComponentCollector.components[split[0]];
+				if (!fnComponent) {
+					console.error('No component with the id "' + split[0] + '" has been collected' + 'yet. Make sure that you specify an id for an existing component when ' + 'adding inline listeners.');
+				}
+			}
+			fnComponent = fnComponent || this;
+			if (core.isFunction(fnComponent[fnName])) {
+				return fnComponent[fnName].bind(fnComponent);
+			} else {
+				console.error('No function named "' + fnName + '" was found in the component with id "' + fnComponent.id + '". Make sure that you specify valid function names when adding ' + 'inline listeners.');
+			}
+		};
+
+		/**
+   * Finds the element that matches the given id on this component. This searches
+   * on the document first, for performance. If the element is not found, it's
+   * searched in the component's element directly.
+   * @param {string} id
+   * @return {Element}
+   */
+
+
+		Component.prototype.findElementById = function findElementById(id) {
+			return document.getElementById(id) || this.element && this.element.querySelector('#' + id);
+		};
+
+		/**
+   * Fires attribute synchronization change for the attribute.
+   * @param {Object.<string, Object>} change Object containing newVal and
+   *     prevVal keys.
+   * @protected
+   */
+
+
+		Component.prototype.fireAttrChange_ = function fireAttrChange_(attr, opt_change) {
+			var fn = this['sync' + attr.charAt(0).toUpperCase() + attr.slice(1)];
+			if (core.isFunction(fn)) {
+				if (!opt_change) {
+					opt_change = {
+						newVal: this[attr],
+						prevVal: undefined
+					};
+				}
+				fn.call(this, opt_change.newVal, opt_change.prevVal);
+			}
+		};
+
+		/**
+   * Returns a map of all subcomponents with ids that have the specified prefix.
+   * @param {string} prefix
+   * @return {!Object<string, !Component>}
+   */
+
+
+		Component.prototype.getComponentsWithPrefix = function getComponentsWithPrefix(prefix) {
+			var _this2 = this;
+
+			var ids = Object.keys(this.components).filter(function (id) {
+				return id.indexOf(prefix) === 0;
+			});
+			var map = {};
+			ids.forEach(function (id) {
+				return map[id] = _this2.components[id];
+			});
+			return map;
+		};
+
+		/**
+   * Gets the name of this component. If the `NAME` static variable is set, this will
+   * be the component's name. Otherwise, it will be formed from the constructor's
+   * function name.
+   * @return {string}
+   */
+
+
+		Component.prototype.getName = function getName() {
+			return this.constructor.NAME || core.getFunctionName(this.constructor);
+		};
+
+		/**
+   * Gets the `ComponentRenderer` instance being used.
+   * @return {!ComponentRenderer}
+   */
+
+
+		Component.prototype.getRenderer = function getRenderer() {
+			return this.renderer_;
+		};
+
+		/**
+   * Handles attributes batch changes. Calls any existing `sync` functions that
+   * match the changed attributes.
+   * @param {Event} event
+   * @protected
+   */
+
+
+		Component.prototype.handleAttributesChanges_ = function handleAttributesChanges_(event) {
+			this.syncAttrsFromChanges_(event.changes);
+			this.emit('attrsSynced', event);
+		};
+
+		/**
+   * Makes an unique id for the component.
+   * @return {string} Unique id.
+   * @protected
+   */
+
+
+		Component.prototype.makeId_ = function makeId_() {
+			return 'metal_c_' + core.getUid(this);
+		};
+
+		/**
+   * Merges an array of values for the ELEMENT_CLASSES property into a single object.
+   * @param {!Array.<string>} values The values to be merged.
+   * @return {!string} The merged value.
+   * @protected
+   */
+
+
+		Component.prototype.mergeElementClasses_ = function mergeElementClasses_(values) {
+			var marked = {};
+			return values.filter(function (val) {
+				if (!val || marked[val]) {
+					return false;
+				} else {
+					marked[val] = true;
+					return true;
+				}
+			}).join(' ');
+		};
+
+		/**
+   * Fired when the `events` attribute value is changed.
+   * @param {!Object} event
+   * @protected
+   */
+
+
+		Component.prototype.onEventsChanged_ = function onEventsChanged_(event) {
+			this.eventsAttrHandler_.removeAllListeners();
+			this.addListenersFromObj_(event.newVal);
+		};
+
+		/**
+   * Registers a Metal.js component. This is just a helper function to allow
+   * subclasses to easily register themselves without having to import anything else.
+   * @param {!Function} constructorFn The component's constructor function.
+   * @param {string=} opt_name The component's name.
+   */
+
+
+		Component.prototype.registerMetalComponent = function registerMetalComponent(constructorFn, opt_name) {
+			ComponentRegistry.register(constructorFn, opt_name);
+		};
+
+		/**
+   * Lifecycle. Renders the component into the DOM. Render phase replaces
+   * decorate phase, without progressive enhancement support.
+   *
+   * Render Lifecycle:
+   *   render - Decorate is manually called.
+   *   render event - The "render" event is emitted. Renderers act on this step.
+   *   attribute synchronization - All synchronization methods are called.
+   *   attach - Attach Lifecycle is called.
+   *
+   * @param {(string|Element)=} opt_parentElement Optional parent element
+   *     to render the component.
+   * @param {(string|Element)=} opt_siblingElement Optional sibling element
+   *     to render the component before it. Relevant when the component needs
+   *     to be rendered before an existing element in the DOM, e.g.
+   *     `component.render(null, existingElement)`.
+   * @chainable
+   */
+
+
+		Component.prototype.render = function render(opt_parentElement, opt_siblingElement) {
+			if (this.wasRendered) {
+				throw new Error(Component.Error.ALREADY_RENDERED);
+			}
+
+			this.emit('render', {
+				decorating: this.decorating_
+			});
+			this.syncAttrs_();
+			this.attach(opt_parentElement, opt_siblingElement);
+			this.wasRendered = true;
+			return this;
+		};
+
+		/**
+   * Renders this component as a subcomponent, meaning that no actual rendering is
+   * needed since it was already rendered by the parent component. This just handles
+   * other logics from the rendering lifecycle, like calling sync methods for the
+   * attributes.
+   */
+
+
+		Component.prototype.renderAsSubComponent = function renderAsSubComponent() {
+			this.syncAttrs_();
+			this.attach();
+			this.wasRendered = true;
+		};
+
+		/**
+   * Renders the component element into the DOM.
+   * @param {(string|Element)=} opt_parentElement Optional parent element
+   *     to render the component.
+   * @param {(string|Element)=} opt_siblingElement Optional sibling element
+   *     to render the component before it. Relevant when the component needs
+   *     to be rendered before an existing element in the DOM, e.g.
+   *     `component.render(null, existingElement)`.
+   * @protected
+   */
+
+
+		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
+			var element = this.element;
+			element.id = this.id;
+			if (opt_siblingElement || !element.parentNode) {
+				var parent = dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
+				parent.insertBefore(element, dom.toElement(opt_siblingElement));
+			}
+		};
+
+		/**
+   * Setter logic for element attribute.
+   * @param {string|Element} val
+   * @return {Element}
+   * @protected
+   */
+
+
+		Component.prototype.setterElementFn_ = function setterElementFn_(val) {
+			var element = dom.toElement(val);
+			if (!element) {
+				element = this.valueElementFn_();
+			}
+			return element;
+		};
+
+		/**
+   * Fires attributes synchronization changes for attributes.
+   * @protected
+   */
+
+
+		Component.prototype.syncAttrs_ = function syncAttrs_() {
+			var attrNames = this.getAttrNames();
+			for (var i = 0; i < attrNames.length; i++) {
+				this.fireAttrChange_(attrNames[i]);
+			}
+		};
+
+		/**
+   * Fires attributes synchronization changes for attributes.
+   * @param {Object.<string, Object>} changes Object containing the attribute
+   *     name as key and an object with newVal and prevVal as value.
+   * @protected
+   */
+
+
+		Component.prototype.syncAttrsFromChanges_ = function syncAttrsFromChanges_(changes) {
+			for (var attr in changes) {
+				this.fireAttrChange_(attr, changes[attr]);
+			}
+		};
+
+		/**
+   * Attribute synchronization logic for the `elementClasses` attribute.
+   * @param {string} newVal
+   * @param {string} prevVal
+   */
+
+
+		Component.prototype.syncElementClasses = function syncElementClasses(newVal, prevVal) {
+			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
+			if (newVal) {
+				classesToAdd = classesToAdd + ' ' + newVal;
+			}
+			if (prevVal) {
+				dom.removeClasses(this.element, prevVal);
+			}
+			dom.addClasses(this.element, classesToAdd);
+		};
+
+		/**
+   * Attribute synchronization logic for `visible` attribute.
+   * Updates the element's display value according to its visibility.
+   * @param {boolean} newVal
+   */
+
+
+		Component.prototype.syncVisible = function syncVisible(newVal) {
+			this.element.style.display = newVal ? '' : 'none';
+		};
+
+		/**
+   * Validator logic for elementClasses attribute.
+   * @param {string} val
+   * @return {boolean} True if val is a valid element classes.
+   * @protected
+   */
+
+
+		Component.prototype.validatorElementClassesFn_ = function validatorElementClassesFn_(val) {
+			return core.isString(val);
+		};
+
+		/**
+   * Validator logic for element attribute.
+   * @param {string|Element} val
+   * @return {boolean} True if val is a valid element.
+   * @protected
+   */
+
+
+		Component.prototype.validatorElementFn_ = function validatorElementFn_(val) {
+			return core.isElement(val) || core.isString(val);
+		};
+
+		/**
+   * Validator logic for the `events` attribute.
+   * @param {Object} val
+   * @return {boolean}
+   * @protected
+   */
+
+
+		Component.prototype.validatorEventsFn_ = function validatorEventsFn_(val) {
+			return !core.isDefAndNotNull(val) || core.isObject(val);
+		};
+
+		/**
+   * Validator logic for the `id` attribute.
+   * @param {string} val
+   * @return {boolean} True if val is a valid id.
+   * @protected
+   */
+
+
+		Component.prototype.validatorIdFn_ = function validatorIdFn_(val) {
+			return core.isString(val);
+		};
+
+		/**
+   * Provides the default value for element attribute.
+   * @return {!Element} The element.
+   * @protected
+   */
+
+
+		Component.prototype.valueElementFn_ = function valueElementFn_() {
+			if (!this.id) {
+				// This may happen because the default value of "id" depends on "element",
+				// and the default value of "element" depends on "id".
+				this.id = this.makeId_();
+			}
+			return this.renderer_.buildElement();
+		};
+
+		/**
+   * Provides the default value for id attribute.
+   * @return {string} The id.
+   * @protected
+   */
+
+
+		Component.prototype.valueIdFn_ = function valueIdFn_() {
+			return this.hasBeenSet('element') ? this.element.id : this.makeId_();
+		};
+
+		return Component;
+	}(Attribute);
+
+	/**
+  * Helper responsible for extracting components from strings and config data.
+  * @type {!ComponentCollector}
+  * @protected
+  * @static
+  */
+
+
+	Component.prototype.registerMetalComponent && Component.prototype.registerMetalComponent(Component, 'Component')
+	Component.componentsCollector = new ComponentCollector();
+
+	/**
+  * Component attributes definition.
+  * @type {Object}
+  * @static
+  */
+	Component.ATTRS = {
+		/**
+   * Component element bounding box.
+   * @type {Element}
+   * @writeOnce
+   */
+		element: {
+			setter: 'setterElementFn_',
+			validator: 'validatorElementFn_',
+			valueFn: 'valueElementFn_',
+			writeOnce: true
+		},
+
+		/**
+   * CSS classes to be applied to the element.
+   * @type {Array.<string>}
+   */
+		elementClasses: {
+			validator: 'validatorElementClassesFn_'
+		},
+
+		/**
+   * Listeners that should be attached to this component. Should be provided as an object,
+   * where the keys are event names and the values are the listener functions (or function
+   * names).
+   * @type {Object<string, (function()|string|{selector: string, fn: function()|string})>}
+   */
+		events: {
+			validator: 'validatorEventsFn_',
+			value: null
+		},
+
+		/**
+   * Component element id. If not specified will be generated.
+   * @type {string}
+   * @writeOnce
+   */
+		id: {
+			validator: 'validatorIdFn_',
+			valueFn: 'valueIdFn_',
+			writeOnce: true
+		},
+
+		/**
+   * Indicates if the component is visible or not.
+   * @type {boolean}
+   */
+		visible: {
+			validator: core.isBoolean,
+			value: true
+		}
+	};
+
+	/**
+  * CSS classes to be applied to the element.
+  * @type {string}
+  * @protected
+  * @static
+  */
+	Component.ELEMENT_CLASSES = 'component';
+
+	/**
+  * Element tag name is a string that specifies the type of element to be
+  * created. The nodeName of the created element is initialized with the
+  * value of tag name.
+  * @type {string}
+  * @default div
+  * @protected
+  * @static
+  */
+	Component.ELEMENT_TAG_NAME = 'div';
+
+	/**
+  * The `ComponentRenderer` that should be used. Components need to set this
+  * to a subclass of `ComponentRenderer` that has the rendering logic, like
+  * `SoyRenderer`.
+  * @type {!ComponentRenderer}
+  * @static
+  */
+	Component.RENDERER = ComponentRenderer;
+
+	/**
+  * Errors thrown by the component.
+  * @enum {string}
+  */
+	Component.Error = {
+		/**
+   * Error when the component is already rendered and another render attempt
+   * is made.
+   */
+		ALREADY_RENDERED: 'Component already rendered'
+	};
+
+	/**
+  * A list with attribute names that will automatically be rejected as invalid.
+  * @type {!Array<string>}
+  */
+	Component.INVALID_ATTRS = ['components'];
+
+	this.metal.Component = Component;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.metalNamed.metal.Disposable;
+	var EventHandler = this.metalNamed.events.EventHandler;
+
+	/**
+  * Collects inline events from a passed element, detaching previously
+  * attached events that are not being used anymore.
+  * @param {Component} component
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventsCollector = function (_Disposable) {
+		babelHelpers.inherits(EventsCollector, _Disposable);
+
+		function EventsCollector(component) {
+			babelHelpers.classCallCheck(this, EventsCollector);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			if (!component) {
+				throw new Error('The component instance is mandatory');
+			}
+
+			/**
+    * Holds the component intance.
+    * @type {!Component}
+    * @protected
+    */
+			_this.component_ = component;
+
+			/**
+    * Holds the attached delegate event handles, indexed by the css selector.
+    * @type {!Object<string, EventHandler>}
+    * @protected
+    */
+			_this.eventHandles_ = {};
+
+			/**
+    * Holds flags indicating which selectors a group has listeners for.
+    * @type {!Object<string, !Object<string, boolean>>}
+    * @protected
+    */
+			_this.groupHasListener_ = {};
+			return _this;
+		}
+
+		/**
+   * Attaches the listener described by the given params, unless it has already
+   * been attached.
+   * @param {string} eventType
+   * @param {string} fnNamesString
+   * @param {string=} groupName
+   */
+
+
+		EventsCollector.prototype.attachListener = function attachListener(eventType, fnNamesString) {
+			var groupName = arguments.length <= 2 || arguments[2] === undefined ? 'element' : arguments[2];
+
+			var selector = '[data-on' + eventType + '="' + fnNamesString + '"]';
+
+			this.groupHasListener_[groupName][selector] = true;
+
+			if (!this.eventHandles_[selector]) {
+				this.eventHandles_[selector] = new EventHandler();
+				var fnNames = fnNamesString.split(',');
+				for (var i = 0; i < fnNames.length; i++) {
+					var fn = this.component_.getListenerFn(fnNames[i]);
+					if (fn) {
+						this.eventHandles_[selector].add(this.component_.delegate(eventType, selector, this.onEvent_.bind(this, fn)));
+					}
+				}
+			}
+		};
+
+		/**
+   * Attaches listeners found in the given html content.
+   * @param {string} content
+   * @param {string=} groupName
+   */
+
+
+		EventsCollector.prototype.attachListenersFromHtml = function attachListenersFromHtml(content) {
+			var groupName = arguments.length <= 1 || arguments[1] === undefined ? 'element' : arguments[1];
+
+			this.startCollecting(groupName);
+			if (content.indexOf('data-on') === -1) {
+				return;
+			}
+			var regex = /data-on([a-z]+)=['"]([^'"]+)['"]/g;
+			var match = regex.exec(content);
+			while (match) {
+				this.attachListener(match[1], match[2], groupName);
+				match = regex.exec(content);
+			}
+		};
+
+		/**
+   * Removes all previously attached event listeners to the component.
+   */
+
+
+		EventsCollector.prototype.detachAllListeners = function detachAllListeners() {
+			for (var selector in this.eventHandles_) {
+				if (this.eventHandles_[selector]) {
+					this.eventHandles_[selector].removeAllListeners();
+				}
+			}
+			this.eventHandles_ = {};
+			this.listenerCounts_ = {};
+		};
+
+		/**
+   * Detaches all existing listeners that are not being used anymore.
+   * @protected
+   */
+
+
+		EventsCollector.prototype.detachUnusedListeners = function detachUnusedListeners() {
+			for (var selector in this.eventHandles_) {
+				if (this.eventHandles_[selector]) {
+					var unused = true;
+					for (var groupName in this.groupHasListener_) {
+						if (this.groupHasListener_[groupName][selector]) {
+							unused = false;
+							break;
+						}
+					}
+					if (unused) {
+						this.eventHandles_[selector].removeAllListeners();
+						this.eventHandles_[selector] = null;
+					}
+				}
+			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		EventsCollector.prototype.disposeInternal = function disposeInternal() {
+			this.detachAllListeners();
+			this.component_ = null;
+		};
+
+		/**
+   * Checks if this EventsCollector instance has already attached listeners for the given
+   * group before.
+   * @param  {string} group
+   * @return {boolean}
+   */
+
+
+		EventsCollector.prototype.hasAttachedForGroup = function hasAttachedForGroup(group) {
+			return !!this.groupHasListener_.hasOwnProperty(group);
+		};
+
+		/**
+   * Fires when an event that was registered by this collector is triggered. Makes
+   * sure that the event was meant for this component and calls the appropriate
+   * listener function for it.
+   * @param {!function(!Object)} fn
+   * @param {!Object} event
+   * @return {*} The return value of the call to the listener function, or undefined
+   *   if no function was called.
+   * @protected
+   */
+
+
+		EventsCollector.prototype.onEvent_ = function onEvent_(fn, event) {
+			// This check prevents parent components from handling their child inline listeners.
+			var eventComp = event.handledByComponent;
+			if (!eventComp || eventComp === this.component_ || event.delegateTarget.contains(eventComp.element)) {
+				event.handledByComponent = this.component_;
+				return fn(event);
+			}
+		};
+
+		/**
+   * Prepares the collector to start collecting listeners for the given group.
+   * Should be called before all calls to `attachListener` for that group.
+   * @param {string=} groupName
+   */
+
+
+		EventsCollector.prototype.startCollecting = function startCollecting() {
+			var groupName = arguments.length <= 0 || arguments[0] === undefined ? 'element' : arguments[0];
+
+			this.groupHasListener_[groupName] = {};
+		};
+
+		return EventsCollector;
+	}(Disposable);
+
+	EventsCollector.prototype.registerMetalComponent && EventsCollector.prototype.registerMetalComponent(EventsCollector, 'EventsCollector')
+	this.metal.EventsCollector = EventsCollector;
+}).call(this);
+'use strict';
+
+(function () {
+	var object = this.metalNamed.metal.object;
+	var Disposable = this.metalNamed.metal.Disposable;
+
+	/**
+  * Stores surface data to be used later by Components.
+  */
+
+	var SurfaceCollector = function (_Disposable) {
+		babelHelpers.inherits(SurfaceCollector, _Disposable);
+
+		function SurfaceCollector() {
+			babelHelpers.classCallCheck(this, SurfaceCollector);
+
+
+			/**
+    * Holds all registered surfaces, mapped by their element ids.
+    * @type {!Array<!Object>}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.surfaces_ = {};
+			return _this;
+		}
+
+		/**
+   * Adds a surface to this collector.
+   * @param {string} surfaceElementId
+   * @param {Object=} opt_data Surface data to be stored.
+   */
+
+
+		SurfaceCollector.prototype.addSurface = function addSurface(surfaceElementId, opt_data) {
+			if (this.surfaces_[surfaceElementId]) {
+				this.updateSurface(surfaceElementId, opt_data);
+			} else {
+				this.surfaces_[surfaceElementId] = opt_data || {};
+				this.surfaces_[surfaceElementId].surfaceElementId = surfaceElementId;
+			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		SurfaceCollector.prototype.disposeInternal = function disposeInternal() {
+			this.surfaces_ = null;
+		};
+
+		/**
+   * Gets the data for the given surface id.
+   * @param {string} surfaceElementId
+   * @return {!Object}
+   */
+
+
+		SurfaceCollector.prototype.getSurface = function getSurface(surfaceElementId) {
+			return this.surfaces_[surfaceElementId] ? this.surfaces_[surfaceElementId] : null;
+		};
+
+		/**
+   * Removes all surfaces from this collector.
+   */
+
+
+		SurfaceCollector.prototype.removeAllSurfaces = function removeAllSurfaces() {
+			this.surfaces_ = [];
+		};
+
+		/**
+   * Removes the surface with the given surface id.
+   * @param {string} surfaceElementId
+   */
+
+
+		SurfaceCollector.prototype.removeSurface = function removeSurface(surfaceElementId) {
+			this.surfaces_[surfaceElementId] = null;
+		};
+
+		/**
+   * Updates a surface from this collector.
+   * @param {string} surfaceElementId
+   * @param {Object=} opt_data Surface data to update the existing data.
+   */
+
+
+		SurfaceCollector.prototype.updateSurface = function updateSurface(surfaceElementId, opt_data) {
+			object.mixin(this.surfaces_[surfaceElementId], opt_data);
+		};
+
+		return SurfaceCollector;
+	}(Disposable);
+
+	SurfaceCollector.prototype.registerMetalComponent && SurfaceCollector.prototype.registerMetalComponent(SurfaceCollector, 'SurfaceCollector')
+	this.metal.SurfaceCollector = SurfaceCollector;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metalNamed.metal.core;
 	var string = this.metalNamed.metal.string;
 
 	var html = function () {
@@ -4549,590 +6027,61 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-
-	/**
-  * The component registry is used to register components, so they can
-  * be accessible by name.
-  * @type {Object}
-  */
-
-	var ComponentRegistry = function () {
-		function ComponentRegistry() {
-			babelHelpers.classCallCheck(this, ComponentRegistry);
-		}
-
-		/**
-   * Gets the constructor function for the given component name, or
-   * undefined if it hasn't been registered yet.
-   * @param {string} name The component's name.
-   * @return {?function}
-   * @static
-   */
-
-		ComponentRegistry.getConstructor = function getConstructor(name) {
-			var constructorFn = ComponentRegistry.components_[name];
-			if (!constructorFn) {
-				console.error('There\'s no constructor registered for the component ' + 'named ' + name + '. Components need to be registered via ' + 'ComponentRegistry.register.');
-			}
-			return constructorFn;
-		};
-
-		/**
-   * Registers a component, so it can be found by its name.
-   * @param {!Function} constructorFn The component's constructor function.
-   * @param {string=} opt_name Name of the registered component. If none is given
-   *   the name defined by the NAME static variable will be used instead. If that
-   *   isn't set as well, the name of the constructor function will be used.
-   * @static
-   */
-
-
-		ComponentRegistry.register = function register(constructorFn, opt_name) {
-			var name = opt_name;
-			if (!name) {
-				if (constructorFn.hasOwnProperty('NAME')) {
-					name = constructorFn.NAME;
-				} else {
-					name = core.getFunctionName(constructorFn);
-				}
-			}
-			constructorFn.NAME = name;
-			ComponentRegistry.components_[name] = constructorFn;
-		};
-
-		return ComponentRegistry;
-	}();
-
-	/**
-  * Holds all registered components, indexed by their names.
-  * @type {!Object<string, function()>}
-  * @protected
-  * @static
-  */
-
-
-	ComponentRegistry.components_ = {};
-
-	this.metal.ComponentRegistry = ComponentRegistry;
-}).call(this);
-'use strict';
-
-(function () {
-	var ComponentRegistry = this.metal.ComponentRegistry;
-	var Disposable = this.metalNamed.metal.Disposable;
-
-	var ComponentCollector = function (_Disposable) {
-		babelHelpers.inherits(ComponentCollector, _Disposable);
-
-		function ComponentCollector() {
-			babelHelpers.classCallCheck(this, ComponentCollector);
-			return babelHelpers.possibleConstructorReturn(this, _Disposable.apply(this, arguments));
-		}
-
-		/**
-   * Adds a component to this collector.
-   * @param {!Component} component
-   */
-
-		ComponentCollector.prototype.addComponent = function addComponent(component) {
-			ComponentCollector.components[component.id] = component;
-		};
-
-		/**
-   * Creates the appropriate component from the given config data if it doesn't
-   * exist yet.
-   * @param {string} componentName The name of the component to be created.
-   * @param {string} id The id of the component to be created.
-   * @param {Object=} opt_data
-   * @return {!Component} The component instance.
-   */
-
-
-		ComponentCollector.prototype.createComponent = function createComponent(componentName, id, opt_data) {
-			var component = ComponentCollector.components[id];
-			if (!component) {
-				var ConstructorFn = ComponentRegistry.getConstructor(componentName);
-				var data = opt_data || {};
-				data.id = id;
-				data.element = '#' + id;
-				component = new ConstructorFn(data);
-			}
-			return component;
-		};
-
-		/**
-   * Removes the given component from this collector.
-   * @param {!Component} component
-   */
-
-
-		ComponentCollector.prototype.removeComponent = function removeComponent(component) {
-			delete ComponentCollector.components[component.id];
-		};
-
-		/**
-   * Updates an existing component instance with new attributes.
-   * @param {string} id The id of the component to be created or updated.
-   * @param {Object=} opt_data
-   * @return {Component} The extracted component instance.
-   */
-
-
-		ComponentCollector.prototype.updateComponent = function updateComponent(id, opt_data) {
-			var component = ComponentCollector.components[id];
-			if (component && opt_data) {
-				component.setAttrs(opt_data);
-			}
-			return component;
-		};
-
-		return ComponentCollector;
-	}(Disposable);
-
-	/**
-  * Holds all collected components, indexed by their id.
-  * @type {!Object<string, !Component>}
-  */
-
-
-	ComponentCollector.prototype.registerMetalComponent && ComponentCollector.prototype.registerMetalComponent(ComponentCollector, 'ComponentCollector')
-	ComponentCollector.components = {};
-
-	this.metal.ComponentCollector = ComponentCollector;
-}).call(this);
-'use strict';
-
-/**
- * Base class that component renderers should extend from. It defines the
- * required methods all renderers should have.
- */
-
-(function () {
-	var ComponentRenderer = function () {
-		function ComponentRenderer() {
-			babelHelpers.classCallCheck(this, ComponentRenderer);
-		}
-
-		/**
-   * Returns the content, as a string, that should be rendered for
-   * the given component's surface.
-   * @param {!Object} surface The surface configuration.
-   * @param {!Component} component The component instance.
-   * @param {string=} opt_skipContents True if only the element's tag needs to be rendered.
-   * @return {string} The content to be rendered, as a string. Nested surfaces can be
-   *   represented by placeholders in the format specified by Component.SURFACE_REGEX.
-   *   Also, if the string content's main wrapper has the surface's id, then it
-   *   will be used to render the main surface tag.
-   */
-
-		ComponentRenderer.getSurfaceContent = function getSurfaceContent() {};
-
-		return ComponentRenderer;
-	}();
-
-	this.metal.ComponentRenderer = ComponentRenderer;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.metalNamed.metal.core;
-	var Disposable = this.metalNamed.metal.Disposable;
-	var ComponentCollector = this.metal.ComponentCollector;
-	var EventHandler = this.metalNamed.events.EventHandler;
-
-	/**
-  * Collects inline events from a passed element, detaching previously
-  * attached events that are not being used anymore.
-  * @param {Component} component
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventsCollector = function (_Disposable) {
-		babelHelpers.inherits(EventsCollector, _Disposable);
-
-		function EventsCollector(component) {
-			babelHelpers.classCallCheck(this, EventsCollector);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			if (!component) {
-				throw new Error('The component instance is mandatory');
-			}
-
-			/**
-    * Holds the component intance.
-    * @type {!Component}
-    * @protected
-    */
-			_this.component_ = component;
-
-			/**
-    * Holds the attached delegate event handles, indexed by the css selector.
-    * @type {!Object<string, EventHandler>}
-    * @protected
-    */
-			_this.eventHandles_ = {};
-
-			/**
-    * Holds flags indicating which selectors a group has listeners for.
-    * @type {!Object<string, !Object<string, boolean>>}
-    * @protected
-    */
-			_this.groupHasListener_ = {};
-			return _this;
-		}
-
-		/**
-   * Attaches the listener described by the given params, unless it has already
-   * been attached.
-   * @param {string} eventType
-   * @param {string} fnNamesString
-   * @param {boolean} permanent
-   * @protected
-   */
-
-
-		EventsCollector.prototype.attachListener_ = function attachListener_(eventType, fnNamesString, groupName) {
-			var selector = '[data-on' + eventType + '="' + fnNamesString + '"]';
-
-			this.groupHasListener_[groupName][selector] = true;
-
-			if (!this.eventHandles_[selector]) {
-				this.eventHandles_[selector] = new EventHandler();
-				var fnNames = fnNamesString.split(',');
-				for (var i = 0; i < fnNames.length; i++) {
-					var fn = this.getListenerFn(fnNames[i]);
-					if (fn) {
-						this.eventHandles_[selector].add(this.component_.delegate(eventType, selector, this.onEvent_.bind(this, fn)));
-					}
-				}
-			}
-		};
-
-		/**
-   * Attaches all listeners declared as attributes on the given element and
-   * its children.
-   * @param {string} content
-   * @param {boolean} groupName
-   */
-
-
-		EventsCollector.prototype.attachListeners = function attachListeners(content, groupName) {
-			this.groupHasListener_[groupName] = {};
-			this.attachListenersFromHtml_(content, groupName);
-		};
-
-		/**
-   * Attaches listeners found in the given html content.
-   * @param {string} content
-   * @param {boolean} groupName
-   * @protected
-   */
-
-
-		EventsCollector.prototype.attachListenersFromHtml_ = function attachListenersFromHtml_(content, groupName) {
-			if (content.indexOf('data-on') === -1) {
-				return;
-			}
-			var regex = /data-on([a-z]+)=['"]([^'"]+)['"]/g;
-			var match = regex.exec(content);
-			while (match) {
-				this.attachListener_(match[1], match[2], groupName);
-				match = regex.exec(content);
-			}
-		};
-
-		/**
-   * Removes all previously attached event listeners to the component.
-   */
-
-
-		EventsCollector.prototype.detachAllListeners = function detachAllListeners() {
-			for (var selector in this.eventHandles_) {
-				if (this.eventHandles_[selector]) {
-					this.eventHandles_[selector].removeAllListeners();
-				}
-			}
-			this.eventHandles_ = {};
-			this.listenerCounts_ = {};
-		};
-
-		/**
-   * Detaches all existing listeners that are not being used anymore.
-   * @protected
-   */
-
-
-		EventsCollector.prototype.detachUnusedListeners = function detachUnusedListeners() {
-			for (var selector in this.eventHandles_) {
-				if (this.eventHandles_[selector]) {
-					var unused = true;
-					for (var groupName in this.groupHasListener_) {
-						if (this.groupHasListener_[groupName][selector]) {
-							unused = false;
-							break;
-						}
-					}
-					if (unused) {
-						this.eventHandles_[selector].removeAllListeners();
-						this.eventHandles_[selector] = null;
-					}
-				}
-			}
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-
-		EventsCollector.prototype.disposeInternal = function disposeInternal() {
-			this.detachAllListeners();
-			this.component_ = null;
-		};
-
-		/**
-   * Gets the listener function from its name. If the name is prefixed with a
-   * component id, the function will be called on that specified component. Otherwise
-   * it will be called on this event collector's component instead.
-   * @param {string} fnName
-   * @return {function()}
-   */
-
-
-		EventsCollector.prototype.getListenerFn = function getListenerFn(fnName) {
-			var fnComponent;
-			var split = fnName.split(':');
-			if (split.length === 2) {
-				fnName = split[1];
-				fnComponent = ComponentCollector.components[split[0]];
-				if (!fnComponent) {
-					console.error('No component with the id "' + split[0] + '" has been collected' + 'yet. Make sure that you specify an id for an existing component when ' + 'adding inline listeners.');
-				}
-			}
-			fnComponent = fnComponent || this.component_;
-			if (core.isFunction(fnComponent[fnName])) {
-				return fnComponent[fnName].bind(fnComponent);
-			} else {
-				console.error('No function named "' + fnName + '" was found in the component with id "' + fnComponent.id + '". Make sure that you specify valid function names when adding ' + 'inline listeners.');
-			}
-		};
-
-		/**
-   * Checks if this EventsCollector instance has already attached listeners for the given
-   * group before.
-   * @param  {string} group
-   * @return {boolean}
-   */
-
-
-		EventsCollector.prototype.hasAttachedForGroup = function hasAttachedForGroup(group) {
-			return !!this.groupHasListener_.hasOwnProperty(group);
-		};
-
-		/**
-   * Fires when an event that was registered by this collector is triggered. Makes
-   * sure that the event was meant for this component and calls the appropriate
-   * listener function for it.
-   * @param {!function(!Object)} fn
-   * @param {!Object} event
-   * @return {*} The return value of the call to the listener function, or undefined
-   *   if no function was called.
-   * @protected
-   */
-
-
-		EventsCollector.prototype.onEvent_ = function onEvent_(fn, event) {
-			// This check prevents parent components from handling their child inline listeners.
-			var eventComp = event.handledByComponent;
-			if (!eventComp || eventComp === this.component_ || event.delegateTarget.contains(eventComp.element)) {
-				event.handledByComponent = this.component_;
-				return fn(event);
-			}
-		};
-
-		return EventsCollector;
-	}(Disposable);
-
-	EventsCollector.prototype.registerMetalComponent && EventsCollector.prototype.registerMetalComponent(EventsCollector, 'EventsCollector')
-	this.metal.EventsCollector = EventsCollector;
-}).call(this);
-'use strict';
-
-(function () {
-	var object = this.metalNamed.metal.object;
-	var Disposable = this.metalNamed.metal.Disposable;
-
-	/**
-  * Stores surface data to be used later by Components.
-  */
-
-	var SurfaceCollector = function (_Disposable) {
-		babelHelpers.inherits(SurfaceCollector, _Disposable);
-
-		function SurfaceCollector() {
-			babelHelpers.classCallCheck(this, SurfaceCollector);
-
-
-			/**
-    * Holds all registered surfaces, mapped by their element ids.
-    * @type {!Array<!Object>}
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.surfaces_ = {};
-			return _this;
-		}
-
-		/**
-   * Adds a surface to this collector.
-   * @param {string} surfaceElementId
-   * @param {Object=} opt_data Surface data to be stored.
-   */
-
-
-		SurfaceCollector.prototype.addSurface = function addSurface(surfaceElementId, opt_data) {
-			if (this.surfaces_[surfaceElementId]) {
-				this.updateSurface(surfaceElementId, opt_data);
-			} else {
-				this.surfaces_[surfaceElementId] = opt_data || {};
-				this.surfaces_[surfaceElementId].surfaceElementId = surfaceElementId;
-			}
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-
-		SurfaceCollector.prototype.disposeInternal = function disposeInternal() {
-			this.surfaces_ = null;
-		};
-
-		/**
-   * Gets the data for the given surface id.
-   * @param {string} surfaceElementId
-   * @return {!Object}
-   */
-
-
-		SurfaceCollector.prototype.getSurface = function getSurface(surfaceElementId) {
-			return this.surfaces_[surfaceElementId] ? this.surfaces_[surfaceElementId] : null;
-		};
-
-		/**
-   * Removes all surfaces from this collector.
-   */
-
-
-		SurfaceCollector.prototype.removeAllSurfaces = function removeAllSurfaces() {
-			this.surfaces_ = [];
-		};
-
-		/**
-   * Removes the surface with the given surface id.
-   * @param {string} surfaceElementId
-   */
-
-
-		SurfaceCollector.prototype.removeSurface = function removeSurface(surfaceElementId) {
-			this.surfaces_[surfaceElementId] = null;
-		};
-
-		/**
-   * Updates a surface from this collector.
-   * @param {string} surfaceElementId
-   * @param {Object=} opt_data Surface data to update the existing data.
-   */
-
-
-		SurfaceCollector.prototype.updateSurface = function updateSurface(surfaceElementId, opt_data) {
-			object.mixin(this.surfaces_[surfaceElementId], opt_data);
-		};
-
-		return SurfaceCollector;
-	}(Disposable);
-
-	SurfaceCollector.prototype.registerMetalComponent && SurfaceCollector.prototype.registerMetalComponent(SurfaceCollector, 'SurfaceCollector')
-	this.metal.SurfaceCollector = SurfaceCollector;
-}).call(this);
-'use strict';
-
-(function () {
 	var array = this.metalNamed.metal.array;
 	var core = this.metalNamed.metal.core;
 	var object = this.metalNamed.metal.object;
 	var string = this.metalNamed.metal.string;
 	var dom = this.metalNamed.dom.dom;
-	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
 	var features = this.metalNamed.dom.features;
 	var globalEval = this.metalNamed.dom.globalEval;
 	var html = this.metal.html;
-	var Attribute = this.metal.Attribute;
+	var Component = this.metal.Component;
 	var ComponentCollector = this.metal.ComponentCollector;
-	var ComponentRegistry = this.metal.ComponentRegistry;
 	var ComponentRenderer = this.metal.ComponentRenderer;
 	var EventsCollector = this.metal.EventsCollector;
-	var EventHandler = this.metalNamed.events.EventHandler;
 	var SurfaceCollector = this.metal.SurfaceCollector;
 
 	/**
-  * Component collects common behaviors to be followed by UI components, such
-  * as Lifecycle, bounding box element creation, CSS classes management,
-  * events encapsulation and surfaces support. Surfaces are an area of the
-  * component that can have information rendered into it. A component
-  * manages multiple surfaces. Surfaces are only rendered when its content is
-  * modified, representing render performance gains. For each surface, render
-  * attributes could be associated, when the render context of a surface gets
-  * modified the component Lifecycle re-paints the modified surface
-  * automatically. Each component has a `ComponentRenderer`, which is in charge
-  * of rendering the surfaces. The renderer to be used is specified by the
-  * RENDERER static variable. An example of renderer is the SoyRenderer, which
-  * works with soy templates.
+  * Renders components based on surfaces. Surfaces are an area of the component
+  * that can have information rendered into it. This renderer can manage multiple
+  * surfaces. Surfaces are only rendered when their contents are modified,
+  * representing render performance gains. For each surface, render attributes
+  * could be associated. When the render context of a surface gets modified, the
+  * renderer's lifecycle will repaint the modified surface automatically.
   *
-  * Example:
+  * This renderer is not intended to be used on its own. Instead, subclasses
+  * should override the `getSurfaceContent` function to implement the surface
+  * rendering logic. This function will be called whenever a surface may need to
+  * be repainted, and should return the rendered content as a string.
+  *
+  * For example:
+  * <code>
+  * class CustomSurfaceRenderer extends SurfaceRenderer {
+  *   getSurfaceContent(surface) {
+  *     return someTemplateEngine(surface.surfaceElementId);
+  *   }
+  * }
+  * </code>
+  *
+  * To use the new renderer, you just need to set the component's RENDERER static
+  * variable to the renderer class, like this:
   *
   * <code>
   * class CustomComponent extends Component {
-  *   constructor(config) {
-  *     super(config);
-  *   }
-  *
-  *   attached() {
-  *   }
-  *
-  *   detached() {
-  *   }
   * }
-  *
-  * CustomComponent.RENDERER = MyRenderer;
-  *
-  * CustomComponent.ATTRS = {
-  *   title: { value: 'Title' },
-  *   fontSize: { value: '10px' }
-  * };
-  *
-  * CustomComponent.SURFACES = {
-  *   header: { renderAttrs: ['title', 'fontSize'] },
-  *   bottom: { renderAttrs: ['fontSize'] }
-  * };
+  * CustomComponent.RENDERER = CustomSurfaceRenderer;
   * </code>
-  *
-  * @param {!Object} opt_config An object with the initial values for this component's
-  *   attributes.
-  * @constructor
-  * @extends {Attribute}
   */
 
-	var Component = function (_Attribute) {
-		babelHelpers.inherits(Component, _Attribute);
+	var SurfaceRenderer = function (_ComponentRenderer) {
+		babelHelpers.inherits(SurfaceRenderer, _ComponentRenderer);
 
-		function Component(opt_config) {
-			babelHelpers.classCallCheck(this, Component);
+		/**
+   * @inheritDoc
+   */
+
+		function SurfaceRenderer(component) {
+			babelHelpers.classCallCheck(this, SurfaceRenderer);
 
 
 			/**
@@ -5142,51 +6091,9 @@ babelHelpers;
     * @protected
     */
 
-			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+			var _this = babelHelpers.possibleConstructorReturn(this, _ComponentRenderer.call(this, component));
 
 			_this.collectedSurfaces_ = [];
-
-			/**
-    * Gets all nested components.
-    * @type {!Array<!Component>}
-    */
-			_this.components = {};
-
-			/**
-    * Whether the element is being decorated.
-    * @type {boolean}
-    * @protected
-    */
-			_this.decorating_ = false;
-
-			/**
-    * Holds events that were listened through the `delegate` Component function.
-    * @type {EventHandler}
-    * @protected
-    */
-			_this.delegateEventHandler_ = null;
-
-			/**
-    * Instance of `DomEventEmitterProxy` which proxies events from the component's
-    * element to the component itself.
-    * @type {DomEventEmitterProxy}
-    * @protected
-    */
-			_this.elementEventProxy_ = null;
-
-			/**
-    * The `EventHandler` instance for events attached from the `events` attribute.
-    * @type {!EventHandler}
-    * @protected
-    */
-			_this.eventsAttrHandler_ = new EventHandler();
-
-			/**
-    * Collects inline events from html contents.
-    * @type {!EventsCollector}
-    * @protected
-    */
-			_this.eventsCollector_ = new EventsCollector(_this);
 
 			/**
     * Holds the number of generated ids for each surface's contents.
@@ -5196,19 +6103,6 @@ babelHelpers;
 			_this.generatedIdCount_ = {};
 
 			/**
-    * Whether the element is in document.
-    * @type {boolean}
-    */
-			_this.inDocument = false;
-
-			/**
-    * The initial config option passed to this constructor.
-    * @type {!Object}
-    * @protected
-    */
-			_this.initialConfig_ = opt_config || {};
-
-			/**
     * The element ids of all surfaces that were removed on a repaint.
     * @type {!Array<string>}
     * @protected
@@ -5216,106 +6110,46 @@ babelHelpers;
 			_this.removedSurfaces_ = [];
 
 			/**
-    * The ids of the surfaces registered by this component.
+    * The ids of the surfaces registered for this renderer's component.
     * @type {!Object<string, boolean>}
     * @protected
     */
 			_this.surfaceIds_ = {};
 
 			/**
-    * Whether the element was rendered.
-    * @type {boolean}
+    * Collects inline events from html contents.
+    * @type {!EventsCollector}
+    * @protected
     */
-			_this.wasRendered = false;
+			_this.eventsCollector_ = new EventsCollector(_this.component_);
 
-			/**
-    * The component's element will be appended to the element this variable is
-    * set to, unless the user specifies another parent when calling `render` or
-    * `attach`.
-    * @type {!Element}
-    */
-			_this.DEFAULT_ELEMENT_PARENT = document.body;
+			core.mergeSuperClassesProperty(_this.component_.constructor, 'SURFACE_TAG_NAME', array.firstDefinedValue);
+			_this.component_.constructor.SURFACE_TAG_NAME_MERGED = _this.component_.constructor.SURFACE_TAG_NAME_MERGED || 'div';
 
-			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
-			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_TAG_NAME', array.firstDefinedValue);
-			core.mergeSuperClassesProperty(_this.constructor, 'RENDERER', array.firstDefinedValue);
-			core.mergeSuperClassesProperty(_this.constructor, 'SURFACE_TAG_NAME', array.firstDefinedValue);
+			_this.setShouldUseFacade(true);
 			_this.addSurfacesFromStaticHint_();
+			_this.addSurface(_this.component_.id, {
+				componentName: _this.component_.getName()
+			});
 
-			_this.delegateEventHandler_ = new EventHandler();
-
-			_this.created_();
+			_this.component_.once('attached', _this.handleComponentAttachedOnce_.bind(_this));
+			_this.component_.on('detached', _this.handleComponentDetached_.bind(_this));
+			_this.on('renderSurface', _this.defaultRenderSurfaceFn_, true);
 			return _this;
 		}
 
 		/**
-   * Adds the listeners specified in the given object.
-   * @param {Object} events
-   * @protected
-   */
-
-
-		Component.prototype.addListenersFromObj_ = function addListenersFromObj_(events) {
-			var eventNames = Object.keys(events || {});
-			for (var i = 0; i < eventNames.length; i++) {
-				var info = this.extractListenerInfo_(events[eventNames[i]]);
-				if (info.fn) {
-					var handler;
-					if (info.selector) {
-						handler = this.delegate(eventNames[i], info.selector, info.fn);
-					} else {
-						handler = this.on(eventNames[i], info.fn);
-					}
-					this.eventsAttrHandler_.add(handler);
-				}
-			}
-		};
-
-		/**
-   * Adds a simple attribute with the given name, if it doesn't exist yet.
+   * Adds a simple attribute with the given name to the component, if it doesn't
+   * exist yet.
    * @param {string} attrName
    * @param {Object=} opt_initialValue Optional initial value for the new attr.
    * @protected
    */
 
 
-		Component.prototype.addMissingAttr_ = function addMissingAttr_(attrName, initialValue) {
-			if (!this.getAttrConfig(attrName)) {
-				this.addAttr(attrName, {}, initialValue);
-			}
-		};
-
-		/**
-   * Overrides `addSingleListener_` from `EventEmitter`, so we can create
-   * the `DomEventEmitterProxy` instance only when it's needed for the first
-   * time.
-   * @param {string} event
-   * @param {!Function} listener
-   * @param {Function=} opt_origin The original function that was added as a
-   *   listener, if there is any.
-   * @protected
-   * @override
-   */
-
-
-		Component.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_origin) {
-			if (!this.elementEventProxy_ && dom.supportsEvent(this.constructor.ELEMENT_TAG_NAME_MERGED, event)) {
-				this.elementEventProxy_ = new DomEventEmitterProxy(this.element, this);
-			}
-			_Attribute.prototype.addSingleListener_.call(this, event, listener, opt_origin);
-		};
-
-		/**
-   * Adds the surface for this component's main element, if it doesn't exist yet.
-   * @protected
-   */
-
-
-		Component.prototype.addElementSurface_ = function addElementSurface_() {
-			if (!this.surfaceIds_[this.id]) {
-				this.addSurface(this.id, {
-					componentName: this.getName()
-				});
+		SurfaceRenderer.prototype.addMissingAttr_ = function addMissingAttr_(attrName, opt_initialValue) {
+			if (!this.component_.getAttrConfig(attrName)) {
+				this.component_.addAttr(attrName, {}, opt_initialValue);
 			}
 		};
 
@@ -5328,17 +6162,17 @@ babelHelpers;
    */
 
 
-		Component.prototype.addSurface = function addSurface(surfaceId, opt_surfaceConfig) {
+		SurfaceRenderer.prototype.addSurface = function addSurface(surfaceId, opt_surfaceConfig) {
 			var config = opt_surfaceConfig || {};
 			var surfaceElementId = this.getSurfaceElementId(surfaceId, config);
 			if (this.surfaceIds_[surfaceElementId]) {
-				Component.surfacesCollector.updateSurface(surfaceElementId, config);
+				SurfaceRenderer.surfacesCollector.updateSurface(surfaceElementId, config);
 			} else {
 				this.surfaceIds_[surfaceElementId] = true;
-				config.cacheState = config.cacheState || Component.Cache.NOT_INITIALIZED;
-				Component.surfacesCollector.addSurface(surfaceElementId, config);
-				if (config.componentName && surfaceId !== this.id) {
-					this.createSubComponent_(config.componentName, surfaceElementId);
+				config.cacheState = config.cacheState || SurfaceRenderer.Cache.NOT_INITIALIZED;
+				SurfaceRenderer.surfacesCollector.addSurface(surfaceElementId, config);
+				if (config.componentName && surfaceId !== this.component_.id) {
+					this.addSubComponent(config.componentName, surfaceElementId);
 				}
 			}
 			this.cacheSurfaceRenderAttrs_(surfaceElementId, config.renderAttrs);
@@ -5355,7 +6189,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.addSurfaces = function addSurfaces(configs) {
+		SurfaceRenderer.prototype.addSurfaces = function addSurfaces(configs) {
 			for (var surfaceId in configs) {
 				this.addSurface(surfaceId, configs[surfaceId]);
 			}
@@ -5368,11 +6202,11 @@ babelHelpers;
    */
 
 
-		Component.prototype.addSurfacesFromStaticHint_ = function addSurfacesFromStaticHint_() {
-			core.mergeSuperClassesProperty(this.constructor, 'SURFACES', this.mergeObjects_);
+		SurfaceRenderer.prototype.addSurfacesFromStaticHint_ = function addSurfacesFromStaticHint_() {
+			core.mergeSuperClassesProperty(this.component_.constructor, 'SURFACES', this.mergeObjects_);
 			this.surfacesRenderAttrs_ = {};
 
-			var configs = this.constructor.SURFACES_MERGED;
+			var configs = this.component_.constructor.SURFACES_MERGED;
 			for (var surfaceId in configs) {
 				this.addSurface(surfaceId, object.mixin({}, configs[surfaceId]));
 			}
@@ -5386,7 +6220,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.addToRemovedSurfaces_ = function addToRemovedSurfaces_(surfaceElementIds) {
+		SurfaceRenderer.prototype.addToRemovedSurfaces_ = function addToRemovedSurfaces_(surfaceElementIds) {
 			for (var i = 0; i < surfaceElementIds.length; i++) {
 				var surface = this.getSurface(surfaceElementIds[i]);
 				this.removedSurfaces_.push(surface);
@@ -5395,43 +6229,20 @@ babelHelpers;
 		};
 
 		/**
-   * Invokes the attached Lifecycle. When attached, the component element is
-   * appended to the DOM and any other action to be performed must be
-   * implemented in this method, such as, binding DOM events. A component can
-   * be re-attached multiple times.
-   * @param {(string|Element)=} opt_parentElement Optional parent element
-   *     to render the component.
-   * @param {(string|Element)=} opt_siblingElement Optional sibling element
-   *     to render the component before it. Relevant when the component needs
-   *     to be rendered before an existing element in the DOM, e.g.
-   *     `component.render(null, existingElement)`.
-   * @protected
-   * @chainable
+   * @inheritDoc
    */
 
 
-		Component.prototype.attach = function attach(opt_parentElement, opt_siblingElement) {
-			if (!this.inDocument) {
-				this.renderElement_(opt_parentElement, opt_siblingElement);
-				this.inDocument = true;
-				if (!this.wasRendered) {
-					this.updatePlaceholderSurfaces_();
-				}
-				this.attached();
+		SurfaceRenderer.prototype.buildElement = function buildElement() {
+			var compId = this.component_.id;
+			var element = this.findElementInContent_(compId, this.getElementContent_(true) || '');
+			if (!element) {
+				element = this.findElementInContent_(compId, this.getComponentHtml(''));
 			}
-			return this;
+			dom.removeChildren(element);
+			dom.exitDocument(element);
+			return element;
 		};
-
-		/**
-   * Lifecycle. When attached, the component element is appended to the DOM
-   * and any other action to be performed must be implemented in this method,
-   * such as, binding DOM events. A component can be re-attached multiple
-   * times, therefore the undo behavior for any action performed in this phase
-   * must be implemented on the detach phase.
-   */
-
-
-		Component.prototype.attached = function attached() {};
 
 		/**
    * Builds a fragment element with the given content, so it can be rendered.
@@ -5439,10 +6250,11 @@ babelHelpers;
    * be reevaluated when this content is rendered.
    * @param {string} content
    * @return {!Element}
+   * @protected
    */
 
 
-		Component.prototype.buildFragment_ = function buildFragment_(content) {
+		SurfaceRenderer.prototype.buildFragment_ = function buildFragment_(content) {
 			var frag = dom.buildFragment(content);
 			if (content.indexOf('<script') !== -1) {
 				globalEval.runScriptsInElement(frag);
@@ -5458,7 +6270,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.buildPlaceholder = function buildPlaceholder(surfaceElementId, opt_data) {
+		SurfaceRenderer.prototype.buildPlaceholder = function buildPlaceholder(surfaceElementId, opt_data) {
 			if (surfaceElementId && opt_data) {
 				opt_data.surfaceElementId = surfaceElementId;
 				this.addSurface(surfaceElementId, opt_data);
@@ -5473,7 +6285,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.cacheSurfaceContent = function cacheSurfaceContent(surfaceElementId, content) {
+		SurfaceRenderer.prototype.cacheSurfaceContent = function cacheSurfaceContent(surfaceElementId, content) {
 			var cacheState = this.computeSurfaceCacheState_(content);
 			var surface = this.getSurfaceFromElementId(surfaceElementId);
 			surface.cacheState = cacheState;
@@ -5489,12 +6301,12 @@ babelHelpers;
    */
 
 
-		Component.prototype.cacheSurfaceRenderAttrs_ = function cacheSurfaceRenderAttrs_(surfaceElementId, renderAttrs) {
+		SurfaceRenderer.prototype.cacheSurfaceRenderAttrs_ = function cacheSurfaceRenderAttrs_(surfaceElementId, renderAttrs) {
 			var attrs = renderAttrs || [];
 			for (var i = 0; i < attrs.length; i++) {
 				if (!this.surfacesRenderAttrs_[attrs[i]]) {
 					this.surfacesRenderAttrs_[attrs[i]] = {};
-					this.addMissingAttr_(attrs[i], this.initialConfig_[attrs[i]]);
+					this.addMissingAttr_(attrs[i], this.component_.getInitialConfig()[attrs[i]]);
 				}
 				this.surfacesRenderAttrs_[attrs[i]][surfaceElementId] = true;
 			}
@@ -5509,7 +6321,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.checkHasElementTag_ = function checkHasElementTag_(content, id) {
+		SurfaceRenderer.prototype.checkHasElementTag_ = function checkHasElementTag_(content, id) {
 			return content.indexOf(' id="' + id + '"') !== -1;
 		};
 
@@ -5519,8 +6331,8 @@ babelHelpers;
    */
 
 
-		Component.prototype.clearSurfaceCache = function clearSurfaceCache(surfaceId) {
-			this.getSurface(surfaceId).cacheState = Component.Cache.NOT_INITIALIZED;
+		SurfaceRenderer.prototype.clearSurfaceCache = function clearSurfaceCache(surfaceId) {
+			this.getSurface(surfaceId).cacheState = SurfaceRenderer.Cache.NOT_INITIALIZED;
 		};
 
 		/**
@@ -5531,8 +6343,8 @@ babelHelpers;
    */
 
 
-		Component.prototype.compareCacheStates_ = function compareCacheStates_(currentCacheState, previousCacheState) {
-			return currentCacheState !== Component.Cache.NOT_INITIALIZED && currentCacheState === previousCacheState;
+		SurfaceRenderer.prototype.compareCacheStates_ = function compareCacheStates_(currentCacheState, previousCacheState) {
+			return currentCacheState !== SurfaceRenderer.Cache.NOT_INITIALIZED && currentCacheState === previousCacheState;
 		};
 
 		/**
@@ -5544,7 +6356,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.computeSurfaceCacheState_ = function computeSurfaceCacheState_(value) {
+		SurfaceRenderer.prototype.computeSurfaceCacheState_ = function computeSurfaceCacheState_(value) {
 			value = value || '';
 			if (features.checkAttrOrderChange()) {
 				value = this.convertHtmlToBrowserFormat_(value);
@@ -5562,7 +6374,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.convertHtmlToBrowserFormat_ = function convertHtmlToBrowserFormat_(htmlString) {
+		SurfaceRenderer.prototype.convertHtmlToBrowserFormat_ = function convertHtmlToBrowserFormat_(htmlString) {
 			var element = document.createElement('div');
 			dom.append(element, htmlString);
 			return element.innerHTML;
@@ -5578,7 +6390,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.createPlaceholderSurface_ = function createPlaceholderSurface_(parentSurfaceElementId, opt_surfaceElementId) {
+		SurfaceRenderer.prototype.createPlaceholderSurface_ = function createPlaceholderSurface_(parentSurfaceElementId, opt_surfaceElementId) {
 			var surfaceElementId = opt_surfaceElementId;
 			if (!core.isDefAndNotNull(surfaceElementId)) {
 				surfaceElementId = this.generateSurfaceElementId(parentSurfaceElementId);
@@ -5594,7 +6406,7 @@ babelHelpers;
 		};
 
 		/**
-   * Creates a sub component.
+   * Adds a sub component to this renderer's component.
    * @param {string} componentName
    * @param {string} componentId
    * @return {!Component}
@@ -5602,9 +6414,8 @@ babelHelpers;
    */
 
 
-		Component.prototype.createSubComponent_ = function createSubComponent_(componentName, componentId) {
-			this.components[componentId] = Component.componentsCollector.createComponent(componentName, componentId, this.getSurfaceFromElementId(componentId).componentData);
-			return this.components[componentId];
+		SurfaceRenderer.prototype.addSubComponent = function addSubComponent(componentName, componentId) {
+			return this.component_.addSubComponent(componentName, componentId, this.getSurfaceFromElementId(componentId).componentData);
 		};
 
 		/**
@@ -5616,101 +6427,10 @@ babelHelpers;
    */
 
 
-		Component.prototype.createSurfaceElement_ = function createSurfaceElement_(surfaceElementId) {
-			var el = document.createElement(this.constructor.SURFACE_TAG_NAME_MERGED);
+		SurfaceRenderer.prototype.createSurfaceElement_ = function createSurfaceElement_(surfaceElementId) {
+			var el = document.createElement(this.component_.constructor.SURFACE_TAG_NAME_MERGED);
 			el.id = surfaceElementId;
 			return el;
-		};
-
-		/**
-   * Listens to a delegate event on the component's element.
-   * @param {string} eventName The name of the event to listen to.
-   * @param {string} selector The selector that matches the child elements that
-   *   the event should be triggered for.
-   * @param {!function(!Object)} callback Function to be called when the event is
-   *   triggered. It will receive the normalized event object.
-   * @return {!DomEventHandle} Can be used to remove the listener.
-   */
-
-
-		Component.prototype.delegate = function delegate(eventName, selector, callback) {
-			var handle = dom.delegate(this.element, eventName, selector, callback);
-			this.delegateEventHandler_.add(handle);
-			return handle;
-		};
-
-		/**
-   * Invokes the detached Lifecycle. When detached, the component element is
-   * removed from the DOM and any other action to be performed must be
-   * implemented in this method, such as, unbinding DOM events. A component
-   * can be detached multiple times.
-   * @chainable
-   */
-
-
-		Component.prototype.detach = function detach() {
-			if (this.inDocument) {
-				if (this.element.parentNode) {
-					this.element.parentNode.removeChild(this.element);
-				}
-				this.inDocument = false;
-				this.detached();
-			}
-			this.eventsCollector_.detachAllListeners();
-			return this;
-		};
-
-		/**
-   * Lifecycle. When detached, the component element is removed from the DOM
-   * and any other action to be performed must be implemented in this method,
-   * such as, unbinding DOM events. A component can be detached multiple
-   * times, therefore the undo behavior for any action performed in this phase
-   * must be implemented on the attach phase.
-   */
-
-
-		Component.prototype.detached = function detached() {};
-
-		/**
-   * Internal implementation for the creation phase of the component.
-   * @protected
-   */
-
-
-		Component.prototype.created_ = function created_() {
-			this.on('eventsChanged', this.onEventsChanged_);
-			this.addListenersFromObj_(this.events);
-
-			this.on('attrsChanged', this.handleAttributesChanges_);
-			Component.componentsCollector.addComponent(this);
-
-			this.on('renderSurface', this.defaultRenderSurfaceFn_, true);
-		};
-
-		/**
-   * Lifecycle. Creates the component using existing DOM elements. Often the
-   * component can be created using existing elements in the DOM to leverage
-   * progressive enhancement. Any extra operation necessary to prepare the
-   * component DOM must be implemented in this phase. Decorate phase replaces
-   * render phase.
-   *
-   * Decoration Lifecycle:
-   *   decorate - Decorate is manually called.
-   *   retrieve existing html - The cache for all surfaces is filled with any
-   *     existing html from the document.
-   *   render surfaces - Surfaces that cause a cache miss are rendered, including
-   *     the main content (`getElementContent`).
-   *   attribute synchronization - All synchronization methods are called.
-   *   attach - Attach Lifecycle is called.
-   * @chainable
-   */
-
-
-		Component.prototype.decorate = function decorate() {
-			this.decorating_ = true;
-			this.render();
-			this.decorating_ = false;
-			return this;
 		};
 
 		/**
@@ -5724,10 +6444,10 @@ babelHelpers;
    */
 
 
-		Component.prototype.defaultRenderSurfaceFn_ = function defaultRenderSurfaceFn_(data) {
+		SurfaceRenderer.prototype.defaultRenderSurfaceFn_ = function defaultRenderSurfaceFn_(data) {
 			var surfaceElementId = data.surfaceElementId;
 			var surface = this.getSurfaceFromElementId(surfaceElementId);
-			if (surface.componentName && surfaceElementId !== this.id) {
+			if (surface.componentName && surfaceElementId !== this.component_.id) {
 				this.renderComponentSurface_(surfaceElementId, data.content);
 				return;
 			}
@@ -5744,26 +6464,8 @@ babelHelpers;
 			if (cacheHit) {
 				this.renderPlaceholderSurfaceContents_(cacheContent, surfaceElementId);
 			} else {
-				this.eventsCollector_.attachListeners(cacheContent, surfaceElementId);
+				this.eventsCollector_.attachListenersFromHtml(cacheContent, surfaceElementId);
 				this.replaceSurfaceContent_(surfaceElementId, surface, content);
-			}
-		};
-
-		/**
-   * Calls `dispose` on all subcomponents.
-   * @param {!Array<string>} ids
-   * @protected
-   */
-
-
-		Component.prototype.disposeSubComponents_ = function disposeSubComponents_(ids) {
-			for (var i = 0; i < ids.length; i++) {
-				var component = this.components[ids[i]];
-				if (!component.isDisposed()) {
-					Component.componentsCollector.removeComponent(component);
-					component.dispose();
-					delete this.components[ids[i]];
-				}
 			}
 		};
 
@@ -5772,33 +6474,20 @@ babelHelpers;
    */
 
 
-		Component.prototype.disposeInternal = function disposeInternal() {
+		SurfaceRenderer.prototype.disposeInternal = function disposeInternal() {
 			var _this2 = this;
 
-			this.detach();
-
-			if (this.elementEventProxy_) {
-				this.elementEventProxy_.dispose();
-				this.elementEventProxy_ = null;
-			}
-
-			this.delegateEventHandler_.removeAllListeners();
-			this.delegateEventHandler_ = null;
-
-			this.disposeSubComponents_(Object.keys(this.components));
-			this.components = null;
-			this.generatedIdCount_ = null;
-			this.surfacesRenderAttrs_ = null;
+			_ComponentRenderer.prototype.disposeInternal.call(this);
 
 			this.eventsCollector_.dispose();
 			this.eventsCollector_ = null;
 
+			this.surfacesRenderAttrs_ = null;
+
 			Object.keys(this.surfaceIds_).forEach(function (surfaceId) {
-				return _this2.removeSurface(surfaceId);
+				return _this2.removeSurface(surfaceId, true);
 			});
 			this.surfaceIds_ = null;
-
-			_Attribute.prototype.disposeInternal.call(this);
 		};
 
 		/**
@@ -5813,7 +6502,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.emitRenderSurfaceEvent_ = function emitRenderSurfaceEvent_(surfaceElementId, opt_content, opt_cacheContent, opt_renderAttrs) {
+		SurfaceRenderer.prototype.emitRenderSurfaceEvent_ = function emitRenderSurfaceEvent_(surfaceElementId, opt_content, opt_cacheContent, opt_renderAttrs) {
 			this.emit('renderSurface', {
 				cacheContent: opt_cacheContent,
 				content: opt_content,
@@ -5821,69 +6510,6 @@ babelHelpers;
 				surfaceElementId: surfaceElementId,
 				surfaceId: this.getSurfaceId(this.getSurfaceFromElementId(surfaceElementId))
 			});
-		};
-
-		/**
-   * Extracts listener info from the given value.
-   * @param {function()|string|{selector:string,fn:function()|string}} value
-   * @return {!{selector:string,fn:function()}}
-   * @protected
-   */
-
-
-		Component.prototype.extractListenerInfo_ = function extractListenerInfo_(value) {
-			var info = {
-				fn: value
-			};
-			if (core.isObject(value) && !core.isFunction(value)) {
-				info.selector = value.selector;
-				info.fn = value.fn;
-			}
-			if (core.isString(info.fn)) {
-				info.fn = this.eventsCollector_.getListenerFn(info.fn);
-			}
-			return info;
-		};
-
-		/**
-   * Fires attributes synchronization changes for attributes.
-   * @protected
-   */
-
-
-		Component.prototype.syncAttrs_ = function syncAttrs_() {
-			var attrNames = this.getAttrNames();
-			for (var i = 0; i < attrNames.length; i++) {
-				this.fireAttrChange_(attrNames[i]);
-			}
-		};
-
-		/**
-   * Fires attributes synchronization changes for attributes.
-   * @param {Object.<string, Object>} changes Object containing the attribute
-   *     name as key and an object with newVal and prevVal as value.
-   * @protected
-   */
-
-
-		Component.prototype.syncAttrsFromChanges_ = function syncAttrsFromChanges_(changes) {
-			for (var attr in changes) {
-				this.fireAttrChange_(attr, changes[attr]);
-			}
-		};
-
-		/**
-   * Finds the element that matches the given id on this component. This searches
-   * on the document first, for performance. If the element is not found, it's
-   * searched in the component's element directly.
-   * @param {string} id
-   * @return {Element}
-   * @protected
-   */
-
-
-		Component.prototype.findElementById_ = function findElementById_(id) {
-			return document.getElementById(id) || this.element && this.element.querySelector('#' + id);
 		};
 
 		/**
@@ -5895,32 +6521,11 @@ babelHelpers;
    */
 
 
-		Component.prototype.findElementInContent_ = function findElementInContent_(id, content) {
+		SurfaceRenderer.prototype.findElementInContent_ = function findElementInContent_(id, content) {
 			content = core.isString(content) ? dom.buildFragment(content) : content;
 			var firstChild = content.childNodes[0];
 			if (firstChild && firstChild.id === id) {
 				return firstChild;
-			}
-		};
-
-		/**
-   * Fires attribute synchronization change for the attribute.
-   * @param {Object.<string, Object>} change Object containing newVal and
-   *     prevVal keys.
-   * @protected
-   */
-
-
-		Component.prototype.fireAttrChange_ = function fireAttrChange_(attr, opt_change) {
-			var fn = this['sync' + attr.charAt(0).toUpperCase() + attr.slice(1)];
-			if (core.isFunction(fn)) {
-				if (!opt_change) {
-					opt_change = {
-						newVal: this[attr],
-						prevVal: undefined
-					};
-				}
-				fn.call(this, opt_change.newVal, opt_change.prevVal);
 			}
 		};
 
@@ -5933,7 +6538,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.generateSurfaceElementId = function generateSurfaceElementId(parentSurfaceElementId) {
+		SurfaceRenderer.prototype.generateSurfaceElementId = function generateSurfaceElementId(parentSurfaceElementId) {
 			this.generatedIdCount_[parentSurfaceElementId] = (this.generatedIdCount_[parentSurfaceElementId] || 0) + 1;
 			return parentSurfaceElementId + '-s' + this.generatedIdCount_[parentSurfaceElementId];
 		};
@@ -5946,40 +6551,8 @@ babelHelpers;
    */
 
 
-		Component.prototype.getComponentHtml = function getComponentHtml(content) {
-			return this.wrapContentIfNecessary(content, this.id, this.constructor.ELEMENT_TAG_NAME_MERGED);
-		};
-
-		/**
-   * Returns a map of all subcomponents with ids that have the specified prefix.
-   * @param {string} prefix
-   * @return {!Object<string, !Component>}
-   */
-
-
-		Component.prototype.getComponentsWithPrefix = function getComponentsWithPrefix(prefix) {
-			var _this3 = this;
-
-			var ids = Object.keys(this.components).filter(function (id) {
-				return id.indexOf(prefix) === 0;
-			});
-			var map = {};
-			ids.forEach(function (id) {
-				return map[id] = _this3.components[id];
-			});
-			return map;
-		};
-
-		/**
-   * Gets the name of this component. If the `NAME` static variable is set, this will
-   * be the component's name. Otherwise, it will be formed from the constructor's
-   * function name.
-   * @return {string}
-   */
-
-
-		Component.prototype.getName = function getName() {
-			return this.constructor.NAME || core.getFunctionName(this.constructor);
+		SurfaceRenderer.prototype.getComponentHtml = function getComponentHtml(content) {
+			return this.wrapContentIfNecessary(content, this.component_.id, this.component_.constructor.ELEMENT_TAG_NAME_MERGED);
 		};
 
 		/**
@@ -5987,15 +6560,14 @@ babelHelpers;
    * @param {string=} opt_skipContents True if only the element's tag needs to be rendered.
    * @return {Object|string} The content to be rendered. If the content is a
    *   string, surfaces can be represented by placeholders in the format specified
-   *   by Component.SURFACE_REGEX. Also, if the string content's main wrapper has
+   *   by SurfaceRenderer.SURFACE_REGEX. Also, if the string content's main wrapper has
    *   the component's id, then it will be used to render the main element tag.
    * @protected
    */
 
 
-		Component.prototype.getElementContent_ = function getElementContent_(opt_skipContents) {
-			this.addElementSurface_();
-			return this.getRenderer().getSurfaceContent(this.getSurface(this.id), this, opt_skipContents);
+		SurfaceRenderer.prototype.getElementContent_ = function getElementContent_(opt_skipContents) {
+			return this.getSurfaceContent(this.getSurface(this.component_.id), opt_skipContents);
 		};
 
 		/**
@@ -6006,11 +6578,11 @@ babelHelpers;
    */
 
 
-		Component.prototype.getElementExtendedContent = function getElementExtendedContent() {
+		SurfaceRenderer.prototype.getElementExtendedContent = function getElementExtendedContent() {
 			var content = this.getElementContent_() || '';
-			this.eventsCollector_.attachListeners(content, this.id);
-			this.cacheSurfaceContent(this.id, content);
-			return this.replaceSurfacePlaceholders_(content, this.id, this.getSurface(this.id));
+			this.eventsCollector_.attachListenersFromHtml(content, this.component_.id);
+			this.cacheSurfaceContent(this.component_.id, content);
+			return this.replaceSurfacePlaceholders_(content, this.component_.id, this.getSurface(this.component_.id));
 		};
 
 		/**
@@ -6019,10 +6591,11 @@ babelHelpers;
    *     name as key and an object with newVal and prevVal as value.
    * @return {Object.<string, boolean>} Object containing modified surface ids
    *     as key and true as value.
+   * @protected
    */
 
 
-		Component.prototype.getModifiedSurfacesFromChanges_ = function getModifiedSurfacesFromChanges_(changes) {
+		SurfaceRenderer.prototype.getModifiedSurfacesFromChanges_ = function getModifiedSurfacesFromChanges_(changes) {
 			var surfaces = {};
 			for (var attr in changes) {
 				var surfaceNames = Object.keys(this.surfacesRenderAttrs_[attr] || {});
@@ -6044,18 +6617,8 @@ babelHelpers;
    */
 
 
-		Component.prototype.getNonComponentSurfaceHtml = function getNonComponentSurfaceHtml(surfaceElementId, content) {
-			return this.wrapContentIfNecessary(content, surfaceElementId, this.constructor.SURFACE_TAG_NAME_MERGED);
-		};
-
-		/**
-   * Gets the `ComponentRenderer` object for this component.
-   * @return {!ComponentRenderer}
-   */
-
-
-		Component.prototype.getRenderer = function getRenderer() {
-			return this.constructor.RENDERER_MERGED;
+		SurfaceRenderer.prototype.getNonComponentSurfaceHtml = function getNonComponentSurfaceHtml(surfaceElementId, content) {
+			return this.wrapContentIfNecessary(content, surfaceElementId, this.component_.constructor.SURFACE_TAG_NAME_MERGED);
 		};
 
 		/**
@@ -6066,9 +6629,23 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurface = function getSurface(surfaceId) {
+		SurfaceRenderer.prototype.getSurface = function getSurface(surfaceId) {
 			var surface = this.getSurfaceFromElementId(this.getSurfaceElementId(surfaceId));
 			return surface ? surface : this.getSurfaceFromElementId(surfaceId);
+		};
+
+		/**
+   * Returns the appropriate string content for the specified surface. Subclasses
+   * should implement this method.
+   * @param {!Object} surface The surface configuration.
+   * @param {string=} opt_skipContents True if only the element's tag needs to be rendered.
+   * @return {string}
+   * @override
+   */
+
+
+		SurfaceRenderer.prototype.getSurfaceContent = function getSurfaceContent() {
+			core.abstractMethod();
 		};
 
 		/**
@@ -6080,17 +6657,17 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaceContent_ = function getSurfaceContent_(surfaceElementId) {
+		SurfaceRenderer.prototype.getSurfaceContent_ = function getSurfaceContent_(surfaceElementId) {
 			var surface = this.getSurfaceFromElementId(surfaceElementId);
-			if (surface.componentName && surfaceElementId !== this.id) {
+			if (surface.componentName && surfaceElementId !== this.component_.id) {
 				var component = ComponentCollector.components[surfaceElementId];
 				if (component.wasRendered) {
 					return '';
 				} else {
-					return component.getElementExtendedContent();
+					return component.getRenderer().getElementExtendedContent();
 				}
 			} else {
-				return this.getRenderer().getSurfaceContent(surface, this) || '';
+				return this.getSurfaceContent(surface) || '';
 			}
 		};
 
@@ -6107,7 +6684,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaceElement = function getSurfaceElement(surfaceId, opt_surface) {
+		SurfaceRenderer.prototype.getSurfaceElement = function getSurfaceElement(surfaceId, opt_surface) {
 			var surface = opt_surface || this.getSurface(surfaceId);
 			if (!surface) {
 				return null;
@@ -6120,7 +6697,7 @@ babelHelpers;
 					}
 				} else {
 					var surfaceElementId = this.getSurfaceElementId(surfaceId, surface);
-					surface.element = this.findElementById_(surfaceElementId) || this.createSurfaceElement_(surfaceElementId);
+					surface.element = this.component_.findElementById(surfaceElementId) || this.createSurfaceElement_(surfaceElementId);
 				}
 			}
 			return surface.element;
@@ -6134,7 +6711,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaceElementId = function getSurfaceElementId(surfaceId, opt_surface) {
+		SurfaceRenderer.prototype.getSurfaceElementId = function getSurfaceElementId(surfaceId, opt_surface) {
 			var surface = opt_surface || {};
 			if (surface.surfaceElementId) {
 				return surface.surfaceElementId;
@@ -6154,8 +6731,8 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaceFromElementId = function getSurfaceFromElementId(surfaceElementId) {
-			return Component.surfacesCollector.getSurface(surfaceElementId);
+		SurfaceRenderer.prototype.getSurfaceFromElementId = function getSurfaceFromElementId(surfaceElementId) {
+			return SurfaceRenderer.surfacesCollector.getSurface(surfaceElementId);
 		};
 
 		/**
@@ -6168,10 +6745,11 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaceHtml_ = function getSurfaceHtml_(surface, content) {
+		SurfaceRenderer.prototype.getSurfaceHtml_ = function getSurfaceHtml_(surface, content) {
 			var surfaceElementId = surface.surfaceElementId;
 			if (surface.componentName) {
-				return ComponentCollector.components[surfaceElementId].getComponentHtml(content);
+				var component = ComponentCollector.components[surfaceElementId];
+				return component.getRenderer().getComponentHtml(content);
 			} else {
 				return this.getNonComponentSurfaceHtml(surfaceElementId, content);
 			}
@@ -6184,11 +6762,11 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaceId = function getSurfaceId(surface) {
+		SurfaceRenderer.prototype.getSurfaceId = function getSurfaceId(surface) {
 			if (surface.componentName || !this.hasComponentPrefix_(surface.surfaceElementId)) {
 				return surface.surfaceElementId;
 			} else {
-				return surface.surfaceElementId.substr(this.id.length + 1);
+				return surface.surfaceElementId.substr(this.component_.id.length + 1);
 			}
 		};
 
@@ -6198,7 +6776,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.getSurfaces = function getSurfaces() {
+		SurfaceRenderer.prototype.getSurfaces = function getSurfaces() {
 			var surfaces = {};
 			Object.keys(this.surfaceIds_).forEach(function (surfaceElementId) {
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
@@ -6208,19 +6786,25 @@ babelHelpers;
 		};
 
 		/**
-   * Handles attributes batch changes. Responsible for surface mutations and
-   * attributes synchronization.
-   * @param {Event} event
+   * Handles the `attached` event from this renderer's component. This function
+   * is called only once, on the first time the event is triggered.
    * @protected
    */
 
 
-		Component.prototype.handleAttributesChanges_ = function handleAttributesChanges_(event) {
-			if (this.inDocument) {
-				this.renderSurfacesContent_(this.getModifiedSurfacesFromChanges_(event.changes));
-			}
-			this.syncAttrsFromChanges_(event.changes);
-			this.emit('attrsSynced', event);
+		SurfaceRenderer.prototype.handleComponentAttachedOnce_ = function handleComponentAttachedOnce_() {
+			this.updatePlaceholderSurfaces_();
+		};
+
+		/**
+   * Handles the `detached` event from this renderer's component, removing all
+   * event listeners.
+   * @protected
+   */
+
+
+		SurfaceRenderer.prototype.handleComponentDetached_ = function handleComponentDetached_() {
+			this.eventsCollector_.detachAllListeners();
 		};
 
 		/**
@@ -6231,51 +6815,9 @@ babelHelpers;
    */
 
 
-		Component.prototype.hasComponentPrefix_ = function hasComponentPrefix_(surfaceId) {
-			return surfaceId.substr(0, this.id.length) === this.id && (surfaceId.length === this.id.length || surfaceId[this.id.length] === '-');
-		};
-
-		/**
-   * Fired when the `events` attribute value is changed.
-   * @param {!Object} event
-   * @protected
-   */
-
-
-		Component.prototype.onEventsChanged_ = function onEventsChanged_(event) {
-			this.eventsAttrHandler_.removeAllListeners();
-			this.addListenersFromObj_(event.newVal);
-		};
-
-		/**
-   * Makes an unique id for the component.
-   * @return {string} Unique id.
-   * @protected
-   */
-
-
-		Component.prototype.makeId_ = function makeId_() {
-			return 'metal_c_' + core.getUid(this);
-		};
-
-		/**
-   * Merges an array of values for the ELEMENT_CLASSES property into a single object.
-   * @param {!Array.<string>} values The values to be merged.
-   * @return {!string} The merged value.
-   * @protected
-   */
-
-
-		Component.prototype.mergeElementClasses_ = function mergeElementClasses_(values) {
-			var marked = {};
-			return values.filter(function (val) {
-				if (!val || marked[val]) {
-					return false;
-				} else {
-					marked[val] = true;
-					return true;
-				}
-			}).join(' ');
+		SurfaceRenderer.prototype.hasComponentPrefix_ = function hasComponentPrefix_(surfaceId) {
+			var compId = this.component_.id;
+			return surfaceId.substr(0, compId.length) === compId && (surfaceId.length === compId.length || surfaceId[compId.length] === '-');
 		};
 
 		/**
@@ -6287,7 +6829,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.mergeObjects_ = function mergeObjects_(values) {
+		SurfaceRenderer.prototype.mergeObjects_ = function mergeObjects_(values) {
 			return object.mixin.apply(null, [{}].concat(values.reverse()));
 		};
 
@@ -6298,36 +6840,29 @@ babelHelpers;
    */
 
 
-		Component.prototype.prefixSurfaceId = function prefixSurfaceId(surfaceId) {
-			return this.id + '-' + surfaceId;
-		};
-
-		/**
-   * Registers a Metal.js component. This is just a helper function to allow
-   * subclasses to easily register themselves without having to import anything else.
-   * @param {!Function} constructorFn The component's constructor function.
-   * @param {string=} opt_name The component's name.
-   */
-
-
-		Component.prototype.registerMetalComponent = function registerMetalComponent(constructorFn, opt_name) {
-			ComponentRegistry.register(constructorFn, opt_name);
+		SurfaceRenderer.prototype.prefixSurfaceId = function prefixSurfaceId(surfaceId) {
+			return this.component_.id + '-' + surfaceId;
 		};
 
 		/**
    * Unregisters a surface and removes its element from the DOM.
    * @param {string} surfaceId The surface id.
+   * @param {boolean=} opt_skipDomRemoval Flag indicating if the removal
+   *     of the surface from the dom should be skipped. When true, only the
+   *     surface data is going to be removed.
    * @chainable
    */
 
 
-		Component.prototype.removeSurface = function removeSurface(surfaceId) {
-			var el = this.getSurfaceElement(surfaceId);
-			if (el && el.parentNode) {
-				el.parentNode.removeChild(el);
+		SurfaceRenderer.prototype.removeSurface = function removeSurface(surfaceId, opt_skipDomRemoval) {
+			if (!opt_skipDomRemoval) {
+				var el = this.getSurfaceElement(surfaceId);
+				if (el && el.parentNode) {
+					el.parentNode.removeChild(el);
+				}
 			}
 			var surfaceElementId = this.getSurfaceElementId(surfaceId, this.getSurface(surfaceId));
-			Component.surfacesCollector.removeSurface(surfaceElementId);
+			SurfaceRenderer.surfacesCollector.removeSurface(surfaceElementId);
 			this.surfaceIds_[surfaceElementId] = false;
 			return this;
 		};
@@ -6339,7 +6874,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.removeUnusedSurfaces_ = function removeUnusedSurfaces_() {
+		SurfaceRenderer.prototype.removeUnusedSurfaces_ = function removeUnusedSurfaces_() {
 			var compIds = [];
 			for (var i = 0; i < this.removedSurfaces_.length; i++) {
 				var surface = this.removedSurfaces_[i];
@@ -6350,64 +6885,27 @@ babelHelpers;
 					}
 				}
 			}
-			this.disposeSubComponents_(compIds);
+			this.component_.disposeSubComponents(compIds);
 		};
 
 		/**
-   * Lifecycle. Renders the component into the DOM. Render phase replaces
-   * decorate phase, without progressive enhancement support.
-   *
-   * Render Lifecycle:
-   *   render - Decorate is manually called.
-   *   render surfaces - All surfaces content are rendered.
-   *   attribute synchronization - All synchronization methods are called.
-   *   attach - Attach Lifecycle is called.
-   *
-   * @param {(string|Element)=} opt_parentElement Optional parent element
-   *     to render the component.
-   * @param {(string|Element)=} opt_siblingElement Optional sibling element
-   *     to render the component before it. Relevant when the component needs
-   *     to be rendered before an existing element in the DOM, e.g.
-   *     `component.render(null, existingElement)`.
-   * @chainable
+   * @inheritDoc
    */
 
 
-		Component.prototype.render = function render(opt_parentElement, opt_siblingElement) {
-			if (this.wasRendered) {
-				throw new Error(Component.Error.ALREADY_RENDERED);
+		SurfaceRenderer.prototype.render = function render(data) {
+			var id = this.component_.id;
+			if (data.decorating) {
+				var extendedContent = this.getElementExtendedContent();
+				var extendedCacheState = this.computeSurfaceCacheState_(extendedContent);
+				var originalContent = html.compress(this.component_.element.outerHTML);
+				var htmlCacheState = this.computeSurfaceCacheState_(originalContent);
+				if (!this.compareCacheStates_(htmlCacheState, extendedCacheState)) {
+					this.replaceElementContent(extendedContent);
+				}
+			} else {
+				this.emitRenderSurfaceEvent_(id);
 			}
-
-			this.addElementSurface_();
-			this.renderContent_();
-			this.syncAttrs_();
-			this.emit('render');
-			this.attach(opt_parentElement, opt_siblingElement);
-			this.wasRendered = true;
-			return this;
-		};
-
-		/**
-   * Renders this component as a subcomponent, meaning that no actual rendering is
-   * needed since it was already rendered by the parent component. This just handles
-   * other logics from the rendering lifecycle, like attaching event listeners.
-   * @param {string=} opt_content The content that has already been rendered for this
-   *   component
-   */
-
-
-		Component.prototype.renderAsSubComponent = function renderAsSubComponent(opt_content) {
-			if (opt_content && dom.isEmpty(this.element)) {
-				// If we have the rendered content for this component, but it hasn't
-				// been rendered in its element yet, we render it manually here. That
-				// can happen if the subcomponent's element is set before the parent
-				// element renders its content, making originally rendered content be
-				// set on the wrong place.
-				this.replaceElementContent_(opt_content);
-			}
-			this.syncAttrs_();
-			this.attach();
-			this.wasRendered = true;
 		};
 
 		/**
@@ -6418,55 +6916,21 @@ babelHelpers;
    */
 
 
-		Component.prototype.renderComponentSurface_ = function renderComponentSurface_(surfaceElementId, opt_content) {
+		SurfaceRenderer.prototype.renderComponentSurface_ = function renderComponentSurface_(surfaceElementId, opt_content) {
 			var component = ComponentCollector.components[surfaceElementId];
 			if (component.wasRendered) {
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
 				Component.componentsCollector.updateComponent(surfaceElementId, surface.componentData);
 			} else {
-				component.renderAsSubComponent(opt_content);
-			}
-		};
-
-		/**
-   * Renders this component's whole content. When decorating this will avoid
-   * replacing the existing content if it's already correct.
-   * @protected
-   */
-
-
-		Component.prototype.renderContent_ = function renderContent_() {
-			var id = this.id;
-			if (this.decorating_) {
-				var extendedContent = this.getElementExtendedContent();
-				var extendedCacheState = this.computeSurfaceCacheState_(extendedContent);
-				var htmlCacheState = this.computeSurfaceCacheState_(html.compress(this.element.outerHTML));
-				if (!this.compareCacheStates_(htmlCacheState, extendedCacheState)) {
-					this.replaceElementContent_(extendedContent);
+				if (opt_content && dom.isEmpty(component.element)) {
+					// If we have the rendered content for this component, but it hasn't
+					// been rendered in its element yet, we render it manually here. That
+					// can happen if the subcomponent's element is set before the parent
+					// element renders its content, making originally rendered content be
+					// set on the wrong place.
+					component.getRenderer().replaceElementContent(opt_content);
 				}
-			} else {
-				this.emitRenderSurfaceEvent_(id);
-			}
-		};
-
-		/**
-   * Renders the component element into the DOM.
-   * @param {(string|Element)=} opt_parentElement Optional parent element
-   *     to render the component.
-   * @param {(string|Element)=} opt_siblingElement Optional sibling element
-   *     to render the component before it. Relevant when the component needs
-   *     to be rendered before an existing element in the DOM, e.g.
-   *     `component.render(null, existingElement)`.
-   * @protected
-   */
-
-
-		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
-			var element = this.element;
-			element.id = this.id;
-			if (opt_siblingElement || !element.parentNode) {
-				var parent = dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
-				parent.insertBefore(element, dom.toElement(opt_siblingElement));
+				component.renderAsSubComponent();
 			}
 		};
 
@@ -6478,9 +6942,9 @@ babelHelpers;
    */
 
 
-		Component.prototype.renderPlaceholderSurfaceContents_ = function renderPlaceholderSurfaceContents_(content, surfaceElementId) {
+		SurfaceRenderer.prototype.renderPlaceholderSurfaceContents_ = function renderPlaceholderSurfaceContents_(content, surfaceElementId) {
 			var instance = this;
-			content.replace(Component.SURFACE_REGEX, function (match, id) {
+			content.replace(SurfaceRenderer.SURFACE_REGEX, function (match, id) {
 				var surface = instance.createPlaceholderSurface_(surfaceElementId, id);
 				instance.emitRenderSurfaceEvent_(surface.surfaceElementId);
 				return match;
@@ -6496,21 +6960,22 @@ babelHelpers;
    */
 
 
-		Component.prototype.renderSurfacesContent_ = function renderSurfacesContent_(surfaces) {
+		SurfaceRenderer.prototype.renderSurfacesContent_ = function renderSurfacesContent_(surfaces) {
 			this.generatedIdCount_ = {};
 			this.removedSurfaces_ = [];
 
+			var compId = this.component_.id;
 			var surfaceElementIds = Object.keys(surfaces);
-			var idIndex = surfaceElementIds.indexOf(this.id);
+			var idIndex = surfaceElementIds.indexOf(compId);
 			if (idIndex !== -1) {
 				// Always render the main content surface first, for performance reasons.
 				surfaceElementIds.splice(idIndex, 1);
-				surfaceElementIds = [this.id].concat(surfaceElementIds);
+				surfaceElementIds = [compId].concat(surfaceElementIds);
 			}
 
 			for (var i = 0; i < surfaceElementIds.length; i++) {
 				var surface = this.getSurfaceFromElementId(surfaceElementIds[i]);
-				if (!surface.handled && (surface.parent || surfaceElementIds[i] === this.id)) {
+				if (!surface.handled && (surface.parent || surfaceElementIds[i] === compId)) {
 					this.emitRenderSurfaceEvent_(surfaceElementIds[i], null, null, surfaces[surfaceElementIds[i]]);
 				}
 			}
@@ -6522,14 +6987,13 @@ babelHelpers;
 		/**
    * Replaces the content of this component's element with the given one.
    * @param {string} content The content to be rendered.
-   * @protected
    */
 
 
-		Component.prototype.replaceElementContent_ = function replaceElementContent_(content) {
-			var element = this.element;
+		SurfaceRenderer.prototype.replaceElementContent = function replaceElementContent(content) {
+			var element = this.component_.element;
 			var newContent = this.buildFragment_(content);
-			var newElement = this.findElementInContent_(this.id, newContent);
+			var newElement = this.findElementInContent_(this.component_.id, newContent);
 			if (newElement) {
 				this.updateElementAttributes_(element, newElement);
 				newContent = newElement.childNodes;
@@ -6547,10 +7011,10 @@ babelHelpers;
    */
 
 
-		Component.prototype.replaceSurfaceContent_ = function replaceSurfaceContent_(surfaceElementId, surface, content) {
+		SurfaceRenderer.prototype.replaceSurfaceContent_ = function replaceSurfaceContent_(surfaceElementId, surface, content) {
 			content = this.replaceSurfacePlaceholders_(content, surfaceElementId, surface);
-			if (surfaceElementId === this.id) {
-				this.replaceElementContent_(content);
+			if (surfaceElementId === this.component_.id) {
+				this.replaceElementContent(content);
 				return;
 			}
 
@@ -6577,14 +7041,14 @@ babelHelpers;
    */
 
 
-		Component.prototype.replaceSurfacePlaceholders_ = function replaceSurfacePlaceholders_(content, surfaceElementId, surface) {
-			if (!surface.componentName || surfaceElementId === this.id) {
+		SurfaceRenderer.prototype.replaceSurfacePlaceholders_ = function replaceSurfacePlaceholders_(content, surfaceElementId, surface) {
+			if (!surface.componentName || surfaceElementId === this.component_.id) {
 				this.addToRemovedSurfaces_(surface.children || []);
 				surface.children = [];
 			}
 
 			var instance = this;
-			return content.replace(Component.SURFACE_REGEX, function (match, id) {
+			return content.replace(SurfaceRenderer.SURFACE_REGEX, function (match, id) {
 				// Surfaces should already have been created before being rendered so they can be
 				// accessed from their getSurfaceContent calls.
 				var placeholderSurface = instance.createPlaceholderSurface_(surfaceElementId, id);
@@ -6607,48 +7071,12 @@ babelHelpers;
 		};
 
 		/**
-   * Setter logic for element attribute.
-   * @param {string|Element} val
-   * @return {Element}
-   * @protected
+   * @inheritDoc
    */
 
 
-		Component.prototype.setterElementFn_ = function setterElementFn_(val) {
-			var element = dom.toElement(val);
-			if (!element) {
-				element = this.valueElementFn_();
-			}
-			return element;
-		};
-
-		/**
-   * Attribute synchronization logic for the `elementClasses` attribute.
-   * @param {string} newVal
-   * @param {string} prevVal
-   */
-
-
-		Component.prototype.syncElementClasses = function syncElementClasses(newVal, prevVal) {
-			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
-			if (newVal) {
-				classesToAdd = classesToAdd + ' ' + newVal;
-			}
-			if (prevVal) {
-				dom.removeClasses(this.element, prevVal);
-			}
-			dom.addClasses(this.element, classesToAdd);
-		};
-
-		/**
-   * Attribute synchronization logic for `visible` attribute.
-   * Updates the element's display value according to its visibility.
-   * @param {boolean} newVal
-   */
-
-
-		Component.prototype.syncVisible = function syncVisible(newVal) {
-			this.element.style.display = newVal ? '' : 'none';
+		SurfaceRenderer.prototype.update = function update(data) {
+			this.renderSurfacesContent_(this.getModifiedSurfacesFromChanges_(data.changes));
 		};
 
 		/**
@@ -6659,7 +7087,7 @@ babelHelpers;
    */
 
 
-		Component.prototype.updateElementAttributes_ = function updateElementAttributes_(element, newElement) {
+		SurfaceRenderer.prototype.updateElementAttributes_ = function updateElementAttributes_(element, newElement) {
 			var attrs = newElement.attributes;
 			for (var i = 0; i < attrs.length; i++) {
 				// The "id" and "class" html attributes are already synced via the "id"
@@ -6670,7 +7098,7 @@ babelHelpers;
 			}
 
 			if (element.tagName !== newElement.tagName) {
-				console.error('The component named "' + this.getName() + '" tried to change the component ' + 'element\'s tag name, which is not allowed. Make sure to always return the same tag ' + 'name for the component element on the renderer\'s getSurfaceContent. This may also ' + 'have been caused by passing an element to this component with a different tag name ' + 'from the one it uses.');
+				console.error('The component named "' + this.component_.getName() + '" tried to change the component ' + 'element\'s tag name, which is not allowed. Make sure to always return the same tag ' + 'name for the component element on the renderer\'s getSurfaceContent. This may also ' + 'have been caused by passing an element to this component with a different tag name ' + 'from the one it uses.');
 			}
 		};
 
@@ -6683,13 +7111,13 @@ babelHelpers;
    */
 
 
-		Component.prototype.updatePlaceholderSurface_ = function updatePlaceholderSurface_(collectedData) {
+		SurfaceRenderer.prototype.updatePlaceholderSurface_ = function updatePlaceholderSurface_(collectedData) {
 			var surface = collectedData.surface;
 			var surfaceElementId = surface.surfaceElementId;
 			if (surface.componentName) {
 				// Elements of component surfaces are unchangeable, so we need to replace the
 				// rendered element with the component's.
-				dom.replace(this.findElementById_(surfaceElementId), this.getSurfaceElement(surfaceElementId, surface));
+				dom.replace(this.component_.findElementById(surfaceElementId), this.getSurfaceElement(surfaceElementId, surface));
 
 				// Component surfaces need to be handled in case some internal details have changed.
 				this.emitRenderSurfaceEvent_(surfaceElementId, collectedData.content, collectedData.cacheContent);
@@ -6700,7 +7128,7 @@ babelHelpers;
 				// listeners and cache its content manually.
 				surface.element = null;
 				this.cacheSurfaceContent(surfaceElementId, collectedData.cacheContent);
-				this.eventsCollector_.attachListeners(collectedData.cacheContent, surfaceElementId);
+				this.eventsCollector_.attachListenersFromHtml(collectedData.cacheContent, surfaceElementId);
 			}
 		};
 
@@ -6710,94 +7138,12 @@ babelHelpers;
    */
 
 
-		Component.prototype.updatePlaceholderSurfaces_ = function updatePlaceholderSurfaces_() {
+		SurfaceRenderer.prototype.updatePlaceholderSurfaces_ = function updatePlaceholderSurfaces_() {
 			for (var i = this.collectedSurfaces_.length - 1; i >= 0; i--) {
 				this.updatePlaceholderSurface_(this.collectedSurfaces_[i]);
 				this.collectedSurfaces_[i].surface.handled = false;
 			}
 			this.collectedSurfaces_ = [];
-		};
-
-		/**
-   * Validator logic for element attribute.
-   * @param {string|Element} val
-   * @return {boolean} True if val is a valid element.
-   * @protected
-   */
-
-
-		Component.prototype.validatorElementFn_ = function validatorElementFn_(val) {
-			return core.isElement(val) || core.isString(val);
-		};
-
-		/**
-   * Validator logic for elementClasses attribute.
-   * @param {string} val
-   * @return {boolean} True if val is a valid element classes.
-   * @protected
-   */
-
-
-		Component.prototype.validatorElementClassesFn_ = function validatorElementClassesFn_(val) {
-			return core.isString(val);
-		};
-
-		/**
-   * Validator logic for the `events` attribute.
-   * @param {Object} val
-   * @return {boolean}
-   * @protected
-   */
-
-
-		Component.prototype.validatorEventsFn_ = function validatorEventsFn_(val) {
-			return !core.isDefAndNotNull(val) || core.isObject(val);
-		};
-
-		/**
-   * Validator logic for the `id` attribute.
-   * @param {string} val
-   * @return {boolean} True if val is a valid id.
-   * @protected
-   */
-
-
-		Component.prototype.validatorIdFn_ = function validatorIdFn_(val) {
-			return core.isString(val);
-		};
-
-		/**
-   * Provides the default value for element attribute.
-   * @return {!Element} The element.
-   * @protected
-   */
-
-
-		Component.prototype.valueElementFn_ = function valueElementFn_() {
-			if (!this.id) {
-				// This may happen because the default value of "id" depends on "element",
-				// and the default value of "element" depends on "id".
-				this.id = this.makeId_();
-			}
-			var element = this.findElementInContent_(this.id, this.getElementContent_(true) || '');
-			if (!element) {
-				element = this.findElementInContent_(this.id, this.getComponentHtml(''));
-			}
-			dom.removeChildren(element);
-			dom.exitDocument(element);
-			return element;
-		};
-
-		/**
-   * Provides the default value for id attribute.
-   * @return {string} The id.
-   * @protected
-   */
-
-
-		Component.prototype.valueIdFn_ = function valueIdFn_() {
-			var element = this.element;
-			return element && element.id ? element.id : this.makeId_();
 		};
 
 		/**
@@ -6811,144 +7157,24 @@ babelHelpers;
    */
 
 
-		Component.prototype.wrapContentIfNecessary = function wrapContentIfNecessary(content, id, tag) {
+		SurfaceRenderer.prototype.wrapContentIfNecessary = function wrapContentIfNecessary(content, id, tag) {
 			if (!this.checkHasElementTag_(content, id)) {
 				content = '<' + tag + ' id="' + id + '">' + content + '</' + tag + '>';
 			}
 			return content;
 		};
 
-		return Component;
-	}(Attribute);
+		return SurfaceRenderer;
+	}(ComponentRenderer);
 
 	/**
-  * Helper responsible for extracting components from strings and config data.
-  * @type {!ComponentCollector}
-  * @protected
-  * @static
-  */
-
-
-	Component.prototype.registerMetalComponent && Component.prototype.registerMetalComponent(Component, 'Component')
-	Component.componentsCollector = new ComponentCollector();
-
-	/**
-  * Helper responsible for temporarily holding surface data.
-  * @type {!SurfaceCollector}
-  * @protected
-  * @static
-  */
-	Component.surfacesCollector = new SurfaceCollector();
-
-	/**
-  * Component attributes definition.
-  * @type {Object}
-  * @static
-  */
-	Component.ATTRS = {
-		/**
-   * Component element bounding box.
-   * @type {Element}
-   * @writeOnce
-   */
-		element: {
-			setter: 'setterElementFn_',
-			validator: 'validatorElementFn_',
-			valueFn: 'valueElementFn_',
-			writeOnce: true
-		},
-
-		/**
-   * CSS classes to be applied to the element.
-   * @type {Array.<string>}
-   */
-		elementClasses: {
-			validator: 'validatorElementClassesFn_'
-		},
-
-		/**
-   * Listeners that should be attached to this component. Should be provided as an object,
-   * where the keys are event names and the values are the listener functions (or function
-   * names).
-   * @type {Object<string, (function()|string|{selector: string, fn: function()|string})>}
-   */
-		events: {
-			validator: 'validatorEventsFn_',
-			value: null
-		},
-
-		/**
-   * Component element id. If not specified will be generated.
-   * @type {string}
-   * @writeOnce
-   */
-		id: {
-			validator: 'validatorIdFn_',
-			valueFn: 'valueIdFn_',
-			writeOnce: true
-		},
-
-		/**
-   * Indicates if the component is visible or not.
-   * @type {boolean}
-   */
-		visible: {
-			validator: core.isBoolean,
-			value: true
-		}
-	};
-
-	/**
-  * CSS classes to be applied to the element.
-  * @type {string}
-  * @protected
-  * @static
-  */
-	Component.ELEMENT_CLASSES = 'component';
-
-	/**
-  * Element tag name is a string that specifies the type of element to be
-  * created. The nodeName of the created element is initialized with the
-  * value of tag name.
-  * @type {string}
-  * @default div
-  * @protected
-  * @static
-  */
-	Component.ELEMENT_TAG_NAME = 'div';
-
-	/**
-  * The `ComponentRenderer` that should be used. Components need to set this
-  * to a subclass of `ComponentRenderer` that has the rendering logic, like
-  * `SoyRenderer`.
-  * @type {!ComponentRenderer}
-  * @static
-  */
-	Component.RENDERER = ComponentRenderer;
-
-	/**
-  * The regex used to search for surface placeholders.
-  * @type {RegExp}
-  * @static
-  */
-	Component.SURFACE_REGEX = /\%\%\%\%~s(?:-([^~:]+))?~\%\%\%\%/g;
-
-	/**
-  * Surface tag name is a string that specifies the type of element to be
-  * created for the surfaces. The nodeName of the created element is
-  * initialized with the value of tag name.
-  * @type {string}
-  * @default div
-  * @protected
-  * @static
-  */
-	Component.SURFACE_TAG_NAME = 'div';
-
-	/**
-  * Cache states for the component.
+  * Cache states for the surfaces.
   * @enum {string}
   */
-	Component.Cache = {
+
+
+	SurfaceRenderer.prototype.registerMetalComponent && SurfaceRenderer.prototype.registerMetalComponent(SurfaceRenderer, 'SurfaceRenderer')
+	SurfaceRenderer.Cache = {
 		/**
    * Cache not initialized.
    */
@@ -6956,42 +7182,41 @@ babelHelpers;
 	};
 
 	/**
-  * Errors thrown by the component.
-  * @enum {string}
+  * The regex used to search for surface placeholders.
+  * @type {RegExp}
+  * @static
   */
-	Component.Error = {
-		/**
-   * Error when the component is already rendered and another render attempt
-   * is made.
-   */
-		ALREADY_RENDERED: 'Component already rendered'
-	};
+	SurfaceRenderer.SURFACE_REGEX = /\%\%\%\%~s(?:-([^~:]+))?~\%\%\%\%/g;
 
 	/**
-  * A list with attribute names that will automatically be rejected as invalid.
-  * @type {!Array<string>}
+  * Helper responsible for temporarily holding surface data.
+  * @type {!SurfaceCollector}
+  * @protected
+  * @static
   */
-	Component.INVALID_ATTRS = ['components', 'elementContent'];
+	SurfaceRenderer.surfacesCollector = new SurfaceCollector();
 
-	this.metal.Component = Component;
+	this.metal.SurfaceRenderer = SurfaceRenderer;
 }).call(this);
 'use strict';
 
 (function () {
-  var Component = this.metal.Component;
-  var ComponentCollector = this.metal.ComponentCollector;
-  var ComponentRegistry = this.metal.ComponentRegistry;
-  var ComponentRenderer = this.metal.ComponentRenderer;
-  var EventsCollector = this.metal.EventsCollector;
-  var SurfaceCollector = this.metal.SurfaceCollector;
-  this.metal.component = Component;
-  this.metalNamed.component = {};
-  this.metalNamed.component.Component = Component;
-  this.metalNamed.component.ComponentCollector = ComponentCollector;
-  this.metalNamed.component.ComponentRegistry = ComponentRegistry;
-  this.metalNamed.component.ComponentRenderer = ComponentRenderer;
-  this.metalNamed.component.EventsCollector = EventsCollector;
-  this.metalNamed.component.SurfaceCollector = SurfaceCollector;
+	var Component = this.metal.Component;
+	var ComponentCollector = this.metal.ComponentCollector;
+	var ComponentRegistry = this.metal.ComponentRegistry;
+	var ComponentRenderer = this.metal.ComponentRenderer;
+	var EventsCollector = this.metal.EventsCollector;
+	var SurfaceCollector = this.metal.SurfaceCollector;
+	var SurfaceRenderer = this.metal.SurfaceRenderer;
+	this.metal.component = Component;
+	this.metalNamed.component = {};
+	this.metalNamed.component.Component = Component;
+	this.metalNamed.component.ComponentCollector = ComponentCollector;
+	this.metalNamed.component.ComponentRegistry = ComponentRegistry;
+	this.metalNamed.component.ComponentRenderer = ComponentRenderer;
+	this.metalNamed.component.EventsCollector = EventsCollector;
+	this.metalNamed.component.SurfaceCollector = SurfaceCollector;
+	this.metalNamed.component.SurfaceRenderer = SurfaceRenderer;
 }).call(this);
 'use strict';
 
@@ -7131,7 +7356,7 @@ babelHelpers;
 	var dom = this.metal.dom;
 	var Component = this.metalNamed.component.Component;
 	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
-	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
+	var SurfaceRenderer = this.metalNamed.component.SurfaceRenderer;
 	var SoyAop = this.metal.SoyAop;
 	var SoyTemplates = this.metal.SoyTemplates;
 
@@ -7140,37 +7365,36 @@ babelHelpers;
 	var ijData = {};
 
 	/**
-  * A `ComponentRenderer` that enables components to be rendered via soy templates. It
+  * A `SurfaceRenderer` that enables components to be rendered via soy templates. It
   * automatically creates surfaces named after each template and uses template params
   * as render attributes. That means that when an attribute value changes, the templates
   * that have a parameter with the same name will be automatically rendered again.
-  * @extends {ComponentRenderer}
+  * @extends {SurfaceRenderer}
   */
 
-	var SoyRenderer = function (_ComponentRenderer) {
-		babelHelpers.inherits(SoyRenderer, _ComponentRenderer);
+	var SoyRenderer = function (_SurfaceRenderer) {
+		babelHelpers.inherits(SoyRenderer, _SurfaceRenderer);
 
 		function SoyRenderer() {
 			babelHelpers.classCallCheck(this, SoyRenderer);
-			return babelHelpers.possibleConstructorReturn(this, _ComponentRenderer.apply(this, arguments));
+			return babelHelpers.possibleConstructorReturn(this, _SurfaceRenderer.apply(this, arguments));
 		}
 
 		/**
    * Adds surfaces from the soy templates.
-   * @param {!Component} component
    * @protected
    */
 
-		SoyRenderer.addSurfacesFromTemplates_ = function addSurfacesFromTemplates_(component) {
-			var name = component.getName();
+		SoyRenderer.prototype.addSurfacesFromTemplates_ = function addSurfacesFromTemplates_() {
+			var name = this.component_.getName();
 			var templates = SoyTemplates.get(name);
 			var templateNames = Object.keys(templates);
 			for (var i = 0; i < templateNames.length; i++) {
 				var templateName = templateNames[i];
 				var templateFn = SoyAop.getOriginalFn(templates[templateName]);
 				if (SoyRenderer.isSurfaceTemplate_(templateName, templateFn)) {
-					var surfaceId = templateName === 'render' ? component.id : templateName;
-					component.addSurface(surfaceId, {
+					var surfaceId = templateName === 'render' ? this.component_.id : templateName;
+					this.addSurface(surfaceId, {
 						renderAttrs: templateFn.params,
 						templateComponentName: name,
 						templateName: templateName
@@ -7201,19 +7425,19 @@ babelHelpers;
 
 		/**
    * Builds the data object that should be passed to a template from the given component.
-   * @param {!Component} component
    * @return {!Object}
    * @protected
    */
 
 
-		SoyRenderer.buildTemplateData_ = function buildTemplateData_(component) {
+		SoyRenderer.prototype.buildTemplateData_ = function buildTemplateData_() {
+			var component = this.component_;
 			var names = component.getAttrNames().filter(function (name) {
 				// Get all attribute values except for "element", since it helps performance and this
 				// attribute shouldn't be referenced inside a soy template anyway.
 				return name !== 'element';
 			});
-			var surface = component.getSurface(component.id);
+			var surface = this.getSurface(component.id);
 			var data = surface && surface.componentData ? surface.componentData : {};
 			var attrs = object.map(component.getAttrs(names), function (key, value) {
 				if (component.getAttrConfig(key).isHtml && core.isString(value)) {
@@ -7280,7 +7504,6 @@ babelHelpers;
    * @param {Object=} opt_data Data to be passed to the soy template when it's called.
    * @return {!Component} The component that was created for this action. Contains
    *   references to components that were rendered by the given template function.
-   * @static
    */
 
 
@@ -7290,7 +7513,6 @@ babelHelpers;
 
 		/**
    * Generates the id for a surface that was found by a soy template call.
-   * @param {!Component} component
    * @param {string} parentSurfaceId The id of the parent surface, or undefined
    *   if there is none.
    * @param {!Object} data The placeholder data registered for this surface.
@@ -7299,48 +7521,46 @@ babelHelpers;
    */
 
 
-		SoyRenderer.generateSurfaceElementId = function generateSurfaceElementId(component, parentSurfaceId, data) {
-			if (data.templateName && parentSurfaceId === component.id && !SoyRenderer.firstSurfaceFound_[data.templateName]) {
-				SoyRenderer.firstSurfaceFound_[data.templateName] = true;
-				return component.prefixSurfaceId(data.templateName);
+		SoyRenderer.prototype.generateSurfaceElementId = function generateSurfaceElementId(parentSurfaceId, data) {
+			if (data.templateName && parentSurfaceId === this.component_.id && !this.firstSurfaceFound_[data.templateName]) {
+				this.firstSurfaceFound_[data.templateName] = true;
+				return this.prefixSurfaceId(data.templateName);
 			} else {
-				return component.generateSurfaceElementId(parentSurfaceId);
+				return _SurfaceRenderer.prototype.generateSurfaceElementId.call(this, parentSurfaceId);
 			}
 		};
 
 		/**
    * Renders the appropriate soy template for the specified surface.
    * @param {!Object} surface The surface configuration.
-   * @param {!Component} component The component instance.
    * @param {string=} opt_skipContents True if only the element's tag needs to be rendered.
    * @return {string}
    * @override
    */
 
 
-		SoyRenderer.getSurfaceContent = function getSurfaceContent(surface, component, opt_skipContents) {
-			if (surface.surfaceElementId === component.id) {
+		SoyRenderer.prototype.getSurfaceContent = function getSurfaceContent(surface, opt_skipContents) {
+			if (surface.surfaceElementId === this.component_.id) {
 				if (!surface.renderAttrs) {
-					this.addSurfacesFromTemplates_(component);
+					this.addSurfacesFromTemplates_();
 				}
-				SoyRenderer.firstSurfaceFound_ = {};
+				this.firstSurfaceFound_ = {};
 			}
 
-			SoyRenderer.surfaceBeingRendered_ = surface.surfaceElementId;
-			SoyRenderer.skipInnerCalls_ = SoyRenderer.skipInnerCalls_ || opt_skipContents;
+			this.surfaceBeingRendered_ = surface.surfaceElementId;
+			this.skipInnerCalls_ = this.skipInnerCalls_ || opt_skipContents;
 
 			var data = surface.templateData;
 			surface.templateData = null;
-			var content = SoyRenderer.renderTemplateByName_(component, surface.templateComponentName, surface.templateName, data);
+			var content = this.renderTemplateByName_(surface.templateComponentName, surface.templateName, data);
 
-			SoyRenderer.surfaceBeingRendered_ = null;
-			SoyRenderer.skipInnerCalls_ = false;
+			this.surfaceBeingRendered_ = null;
+			this.skipInnerCalls_ = false;
 			return content;
 		};
 
 		/**
    * Handles a call to the SoyRenderer component template.
-   * @param {!Component} component The component that the call was made for.
    * @param {string} componentName The component's name.
    * @param {Object} data The data the template was called with.
    * @return {string} A placeholder to be rendered instead of the content the template
@@ -7349,21 +7569,20 @@ babelHelpers;
    */
 
 
-		SoyRenderer.handleComponentCall_ = function handleComponentCall_(component, componentName, data) {
+		SoyRenderer.prototype.handleComponentCall_ = function handleComponentCall_(componentName, data) {
 			var surfaceData = {
 				componentName: componentName
 			};
 			var id = (data || {}).id;
 			if (!id) {
-				id = SoyRenderer.generateSurfaceElementId(component, SoyRenderer.surfaceBeingRendered_, surfaceData);
+				id = this.generateSurfaceElementId(this.surfaceBeingRendered_, surfaceData);
 			}
 			surfaceData.componentData = SoyRenderer.buildComponentConfigData_(id, data);
-			return component.buildPlaceholder(id, surfaceData);
+			return this.buildPlaceholder(id, surfaceData);
 		};
 
 		/**
    * Handles a call to a soy template.
-   * @param {!Component} component The component that the call was made for.
    * @param {string} templateComponentName The name of the component that this template was belongs to.
    * @param {string} templateName The name of this template.
    * @param {!function()} originalFn The original template function that was intercepted.
@@ -7375,19 +7594,18 @@ babelHelpers;
    */
 
 
-		SoyRenderer.handleInterceptedCall_ = function handleInterceptedCall_(component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
-			if (SoyRenderer.skipInnerCalls_) {
+		SoyRenderer.prototype.handleInterceptedCall_ = function handleInterceptedCall_(templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
+			if (this.skipInnerCalls_) {
 				return '';
 			} else if (templateName === 'render') {
-				return this.handleComponentCall_.call(this, component, templateComponentName, data);
+				return this.handleComponentCall_.call(this, templateComponentName, data);
 			} else {
-				return this.handleSurfaceCall_.call(this, component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData);
+				return this.handleSurfaceCall_.call(this, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData);
 			}
 		};
 
 		/**
    * Handles a call to the SoyRenderer surface template.
-   * @param {!Component} component
    * @param {string} templateComponentName The name of the component that this template was belongs to.
    * @param {string} templateName The name of this template.
    * @param {!function()} originalFn The original template function that was intercepted.
@@ -7400,7 +7618,7 @@ babelHelpers;
    */
 
 
-		SoyRenderer.handleSurfaceCall_ = function handleSurfaceCall_(component, templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
+		SoyRenderer.prototype.handleSurfaceCall_ = function handleSurfaceCall_(templateComponentName, templateName, originalFn, data, opt_ignored, opt_ijData) {
 			var surfaceData = {
 				static: originalFn.static,
 				templateComponentName: templateComponentName,
@@ -7411,14 +7629,14 @@ babelHelpers;
 			if (core.isDefAndNotNull(data.surfaceElementId)) {
 				surfaceElementId = data.surfaceElementId;
 			} else if (core.isDefAndNotNull(data.surfaceId)) {
-				surfaceElementId = component.getSurfaceElementId(data.surfaceId.toString());
+				surfaceElementId = this.getSurfaceElementId(data.surfaceId.toString());
 			} else {
 				if (originalFn.private) {
 					return originalFn.call(null, data, opt_ignored, opt_ijData);
 				}
-				surfaceElementId = SoyRenderer.generateSurfaceElementId(component, SoyRenderer.surfaceBeingRendered_, surfaceData);
+				surfaceElementId = this.generateSurfaceElementId(this.surfaceBeingRendered_, surfaceData);
 			}
-			return component.buildPlaceholder(surfaceElementId, surfaceData);
+			return this.buildPlaceholder(surfaceElementId, surfaceData);
 		};
 
 		/**
@@ -7442,7 +7660,6 @@ babelHelpers;
    * @param {Object=} opt_data Data to be passed to the soy template when it's called.
    * @return {!Component} The component that was created for this action. Contains
    *   references to components that were rendered by the given template function.
-   * @static
    */
 
 
@@ -7452,7 +7669,6 @@ babelHelpers;
 
 		/**
    * Renders the specified template.
-   * @param {!Component} component
    * @param {!function()} templateFn
    * @param {Object=} opt_data
    * @return {string} The template's result content.
@@ -7460,17 +7676,16 @@ babelHelpers;
    */
 
 
-		SoyRenderer.renderTemplate_ = function renderTemplate_(component, templateFn, opt_data) {
-			SoyAop.startInterception(SoyRenderer.handleInterceptedCall_.bind(SoyRenderer, component));
+		SoyRenderer.prototype.renderTemplate_ = function renderTemplate_(templateFn, opt_data) {
+			SoyAop.startInterception(this.handleInterceptedCall_.bind(this));
 			templateFn = SoyAop.getOriginalFn(templateFn);
-			var content = templateFn(opt_data || SoyRenderer.buildTemplateData_(component), null, ijData).content;
+			var content = templateFn(opt_data || this.buildTemplateData_(), null, ijData).content;
 			SoyAop.stopInterception();
 			return content;
 		};
 
 		/**
    * Renders the template with the specified name.
-   * @param {!Component} component
    * @param {string} templateComponentName
    * @param {string} templateName
    * @param {Object=} opt_data
@@ -7479,10 +7694,10 @@ babelHelpers;
    */
 
 
-		SoyRenderer.renderTemplateByName_ = function renderTemplateByName_(component, templateComponentName, templateName, opt_data) {
+		SoyRenderer.prototype.renderTemplateByName_ = function renderTemplateByName_(templateComponentName, templateName, opt_data) {
 			var elementTemplate = SoyTemplates.get(templateComponentName, templateName);
 			if (core.isFunction(elementTemplate)) {
-				return SoyRenderer.renderTemplate_(component, elementTemplate, opt_data);
+				return this.renderTemplate_(elementTemplate, opt_data);
 			}
 		};
 
@@ -7509,7 +7724,7 @@ babelHelpers;
 		};
 
 		return SoyRenderer;
-	}(ComponentRenderer);
+	}(SurfaceRenderer);
 
 	SoyRenderer.prototype.registerMetalComponent && SoyRenderer.prototype.registerMetalComponent(SoyRenderer, 'SoyRenderer')
 
@@ -7565,43 +7780,13 @@ babelHelpers;
    * @suppress {checkTypes}
    */
   Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + Templates.Alert.dismiss(opt_data, null, opt_ijData) + Templates.Alert.body(opt_data, null, opt_ijData) + '</div>');
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert"><span class="alert-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
   };
   if (goog.DEBUG) {
     Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
   }
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Alert.body = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Alert.body.soyTemplateName = 'Templates.Alert.body';
-  }
-
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Alert.dismiss = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-dismiss">' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Alert.dismiss.soyTemplateName = 'Templates.Alert.dismiss';
-  }
-
-  Templates.Alert.render.params = ["id"];
-  Templates.Alert.body.params = ["body", "id"];
-  Templates.Alert.dismiss.params = ["dismissible", "id"];
+  Templates.Alert.render.params = ["body", "dismissible", "id"];
 
   var Alert = function (_Component) {
     babelHelpers.inherits(Alert, _Component);
@@ -8191,13 +8376,13 @@ babelHelpers;
   };
 
   /**
-   * @define {number} The delay in milliseconds before a rejected Promise's reason
-   * is passed to the rejection handler. By default, the rejection handler
-   * rethrows the rejection reason so that it appears in the developer console or
+   * The delay in milliseconds before a rejected Promise's reason is passed to
+   * the rejection handler. By default, the rejection handler rethrows the
+   * rejection reason so that it appears in the developer console or
    * {@code window.onerror} handler.
-   *
    * Rejections are rethrown as quickly as possible by default. A negative value
    * disables rejection handling entirely.
+   * @type {number}
    */
   CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
 
@@ -10301,7 +10486,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
 	var Align = this.metalNamed.position.Align;
 	var DropdownBase = this.metal.Dropdown;
@@ -10390,6 +10576,34 @@ babelHelpers;
 		};
 
 		/**
+   * The setter function for the `classMap` attribute.
+   * @param {Object} val
+   * @return {!Object}
+   * @protected
+   */
+
+
+		Dropdown.prototype.setterClassMapFn_ = function setterClassMapFn_(val) {
+			return object.mixin(this.valueClassMapFn_(), val);
+		};
+
+		/**
+   * The setter function for the `position` attribute. Converts the supported
+   * string positions into the appropriate `Align` position constants.
+   * @param {string|number} val
+   * @return {number}
+   * @protected
+   */
+
+
+		Dropdown.prototype.setterPositionFn_ = function setterPositionFn_(val) {
+			if (core.isNumber(val)) {
+				return val;
+			}
+			return val.toLowerCase() === 'up' ? Align.TopLeft : Align.BottomLeft;
+		};
+
+		/**
    * Synchronization logic for `expanded` attribute.
    * @param {boolean} expanded
    */
@@ -10401,7 +10615,9 @@ babelHelpers;
 				if (this.alignElementSelector) {
 					var alignElement = this.element.querySelector(this.alignElementSelector);
 					if (alignElement) {
-						Align.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+						var bodyElement = this.getRenderer().getSurfaceElement('body');
+						var position = Align.align(bodyElement, alignElement, this.position);
+						this.updatePositionCss_(position);
 					}
 				}
 			} else {
@@ -10412,15 +10628,11 @@ babelHelpers;
 		/**
    * Synchronization logic for `position` attribute.
    * @param {string} position
-   * @param {string} oldPosition
    */
 
 
-		Dropdown.prototype.syncPosition = function syncPosition(position, oldPosition) {
-			if (oldPosition) {
-				dom.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
-			}
-			dom.addClasses(this.element, 'drop' + position.toLowerCase());
+		Dropdown.prototype.syncPosition = function syncPosition(position) {
+			this.updatePositionCss_(position);
 		};
 
 		/**
@@ -10433,14 +10645,36 @@ babelHelpers;
 		};
 
 		/**
-   * Validator for the `position` attribute.
+   * Updates the component's css class according to the position it's aligned to.
    * @param {string} position
+   * @protected
+   */
+
+
+		Dropdown.prototype.updatePositionCss_ = function updatePositionCss_(position) {
+			var element = this.element;
+			if (this.positionClassOnMenu) {
+				element = element.querySelector('.dropdown-menu');
+			}
+			if (this.alignedPosition_) {
+				dom.removeClasses(element, this.classMap[this.alignedPosition_]);
+			}
+			dom.addClasses(element, this.classMap[position]);
+			this.alignedPosition_ = position;
+		};
+
+		/**
+   * Validator for the `position` attribute.
+   * @param {string|number} position
    * @return {boolean}
    * @protected
    */
 
 
 		Dropdown.prototype.validatePosition_ = function validatePosition_(position) {
+			if (Align.isValidPosition(position)) {
+				return true;
+			}
 			switch (position.toLowerCase()) {
 				case 'up':
 				case 'down':
@@ -10454,6 +10688,7 @@ babelHelpers;
    * Gets the default value for the `body` attribute. Retrieves existing
    * html for the body from the element, if there is any.
    * @return {?string}
+   * @protected
    */
 
 
@@ -10463,9 +10698,23 @@ babelHelpers;
 		};
 
 		/**
+   * Gets the default value for the `classMap` attribute.
+   * @return {!Object}
+   * @protected
+   */
+
+
+		Dropdown.prototype.valueClassMapFn_ = function valueClassMapFn_() {
+			var _ref;
+
+			return _ref = {}, babelHelpers.defineProperty(_ref, Align.TopLeft, 'dropup'), babelHelpers.defineProperty(_ref, Align.TopCenter, 'dropup'), babelHelpers.defineProperty(_ref, Align.TopRight, 'dropup'), babelHelpers.defineProperty(_ref, Align.BottomLeft, 'dropdown'), babelHelpers.defineProperty(_ref, Align.BottomCenter, 'dropdown'), babelHelpers.defineProperty(_ref, Align.BottomRight, 'dropdown'), babelHelpers.defineProperty(_ref, Align.RightCenter, 'dropright'), babelHelpers.defineProperty(_ref, Align.LeftCenter, 'dropleft'), _ref;
+		};
+
+		/**
    * Gets the default value for the `header` attribute. Retrieves existing
    * html for the header from the element, if there is any.
    * @return {?string}
+   * @protected
    */
 
 
@@ -10516,6 +10765,17 @@ babelHelpers;
 		},
 
 		/**
+   * A map from `Align` position constants to the CSS class that should be
+   * added to the dropdown when it's aligned in that position.
+   * @type {!Object}
+   */
+		classMap: {
+			setter: 'setterClassMapFn_',
+			validator: core.isObject,
+			valueFn: 'valueClassMapFn_'
+		},
+
+		/**
    * The dropdown's header content.
    * @type {string}
    */
@@ -10534,13 +10794,24 @@ babelHelpers;
 		},
 
 		/**
-   * The position of the dropdown (either 'up' or 'down').
-   * @type {string}
-   * @default 'down'
+   * The position of the dropdown (either 'up', 'down' or any of the position
+   * constants available in `Align`).
+   * @type {string|number}
+   * @default Align.BottomLeft
    */
 		position: {
-			value: 'down',
+			setter: 'setterPositionFn_',
+			value: Align.BottomLeft,
 			validator: 'validatePosition_'
+		},
+
+		/**
+   * Flag indicating if the position class (specified by `classMap` attribute)
+   * should be added on the "dropdown-menu" element, instead of the main element.
+   * @type {boolean}
+   */
+		positionClassOnMenu: {
+			value: false
 		}
 	};
 
@@ -10551,14 +10822,6 @@ babelHelpers;
   * @static
   */
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
-
-	/**
-  * A map from the dropdown supported positions to `Align` positions.
-  */
-	Dropdown.POSITION_MAP = {
-		down: Align.BottomLeft,
-		up: Align.TopLeft
-	};
 
 	this.metal.Dropdown = Dropdown;
 }).call(this);
@@ -11881,22 +12144,14 @@ babelHelpers;
 
 
 			/**
-    * Holds the active index.
-    * @type {number}
-    * @private
-    * @default -1
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
-
-			_this.activeIndex = -1;
-
-			/**
     * Holds the regions cache.
     * @type {!Array}
     * @private
     * @default []
     */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+
 			_this.regions = [];
 
 			/**
@@ -11906,11 +12161,7 @@ babelHelpers;
     */
 			_this.scrollHandle_ = dom.on(_this.scrollElement, 'scroll', _this.checkPosition.bind(_this));
 
-			_this.refresh();
-			_this.on('elementChanged', _this.refresh);
-			_this.on('offsetChanged', _this.checkPosition);
-			_this.on('scrollElementChanged', _this.onScrollElementChanged_);
-			_this.on('selectorChanged', _this.refresh);
+			_this.init();
 			return _this;
 		}
 
@@ -11936,7 +12187,7 @@ babelHelpers;
 				this.deactivate(this.activeIndex);
 			}
 			this.activeIndex = index;
-			dom.addClasses(this.resolveElement(this.regions[index].link), this.activeClass);
+			dom.addClasses(this.getElementForIndex(index), this.activeClass);
 		};
 
 		/**
@@ -11953,7 +12204,7 @@ babelHelpers;
 				return;
 			}
 
-			var index = this.findBestRegionAt_(scrollTop);
+			var index = this.findBestRegionAt_();
 			if (index !== this.activeIndex) {
 				if (index === -1) {
 					this.deactivateAll();
@@ -11970,7 +12221,7 @@ babelHelpers;
 
 
 		Scrollspy.prototype.deactivate = function deactivate(index) {
-			dom.removeClasses(this.resolveElement(this.regions[index].link), this.activeClass);
+			dom.removeClasses(this.getElementForIndex(index), this.activeClass);
 		};
 
 		/**
@@ -11987,14 +12238,13 @@ babelHelpers;
 
 		/**
    * Finds best region to activate.
-   * @param {number} scrollTop The scrollTop to use as reference.
    * @return {number} The index of best region found.
    */
 
 
-		Scrollspy.prototype.findBestRegionAt_ = function findBestRegionAt_(scrollTop) {
+		Scrollspy.prototype.findBestRegionAt_ = function findBestRegionAt_() {
 			var index = -1;
-			var origin = scrollTop + this.offset + this.scrollElementRegion_.top;
+			var origin = this.getCurrentPosition();
 			if (this.regions.length > 0 && origin >= this.regions[0].top) {
 				for (var i = 0; i < this.regions.length; i++) {
 					var region = this.regions[i];
@@ -12009,6 +12259,28 @@ babelHelpers;
 		};
 
 		/**
+   * Gets the current position in the page.
+   * @return {number}
+   */
+
+
+		Scrollspy.prototype.getCurrentPosition = function getCurrentPosition() {
+			var scrollTop = Position.getScrollTop(this.scrollElement);
+			return scrollTop + this.offset + this.scrollElementRegion_.top;
+		};
+
+		/**
+   * Returns the element that should be used for the link at the given index.
+   * @param {number} index
+   * @return {!Element}
+   */
+
+
+		Scrollspy.prototype.getElementForIndex = function getElementForIndex(index) {
+			return this.resolveElement(this.regions[index].link);
+		};
+
+		/**
    * Gets the scroll height of `scrollElement`.
    * @return {number}
    * @protected
@@ -12020,6 +12292,21 @@ babelHelpers;
 			scrollHeight += this.scrollElementRegion_.top;
 			scrollHeight -= Position.getClientHeight(this.scrollElement);
 			return scrollHeight;
+		};
+
+		/**
+   * Initializes the behavior of scrollspy. It's important to have this as a
+   * separate function so subclasses can override it (babel doesn't allow using
+   * `this` on constructors before calling `super()`).
+   */
+
+
+		Scrollspy.prototype.init = function init() {
+			this.refresh();
+			this.on('elementChanged', this.refresh);
+			this.on('offsetChanged', this.checkPosition);
+			this.on('scrollElementChanged', this.onScrollElementChanged_);
+			this.on('selectorChanged', this.refresh);
 		};
 
 		/**
@@ -12105,6 +12392,15 @@ babelHelpers;
 		},
 
 		/**
+   * The index of the currently active link.
+   * @type {number}
+   */
+		activeIndex: {
+			validator: core.isNumber,
+			value: -1
+		},
+
+		/**
    * Function that receives the matching element as argument and return
    * itself. Relevant when the `activeClass` must be applied to a different
    * element, e.g. a parentNode.
@@ -12117,8 +12413,8 @@ babelHelpers;
 		},
 
 		/**
-   * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
-   * where the scroll event is listened from.
+   * The scrollElement element to be used as scrollElement area for scrollspy.
+   * The scrollElement is where the scroll event is listened from.
    * @type {Element|Window}
    */
 		scrollElement: {
@@ -12137,7 +12433,7 @@ babelHelpers;
 		},
 
 		/**
-   * Element to be used as alignment reference of affix.
+   * Element to be used as alignment reference of scrollspy.
    * @type {Element}
    */
 		element: {
@@ -14640,7 +14936,7 @@ babelHelpers;
 
 		Treeview.prototype.attached = function attached() {
 			this.on('nodesChanged', this.onNodesChanged_);
-			this.on('renderSurface', this.handleRenderSurface_);
+			this.getRenderer().on('renderSurface', this.handleRenderSurface_.bind(this));
 		};
 
 		/**

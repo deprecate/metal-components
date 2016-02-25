@@ -62,14 +62,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
 
 			/**
-    * Holds the active index.
-    * @type {number}
-    * @private
-    * @default -1
-    */
-			_this.activeIndex = -1;
-
-			/**
     * Holds the regions cache.
     * @type {!Array}
     * @private
@@ -84,11 +76,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
     */
 			_this.scrollHandle_ = _dom2.default.on(_this.scrollElement, 'scroll', _this.checkPosition.bind(_this));
 
-			_this.refresh();
-			_this.on('elementChanged', _this.refresh);
-			_this.on('offsetChanged', _this.checkPosition);
-			_this.on('scrollElementChanged', _this.onScrollElementChanged_);
-			_this.on('selectorChanged', _this.refresh);
+			_this.init();
 			return _this;
 		}
 
@@ -108,7 +96,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 				this.deactivate(this.activeIndex);
 			}
 			this.activeIndex = index;
-			_dom2.default.addClasses(this.resolveElement(this.regions[index].link), this.activeClass);
+			_dom2.default.addClasses(this.getElementForIndex(index), this.activeClass);
 		};
 
 		Scrollspy.prototype.checkPosition = function checkPosition() {
@@ -120,7 +108,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 				return;
 			}
 
-			var index = this.findBestRegionAt_(scrollTop);
+			var index = this.findBestRegionAt_();
 			if (index !== this.activeIndex) {
 				if (index === -1) {
 					this.deactivateAll();
@@ -131,7 +119,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		};
 
 		Scrollspy.prototype.deactivate = function deactivate(index) {
-			_dom2.default.removeClasses(this.resolveElement(this.regions[index].link), this.activeClass);
+			_dom2.default.removeClasses(this.getElementForIndex(index), this.activeClass);
 		};
 
 		Scrollspy.prototype.deactivateAll = function deactivateAll() {
@@ -141,9 +129,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			this.activeIndex = -1;
 		};
 
-		Scrollspy.prototype.findBestRegionAt_ = function findBestRegionAt_(scrollTop) {
+		Scrollspy.prototype.findBestRegionAt_ = function findBestRegionAt_() {
 			var index = -1;
-			var origin = scrollTop + this.offset + this.scrollElementRegion_.top;
+			var origin = this.getCurrentPosition();
 			if (this.regions.length > 0 && origin >= this.regions[0].top) {
 				for (var i = 0; i < this.regions.length; i++) {
 					var region = this.regions[i];
@@ -157,11 +145,28 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			return index;
 		};
 
+		Scrollspy.prototype.getCurrentPosition = function getCurrentPosition() {
+			var scrollTop = _position2.default.getScrollTop(this.scrollElement);
+			return scrollTop + this.offset + this.scrollElementRegion_.top;
+		};
+
+		Scrollspy.prototype.getElementForIndex = function getElementForIndex(index) {
+			return this.resolveElement(this.regions[index].link);
+		};
+
 		Scrollspy.prototype.getScrollHeight_ = function getScrollHeight_() {
 			var scrollHeight = _position2.default.getHeight(this.scrollElement);
 			scrollHeight += this.scrollElementRegion_.top;
 			scrollHeight -= _position2.default.getClientHeight(this.scrollElement);
 			return scrollHeight;
+		};
+
+		Scrollspy.prototype.init = function init() {
+			this.refresh();
+			this.on('elementChanged', this.refresh);
+			this.on('offsetChanged', this.checkPosition);
+			this.on('scrollElementChanged', this.onScrollElementChanged_);
+			this.on('selectorChanged', this.refresh);
 		};
 
 		Scrollspy.prototype.onScrollElementChanged_ = function onScrollElementChanged_(event) {
@@ -227,6 +232,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		},
 
 		/**
+   * The index of the currently active link.
+   * @type {number}
+   */
+		activeIndex: {
+			validator: _metal2.default.isNumber,
+			value: -1
+		},
+
+		/**
    * Function that receives the matching element as argument and return
    * itself. Relevant when the `activeClass` must be applied to a different
    * element, e.g. a parentNode.
@@ -239,8 +253,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		},
 
 		/**
-   * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
-   * where the scroll event is listened from.
+   * The scrollElement element to be used as scrollElement area for scrollspy.
+   * The scrollElement is where the scroll event is listened from.
    * @type {Element|Window}
    */
 		scrollElement: {
@@ -259,7 +273,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		},
 
 		/**
-   * Element to be used as alignment reference of affix.
+   * Element to be used as alignment reference of scrollspy.
    * @type {Element}
    */
 		element: {

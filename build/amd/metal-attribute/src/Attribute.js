@@ -218,6 +218,11 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			return this.attrsInfo_[name].value;
 		};
 
+		Attribute.prototype.hasBeenSet = function hasBeenSet(name) {
+			var info = this.attrsInfo_[name];
+			return info.state === Attribute.States.INITIALIZED || info.initialValue;
+		};
+
 		Attribute.prototype.informChange_ = function informChange_(name, prevVal) {
 			if (this.shouldInformChange_(name, prevVal)) {
 				var data = {

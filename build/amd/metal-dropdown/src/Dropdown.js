@@ -5,8 +5,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		value: true
 	});
 
-	var _metal2 = _interopRequireDefault(_metal);
-
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Dropdown2 = _interopRequireDefault(_Dropdown);
@@ -15,6 +13,21 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		return obj && obj.__esModule ? obj : {
 			default: obj
 		};
+	}
+
+	function _defineProperty(obj, key, value) {
+		if (key in obj) {
+			Object.defineProperty(obj, key, {
+				value: value,
+				enumerable: true,
+				configurable: true,
+				writable: true
+			});
+		} else {
+			obj[key] = value;
+		}
+
+		return obj;
 	}
 
 	function _classCallCheck(instance, Constructor) {
@@ -97,13 +110,26 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 			this.expanded = true;
 		};
 
+		Dropdown.prototype.setterClassMapFn_ = function setterClassMapFn_(val) {
+			return _metal.object.mixin(this.valueClassMapFn_(), val);
+		};
+
+		Dropdown.prototype.setterPositionFn_ = function setterPositionFn_(val) {
+			if (_metal.core.isNumber(val)) {
+				return val;
+			}
+			return val.toLowerCase() === 'up' ? _position.Align.TopLeft : _position.Align.BottomLeft;
+		};
+
 		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
 			if (expanded) {
 				_dom2.default.addClasses(this.element, 'open');
 				if (this.alignElementSelector) {
 					var alignElement = this.element.querySelector(this.alignElementSelector);
 					if (alignElement) {
-						_position.Align.align(this.getSurfaceElement('body'), alignElement, Dropdown.POSITION_MAP[this.position]);
+						var bodyElement = this.getRenderer().getSurfaceElement('body');
+						var position = _position.Align.align(bodyElement, alignElement, this.position);
+						this.updatePositionCss_(position);
 					}
 				}
 			} else {
@@ -111,18 +137,30 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 			}
 		};
 
-		Dropdown.prototype.syncPosition = function syncPosition(position, oldPosition) {
-			if (oldPosition) {
-				_dom2.default.removeClasses(this.element, 'drop' + oldPosition.toLowerCase());
-			}
-			_dom2.default.addClasses(this.element, 'drop' + position.toLowerCase());
+		Dropdown.prototype.syncPosition = function syncPosition(position) {
+			this.updatePositionCss_(position);
 		};
 
 		Dropdown.prototype.toggle = function toggle() {
 			this.expanded = !this.expanded;
 		};
 
+		Dropdown.prototype.updatePositionCss_ = function updatePositionCss_(position) {
+			var element = this.element;
+			if (this.positionClassOnMenu) {
+				element = element.querySelector('.dropdown-menu');
+			}
+			if (this.alignedPosition_) {
+				_dom2.default.removeClasses(element, this.classMap[this.alignedPosition_]);
+			}
+			_dom2.default.addClasses(element, this.classMap[position]);
+			this.alignedPosition_ = position;
+		};
+
 		Dropdown.prototype.validatePosition_ = function validatePosition_(position) {
+			if (_position.Align.isValidPosition(position)) {
+				return true;
+			}
 			switch (position.toLowerCase()) {
 				case 'up':
 				case 'down':
@@ -135,6 +173,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		Dropdown.prototype.valueBodyFn_ = function valueBodyFn_() {
 			var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
 			return dropdownMenu ? dropdownMenu.innerHTML : '';
+		};
+
+		Dropdown.prototype.valueClassMapFn_ = function valueClassMapFn_() {
+			var _ref;
+
+			return _ref = {}, _defineProperty(_ref, _position.Align.TopLeft, 'dropup'), _defineProperty(_ref, _position.Align.TopCenter, 'dropup'), _defineProperty(_ref, _position.Align.TopRight, 'dropup'), _defineProperty(_ref, _position.Align.BottomLeft, 'dropdown'), _defineProperty(_ref, _position.Align.BottomCenter, 'dropdown'), _defineProperty(_ref, _position.Align.BottomRight, 'dropdown'), _defineProperty(_ref, _position.Align.RightCenter, 'dropright'), _defineProperty(_ref, _position.Align.LeftCenter, 'dropleft'), _ref;
 		};
 
 		Dropdown.prototype.valueHeaderFn_ = function valueHeaderFn_() {
@@ -171,7 +215,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
    * @type {string}
    */
 		alignElementSelector: {
-			validator: _metal2.default.isString
+			validator: _metal.core.isString
 		},
 
 		/**
@@ -181,6 +225,17 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		body: {
 			isHtml: true,
 			valueFn: 'valueBodyFn_'
+		},
+
+		/**
+   * A map from `Align` position constants to the CSS class that should be
+   * added to the dropdown when it's aligned in that position.
+   * @type {!Object}
+   */
+		classMap: {
+			setter: 'setterClassMapFn_',
+			validator: _metal.core.isObject,
+			valueFn: 'valueClassMapFn_'
 		},
 
 		/**
@@ -202,13 +257,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		},
 
 		/**
-   * The position of the dropdown (either 'up' or 'down').
-   * @type {string}
-   * @default 'down'
+   * The position of the dropdown (either 'up', 'down' or any of the position
+   * constants available in `Align`).
+   * @type {string|number}
+   * @default Align.BottomLeft
    */
 		position: {
-			value: 'down',
+			setter: 'setterPositionFn_',
+			value: _position.Align.BottomLeft,
 			validator: 'validatePosition_'
+		},
+
+		/**
+   * Flag indicating if the position class (specified by `classMap` attribute)
+   * should be added on the "dropdown-menu" element, instead of the main element.
+   * @type {boolean}
+   */
+		positionClassOnMenu: {
+			value: false
 		}
 	};
 
@@ -219,14 +285,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
   * @static
   */
 	Dropdown.ELEMENT_CLASSES = 'dropdown';
-
-	/**
-  * A map from the dropdown supported positions to `Align` positions.
-  */
-	Dropdown.POSITION_MAP = {
-		down: _position.Align.BottomLeft,
-		up: _position.Align.TopLeft
-	};
 
 	exports.default = Dropdown;
 });
