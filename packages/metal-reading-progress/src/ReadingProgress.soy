@@ -28,10 +28,10 @@
 	<li id="{$surfaceId}">
 		<a href="{$item.href}">
 			{if $item.title}
-				<em>{$item.title}</em>
+				<span class="reading-title">{$item.title}</span>
 			{/if}
 			{if $item.time}
-				<b>{$item.time < 60 ? $item.time + ' sec read' : round($item.time / 60) + ' min read'}</b>
+				<span class="reading-subtitle">{$item.time < 60 ? $item.time + ' sec read' : round($item.time / 60) + ' min read'}</span>
 			{/if}
 			<svg x="0px" y="0px" width="36px" height="36px" viewBox="0 0 36 36">
 				<circle
