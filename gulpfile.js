@@ -1,8 +1,11 @@
 'use strict';
 
 var gulp = require('gulp');
+var liferay = require('liferay-gulp-tasks');
 var metal = require('gulp-metal');
 var utils = require('./utils');
+
+liferay.registerTasks();
 
 metal.registerTasks({
 	buildSrc: utils.getComponentPaths('src'),
