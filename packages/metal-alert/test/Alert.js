@@ -88,6 +88,8 @@ describe('Alert', function() {
 			elementClasses: 'alert-success fade',
 			id: 'alert',
 			body: 'body',
+			spinner: true,
+			spinnerClasses: 'my-spinner',
 			dismissible: true
 		};
 
@@ -148,5 +150,23 @@ describe('Alert', function() {
 				}, 100);
 			});
 		});
+	});
+
+	it('should do what...', function(done) {
+		component = new Alert({
+			spinner: true,
+			spinnerDone: false
+		}).render();
+		var spinnerElement = component.element.querySelector('.alert-spinner');
+		assert.ok(!dom.hasClass(spinnerElement, 'alert-spinner-done'));
+		component.once('attrsChanged', () => {
+			assert.ok(dom.hasClass(spinnerElement, 'alert-spinner-done'));
+			component.once('attrsChanged', () => {
+				assert.ok(!dom.hasClass(spinnerElement, 'alert-spinner-done'));
+				done();
+			});
+			component.spinnerDone = false;
+		});
+		component.spinnerDone = true;
 	});
 });

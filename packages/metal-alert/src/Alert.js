@@ -99,6 +99,20 @@ class Alert extends AlertBase {
 			this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
 		}
 	}
+
+	/**
+	 * Synchronization logic for `spinnerDone` attribute.
+	 * @param {boolean} spinnerDone
+	 */
+	syncSpinnerDone(spinnerDone) {
+		if (this.spinner) {
+			var spinnerElement = this.element.querySelector('.alert-spinner');
+			dom.removeClasses(spinnerElement, 'alert-spinner-done');
+			if (spinnerDone) {
+				dom.addClasses(spinnerElement, 'alert-spinner-done');
+			}
+		}
+	}
 }
 
 /**
@@ -159,6 +173,31 @@ Alert.ATTRS = {
 	 * @type {?number}
 	 */
 	hideDelay: {
+	},
+
+	/**
+	 * Spinner indicating.
+	 * @type {boolean}
+	 * @default false
+	 */
+	spinner: {
+		value: false
+	},
+
+	/**
+	 * The CSS classes that should be added to the spinner.
+	 * @type {string}
+	 */
+	spinnerClasses: {
+	},
+
+	/**
+	 * Spinner is marked as done.
+	 * @type {boolean}
+	 * @default false
+	 */
+	spinnerDone: {
+		value: false
 	},
 
 	/**
