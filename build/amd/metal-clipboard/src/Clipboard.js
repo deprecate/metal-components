@@ -188,7 +188,7 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
 		};
 
 		ClipboardAction.prototype.copyText = function copyText() {
-			var succeeded = undefined;
+			var succeeded = void 0;
 
 			try {
 				succeeded = document.execCommand(this.action);

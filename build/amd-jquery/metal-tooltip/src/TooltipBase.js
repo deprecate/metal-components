@@ -79,6 +79,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 			this.eventHandler_.removeAllListeners();
 		};
 
+		TooltipBase.prototype.disposeInternal = function disposeInternal() {
+			_Component.prototype.disposeInternal.call(this);
+			clearTimeout(this.delay_);
+		};
+
 		TooltipBase.prototype.align = function align(opt_alignElement) {
 			this.syncAlignElement(opt_alignElement || this.alignElement);
 		};
