@@ -60,6 +60,13 @@ class Alert extends AlertBase {
 	}
 
 	/**
+	 * Show the alert.
+	 */
+	show() {
+		this.visible = false;
+	}
+
+	/**
 	 * Synchronization logic for `dismissible` attribute.
 	 * @param {boolean} dismissible
 	 */
@@ -100,19 +107,6 @@ class Alert extends AlertBase {
 		}
 	}
 
-	/**
-	 * Synchronization logic for `spinnerDone` attribute.
-	 * @param {boolean} spinnerDone
-	 */
-	syncSpinnerDone(spinnerDone) {
-		if (this.spinner) {
-			var spinnerElement = this.element.querySelector('.alert-spinner');
-			dom.removeClasses(spinnerElement, 'alert-spinner-done');
-			if (spinnerDone) {
-				dom.addClasses(spinnerElement, 'alert-spinner-done');
-			}
-		}
-	}
 }
 
 /**

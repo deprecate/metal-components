@@ -152,17 +152,16 @@ describe('Alert', function() {
 		});
 	});
 
-	it('should do what...', function(done) {
+	it('should update spinner as done', function(done) {
 		component = new Alert({
 			spinner: true,
 			spinnerDone: false
 		}).render();
-		var spinnerElement = component.element.querySelector('.alert-spinner');
-		assert.ok(!dom.hasClass(spinnerElement, 'alert-spinner-done'));
+		assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
 		component.once('attrsChanged', () => {
-			assert.ok(dom.hasClass(spinnerElement, 'alert-spinner-done'));
+			assert.ok(dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
 			component.once('attrsChanged', () => {
-				assert.ok(!dom.hasClass(spinnerElement, 'alert-spinner-done'));
+				assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
 				done();
 			});
 			component.spinnerDone = false;
