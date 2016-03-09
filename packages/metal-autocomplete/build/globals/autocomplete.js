@@ -1412,6 +1412,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var array = this.metalNamed.metal.array;
 	var Disposable = this.metalNamed.metal.Disposable;
 	var object = this.metalNamed.metal.object;
 
@@ -1457,7 +1458,7 @@ babelHelpers;
 
 			/**
     * Holds a map of events from the origin emitter that are already being proxied.
-    * @type {Object}
+    * @type {Object<string, !EventHandle>}
     * @protected
     */
 			_this.proxiedEvents_ = {};
@@ -1482,14 +1483,28 @@ babelHelpers;
 		}
 
 		/**
-   * Adds the proxy listener for the given event.
-   * @param {string} event.
+   * Adds the given listener for the given event.
+   * @param {string} event
+   * @param {!function()} listener
+   * @return {!EventHandle} The listened event's handle.
    * @protected
    */
 
 
-		EventEmitterProxy.prototype.addListener_ = function addListener_(event) {
-			this.originEmitter_.on(event, this.proxiedEvents_[event]);
+		EventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
+			return this.originEmitter_.on(event, listener);
+		};
+
+		/**
+   * Adds the proxy listener for the given event.
+   * @param {string} event
+   * @return {!EventHandle} The listened event's handle.
+   * @protected
+   */
+
+
+		EventEmitterProxy.prototype.addListenerForEvent_ = function addListenerForEvent_(event) {
+			return this.addListener_(event, this.emitOnTarget_.bind(this, event));
 		};
 
 		/**
@@ -1498,10 +1513,22 @@ babelHelpers;
 
 
 		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
-			object.map(this.proxiedEvents_, this.removeListener_.bind(this));
+			this.removeListeners_();
 			this.proxiedEvents_ = null;
 			this.originEmitter_ = null;
 			this.targetEmitter_ = null;
+		};
+
+		/**
+   * Emits the specified event type on the target emitter.
+   * @param {string} eventType
+   * @protected
+   */
+
+
+		EventEmitterProxy.prototype.emitOnTarget_ = function emitOnTarget_(eventType) {
+			var args = [eventType].concat(array.slice(arguments, 1));
+			this.targetEmitter_.emit.apply(this.targetEmitter_, args);
 		};
 
 		/**
@@ -1510,29 +1537,42 @@ babelHelpers;
    */
 
 
-		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
-			if (!this.shouldProxyEvent_(event)) {
-				return;
+		EventEmitterProxy.prototype.proxyEvent = function proxyEvent(event) {
+			if (this.shouldProxyEvent_(event)) {
+				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
 			}
-
-			var self = this;
-			this.proxiedEvents_[event] = function () {
-				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
-				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
-			};
-
-			this.addListener_(event);
 		};
 
 		/**
-   * Removes the proxy listener for the given event.
-   * @param {string} event
+   * Removes the proxy listener for all events.
    * @protected
    */
 
 
-		EventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
-			this.originEmitter_.removeListener(event, this.proxiedEvents_[event]);
+		EventEmitterProxy.prototype.removeListeners_ = function removeListeners_() {
+			var events = Object.keys(this.proxiedEvents_);
+			for (var i = 0; i < events.length; i++) {
+				this.proxiedEvents_[events[i]].removeListener();
+			}
+			this.proxiedEvents_ = {};
+		};
+
+		/**
+   * Changes the origin emitter. This automatically detaches any events that
+   * were already being proxied from the previous emitter, and starts proxying
+   * them on the new emitter instead.
+   */
+
+
+		EventEmitterProxy.prototype.setOriginEmitter = function setOriginEmitter(originEmitter) {
+			var handles = this.proxiedEvents_;
+			this.removeListeners_();
+			this.originEmitter_ = originEmitter;
+
+			var events = Object.keys(handles);
+			for (var i = 0; i < events.length; i++) {
+				this.proxiedEvents_[events[i]] = this.addListenerForEvent_(events[i]);
+			}
 		};
 
 		/**
@@ -1560,7 +1600,7 @@ babelHelpers;
 
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
-			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+			this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
 		};
 
 		return EventEmitterProxy;
@@ -1774,6 +1814,22 @@ babelHelpers;
 			if (classesToAppend) {
 				element.className = element.className + classesToAppend;
 			}
+		};
+
+		/**
+   * Gets the closest element up the tree from the given element (including
+   * itself) that matches the specified selector, or null if none match.
+   * @param {Element} element
+   * @param {string} selector
+   * @return {Element}
+   */
+
+
+		dom.closest = function closest(element, selector) {
+			while (element && !dom.match(element, selector)) {
+				element = element.parentNode;
+			}
+			return element;
 		};
 
 		/**
@@ -2089,6 +2145,19 @@ babelHelpers;
 		};
 
 		/**
+   * Gets the first parent from the given element that matches the specified
+   * selector, or null if none match.
+   * @param {!Element} element
+   * @param {string} selector
+   * @return {Element}
+   */
+
+
+		dom.parent = function parent(element, selector) {
+			return dom.closest(element.parentNode, selector);
+		};
+
+		/**
    * Registers a custom event.
    * @param {string} eventName The name of the custom event.
    * @param {!Object} customConfig An object with information about how the event
@@ -2356,34 +2425,38 @@ babelHelpers;
 		}
 
 		/**
-   * Adds the proxy listener for the given event.
+   * Adds the given listener for the given event.
    * @param {string} event.
+   * @param {!function()} listener
+   * @return {!EventHandle} The listened event's handle.
    * @protected
    * @override
    */
 
-		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event) {
+		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
 			if (this.originEmitter_.addEventListener) {
-				dom.on(this.originEmitter_, event, this.proxiedEvents_[event]);
+				if (event.startsWith('delegate:')) {
+					var index = event.indexOf(':', 9);
+					var eventName = event.substring(9, index);
+					var selector = event.substring(index + 1);
+					return dom.delegate(this.originEmitter_, eventName, selector, listener);
+				} else {
+					return dom.on(this.originEmitter_, event, listener);
+				}
 			} else {
-				_EventEmitterProxy.prototype.addListener_.call(this, event);
+				return _EventEmitterProxy.prototype.addListener_.call(this, event, listener);
 			}
 		};
 
 		/**
-   * Removes the proxy listener for the given event.
+   * Checks if the given event is supported by the origin element.
    * @param {string} event
    * @protected
-   * @override
    */
 
 
-		DomEventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
-			if (this.originEmitter_.removeEventListener) {
-				this.originEmitter_.removeEventListener(event, this.proxiedEvents_[event]);
-			} else {
-				_EventEmitterProxy.prototype.removeListener_.call(this, event);
-			}
+		DomEventEmitterProxy.prototype.isSupportedDomEvent_ = function isSupportedDomEvent_(event) {
+			return event.startsWith('delegate:') && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
 		};
 
 		/**
@@ -2396,7 +2469,7 @@ babelHelpers;
 
 
 		DomEventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
-			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || dom.supportsEvent(this.originEmitter_, event));
+			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || this.isSupportedDomEvent_(event));
 		};
 
 		return DomEventEmitterProxy;
@@ -3048,13 +3121,13 @@ babelHelpers;
   };
 
   /**
-   * @define {number} The delay in milliseconds before a rejected Promise's reason
-   * is passed to the rejection handler. By default, the rejection handler
-   * rethrows the rejection reason so that it appears in the developer console or
+   * The delay in milliseconds before a rejected Promise's reason is passed to
+   * the rejection handler. By default, the rejection handler rethrows the
+   * rejection reason so that it appears in the developer console or
    * {@code window.onerror} handler.
-   *
    * Rejections are rethrown as quickly as possible by default. A negative value
    * disables rejection handling entirely.
+   * @type {number}
    */
   CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
 
@@ -4571,15 +4644,16 @@ babelHelpers;
    * Calls the attribute's setter, if there is one.
    * @param {string} name The name of the attribute.
    * @param {*} value The value to be set.
+   * @param {*} currentValue The current value.
    * @return {*} The final value to be set.
    */
 
 
-		Attribute.prototype.callSetter_ = function callSetter_(name, value) {
+		Attribute.prototype.callSetter_ = function callSetter_(name, value, currentValue) {
 			var info = this.attrsInfo_[name];
 			var config = info.config;
 			if (config.setter) {
-				value = this.callFunction_(config.setter, [value]);
+				value = this.callFunction_(config.setter, [value, currentValue]);
 			}
 			return value;
 		};
@@ -4737,6 +4811,7 @@ babelHelpers;
 					prevVal: prevVal
 				};
 				this.emit(name + 'Changed', data);
+				this.emit('attrChanged', data);
 				this.scheduleBatchEvent_(data);
 			}
 		};
@@ -4890,7 +4965,7 @@ babelHelpers;
 			}
 
 			var prevVal = this[name];
-			info.value = this.callSetter_(name, value);
+			info.value = this.callSetter_(name, value, prevVal);
 			info.written = true;
 			this.informChange_(name, prevVal);
 		};
@@ -4972,7 +5047,7 @@ babelHelpers;
 
 
 	Attribute.prototype.registerMetalComponent && Attribute.prototype.registerMetalComponent(Attribute, 'Attribute')
-	Attribute.INVALID_ATTRS = ['attrs'];
+	Attribute.INVALID_ATTRS = ['attr', 'attrs'];
 
 	/**
   * Constants that represent the states that an attribute can be in.
@@ -5084,20 +5159,16 @@ babelHelpers;
    * Creates the appropriate component from the given config data if it doesn't
    * exist yet.
    * @param {string} componentName The name of the component to be created.
-   * @param {string} id The id of the component to be created.
    * @param {Object=} opt_data
    * @return {!Component} The component instance.
    */
 
 
-		ComponentCollector.prototype.createComponent = function createComponent(componentName, id, opt_data) {
-			var component = ComponentCollector.components[id];
+		ComponentCollector.prototype.createComponent = function createComponent(componentName, opt_data) {
+			var component = ComponentCollector.components[(opt_data || {}).id];
 			if (!component) {
 				var ConstructorFn = ComponentRegistry.getConstructor(componentName);
-				var data = opt_data || {};
-				data.id = id;
-				data.element = '#' + id;
-				component = new ConstructorFn(data);
+				component = new ConstructorFn(opt_data);
 			}
 			return component;
 		};
@@ -5478,15 +5549,19 @@ babelHelpers;
 		/**
    * Adds a sub component, creating it if it doesn't yet exist.
    * @param {string} componentName
-   * @param {string} componentId
    * @param {Object=} opt_componentData
    * @return {!Component}
    */
 
 
-		Component.prototype.addSubComponent = function addSubComponent(componentName, componentId, opt_componentData) {
-			this.components[componentId] = Component.componentsCollector.createComponent(componentName, componentId, opt_componentData);
-			return this.components[componentId];
+		Component.prototype.addSubComponent = function addSubComponent(componentName, opt_componentData) {
+			// Avoid accessing id from component if possible, since that may cause
+			// the lookup of the component's element in the dom unnecessarily, which is
+			// bad for performance.
+			var id = (opt_componentData || {}).id;
+			var component = Component.componentsCollector.createComponent(componentName, opt_componentData);
+			this.components[id || component.id] = component;
+			return component;
 		};
 
 		/**
@@ -5810,8 +5885,10 @@ babelHelpers;
    *   attribute synchronization - All synchronization methods are called.
    *   attach - Attach Lifecycle is called.
    *
-   * @param {(string|Element)=} opt_parentElement Optional parent element
-   *     to render the component.
+   * @param {(string|Element|boolean)=} opt_parentElement Optional parent element
+   *     to render the component. If set to `false`, the element won't be
+   *     attached to any element after rendering. In this case, `attach` should
+   *     be called manually later to actually attach it to the dom.
    * @param {(string|Element)=} opt_siblingElement Optional sibling element
    *     to render the component before it. Relevant when the component needs
    *     to be rendered before an existing element in the DOM, e.g.
@@ -5829,7 +5906,9 @@ babelHelpers;
 				decorating: this.decorating_
 			});
 			this.syncAttrs_();
-			this.attach(opt_parentElement, opt_siblingElement);
+			if (opt_parentElement !== false) {
+				this.attach(opt_parentElement, opt_siblingElement);
+			}
 			this.wasRendered = true;
 			return this;
 		};
@@ -6013,7 +6092,7 @@ babelHelpers;
 
 
 		Component.prototype.valueIdFn_ = function valueIdFn_() {
-			return this.hasBeenSet('element') ? this.element.id : this.makeId_();
+			return this.hasBeenSet('element') && this.element.id ? this.element.id : this.makeId_();
 		};
 
 		return Component;
@@ -6190,12 +6269,13 @@ babelHelpers;
    * been attached.
    * @param {string} eventType
    * @param {string} fnNamesString
-   * @param {boolean} permanent
-   * @protected
+   * @param {string=} groupName
    */
 
 
-		EventsCollector.prototype.attachListener_ = function attachListener_(eventType, fnNamesString, groupName) {
+		EventsCollector.prototype.attachListener = function attachListener(eventType, fnNamesString) {
+			var groupName = arguments.length <= 2 || arguments[2] === undefined ? 'element' : arguments[2];
+
 			var selector = '[data-on' + eventType + '="' + fnNamesString + '"]';
 
 			this.groupHasListener_[groupName][selector] = true;
@@ -6213,34 +6293,23 @@ babelHelpers;
 		};
 
 		/**
-   * Attaches all listeners declared as attributes on the given element and
-   * its children.
-   * @param {string} content
-   * @param {boolean} groupName
-   */
-
-
-		EventsCollector.prototype.attachListeners = function attachListeners(content, groupName) {
-			this.groupHasListener_[groupName] = {};
-			this.attachListenersFromHtml_(content, groupName);
-		};
-
-		/**
    * Attaches listeners found in the given html content.
    * @param {string} content
-   * @param {boolean} groupName
-   * @protected
+   * @param {string=} groupName
    */
 
 
-		EventsCollector.prototype.attachListenersFromHtml_ = function attachListenersFromHtml_(content, groupName) {
+		EventsCollector.prototype.attachListenersFromHtml = function attachListenersFromHtml(content) {
+			var groupName = arguments.length <= 1 || arguments[1] === undefined ? 'element' : arguments[1];
+
+			this.startCollecting(groupName);
 			if (content.indexOf('data-on') === -1) {
 				return;
 			}
 			var regex = /data-on([a-z]+)=['"]([^'"]+)['"]/g;
 			var match = regex.exec(content);
 			while (match) {
-				this.attachListener_(match[1], match[2], groupName);
+				this.attachListener(match[1], match[2], groupName);
 				match = regex.exec(content);
 			}
 		};
@@ -6325,6 +6394,19 @@ babelHelpers;
 				event.handledByComponent = this.component_;
 				return fn(event);
 			}
+		};
+
+		/**
+   * Prepares the collector to start collecting listeners for the given group.
+   * Should be called before all calls to `attachListener` for that group.
+   * @param {string=} groupName
+   */
+
+
+		EventsCollector.prototype.startCollecting = function startCollecting() {
+			var groupName = arguments.length <= 0 || arguments[0] === undefined ? 'element' : arguments[0];
+
+			this.groupHasListener_[groupName] = {};
 		};
 
 		return EventsCollector;
@@ -7162,7 +7244,10 @@ babelHelpers;
 
 
 		SurfaceRenderer.prototype.addSubComponent = function addSubComponent(componentName, componentId) {
-			return this.component_.addSubComponent(componentName, componentId, this.getSurfaceFromElementId(componentId).componentData);
+			var data = this.getSurfaceFromElementId(componentId).componentData || {};
+			data.id = componentId;
+			data.element = '#' + componentId;
+			return this.component_.addSubComponent(componentName, data);
 		};
 
 		/**
@@ -7211,7 +7296,7 @@ babelHelpers;
 			if (cacheHit) {
 				this.renderPlaceholderSurfaceContents_(cacheContent, surfaceElementId);
 			} else {
-				this.eventsCollector_.attachListeners(cacheContent, surfaceElementId);
+				this.eventsCollector_.attachListenersFromHtml(cacheContent, surfaceElementId);
 				this.replaceSurfaceContent_(surfaceElementId, surface, content);
 			}
 		};
@@ -7327,7 +7412,7 @@ babelHelpers;
 
 		SurfaceRenderer.prototype.getElementExtendedContent = function getElementExtendedContent() {
 			var content = this.getElementContent_() || '';
-			this.eventsCollector_.attachListeners(content, this.component_.id);
+			this.eventsCollector_.attachListenersFromHtml(content, this.component_.id);
 			this.cacheSurfaceContent(this.component_.id, content);
 			return this.replaceSurfacePlaceholders_(content, this.component_.id, this.getSurface(this.component_.id));
 		};
@@ -7875,7 +7960,7 @@ babelHelpers;
 				// listeners and cache its content manually.
 				surface.element = null;
 				this.cacheSurfaceContent(surfaceElementId, collectedData.cacheContent);
-				this.eventsCollector_.attachListeners(collectedData.cacheContent, surfaceElementId);
+				this.eventsCollector_.attachListenersFromHtml(collectedData.cacheContent, surfaceElementId);
 			}
 		};
 
@@ -8859,22 +8944,20 @@ babelHelpers;
   Templates.ListItem.item = function (opt_data, opt_ignored, opt_ijData) {
     var output = (opt_data.item.avatar ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + (opt_data.item.textSecondary ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
     if (opt_data.item.icons) {
-      output += '<div class="list-icons pull-right">';
-      var iconList56 = opt_data.item.icons;
-      var iconListLen56 = iconList56.length;
-      for (var iconIndex56 = 0; iconIndex56 < iconListLen56; iconIndex56++) {
-        var iconData56 = iconList56[iconIndex56];
-        output += '<span class="list-icon ' + soy.$$escapeHtmlAttribute(iconData56) + '"></span>';
+      var iconList55 = opt_data.item.icons;
+      var iconListLen55 = iconList55.length;
+      for (var iconIndex55 = 0; iconIndex55 < iconListLen55; iconIndex55++) {
+        var iconData55 = iconList55[iconIndex55];
+        output += '<span class="btn-icon ' + soy.$$escapeHtmlAttribute(iconData55) + ' pull-right"></span>';
       }
-      output += '</div>';
     }
     if (opt_data.item.iconsHtml) {
-      output += '<div class="list-icons pull-right">';
-      var iconHtmlList65 = opt_data.item.iconsHtml;
-      var iconHtmlListLen65 = iconHtmlList65.length;
-      for (var iconHtmlIndex65 = 0; iconHtmlIndex65 < iconHtmlListLen65; iconHtmlIndex65++) {
-        var iconHtmlData65 = iconHtmlList65[iconHtmlIndex65];
-        output += soy.$$escapeHtml(iconHtmlData65);
+      output += '<div class="pull-right">';
+      var iconHtmlList63 = opt_data.item.iconsHtml;
+      var iconHtmlListLen63 = iconHtmlList63.length;
+      for (var iconHtmlIndex63 = 0; iconHtmlIndex63 < iconHtmlListLen63; iconHtmlIndex63++) {
+        var iconHtmlData63 = iconHtmlList63[iconHtmlIndex63];
+        output += soy.$$escapeHtml(iconHtmlData63);
       }
       output += '</div>';
     }
