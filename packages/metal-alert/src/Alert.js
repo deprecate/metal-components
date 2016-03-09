@@ -63,7 +63,7 @@ class Alert extends AlertBase {
 	 * Show the alert.
 	 */
 	show() {
-		this.visible = false;
+		this.visible = true;
 	}
 
 	/**
