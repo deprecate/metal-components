@@ -94,7 +94,7 @@ describe('List', function() {
 			}]
 		}).render();
 
-		var iconNodes = list.element.querySelectorAll('li .list-icons');
+		var iconNodes = list.element.querySelectorAll('li');
 		assert.ok(iconNodes[0].querySelector('.icon1'));
 		assert.ok(iconNodes[1].querySelector('.icon2'));
 		assert.ok(iconNodes[1].querySelector('.icon3'));
