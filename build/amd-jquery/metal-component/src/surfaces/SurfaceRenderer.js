@@ -260,7 +260,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 		};
 
 		SurfaceRenderer.prototype.addSubComponent = function addSubComponent(componentName, componentId) {
-			return this.component_.addSubComponent(componentName, componentId, this.getSurfaceFromElementId(componentId).componentData);
+			var data = this.getSurfaceFromElementId(componentId).componentData || {};
+			data.id = componentId;
+			data.element = '#' + componentId;
+			return this.component_.addSubComponent(componentName, data);
 		};
 
 		SurfaceRenderer.prototype.createSurfaceElement_ = function createSurfaceElement_(surfaceElementId) {
