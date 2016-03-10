@@ -3,6 +3,7 @@
 var gulp = require('gulp');
 var liferay = require('liferay-gulp-tasks');
 var metal = require('gulp-metal');
+var runSequence = require('run-sequence');
 var utils = require('./utils');
 
 liferay.registerTasks();
@@ -19,4 +20,11 @@ gulp.task('soy:copy', function() {
 		.pipe(gulp.dest('build/soy'));
 });
 
-gulp.task('default', ['css', 'build:globals', 'build:amd', 'build:amd:jquery', 'soy:copy']);
+gulp.task('default', function(done) {
+	runSequence(
+		'clean',
+		['css', 'build:globals', 'build:amd', 'build:amd:jquery', 'soy:copy'],
+		'uglify',
+		done
+	);
+});

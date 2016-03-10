@@ -58,6 +58,7 @@
     "liferay-gulp-tasks": "^0.2.1",
     "merge": "^1.2.0",
     "mocha": "^2.3.4",
+    "run-sequence": "^1.1.5",
     "sinon": "^1.17.2"
   }
 }
