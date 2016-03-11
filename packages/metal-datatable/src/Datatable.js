@@ -16,7 +16,7 @@ class Datatable extends DatatableBase {
 	 */
 	assertDifferentTypes_(type1, type2) {
 		if (type1 && type2 && type1 !== type2) {
-			throw new Error('Mixed types');
+			throw new Error('Datatable does not support mixed types in arrays.');
 		}
 	}
 

@@ -126,5 +126,14 @@ describe('Datatable', function() {
 		dom.triggerEvent(label, 'click');
 		assert.ok(dom.hasClass(label, 'expanded'));
 		assert.ok(!dom.hasClass(dom.next(label, 'table'), 'hidden'));
+		datatable.dispose();
+	});
+
+	it('should throw exception when data contains mixed types inside array', function() {
+		assert.throws(function() {
+			new Datatable({
+				data: [0, false]
+			}).render();
+		}, Error);
 	});
 });
