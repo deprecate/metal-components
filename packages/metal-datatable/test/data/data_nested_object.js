@@ -74,7 +74,12 @@ var data_nested_object_expanded = {
 		"address",
 		"email",
 		"name"
-	]
+	],
+	"columnsType": {
+		"address": "object",
+		"email": "string",
+		"name": "string"
+	}
 };
 
 export { data_nested_object, data_nested_object_expanded };

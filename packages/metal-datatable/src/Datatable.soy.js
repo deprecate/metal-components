@@ -162,19 +162,19 @@ Templates.Datatable.renderTable_ = function(opt_data, opt_ignored, opt_ijData) {
   var columnListLen82 = columnList82.length;
   for (var columnIndex82 = 0; columnIndex82 < columnListLen82; columnIndex82++) {
     var columnData82 = columnList82[columnIndex82];
-    output += '<th>' + soy.$$escapeHtml(columnData82) + '</th>';
+    output += '<th>' + soy.$$escapeHtml(columnData82) + ((opt_data.columnsType) ? '<span class="datatable-type">' + soy.$$escapeHtml(opt_data.columnsType[columnData82]) + '</span>' : '') + '</th>';
   }
   output += '</tr></thead><tbody>';
-  var arrayItemValueList88 = opt_data.value;
-  var arrayItemValueListLen88 = arrayItemValueList88.length;
-  for (var arrayItemValueIndex88 = 0; arrayItemValueIndex88 < arrayItemValueListLen88; arrayItemValueIndex88++) {
-    var arrayItemValueData88 = arrayItemValueList88[arrayItemValueIndex88];
+  var arrayItemValueList93 = opt_data.value;
+  var arrayItemValueListLen93 = arrayItemValueList93.length;
+  for (var arrayItemValueIndex93 = 0; arrayItemValueIndex93 < arrayItemValueListLen93; arrayItemValueIndex93++) {
+    var arrayItemValueData93 = arrayItemValueList93[arrayItemValueIndex93];
     output += '<tr>';
-    var columnList90 = opt_data.columns;
-    var columnListLen90 = columnList90.length;
-    for (var columnIndex90 = 0; columnIndex90 < columnListLen90; columnIndex90++) {
-      var columnData90 = columnList90[columnIndex90];
-      output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(arrayItemValueData88, {renderingColumn: columnData90, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
+    var columnList95 = opt_data.columns;
+    var columnListLen95 = columnList95.length;
+    for (var columnIndex95 = 0; columnIndex95 < columnListLen95; columnIndex95++) {
+      var columnData95 = columnList95[columnIndex95];
+      output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(arrayItemValueData93, {renderingColumn: columnData95, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
     }
     output += '</tr>';
   }

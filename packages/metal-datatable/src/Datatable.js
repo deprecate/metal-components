@@ -53,8 +53,13 @@ class Datatable extends DatatableBase {
 			switch (value[0].type) {
 				case Datatable.TYPES.OBJECT:
 					var columns = {};
-					value.forEach((item) => Object.keys(item.value).forEach((key) => columns[key] = true));
+					var columnsType = {};
+					value.forEach((item) => Object.keys(item.value).forEach((key) => {
+						columns[key] = true;
+						columnsType[key] = item.value[key].type;
+					}));
 					expandedValue.columns = this.formatColumns(Object.keys(columns));
+					expandedValue.columnsType = columnsType;
 					break;
 			}
 		}

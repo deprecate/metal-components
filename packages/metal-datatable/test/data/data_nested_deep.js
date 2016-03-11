@@ -116,7 +116,12 @@ var data_nested_deep_expanded = {
 		"address",
 		"email",
 		"name"
-	]
+	],
+	"columnsType": {
+		"name": "string",
+		"email": "string",
+		"address": "object"
+	}
 };
 
 export { data_nested_deep, data_nested_deep_expanded };

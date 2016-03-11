@@ -110,6 +110,7 @@
  * @param value
  * @param renderingRoot
  * @param renderingNestedObject
+ * @param? columnsType
  * @param? tableClasses
  */
 {template .renderTable_ private="true"}
@@ -125,7 +126,12 @@
 		<thead>
 			<tr>
 				{foreach $column in $columns}
-					<th>{$column}</th>
+					<th>
+						{$column}
+						{if $columnsType}
+							<span class="datatable-type">{$columnsType[$column]}</span>
+						{/if}
+					</th>
 				{/foreach}
 			</tr>
 		</thead>

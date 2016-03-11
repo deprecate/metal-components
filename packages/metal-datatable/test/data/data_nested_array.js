@@ -68,7 +68,12 @@ var data_nested_array_expanded = {
 		"addresses",
 		"email",
 		"name"
-	]
+	],
+	"columnsType": {
+		"name": "string",
+		"email": "string",
+		"addresses": "array"
+	}
 };
 
 export { data_nested_array, data_nested_array_expanded };

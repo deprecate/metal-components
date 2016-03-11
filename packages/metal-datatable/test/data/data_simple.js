@@ -171,7 +171,14 @@ var data_simple_expanded = {
 		"link",
 		"price",
 		"title"
-	]
+	],
+	"columnsType": {
+		"cover": "string",
+		"description": "string",
+		"link": "string",
+		"price": "number",
+		"title": "string"
+	}
 };
 
 export { data_simple, data_simple_expanded };
