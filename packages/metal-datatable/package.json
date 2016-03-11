@@ -1,0 +1,35 @@
+{
+	"name": "metal-datatable",
+	"version": "0.0.0",
+	"description": "Datatable visualization",
+	"license": "BSD",
+	"repository": "metal/metal-datatable",
+	"engines": {
+		"node": ">=0.12.0",
+		"npm": ">=3.0.0"
+	},
+	"main": "src/Datatable.js",
+	"files": [
+		"src",
+		"test"
+	],
+	"scripts": {
+		"test": "gulp test"
+	},
+	"keywords": [
+		"metal"
+	],
+	"dependencies": {
+		"bootstrap": "^3.3.6",
+		"closure-templates": "20140422.0.0",
+		"metal": "metal/metal.js#master",
+		"metal-component": "metal/metal-component#master",
+		"metal-dom": "metal/metal-dom#master",
+		"metal-events": "metal/metal-events#master",
+		"metal-soy": "metal/metal-soy#master"
+	},
+	"devDependencies": {
+		"gulp": "^3.8.11",
+		"gulp-metal": "^0.14.0"
+	}
+}
