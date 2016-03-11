@@ -1,0 +1,169 @@
+{namespace Templates.Datatable}
+
+/**
+ * @param data
+ * @param id
+ * @param? elementClasses
+ * @param? tableClasses
+ */
+{template .render}
+	<div id="{$id}" class="datatable component{$elementClasses ? ' ' + $elementClasses : ''}">
+		{call .render_ data="$data"}
+			{param renderingRoot: true /}
+			{param tableClasses: $tableClasses /}
+		{/call}
+	</div>
+{/template}
+
+/**
+ * @param columns
+ * @param type
+ */
+{template .render_ private="true"}
+	{switch $type}
+		{case 'array'}
+			{if $columns}
+				{call .renderTable_ data="all" /}
+			{else}
+				{call .renderArray_ data="all" /}
+			{/if}
+		{case 'boolean'}
+			{call .renderBoolean_ data="all" /}
+		{case 'null'}
+			{call .renderNull_ data="all" /}
+		{case 'number'}
+			{call .renderNumber_ data="all" /}
+		{case 'object'}
+			{call .renderObjectLiteral_ data="all" /}
+		{case 'string'}
+			{call .renderString_ data="all" /}
+		{case 'undefined'}
+			{call .renderUndefined_ data="all" /}
+	{/switch}
+{/template}
+
+/**
+ * @param value
+ * @param? tableClasses
+ */
+{template .renderArray_ private="true"}
+	<span class="datatable-array">
+		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, {length($value)} items</span>
+		<table class="{$tableClasses ? $tableClasses + '' : ''} hidden">
+			<tbody>
+				{foreach $arrayItemValue in $value}
+					<tr>
+						<td>
+							{call .render_ data="$arrayItemValue" /}
+						</td>
+					</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</span>
+{/template}
+
+/**
+ * @param value
+ */
+{template .renderBoolean_ private="true"}
+	<span class="datatable-boolean">{$value}</span>
+{/template}
+
+/**
+ * @param value
+ */
+{template .renderNull_ private="true"}
+	<span class="datatable-null">{$value}</span>
+{/template}
+
+/**
+ * @param value
+ */
+{template .renderNumber_ private="true"}
+	<span class="datatable-number">{$value}</span>
+{/template}
+
+/**
+ * @param value
+ * @param? renderingColumn
+ * @param? tableClasses
+ */
+{template .renderObjectLiteral_ private="true"}
+	{if $renderingColumn}
+		{call .render_ data="$value[$renderingColumn]"}
+			{param tableClasses: $tableClasses /}
+		{/call}
+	{else}
+		{call .render_}
+			{param columns: keys($value) /}
+			{param renderingNestedObject: true /}
+			{param tableClasses: $tableClasses /}
+			{param type: 'array' /}
+			{param value: [['type': 'object', 'value': $value]] /}
+		{/call}
+	{/if}
+{/template}
+
+/**
+ * @param columns
+ * @param value
+ * @param renderingRoot
+ * @param renderingNestedObject
+ * @param? tableClasses
+ */
+{template .renderTable_ private="true"}
+	{if $renderingNestedObject}
+		<span class="datatable-object">
+		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, {length(keys($value))} items</span>
+	{elseif not $renderingRoot}
+		<span class="datatable-array">
+		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, {length($value)} items</span>
+	{/if}
+
+	<table class="{$tableClasses ? $tableClasses : ''}{$renderingRoot ? '' : ' hidden'}">
+		<thead>
+			<tr>
+				{foreach $column in $columns}
+					<th>{$column}</th>
+				{/foreach}
+			</tr>
+		</thead>
+		<tbody>
+			{foreach $arrayItemValue in $value}
+				<tr>
+					{foreach $column in $columns}
+						<td>
+							{call .render_ data="$arrayItemValue"}
+								{param renderingColumn: $column /}
+								{param tableClasses: $tableClasses /}
+							{/call}
+						</td>
+					{/foreach}
+				</tr>
+			{/foreach}
+		</tbody>
+	</table>
+
+	{if $renderingNestedObject}
+		</span>
+		</span>
+	{elseif not $renderingRoot}
+		</span>
+		</span>
+	{/if}
+{/template}
+
+/**
+ * @param value
+ */
+{template .renderUndefined_ private="true"}
+	<span class="datatable-undefined">{$value}</span>
+{/template}
+
+/**
+ * @param value
+ */
+{template .renderString_ private="true"}
+	<span class="datatable-string">{$value}</span>
+{/template}
