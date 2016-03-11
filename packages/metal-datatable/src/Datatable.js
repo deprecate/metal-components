@@ -59,7 +59,7 @@ class Datatable extends DatatableBase {
 						columnsType[key] = item.value[key].type;
 					}));
 					expandedValue.columns = this.formatColumns(Object.keys(columns));
-					expandedValue.columnsType = columnsType;
+					expandedValue.columnsType = this.formatColumnsType(columnsType);
 					break;
 			}
 		}
@@ -151,6 +151,16 @@ Datatable.ATTRS = {
 	},
 
 	/**
+	 * If true displays types in column.
+	 * @type {boolean}
+	 * @default true
+	 */
+	displayColumnsType: {
+		validator: core.isBoolean,
+		value: true
+	},
+
+	/**
 	 * Formats array of columns extracted from JSON data. Relevant for operates
 	 * over column values, such as sorting and formatting.
 	 * @type {function(array.<string>)}
@@ -159,6 +169,18 @@ Datatable.ATTRS = {
 		validator: core.isFunction,
 		value: function(columns) {
 			return columns.sort();
+		}
+	},
+
+	/**
+	 * Formats map of columns type extracted from JSON data. Relevant for
+	 * operates over column values, such as sorting and formatting.
+	 * @type {function(map.<string,string>)}
+	 */
+	formatColumnsType: {
+		validator: core.isFunction,
+		value: function(columnstype) {
+			return columnstype;
 		}
 	},
 

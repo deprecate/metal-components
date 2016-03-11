@@ -20,7 +20,7 @@ if (typeof Templates.Datatable == 'undefined') { Templates.Datatable = {}; }
  * @suppress {checkTypes}
  */
 Templates.Datatable.render = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="datatable component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Datatable.render_(soy.$$augmentMap(opt_data.data, {renderingRoot: true, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="datatable component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Datatable.render_(soy.$$augmentMap(opt_data.data, {displayColumnsType: opt_data.displayColumnsType, renderingRoot: true, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
   Templates.Datatable.render.soyTemplateName = 'Templates.Datatable.render';
@@ -75,11 +75,11 @@ if (goog.DEBUG) {
  */
 Templates.Datatable.renderArray_ = function(opt_data, opt_ignored, opt_ijData) {
   var output = '<span class="datatable-array"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, ' + soy.$$escapeHtml(opt_data.value.length) + ' items</span><table class="' + soy.$$escapeHtmlAttribute(opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden"><tbody>';
-  var arrayItemValueList38 = opt_data.value;
-  var arrayItemValueListLen38 = arrayItemValueList38.length;
-  for (var arrayItemValueIndex38 = 0; arrayItemValueIndex38 < arrayItemValueListLen38; arrayItemValueIndex38++) {
-    var arrayItemValueData38 = arrayItemValueList38[arrayItemValueIndex38];
-    output += '<tr><td>' + Templates.Datatable.render_(arrayItemValueData38, null, opt_ijData) + '</td></tr>';
+  var arrayItemValueList39 = opt_data.value;
+  var arrayItemValueListLen39 = arrayItemValueList39.length;
+  for (var arrayItemValueIndex39 = 0; arrayItemValueIndex39 < arrayItemValueListLen39; arrayItemValueIndex39++) {
+    var arrayItemValueData39 = arrayItemValueList39[arrayItemValueIndex39];
+    output += '<tr><td>' + Templates.Datatable.render_(arrayItemValueData39, null, opt_ijData) + '</td></tr>';
   }
   output += '</tbody></table></span>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
@@ -158,23 +158,23 @@ if (goog.DEBUG) {
  */
 Templates.Datatable.renderTable_ = function(opt_data, opt_ignored, opt_ijData) {
   var output = ((opt_data.renderingNestedObject) ? '<span class="datatable-object"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, ' + soy.$$escapeHtml(soy.$$getMapKeys(opt_data.value).length) + ' items</span>' : (! opt_data.renderingRoot) ? '<span class="datatable-array"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, ' + soy.$$escapeHtml(opt_data.value.length) + ' items</span>' : '') + '<table class="' + soy.$$escapeHtmlAttribute(opt_data.tableClasses ? opt_data.tableClasses : '') + soy.$$escapeHtmlAttribute(opt_data.renderingRoot ? '' : ' hidden') + '"><thead><tr>';
-  var columnList82 = opt_data.columns;
-  var columnListLen82 = columnList82.length;
-  for (var columnIndex82 = 0; columnIndex82 < columnListLen82; columnIndex82++) {
-    var columnData82 = columnList82[columnIndex82];
-    output += '<th>' + soy.$$escapeHtml(columnData82) + ((opt_data.columnsType) ? '<span class="datatable-type">' + soy.$$escapeHtml(opt_data.columnsType[columnData82]) + '</span>' : '') + '</th>';
+  var columnList83 = opt_data.columns;
+  var columnListLen83 = columnList83.length;
+  for (var columnIndex83 = 0; columnIndex83 < columnListLen83; columnIndex83++) {
+    var columnData83 = columnList83[columnIndex83];
+    output += '<th>' + soy.$$escapeHtml(columnData83) + ((opt_data.displayColumnsType && opt_data.columnsType) ? '<span class="datatable-type">' + soy.$$escapeHtml(opt_data.columnsType[columnData83]) + '</span>' : '') + '</th>';
   }
   output += '</tr></thead><tbody>';
-  var arrayItemValueList93 = opt_data.value;
-  var arrayItemValueListLen93 = arrayItemValueList93.length;
-  for (var arrayItemValueIndex93 = 0; arrayItemValueIndex93 < arrayItemValueListLen93; arrayItemValueIndex93++) {
-    var arrayItemValueData93 = arrayItemValueList93[arrayItemValueIndex93];
+  var arrayItemValueList94 = opt_data.value;
+  var arrayItemValueListLen94 = arrayItemValueList94.length;
+  for (var arrayItemValueIndex94 = 0; arrayItemValueIndex94 < arrayItemValueListLen94; arrayItemValueIndex94++) {
+    var arrayItemValueData94 = arrayItemValueList94[arrayItemValueIndex94];
     output += '<tr>';
-    var columnList95 = opt_data.columns;
-    var columnListLen95 = columnList95.length;
-    for (var columnIndex95 = 0; columnIndex95 < columnListLen95; columnIndex95++) {
-      var columnData95 = columnList95[columnIndex95];
-      output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(arrayItemValueData93, {renderingColumn: columnData95, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
+    var columnList96 = opt_data.columns;
+    var columnListLen96 = columnList96.length;
+    for (var columnIndex96 = 0; columnIndex96 < columnListLen96; columnIndex96++) {
+      var columnData96 = columnList96[columnIndex96];
+      output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(arrayItemValueData94, {renderingColumn: columnData96, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
     }
     output += '</tr>';
   }
@@ -215,7 +215,7 @@ if (goog.DEBUG) {
   Templates.Datatable.renderString_.soyTemplateName = 'Templates.Datatable.renderString_';
 }
 
-Templates.Datatable.render.params = ["data","id","elementClasses","tableClasses"];
+Templates.Datatable.render.params = ["data","id","displayColumnsType","elementClasses","tableClasses"];
 Templates.Datatable.render_.private = true;
 Templates.Datatable.renderArray_.private = true;
 Templates.Datatable.renderBoolean_.private = true;
