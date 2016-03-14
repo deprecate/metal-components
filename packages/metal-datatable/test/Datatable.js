@@ -137,4 +137,38 @@ describe('Datatable', function() {
 			}).render();
 		}, Error);
 	});
+
+	it('should display column types', function() {
+		var datatable = new Datatable({
+			data: [{
+				a: {
+					b: {
+						c: true
+					}
+				}
+			}]
+		}).render();
+		var types = datatable.element.querySelectorAll('.datatable-type');
+		assert.strictEqual(3, types.length);
+		assert.strictEqual('object', types[0].innerText.trim());
+		assert.strictEqual('object', types[1].innerText.trim());
+		assert.strictEqual('boolean', types[2].innerText.trim());
+		datatable.dispose();
+	});
+
+	it('should not display column types', function() {
+		var datatable = new Datatable({
+			data: [{
+				a: {
+					b: {
+						c: true
+					}
+				}
+			}],
+			displayColumnsType: false
+		}).render();
+		var types = datatable.element.querySelectorAll('.datatable-type');
+		assert.strictEqual(0, types.length);
+		datatable.dispose();
+	});
 });
