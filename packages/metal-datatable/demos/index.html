@@ -121,17 +121,9 @@
 
 		var data_nested_object = [{
 			'name': 'Eduardo Lundgren',
-			'email': 'edu@rdo.io',
 			'address': {
-				'street': 'The Bowery',
-				'city': 'New York'
-			}
-		}, {
-			'name': 'Adélaide',
-			'email': 'adelaide@domain.com',
-			'address': {
-				'street': 'La Pigalle',
-				'city': 'Paris'
+				'street': "abc",
+				'foo': true
 			}
 		}];
 		new metal.Datatable({ data: data_nested_object }).render('#nestedObject');

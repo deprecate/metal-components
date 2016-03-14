@@ -35,6 +35,16 @@ var data_nested_array_expanded = {
 						}
 					]
 				}
+			},
+			"columns": [
+				"addresses",
+				"email",
+				"name"
+			],
+			"columnsType": {
+				"name": "string",
+				"email": "string",
+				"addresses": "array"
 			}
 		},
 		{
@@ -61,6 +71,16 @@ var data_nested_array_expanded = {
 						}
 					]
 				}
+			},
+			"columns": [
+				"addresses",
+				"email",
+				"name"
+			],
+			"columnsType": {
+				"name": "string",
+				"email": "string",
+				"addresses": "array"
 			}
 		}
 	],

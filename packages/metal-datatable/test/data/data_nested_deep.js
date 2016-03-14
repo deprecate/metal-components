@@ -57,14 +57,40 @@ var data_nested_deep_expanded = {
 										}
 									]
 								}
+							},
+							"columns": [
+								"coordinates",
+								"name"
+							],
+							"columnsType": {
+								"name": "string",
+								"coordinates": "array"
 							}
 						},
 						"city": {
 							"type": "string",
 							"value": "New York"
 						}
+					},
+					"columns": [
+						"city",
+						"street"
+					],
+					"columnsType": {
+						"street": "object",
+						"city": "string"
 					}
 				}
+			},
+			"columns": [
+				"address",
+				"email",
+				"name"
+			],
+			"columnsType": {
+				"name": "string",
+				"email": "string",
+				"address": "object"
 			}
 		},
 		{
@@ -101,14 +127,40 @@ var data_nested_deep_expanded = {
 										}
 									]
 								}
+							},
+							"columns": [
+								"coordinates",
+								"name"
+							],
+							"columnsType": {
+								"name": "string",
+								"coordinates": "array"
 							}
 						},
 						"city": {
 							"type": "string",
 							"value": "Paris"
 						}
+					},
+					"columns": [
+						"city",
+						"street"
+					],
+					"columnsType": {
+						"street": "object",
+						"city": "string"
 					}
 				}
+			},
+			"columns": [
+				"address",
+				"email",
+				"name"
+			],
+			"columnsType": {
+				"name": "string",
+				"email": "string",
+				"address": "object"
 			}
 		}
 	],

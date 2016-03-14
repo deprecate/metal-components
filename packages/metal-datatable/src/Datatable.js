@@ -39,29 +39,58 @@ class Datatable extends DatatableBase {
 	}
 
 	/**
-	 * Analyzes the expanded object containing type and value and extracts an
-	 * array of columns to be used for plotting. Inside an array of objects
-	 * column values are aggregated from extracting 1-deep key values. For other
-	 * array types keys are not extracted and values are plotted in one column
-	 * vertically.
+	 * Extract keys from an array of objects. Column values are aggregated from
+	 * extracting 1-deep key values. For other array types keys are not
+	 * extracted and values are plotted in one column vertically.
 	 * @param {object} expandedValue
 	 * @protected
 	 */
 	collectColumnsFromArrayValues_(expandedValue) {
 		var value = expandedValue.value;
-		if (expandedValue.type === Datatable.TYPES.ARRAY && value.length) {
-			switch (value[0].type) {
-				case Datatable.TYPES.OBJECT:
-					var columns = {};
-					var columnsType = {};
-					value.forEach((item) => Object.keys(item.value).forEach((key) => {
-						columns[key] = true;
-						columnsType[key] = item.value[key].type;
-					}));
-					expandedValue.columns = this.formatColumns(Object.keys(columns));
-					expandedValue.columnsType = this.formatColumnsType(columnsType);
-					break;
-			}
+		var isFirstArrayItemObject = value[0] && value[0].type === Datatable.TYPES.OBJECT;
+		if (isFirstArrayItemObject) {
+			let columns = {};
+			let columnsType = {};
+			value.forEach((item) => Object.keys(item.value).forEach((key) => {
+				columns[key] = true;
+				columnsType[key] = item.value[key].type;
+			}));
+			expandedValue.columns = this.formatColumns(Object.keys(columns));
+			expandedValue.columnsType = this.formatColumnsType(columnsType);
+		}
+	}
+
+	/**
+	 * Extract columns from object keys.
+	 * @param {object} expandedValue
+	 * @protected
+	 */
+	collectColumnsFromObjectKeys_(expandedValue) {
+		var value = expandedValue.value;
+		let columns = {};
+		let columnsType = {};
+		Object.keys(value).forEach((key) => {
+			columns[key] = true;
+			columnsType[key] = value[key].type;
+		});
+		expandedValue.columns = this.formatColumns(Object.keys(columns));
+		expandedValue.columnsType = this.formatColumnsType(columnsType);
+	}
+
+	/**
+	 * Analyzes the expanded object containing type and value and extracts an
+	 * array of columns to be used for plotting.
+	 * @param {object} expandedValue
+	 * @protected
+	 */
+	collectColumnsFromValues_(expandedValue) {
+		switch (expandedValue.type) {
+			case Datatable.TYPES.ARRAY:
+				this.collectColumnsFromArrayValues_(expandedValue);
+				break;
+			case Datatable.TYPES.OBJECT:
+				this.collectColumnsFromObjectKeys_(expandedValue);
+				break;
 		}
 	}
 
@@ -134,7 +163,7 @@ class Datatable extends DatatableBase {
 			type: this.getValueType_(value),
 			value: value
 		};
-		this.collectColumnsFromArrayValues_(expanded);
+		this.collectColumnsFromValues_(expanded);
 		return expanded;
 	}
 

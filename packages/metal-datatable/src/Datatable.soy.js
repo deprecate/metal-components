@@ -20,7 +20,7 @@ if (typeof Templates.Datatable == 'undefined') { Templates.Datatable = {}; }
  * @suppress {checkTypes}
  */
 Templates.Datatable.render = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="datatable component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Datatable.render_(soy.$$augmentMap(opt_data.data, {displayColumnsType: opt_data.displayColumnsType, renderingRoot: true, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</div>');
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="datatable component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Datatable.render_(soy.$$augmentMap(opt_data.data, {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</div>');
 };
 if (goog.DEBUG) {
   Templates.Datatable.render.soyTemplateName = 'Templates.Datatable.render';
@@ -38,7 +38,7 @@ Templates.Datatable.render_ = function(opt_data, opt_ignored, opt_ijData) {
   var output = '';
   switch (opt_data.type) {
     case 'array':
-      output += (opt_data.columns) ? Templates.Datatable.renderTable_(opt_data, null, opt_ijData) : Templates.Datatable.renderArray_(opt_data, null, opt_ijData);
+      output += (opt_data.columns) ? Templates.Datatable.renderArrayOfObjects_(opt_data, null, opt_ijData) : Templates.Datatable.renderArray_(opt_data, null, opt_ijData);
       break;
     case 'boolean':
       output += Templates.Datatable.renderBoolean_(opt_data, null, opt_ijData);
@@ -50,7 +50,7 @@ Templates.Datatable.render_ = function(opt_data, opt_ignored, opt_ijData) {
       output += Templates.Datatable.renderNumber_(opt_data, null, opt_ijData);
       break;
     case 'object':
-      output += Templates.Datatable.renderObjectLiteral_(opt_data, null, opt_ijData);
+      output += Templates.Datatable.renderObject_(opt_data, null, opt_ijData);
       break;
     case 'string':
       output += Templates.Datatable.renderString_(opt_data, null, opt_ijData);
@@ -75,17 +75,54 @@ if (goog.DEBUG) {
  */
 Templates.Datatable.renderArray_ = function(opt_data, opt_ignored, opt_ijData) {
   var output = '<span class="datatable-array"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, ' + soy.$$escapeHtml(opt_data.value.length) + ' items</span><table class="' + soy.$$escapeHtmlAttribute(opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden"><tbody>';
-  var arrayItemValueList39 = opt_data.value;
-  var arrayItemValueListLen39 = arrayItemValueList39.length;
-  for (var arrayItemValueIndex39 = 0; arrayItemValueIndex39 < arrayItemValueListLen39; arrayItemValueIndex39++) {
-    var arrayItemValueData39 = arrayItemValueList39[arrayItemValueIndex39];
-    output += '<tr><td>' + Templates.Datatable.render_(arrayItemValueData39, null, opt_ijData) + '</td></tr>';
+  var itemValueList38 = opt_data.value;
+  var itemValueListLen38 = itemValueList38.length;
+  for (var itemValueIndex38 = 0; itemValueIndex38 < itemValueListLen38; itemValueIndex38++) {
+    var itemValueData38 = itemValueList38[itemValueIndex38];
+    output += '<tr><td>' + Templates.Datatable.render_(soy.$$augmentMap(itemValueData38, {tableClasses: opt_data.tableClasses, displayColumnsType: opt_data.displayColumnsType}), null, opt_ijData) + '</td></tr>';
   }
   output += '</tbody></table></span>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
 if (goog.DEBUG) {
   Templates.Datatable.renderArray_.soyTemplateName = 'Templates.Datatable.renderArray_';
+}
+
+
+/**
+ * @param {Object.<string, *>=} opt_data
+ * @param {(null|undefined)=} opt_ignored
+ * @param {Object.<string, *>=} opt_ijData
+ * @return {!soydata.SanitizedHtml}
+ * @suppress {checkTypes}
+ */
+Templates.Datatable.renderArrayOfObjects_ = function(opt_data, opt_ignored, opt_ijData) {
+  var output = '<span class="datatable-array-object"><table class="' + soy.$$escapeHtmlAttribute(opt_data.tableClasses ? opt_data.tableClasses : '') + '"><thead><tr>';
+  var columnList50 = opt_data.columns;
+  var columnListLen50 = columnList50.length;
+  for (var columnIndex50 = 0; columnIndex50 < columnListLen50; columnIndex50++) {
+    var columnData50 = columnList50[columnIndex50];
+    output += '<th>' + soy.$$escapeHtml(columnData50) + ((opt_data.displayColumnsType && opt_data.columnsType) ? '<span class="datatable-type">' + soy.$$escapeHtml(opt_data.columnsType[columnData50]) + '</span>' : '') + '</th>';
+  }
+  output += '</tr></thead><tbody>';
+  var itemValueList61 = opt_data.value;
+  var itemValueListLen61 = itemValueList61.length;
+  for (var itemValueIndex61 = 0; itemValueIndex61 < itemValueListLen61; itemValueIndex61++) {
+    var itemValueData61 = itemValueList61[itemValueIndex61];
+    output += '<tr>';
+    var columnList63 = opt_data.columns;
+    var columnListLen63 = columnList63.length;
+    for (var columnIndex63 = 0; columnIndex63 < columnListLen63; columnIndex63++) {
+      var columnData63 = columnList63[columnIndex63];
+      output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(itemValueData61.value[columnData63], {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
+    }
+    output += '</tr>';
+  }
+  output += '</tbody></table></span>';
+  return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
+};
+if (goog.DEBUG) {
+  Templates.Datatable.renderArrayOfObjects_.soyTemplateName = 'Templates.Datatable.renderArrayOfObjects_';
 }
 
 
@@ -141,48 +178,26 @@ if (goog.DEBUG) {
  * @return {!soydata.SanitizedHtml}
  * @suppress {checkTypes}
  */
-Templates.Datatable.renderObjectLiteral_ = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml((opt_data.renderingColumn) ? Templates.Datatable.render_(soy.$$augmentMap(opt_data.value[opt_data.renderingColumn], {tableClasses: opt_data.tableClasses}), null, opt_ijData) : Templates.Datatable.render_({columns: soy.$$getMapKeys(opt_data.value), renderingNestedObject: true, tableClasses: opt_data.tableClasses, type: 'array', value: [{type: 'object', value: opt_data.value}]}, null, opt_ijData));
-};
-if (goog.DEBUG) {
-  Templates.Datatable.renderObjectLiteral_.soyTemplateName = 'Templates.Datatable.renderObjectLiteral_';
-}
-
-
-/**
- * @param {Object.<string, *>=} opt_data
- * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
- * @suppress {checkTypes}
- */
-Templates.Datatable.renderTable_ = function(opt_data, opt_ignored, opt_ijData) {
-  var output = ((opt_data.renderingNestedObject) ? '<span class="datatable-object"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, ' + soy.$$escapeHtml(soy.$$getMapKeys(opt_data.value).length) + ' items</span>' : (! opt_data.renderingRoot) ? '<span class="datatable-array"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, ' + soy.$$escapeHtml(opt_data.value.length) + ' items</span>' : '') + '<table class="' + soy.$$escapeHtmlAttribute(opt_data.tableClasses ? opt_data.tableClasses : '') + soy.$$escapeHtmlAttribute(opt_data.renderingRoot ? '' : ' hidden') + '"><thead><tr>';
-  var columnList83 = opt_data.columns;
-  var columnListLen83 = columnList83.length;
-  for (var columnIndex83 = 0; columnIndex83 < columnListLen83; columnIndex83++) {
-    var columnData83 = columnList83[columnIndex83];
-    output += '<th>' + soy.$$escapeHtml(columnData83) + ((opt_data.displayColumnsType && opt_data.columnsType) ? '<span class="datatable-type">' + soy.$$escapeHtml(opt_data.columnsType[columnData83]) + '</span>' : '') + '</th>';
+Templates.Datatable.renderObject_ = function(opt_data, opt_ignored, opt_ijData) {
+  var output = '<span class="datatable-object"><span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, ' + soy.$$escapeHtml(soy.$$getMapKeys(opt_data.value).length) + ' items</span><table class="' + soy.$$escapeHtmlAttribute(opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden"><thead><tr>';
+  var columnList91 = opt_data.columns;
+  var columnListLen91 = columnList91.length;
+  for (var columnIndex91 = 0; columnIndex91 < columnListLen91; columnIndex91++) {
+    var columnData91 = columnList91[columnIndex91];
+    output += '<th>' + soy.$$escapeHtml(columnData91) + ((opt_data.displayColumnsType && opt_data.columnsType) ? '<span class="datatable-type">' + soy.$$escapeHtml(opt_data.columnsType[columnData91]) + '</span>' : '') + '</th>';
   }
-  output += '</tr></thead><tbody>';
-  var arrayItemValueList94 = opt_data.value;
-  var arrayItemValueListLen94 = arrayItemValueList94.length;
-  for (var arrayItemValueIndex94 = 0; arrayItemValueIndex94 < arrayItemValueListLen94; arrayItemValueIndex94++) {
-    var arrayItemValueData94 = arrayItemValueList94[arrayItemValueIndex94];
-    output += '<tr>';
-    var columnList96 = opt_data.columns;
-    var columnListLen96 = columnList96.length;
-    for (var columnIndex96 = 0; columnIndex96 < columnListLen96; columnIndex96++) {
-      var columnData96 = columnList96[columnIndex96];
-      output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(arrayItemValueData94, {renderingColumn: columnData96, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
-    }
-    output += '</tr>';
+  output += '</tr></thead><tbody><tr>';
+  var columnList102 = opt_data.columns;
+  var columnListLen102 = columnList102.length;
+  for (var columnIndex102 = 0; columnIndex102 < columnListLen102; columnIndex102++) {
+    var columnData102 = columnList102[columnIndex102];
+    output += '<td>' + Templates.Datatable.render_(soy.$$augmentMap(opt_data.value[columnData102], {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData) + '</td>';
   }
-  output += '</tbody></table>' + ((opt_data.renderingNestedObject) ? '</span></span>' : (! opt_data.renderingRoot) ? '</span></span>' : '');
+  output += '</tr></tbody></table></span></span>';
   return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
 };
 if (goog.DEBUG) {
-  Templates.Datatable.renderTable_.soyTemplateName = 'Templates.Datatable.renderTable_';
+  Templates.Datatable.renderObject_.soyTemplateName = 'Templates.Datatable.renderObject_';
 }
 
 
@@ -218,11 +233,11 @@ if (goog.DEBUG) {
 Templates.Datatable.render.params = ["data","id","displayColumnsType","elementClasses","tableClasses"];
 Templates.Datatable.render_.private = true;
 Templates.Datatable.renderArray_.private = true;
+Templates.Datatable.renderArrayOfObjects_.private = true;
 Templates.Datatable.renderBoolean_.private = true;
 Templates.Datatable.renderNull_.private = true;
 Templates.Datatable.renderNumber_.private = true;
-Templates.Datatable.renderObjectLiteral_.private = true;
-Templates.Datatable.renderTable_.private = true;
+Templates.Datatable.renderObject_.private = true;
 Templates.Datatable.renderUndefined_.private = true;
 Templates.Datatable.renderString_.private = true;
 

@@ -1,5 +1,6 @@
 'use strict';
 
+import core from 'metal';
 import dom from 'metal-dom';
 import Datatable from '../src/Datatable';
 import SoyRenderer from 'metal-soy';
@@ -97,11 +98,11 @@ describe('Datatable', function() {
 		var data = {
 			data: object
 		};
-		var expandedData = {
-			type: 'object',
-			value: object
-		};
-		assert.deepEqual(expandedData, new Datatable(data).data);
+		var expandedData = new Datatable(data).data;
+		assert.strictEqual('object', expandedData.type);
+		assert.strictEqual(object, expandedData.value);
+		assert.ok(Array.isArray(expandedData.columns));
+		assert.ok(core.isObject(expandedData.columnsType));
 	});
 
 	it('should expand sanitized html as string', function() {
