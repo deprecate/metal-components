@@ -23,7 +23,7 @@
     "bootstrap-sass": "^3.3.6",
     "closure-templates": "20140422.0.0",
     "metal-affix": "^1.0.0-rc",
-    "metal-alert": "^1.0.0-rc",
+    "metal-alert": "^1.0.0-rc.1",
     "metal-autocomplete": "^1.0.0-rc",
     "metal-button-group": "^1.0.0-rc",
     "metal-clipboard": "^1.0.0-rc",
