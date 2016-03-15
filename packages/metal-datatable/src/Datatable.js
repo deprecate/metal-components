@@ -8,19 +8,6 @@ import DatatableBase from './Datatable.soy';
 class Datatable extends DatatableBase {
 
 	/**
-	 * Asserts literal types are not the same.
-	 * @param {string} type1
-	 * @param {string} type2
-	 * @protected
-	 * @throws {Error} If types are different.
-	 */
-	assertDifferentTypes_(type1, type2) {
-		if (type1 && type2 && type1 !== type2) {
-			throw new Error('Datatable does not support mixed types in arrays.');
-		}
-	}
-
-	/**
 	 * Visits array items and asserts that it only contains one literal type.
 	 * @param {array} value
 	 * @protected
@@ -30,12 +17,25 @@ class Datatable extends DatatableBase {
 		var lastType;
 		var acceptArray = (v) => {
 			var type = this.getValueType_(v);
-			this.assertDifferentTypes_(lastType, type);
+			this.assertSameTypes_(lastType, type);
 			lastType = type;
 			this.assertNoMixedTypesInArrays_(v);
 		};
 		var acceptObject = (v) => this.assertNoMixedTypesInArrays_(v);
 		this.visit_(value, acceptArray, acceptObject);
+	}
+
+	/**
+	 * Asserts literal types are not the same.
+	 * @param {string} type1
+	 * @param {string} type2
+	 * @protected
+	 * @throws {Error} If types are different.
+	 */
+	assertSameTypes_(type1, type2) {
+		if (type1 && type2 && type1 !== type2) {
+			throw new Error('Datatable does not support mixed types in arrays.');
+		}
 	}
 
 	/**
