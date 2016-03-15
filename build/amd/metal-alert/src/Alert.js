@@ -91,6 +91,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 			this.visible = !this.visible;
 		};
 
+		Alert.prototype.show = function show() {
+			this.visible = true;
+		};
+
 		Alert.prototype.syncDismissible = function syncDismissible(dismissible) {
 			if (dismissible) {
 				this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
@@ -117,16 +121,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 			if (_metal.core.isNumber(hideDelay) && this.visible) {
 				clearTimeout(this.delay_);
 				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
-			}
-		};
-
-		Alert.prototype.syncSpinnerDone = function syncSpinnerDone(spinnerDone) {
-			if (this.spinner) {
-				var spinnerElement = this.element.querySelector('.alert-spinner');
-				_dom2.default.removeClasses(spinnerElement, 'alert-spinner-done');
-				if (spinnerDone) {
-					_dom2.default.addClasses(spinnerElement, 'alert-spinner-done');
-				}
 			}
 		};
 

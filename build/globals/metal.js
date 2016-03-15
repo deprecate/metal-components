@@ -7862,13 +7862,13 @@ babelHelpers;
    * @suppress {checkTypes}
    */
   Templates.Alert.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + (opt_data.spinner ? '<span class="alert-spinner' + soy.$$escapeHtmlAttribute(opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + '"></span>' : '') + '<span class="alert-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
+    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="alert alert-dismissible component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="alert">' + (opt_data.spinner ? '<span class="alert-spinner' + soy.$$escapeHtmlAttribute(opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + soy.$$escapeHtmlAttribute(opt_data.spinnerDone ? ' alert-spinner-done' : '') + '"></span>' : '') + '<span class="alert-body">' + (opt_data.body ? soy.$$escapeHtml(opt_data.body) : '') + '</span>' + (opt_data.dismissible ? '<button type="button" class="close" aria-label="Close" data-onclick="toggle"><span aria-hidden="true">×</span></button>' : '') + '</div>');
   };
   if (goog.DEBUG) {
     Templates.Alert.render.soyTemplateName = 'Templates.Alert.render';
   }
 
-  Templates.Alert.render.params = ["body", "dismissible", "id", "spinner", "spinnerClasses"];
+  Templates.Alert.render.params = ["body", "dismissible", "id", "spinner", "spinnerDone", "spinnerClasses"];
 
   var Alert = function (_Component) {
     babelHelpers.inherits(Alert, _Component);
@@ -8071,6 +8071,15 @@ babelHelpers;
 		};
 
 		/**
+   * Show the alert.
+   */
+
+
+		Alert.prototype.show = function show() {
+			this.visible = true;
+		};
+
+		/**
    * Synchronization logic for `dismissible` attribute.
    * @param {boolean} dismissible
    */
@@ -8114,22 +8123,6 @@ babelHelpers;
 			if (core.isNumber(hideDelay) && this.visible) {
 				clearTimeout(this.delay_);
 				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
-			}
-		};
-
-		/**
-   * Synchronization logic for `spinnerDone` attribute.
-   * @param {boolean} spinnerDone
-   */
-
-
-		Alert.prototype.syncSpinnerDone = function syncSpinnerDone(spinnerDone) {
-			if (this.spinner) {
-				var spinnerElement = this.element.querySelector('.alert-spinner');
-				dom.removeClasses(spinnerElement, 'alert-spinner-done');
-				if (spinnerDone) {
-					dom.addClasses(spinnerElement, 'alert-spinner-done');
-				}
 			}
 		};
 
