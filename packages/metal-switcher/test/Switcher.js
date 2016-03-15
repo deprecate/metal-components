@@ -2,7 +2,6 @@
 
 import { async } from 'metal';
 import dom from 'metal-dom';
-import { SoyTemplates } from 'metal-soy';
 import Switcher from '../src/Switcher';
 
 var switcher;
@@ -14,14 +13,14 @@ describe('Switcher', function() {
 		}
 	});
 
-	it('should switcher turn on when checked attribute is true', function() {
+	it('should switcher turn on when checked state is true', function() {
 		switcher = new Switcher({
 			checked: true
 		}).render();
 		assert.ok(dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
-	it('should switcher turn off when checked attribute is false', function() {
+	it('should switcher turn off when checked state is false', function() {
 		switcher = new Switcher({
 			checked: false
 		}).render();
@@ -42,12 +41,12 @@ describe('Switcher', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = SoyTemplates.get('Switcher', 'render')({
-			checked: true,
-			id: 'switcher'
+		IncrementalDOM.patch(document.body, () => {
+			Switcher.TEMPLATE({
+				checked: true,
+				id: 'switcher'
+			});
 		});
-
-		dom.append(document.body, markup.content);
 		var outerHTML = document.getElementById('switcher').outerHTML;
 
 		switcher = new Switcher({

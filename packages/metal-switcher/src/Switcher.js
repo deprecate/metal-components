@@ -1,50 +1,28 @@
 'use strict';
 
 import core from 'metal';
-import dom from 'metal-dom';
-import SwitcherBase from './Switcher.soy.js';
+import templates from './Switcher.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
 
 /**
  * Switcher component.
  */
-class Switcher extends SwitcherBase {
-	/**
-	 * @inheritDoc
-	 */
-	attached() {
-		this.on('click', this.handleClick);
-	}
-
+class Switcher extends Component {
 	/**
 	 * Handles switcher click.
 	 */
 	handleClick() {
 		this.checked = !this.checked;
 	}
-
-	/**
-	 * Synchronization logic for the `checked` attribute.
-	 * @param {boolean} checked
-	 */
-	syncChecked(checked) {
-		dom[checked ? 'addClasses' : 'removeClasses'](this.element, 'switcher-on');
-	}
 }
 
 /**
- * Default switcher elementClasses.
- * @default list
- * @type {string}
- * @static
- */
-Switcher.ELEMENT_CLASSES = 'switcher';
-
-/**
- * Switcher attributes definition.
+ * Switcher state definition.
  * @type {!Object}
  * @static
  */
-Switcher.ATTRS = {
+Switcher.STATE = {
 	/**
 	 * Flag indicating if the switcher is currently checked or not.
 	 * @type {boolean}
@@ -55,5 +33,6 @@ Switcher.ATTRS = {
 		value: false
 	}
 };
+Soy.register(Switcher, templates);
 
 export default Switcher;

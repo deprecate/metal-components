@@ -1,35 +1,67 @@
 /* jshint ignore:start */
-import Component from 'metal-component';
-import { SoyAop, SoyRenderer, SoyTemplates } from 'metal-soy';
-var Templates = SoyTemplates.get();
+import Component from 'metal-component/src/Component';
+import Soy from 'metal-soy/src/Soy';
+var templates;
+goog.loadModule(function(exports) {
+
 // This file was automatically generated from Switcher.soy.
 // Please don't edit this file by hand.
 
 /**
- * @fileoverview Templates in namespace Templates.Switcher.
+ * @fileoverview Templates in namespace Switcher.
+ * @public
  */
 
-if (typeof Templates.Switcher == 'undefined') { Templates.Switcher = {}; }
+goog.module('Switcher.incrementaldom');
+
+var soy = goog.require('soy');
+var soydata = goog.require('soydata');
+/** @suppress {extraRequire} */
+goog.require('goog.i18n.bidi');
+/** @suppress {extraRequire} */
+goog.require('goog.asserts');
+var IncrementalDom = goog.require('incrementaldom');
+var ie_open = IncrementalDom.elementOpen;
+var ie_close = IncrementalDom.elementClose;
+var ie_void = IncrementalDom.elementVoid;
+var ie_open_start = IncrementalDom.elementOpenStart;
+var ie_open_end = IncrementalDom.elementOpenEnd;
+var itext = IncrementalDom.text;
+var iattr = IncrementalDom.attr;
 
 
 /**
- * @param {Object.<string, *>=} opt_data
+ * @param {Object<string, *>=} opt_data
  * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
+ * @param {Object<string, *>=} opt_ijData
+ * @return {void}
  * @suppress {checkTypes}
  */
-Templates.Switcher.render = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="switcher component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + soy.$$escapeHtmlAttribute(opt_data.checked ? ' switcher-on' : '') + '"><div class="switcher-control"><div class="switcher-control-icon"></div></div></div>');
-};
+function $render(opt_data, opt_ignored, opt_ijData) {
+  ie_open('div', null, null,
+      'id', opt_data.id,
+      'class', 'switcher' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + (opt_data.checked ? ' switcher-on' : ''),
+      'data-onclick', 'handleClick');
+    ie_open('div', null, null,
+        'class', 'switcher-control');
+      ie_void('div', null, null,
+          'class', 'switcher-control-icon');
+    ie_close('div');
+  ie_close('div');
+}
+exports.render = $render;
 if (goog.DEBUG) {
-  Templates.Switcher.render.soyTemplateName = 'Templates.Switcher.render';
+  $render.soyTemplateName = 'Switcher.render';
 }
 
-Templates.Switcher.render.params = ["id"];
+exports.render.params = ["checked","elementClasses","id"];
+templates = exports;
+return exports;
+
+});
 
 class Switcher extends Component {}
-Switcher.RENDERER = SoyRenderer;
-SoyAop.registerTemplates('Switcher');
-export default Switcher;
+Soy.register(Switcher, templates);
+export default templates;
+export { Switcher, templates };
 /* jshint ignore:end */
