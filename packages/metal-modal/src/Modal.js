@@ -3,12 +3,14 @@
 import core from 'metal';
 import dom from 'metal-dom';
 import { EventHandler } from 'metal-events';
-import ModalBase from './Modal.soy';
+import templates from './Modal.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
 
 /**
  * Modal component.
  */
-class Modal extends ModalBase {
+class Modal extends Component {
 	/**
 	 * @inheritDoc
 	 */
@@ -80,7 +82,7 @@ class Modal extends ModalBase {
 	}
 
 	/**
-	 * Hides the modal, setting its `visible` attribute to false.
+	 * Hides the modal, setting its `visible` state key to false.
 	 */
 	hide() {
 		this.visible = false;
@@ -107,14 +109,14 @@ class Modal extends ModalBase {
 	}
 
 	/**
-	 * Shows the modal, setting its `visible` attribute to true.
+	 * Shows the modal, setting its `visible` state key to true.
 	 */
 	show() {
 		this.visible = true;
 	}
 
 	/**
-	 * Syncs the component according to the value of the `hideOnEscape` attribute.
+	 * Syncs the component according to the value of the `hideOnEscape` state key.
 	 * @param {boolean} hideOnEscape
 	 */
 	syncHideOnEscape(hideOnEscape) {
@@ -126,7 +128,7 @@ class Modal extends ModalBase {
 	}
 
 	/**
-	 * Syncs the component according to the value of the `overlay` attribute.
+	 * Syncs the component according to the value of the `overlay` state key.
 	 * @param {boolean} overlay
 	 */
 	syncOverlay(overlay) {
@@ -135,7 +137,7 @@ class Modal extends ModalBase {
 	}
 
 	/**
-	 * Syncs the component according to the value of the `visible` attribute.
+	 * Syncs the component according to the value of the `visible` state key.
 	 * @param {boolean} visible
 	 */
 	syncVisible(visible) {
@@ -162,7 +164,7 @@ class Modal extends ModalBase {
 	}
 
 	/**
-	 * Defines the default value for the `overlayElement` attribute.
+	 * Defines the default value for the `overlayElement` state key.
 	 * @protected
 	 */
 	valueOverlayElementFn_() {
@@ -170,15 +172,7 @@ class Modal extends ModalBase {
 	}
 }
 
-/**
- * Default modal elementClasses.
- * @default modal
- * @type {string}
- * @static
- */
-Modal.ELEMENT_CLASSES = 'modal';
-
-Modal.ATTRS = {
+Modal.STATE = {
 	/**
 	 * A selector for the element that should be automatically focused when the modal
 	 * becomes visible, or `false` if no auto focus should happen. Defaults to the
@@ -253,5 +247,7 @@ Modal.ATTRS = {
 		value: 'dialog'
 	}
 };
+
+Soy.register(Modal, templates);
 
 export default Modal;

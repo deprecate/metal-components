@@ -3,18 +3,17 @@
 import { async } from 'metal';
 import dom from 'metal-dom';
 import Modal from '../src/Modal';
-import { SoyTemplates } from 'metal-soy';
-
-var modal;
 
 describe('Modal', function() {
+	var modal;
+
 	afterEach(function() {
 		if (modal) {
 			modal.dispose();
 		}
 	});
 
-	it('should render with default attributes', function() {
+	it('should render with default state', function() {
 		modal = new Modal().render();
 		var header = modal.element.querySelector('.modal-header');
 		var body = modal.element.querySelector('.modal-body');
@@ -62,7 +61,7 @@ describe('Modal', function() {
 		assert.strictEqual('footer', footer);
 	});
 
-	it('should cause dom repaint when body attribute change', function(done) {
+	it('should cause dom repaint when body state changes', function(done) {
 		modal = new Modal().render();
 		modal.body = 'body';
 		async.nextTick(function() {
@@ -72,7 +71,7 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should cause dom repaint when header attribute change', function(done) {
+	it('should cause dom repaint when header state changes', function(done) {
 		modal = new Modal().render();
 		modal.header = 'header';
 		async.nextTick(function() {
@@ -83,7 +82,7 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should cause dom repaint when footer attribute change', function(done) {
+	it('should cause dom repaint when footer state changes', function(done) {
 		modal = new Modal().render();
 		modal.footer = 'footer';
 		async.nextTick(function() {
@@ -93,7 +92,7 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should cause dom repaint when visible attribute change', function(done) {
+	it('should cause dom repaint when visible state changes', function(done) {
 		modal = new Modal().render();
 		modal.visible = false;
 		async.nextTick(function() {
@@ -107,7 +106,7 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should show and hide overlay when overlay attribute change', function(done) {
+	it('should show and hide overlay when overlay state changes', function(done) {
 		modal = new Modal().render();
 		modal.overlay = false;
 		async.nextTick(function() {
@@ -146,7 +145,7 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should not close modal when press escape key and the attribute hideOnEscape is not true', function(done) {
+	it('should not close modal when press escape key and the hideOnEscape state is not true', function(done) {
 		modal = new Modal({
 			hideOnEscape: false
 		}).render();
@@ -185,7 +184,7 @@ describe('Modal', function() {
 		assert.strictEqual('dialog', modal.element.getAttribute('role'));
 	});
 
-	it('should set the "role" HTML attribute to value specified by the "role" attr', function() {
+	it('should set the "role" HTML attribute to value specified by the "role" state', function() {
 		modal = new Modal({
 			role: 'alertdialog'
 		}).render();
@@ -200,7 +199,7 @@ describe('Modal', function() {
 			assert.strictEqual(modal.element.querySelector('.close'), document.activeElement);
 		});
 
-		it('should not automatically focus any element if "autoFocus" attr is set to "false"', function() {
+		it('should not automatically focus any element if "autoFocus" state is set to "false"', function() {
 			var prevActiveElement = document.activeElement;
 			modal = new Modal({
 				autoFocus: false,
@@ -209,7 +208,7 @@ describe('Modal', function() {
 			assert.strictEqual(prevActiveElement, document.activeElement);
 		});
 
-		it('should automatically focus internal element that matches selector specified by "autoFocus" attr', function() {
+		it('should automatically focus internal element that matches selector specified by "autoFocus" state', function() {
 			modal = new Modal({
 				autoFocus: '.body-btn',
 				body: '<button class="body-btn">Body Button</button>'
@@ -237,7 +236,7 @@ describe('Modal', function() {
 			}).render();
 
 			modal.visible = true;
-			modal.once('attrsChanged', function() {
+			modal.once('stateChanged', function() {
 				assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
 				dom.exitDocument(element);
 				done();
@@ -257,10 +256,10 @@ describe('Modal', function() {
 			}).render();
 
 			modal.visible = true;
-			modal.once('attrsChanged', function() {
+			modal.once('stateChanged', function() {
 				assert.notStrictEqual(element, document.activeElement);
 				modal.visible = false;
-				modal.once('attrsChanged', function() {
+				modal.once('stateChanged', function() {
 					assert.strictEqual(element, document.activeElement);
 					dom.exitDocument(element);
 					done();
@@ -306,13 +305,13 @@ describe('Modal', function() {
 			modal = new Modal().render();
 
 			modal.visible = false;
-			modal.once('attrsChanged', function() {
+			modal.once('stateChanged', function() {
 				outsideElement.focus();
 				dom.triggerEvent(outsideElement, 'focus');
 				assert.strictEqual(outsideElement, document.activeElement);
 
 				modal.visible = true;
-				modal.once('attrsChanged', function() {
+				modal.once('stateChanged', function() {
 					outsideElement.focus();
 					dom.triggerEvent(outsideElement, 'focus');
 					assert.notStrictEqual(outsideElement, document.activeElement);
@@ -345,21 +344,23 @@ describe('Modal', function() {
 	});
 
 	it('should modal progressive enchance always as hidden', function() {
-		var markup = SoyTemplates.get('Modal', 'render')({
+		var data = {
 			id: 'modal',
 			elementClasses: 'centered',
-			header: 'header',
-			body: 'body',
-			footer: 'footer',
+			header: () => IncrementalDOM.text('header'),
+			body: () => IncrementalDOM.text('body'),
+			footer: () => IncrementalDOM.text('footer'),
 			overlay: true,
 			role: 'dialog'
-		});
-
-		dom.append(document.body, markup.content);
-		var outerHTML = document.getElementById('modal').outerHTML;
+		};
+		var element = document.createElement('div');
+		dom.enterDocument(element);
+		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
+		var outerHTML = element.innerHTML;
 
 		modal = new Modal({
 			element: '#modal',
+			elementClasses: 'centered',
 			header: 'header',
 			body: 'body',
 			footer: 'footer',
@@ -370,16 +371,17 @@ describe('Modal', function() {
 	});
 
 	it('should change to visible when decorated and visible is true', function() {
-		var markup = SoyTemplates.get('Modal', 'render')({
+		var data = {
 			id: 'modal',
 			elementClasses: 'centered',
-			header: 'header',
-			body: 'body',
-			footer: 'footer',
+			header: () => IncrementalDOM.text('header'),
+			body: () => IncrementalDOM.text('body'),
+			footer: () => IncrementalDOM.text('footer'),
 			overlay: true
-		}, null);
-
-		dom.append(document.body, markup.content);
+		};
+		var element = document.createElement('div');
+		dom.enterDocument(element);
+		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
 
 		modal = new Modal({
 			element: '#modal',
@@ -387,34 +389,34 @@ describe('Modal', function() {
 			body: 'body',
 			footer: 'footer',
 			visible: true
-		}).decorate();
+		}).render();
 
 		assert.ok(!dom.hasClass(modal.element, 'hidden'));
 	});
 
 	it('should handle calling template without passing "elementClasses"', function() {
-		var markup = SoyTemplates.get('Modal', 'render')({
+		var data = {
 			id: 'modal',
-			header: 'header',
-			body: 'body',
-			footer: 'footer',
+			header: () => IncrementalDOM.text('header'),
+			body: () => IncrementalDOM.text('body'),
+			footer: () => IncrementalDOM.text('footer'),
 			overlay: true
-		}, null);
-		dom.append(document.body, markup.content);
+		};
+		var element = document.createElement('div');
+		dom.enterDocument(element);
+		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
 
-		var element = document.querySelector('#modal');
-		assert.strictEqual('modal component', element.className);
-
-		element.remove();
+		element = element.querySelector('#modal');
+		assert.strictEqual('modal', element.className);
 	});
 
-	it('should set "visible" attr to false when "hide" method is called', function() {
+	it('should set "visible" state to false when "hide" method is called', function() {
 		modal = new Modal().render();
 		modal.hide();
 		assert.ok(!modal.visible);
 	});
 
-	it('should set "visible" attr to true when "show" method is called', function() {
+	it('should set "visible" state to true when "show" method is called', function() {
 		modal = new Modal({
 			visible: false
 		}).render();
