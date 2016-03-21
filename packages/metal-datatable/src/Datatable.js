@@ -115,7 +115,19 @@ class Datatable extends DatatableBase {
 		return typeof value;
 	}
 
+	/**
+	 * Returns true if data is already expanded, false otherwise.
+	 * @param {*} data
+	 * @return {boolean}
+	 */
+	isAlreadyExpanded(data) {
+		return core.isObject(data) && 'columns' in data && 'type' in data;
+	}
+
 	setData_(data) {
+		if (this.isAlreadyExpanded(data)) {
+			return data;
+		}
 		this.assertNoMixedTypesInArrays_(data);
 		return this.visitValuesAndExpandType_(data);
 	}

@@ -171,4 +171,16 @@ describe('Datatable', function() {
 		assert.strictEqual(0, types.length);
 		datatable.dispose();
 	});
+
+	it('should not expanded already expanded data', function() {
+		var expandedData = {
+			columns: [],
+			type: ''
+		};
+		var datatable = new Datatable({
+			data: expandedData
+		}).render();
+		assert.strictEqual(expandedData, datatable.data);
+		datatable.dispose();
+	});
 });
