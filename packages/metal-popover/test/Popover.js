@@ -1,7 +1,6 @@
 'use strict';
 
 import dom from 'metal-dom';
-import { SoyTemplates } from 'metal-soy';
 import Popover from '../src/Popover';
 
 describe('Popover', function() {
@@ -34,7 +33,7 @@ describe('Popover', function() {
 		assert.notStrictEqual('block', popover.element.style.display);
 
 		popover.visible = true;
-		popover.once('attrsSynced', function() {
+		popover.once('stateSynced', function() {
 			assert.strictEqual('block', popover.element.style.display);
 			done();
 		});
@@ -78,13 +77,13 @@ describe('Popover', function() {
 	});
 
 	it('should decorate', function() {
-		var markup = SoyTemplates.get('Popover', 'render')({
-			id: 'popover',
-			content: 'content',
-			title: 'title'
+		IncrementalDOM.patch(document.body, () => {
+			Popover.TEMPLATE({
+				id: 'popover',
+				content: 'content',
+				title: 'title'
+			});
 		});
-
-		dom.append(document.body, markup.content);
 		var outerHTML = document.getElementById('popover').outerHTML;
 
 		popover = new Popover({

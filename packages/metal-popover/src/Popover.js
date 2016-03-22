@@ -1,14 +1,23 @@
 'use strict';
 
 import core from 'metal';
+import Soy from 'metal-soy';
 import { TooltipBase } from 'metal-tooltip';
-import './Popover.soy';
+import templates from './Popover.soy';
 
 /**
  * Popover component. Extends the behavior from `TooltipBase`, adding
  * just some UI to it.
  */
 class Popover extends TooltipBase {
+	/**
+	 * State synchronization logic for `alignElement`. Overrides the original
+	 * method from `TooltipBase` so the `content` state can be retrived from
+	 * the new aligned element.
+	 * @param {Element} alignElement
+	 * @param {Element} prevAlignElement
+	 * @override
+	 */
 	syncAlignElement(alignElement) {
 		super.syncAlignElement(alignElement);
 
@@ -21,23 +30,29 @@ class Popover extends TooltipBase {
 	}
 
 	/**
-	 * Attribute synchronization logic for `visible` attribute. Updates the
-	 * element's display, since bootstrap makes it 'none' by default, so we
-	 * need to change it to 'block' when the popover becomes visible.
+	 * State synchronization logic for `visible`. Updates the element's display,
+	 * since bootstrap makes it 'none' by default, so we need to change it to
+	 * 'block' when the popover becomes visible.
 	 * @param {boolean} visible
+	 * @override
 	 */
 	syncVisible(visible) {
 		this.element.style.display = visible ? 'block' : '';
 		super.syncVisible(visible);
 	}
 }
+Soy.register(Popover, templates);
 
 /**
- * Attributes definition.
+ * State definition.
  * @type {!Object}
  * @static
  */
-Popover.ATTRS = {
+Popover.STATE = {
+	/**
+	 * The popover's content.
+	 * @type {string}
+	 */
 	content: {
 		validator: core.isString
 	},
@@ -59,7 +74,5 @@ Popover.ATTRS = {
  * @static
  */
 Popover.Align = TooltipBase.Align;
-
-Popover.ELEMENT_CLASSES = 'popover';
 
 export default Popover;
