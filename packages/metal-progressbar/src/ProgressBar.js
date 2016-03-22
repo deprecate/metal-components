@@ -1,27 +1,17 @@
 'use strict';
 
 import core from 'metal';
-import dom from 'metal-dom';
-import ProgressBarBase from './ProgressBar.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
+import templates from './ProgressBar.soy';
 
 /**
  * UI Component that renders a progress bar.
  */
-class ProgressBar extends ProgressBarBase {
+class ProgressBar extends Component {
 	/**
-	 * Get the inner element that represents the bar.
-	 * @return {!Element}
-	 */
-	getBarElement() {
-		if (!this.barElement_) {
-			this.barElement_ = this.element.childNodes[0];
-		}
-		return this.barElement_;
-	}
-
-	/**
-	 * Setter function for the `value` attribute. Makes sure the value
-	 * is between the current `min` and `max` attributes.
+	 * Setter function for the `value` state key. Makes sure the value
+	 * is between the current `min` and `max` state keys.
 	 * @param {number} value
 	 * @return {number}
 	 * @protected
@@ -37,79 +27,32 @@ class ProgressBar extends ProgressBarBase {
 	}
 
 	/**
-	 * Synchronization logic for the `barClass` attribute.
-	 * @param {string} barClass
-	 * @param {string} prevBarClass
-	 */
-	syncBarClass(barClass, prevBarClass) {
-		var barElement = this.getBarElement();
-		dom.removeClasses(barElement, prevBarClass);
-		dom.addClasses(barElement, barClass);
-	}
-
-	/**
-	 * Synchronization logic for the `label` attribute.
-	 */
-	syncLabel() {
-		var barElement = this.getBarElement();
-		dom.removeChildren(barElement);
-		if (this.label) {
-			dom.append(barElement, this.label);
-		}
-	}
-
-	/**
-	 * Synchronization logic for the `max` attribute.
+	 * Synchronization logic for the `max` state.
 	 * @param {number} max
 	 */
 	syncMax(max) {
 		if (max < this.value) {
 			this.value = max;
-		} else {
-			this.updateBar_();
 		}
-		this.element.setAttribute('aria-valuemax', this.max);
 	}
 
 	/**
-	 * Synchronization logic for the `min` attribute.
+	 * Synchronization logic for the `min` state.
 	 * @param {number} min
 	 */
 	syncMin(min) {
 		if (min > this.value) {
 			this.value = min;
-		} else {
-			this.updateBar_();
 		}
-		this.element.setAttribute('aria-valuemin', this.min);
-	}
-
-	/**
-	 * Synchronization logic for the `value` attribute.
-	 * @param {number} value
-	 */
-	syncValue() {
-		this.updateBar_();
-		this.element.setAttribute('aria-valuenow', this.value);
-	}
-
-	/**
-	 * Updates the bar according to the `min`, `max` and `value` attributes.
-	 * @protected
-	 */
-	updateBar_() {
-		var barElement = this.getBarElement();
-		var percentage = Math.floor(((this.value - this.min) * 100) / (this.max - this.min));
-		barElement.style.width = percentage + '%';
 	}
 }
 
 /**
- * Attributes definition.
+ * State definition.
  * @type {!Object}
  * @static
  */
-ProgressBar.ATTRS = {
+ProgressBar.STATE = {
 	/**
 	 * Optional CSS classes to be added to the inner progress bar element,
 	 * like 'progress-bar-danger'.
@@ -159,12 +102,6 @@ ProgressBar.ATTRS = {
 		value: 0
 	}
 };
-
-/**
- * Default modal elementClasses.
- * @type {string}
- * @static
- */
-ProgressBar.ELEMENT_CLASSES = 'progress';
+Soy.register(ProgressBar, templates);
 
 export default ProgressBar;
