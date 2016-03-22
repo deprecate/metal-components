@@ -1,20 +1,16 @@
 'use strict';
 
 import dom from 'metal-dom';
-import ListBase from './List.soy.js';
-import './ListItem.js';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
+
+import './ListItem';
+import templates from './List.soy';
 
 /**
  * List component.
  */
-class List extends ListBase {
-	/**
-	 * @inheritDoc
-	 */
-	constructor(opt_config) {
-		super(opt_config);
-	}
-
+class List extends Component {
 	/**
 	 * Handles click event on the list. The function fires an
 	 * {@code itemSelected} event.
@@ -31,21 +27,14 @@ class List extends ListBase {
 		this.emit('itemSelected', target);
 	}
 }
+Soy.register(List, templates);
 
 /**
- * Default list elementClasses.
- * @default list
- * @type {string}
- * @static
- */
-List.ELEMENT_CLASSES = 'list';
-
-/**
- * List attributes definition.
+ * List state definition.
  * @type {!Object}
  * @static
  */
-List.ATTRS = {
+List.STATE = {
 	/**
 	 * The list items. Each is represented by an object that can have the following keys:
 	 *   - textPrimary: The item's main content.
@@ -69,6 +58,7 @@ List.ATTRS = {
 	 * @type {string}
 	 */
 	itemsHtml: {
+		isHtml: true
 	}
 };
 

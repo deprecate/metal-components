@@ -1,33 +1,50 @@
 'use strict';
 
-import ListItemBase from './ListItem.soy.js';
+import core from 'metal';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
+import templates from './ListItem.soy';
 
 /**
  * List component.
  */
-class ListItem extends ListItemBase {
-	constructor(opt_config) {
-		super(opt_config);
+class ListItem extends Component {
+	/**
+	 * Setter function for the `item` state key.
+	 * @param {!Object} item
+	 * @protected
+	 */
+	setterItemFn_(item) {
+		if (item.avatar && item.avatar.content && core.isString(item.avatar.content)) {
+			item.avatar.content = Soy.toIncDom(item.avatar.content);
+		}
+		if (Array.isArray(item.iconsHtml)) {
+			item.iconsHtml = item.iconsHtml.map(Soy.toIncDom);
+		}
+		return item;
 	}
 }
+Soy.register(ListItem, templates);
 
 /**
- * Default list elementClasses.
- * @default list
- * @type {String}
- * @static
- */
-ListItem.ELEMENT_CLASSES = 'listitem';
-
-/**
- * List attributes definition.
+ * List state definition.
  * @type {Object}
  * @static
  */
-ListItem.ATTRS = {
+ListItem.STATE = {
+	/**
+	 * The item to be rendered.
+	 * @type {!Object}
+	 */
 	item: {
+		validator: core.isObject,
+		setter: 'setterItemFn_'
 	},
 
+	/**
+	 * The index of the item in the list.
+	 * @type {number}
+	 */
 	index: {
 		value: -1
 	}

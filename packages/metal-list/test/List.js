@@ -3,7 +3,6 @@
 import { async } from 'metal';
 import dom from 'metal-dom';
 import List from '../src/List';
-import { SoyRenderer } from 'metal-soy';
 
 var list;
 
@@ -19,7 +18,7 @@ describe('List', function() {
 		assert.strictEqual(0, list.element.querySelectorAll('li').length);
 	});
 
-	it('should only accept arrays as the value of the "items" attribute', function() {
+	it('should only accept arrays as the value of the "items" state key', function() {
 		list = new List({
 			items: 2
 		});
@@ -36,7 +35,7 @@ describe('List', function() {
 		list = new List({
 			items: [{
 				avatar: {
-					content: SoyRenderer.sanitizeHtml('<img src="myImageSrc">'),
+					content: '<img src="myImageSrc">',
 					class: 'myImageClass'
 				}
 			}]
@@ -100,7 +99,7 @@ describe('List', function() {
 		assert.ok(iconNodes[1].querySelector('.icon3'));
 	});
 
-	it('should render new items when the attribute is updated', function(done) {
+	it('should render new items when the state is updated', function(done) {
 		list = new List({
 			id: 'list',
 			items: [{
@@ -115,7 +114,7 @@ describe('List', function() {
 		}, {
 			textPrimary: 'New Item 2'
 		}];
-		list.once('attrsChanged', function() {
+		list.once('stateChanged', function() {
 			async.nextTick(function() {
 				var contents = list.element.querySelectorAll('li .list-text-primary');
 				assert.strictEqual('New Item 1', contents[0].textContent);

@@ -6,13 +6,19 @@
 
 	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 
-	<script src="../node_modules/closure-templates/soyutils.js"></script>
 	<script src="../build/globals/list.js"></script>
 </head>
 <body>
 	<h1>List</h1>
+	<h3>List - Default</h1>
+	<div id="list1"></div>
+	<h3>List - From HTML items</h1>
+	<div id="list2"></div>
+	<h3>List - HTML Icons</h1>
+	<div id="list3"></div>
 	<script type="text/javascript">
 		new metal.List({
+			element: '#list1',
 			events: {
 				itemSelected: function(event) {
 					console.log(event);
@@ -23,7 +29,7 @@
 					textPrimary: 'Maira Bello',
 					textSecondary: 'maira.bello@liferay.com',
 					avatar: {
-						content: metal.SoyRenderer.sanitizeHtml('<img src="https://avatars0.githubusercontent.com/u/5216049?v=3&s=96"/>')
+						content: '<img src="https://avatars0.githubusercontent.com/u/5216049?v=3&s=96"/>'
 					},
 					label: {
 						class: 'label-primary',
@@ -35,13 +41,31 @@
 					textPrimary: 'Eduardo Lundgren',
 					textSecondary: 'eduardo.lundgren@liferay.com',
 					avatar: {
-						content: metal.SoyRenderer.sanitizeHtml('<img src="http://www.gravatar.com/avatar/42327de520e674a6d1686845b30778d0?d=blank&s=100"/>')
+						content: '<img src="http://www.gravatar.com/avatar/42327de520e674a6d1686845b30778d0?d=blank&s=100"/>'
 					},
 					label: {
 						class: 'label-default',
 						content: 'Pending'
 					},
 					icons: ['glyphicon glyphicon-option-horizontal']
+				}
+			]
+		}).render();
+
+		new metal.List({
+			element: '#list2',
+			itemsHtml: '<li>Item1</li><li>Item2</li>'
+		}).render();
+
+		new metal.List({
+			element: '#list3',
+			items: [
+				{
+					textPrimary: 'Icons HTML',
+					iconsHtml: [
+						'<span class="btn-icon glyphicon glyphicon-star"></span>',
+						'<span class="btn-icon glyphicon glyphicon-heart"></span>'
+					]
 				}
 			]
 		}).render();

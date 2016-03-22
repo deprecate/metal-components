@@ -1,63 +1,84 @@
 /* jshint ignore:start */
-import Component from 'metal-component';
-import { SoyAop, SoyRenderer, SoyTemplates } from 'metal-soy';
-var Templates = SoyTemplates.get();
+import Component from 'metal-component/src/Component';
+import Soy from 'metal-soy/src/Soy';
+var templates;
+goog.loadModule(function(exports) {
+
 // This file was automatically generated from List.soy.
 // Please don't edit this file by hand.
 
 /**
- * @fileoverview Templates in namespace Templates.List.
+ * @fileoverview Templates in namespace List.
+ * @public
  */
 
-if (typeof Templates.List == 'undefined') { Templates.List = {}; }
+goog.module('List.incrementaldom');
+
+var soy = goog.require('soy');
+var soydata = goog.require('soydata');
+/** @suppress {extraRequire} */
+goog.require('goog.asserts');
+/** @suppress {extraRequire} */
+goog.require('goog.i18n.bidi');
+var IncrementalDom = goog.require('incrementaldom');
+var ie_open = IncrementalDom.elementOpen;
+var ie_close = IncrementalDom.elementClose;
+var ie_void = IncrementalDom.elementVoid;
+var ie_open_start = IncrementalDom.elementOpenStart;
+var ie_open_end = IncrementalDom.elementOpenEnd;
+var itext = IncrementalDom.text;
+var iattr = IncrementalDom.attr;
+var $import1 = goog.require('ListItem.incrementaldom');
+var $templateAlias1 = $import1.render;
 
 
 /**
- * @param {Object.<string, *>=} opt_data
+ * @param {{
+ *    elementClasses: (?),
+ *    id: (?),
+ *    items: (?),
+ *    itemsHtml: (?soydata.SanitizedHtml|string|undefined)
+ * }} opt_data
  * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
+ * @param {Object<string, *>=} opt_ijData
+ * @return {void}
  * @suppress {checkTypes}
  */
-Templates.List.render = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="list component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.List.items(opt_data, null, opt_ijData) + '</div>');
-};
+function $render(opt_data, opt_ignored, opt_ijData) {
+  soy.asserts.assertType(opt_data.itemsHtml == null || (opt_data.itemsHtml instanceof Function) || (opt_data.itemsHtml instanceof soydata.UnsanitizedText) || goog.isString(opt_data.itemsHtml), 'itemsHtml', opt_data.itemsHtml, '?soydata.SanitizedHtml|string|undefined');
+  var itemsHtml = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.itemsHtml);
+  ie_open('div', null, null,
+      'id', opt_data.id,
+      'class', 'list' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+    ie_open('ul', null, null,
+        'class', 'list-group',
+        'data-onclick', 'handleClick');
+      if (itemsHtml != null) {
+        itemsHtml();
+      } else {
+        var itemList16 = opt_data.items;
+        var itemListLen16 = itemList16.length;
+        for (var itemIndex16 = 0; itemIndex16 < itemListLen16; itemIndex16++) {
+          var itemData16 = itemList16[itemIndex16];
+          $templateAlias1({id: opt_data.id + '-items-' + itemIndex16, index: itemIndex16, item: itemData16}, null, opt_ijData);
+        }
+      }
+    ie_close('ul');
+  ie_close('div');
+}
+exports.render = $render;
 if (goog.DEBUG) {
-  Templates.List.render.soyTemplateName = 'Templates.List.render';
+  $render.soyTemplateName = 'List.render';
 }
 
+exports.render.params = ["itemsHtml","elementClasses","id","items"];
+templates = exports;
+return exports;
 
-/**
- * @param {Object.<string, *>=} opt_data
- * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
- * @suppress {checkTypes}
- */
-Templates.List.items = function(opt_data, opt_ignored, opt_ijData) {
-  var output = '<ul id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-items" class="list-group" data-onclick="handleClick">';
-  if (opt_data.itemsHtml != null) {
-    output += soy.$$escapeHtml(opt_data.itemsHtml);
-  } else {
-    var itemList18 = opt_data.items;
-    var itemListLen18 = itemList18.length;
-    for (var itemIndex18 = 0; itemIndex18 < itemListLen18; itemIndex18++) {
-      var itemData18 = itemList18[itemIndex18];
-      output += Templates.ListItem.render({id: opt_data.id + '-items-' + itemIndex18, index: itemIndex18, item: itemData18}, null, opt_ijData);
-    }
-  }
-  output += '</ul>';
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-};
-if (goog.DEBUG) {
-  Templates.List.items.soyTemplateName = 'Templates.List.items';
-}
-
-Templates.List.render.params = ["id"];
-Templates.List.items.params = ["id","items","itemsHtml"];
+});
 
 class List extends Component {}
-List.RENDERER = SoyRenderer;
-SoyAop.registerTemplates('List');
-export default List;
+Soy.register(List, templates);
+export default templates;
+export { List, templates };
 /* jshint ignore:end */

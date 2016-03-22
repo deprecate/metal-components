@@ -1,71 +1,128 @@
 /* jshint ignore:start */
-import Component from 'metal-component';
-import { SoyAop, SoyRenderer, SoyTemplates } from 'metal-soy';
-var Templates = SoyTemplates.get();
+import Component from 'metal-component/src/Component';
+import Soy from 'metal-soy/src/Soy';
+var templates;
+goog.loadModule(function(exports) {
+
 // This file was automatically generated from ListItem.soy.
 // Please don't edit this file by hand.
 
 /**
- * @fileoverview Templates in namespace Templates.ListItem.
+ * @fileoverview Templates in namespace ListItem.
+ * @public
  */
 
-if (typeof Templates.ListItem == 'undefined') { Templates.ListItem = {}; }
+goog.module('ListItem.incrementaldom');
+
+var soy = goog.require('soy');
+var soydata = goog.require('soydata');
+/** @suppress {extraRequire} */
+goog.require('goog.asserts');
+/** @suppress {extraRequire} */
+goog.require('goog.i18n.bidi');
+var IncrementalDom = goog.require('incrementaldom');
+var ie_open = IncrementalDom.elementOpen;
+var ie_close = IncrementalDom.elementClose;
+var ie_void = IncrementalDom.elementVoid;
+var ie_open_start = IncrementalDom.elementOpenStart;
+var ie_open_end = IncrementalDom.elementOpenEnd;
+var itext = IncrementalDom.text;
+var iattr = IncrementalDom.attr;
 
 
 /**
- * @param {Object.<string, *>=} opt_data
+ * @param {Object<string, *>=} opt_data
  * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
+ * @param {Object<string, *>=} opt_ijData
+ * @return {void}
  * @suppress {checkTypes}
  */
-Templates.ListItem.render = function(opt_data, opt_ignored, opt_ijData) {
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
-};
+function $render(opt_data, opt_ignored, opt_ijData) {
+  ie_open('li', null, null,
+      'id', opt_data.id,
+      'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix',
+      'data-index', opt_data.index);
+    if (opt_data.item.avatar) {
+      ie_open('span', null, null,
+          'class', 'list-image pull-left ' + opt_data.item.avatar['class']);
+        $htmlContent({content: opt_data.item.avatar.content}, null, opt_ijData);
+      ie_close('span');
+    }
+    ie_open('div', null, null,
+        'class', 'list-main-content pull-left');
+      ie_open('div', null, null,
+          'class', 'list-text-primary');
+        itext((goog.asserts.assert((opt_data.item.textPrimary ? opt_data.item.textPrimary : '') != null), opt_data.item.textPrimary ? opt_data.item.textPrimary : ''));
+      ie_close('div');
+      if (opt_data.item.textSecondary) {
+        ie_open('div', null, null,
+            'class', 'list-text-secondary');
+          itext((goog.asserts.assert((opt_data.item.textSecondary) != null), opt_data.item.textSecondary));
+        ie_close('div');
+      }
+    ie_close('div');
+    if (opt_data.item.icons) {
+      var iconList50 = opt_data.item.icons;
+      var iconListLen50 = iconList50.length;
+      for (var iconIndex50 = 0; iconIndex50 < iconListLen50; iconIndex50++) {
+        var iconData50 = iconList50[iconIndex50];
+        ie_void('span', null, null,
+            'class', 'btn-icon ' + iconData50 + ' pull-right');
+      }
+    }
+    if (opt_data.item.iconsHtml) {
+      ie_open('div', null, null,
+          'class', 'pull-right');
+        var iconHtmlList57 = opt_data.item.iconsHtml;
+        var iconHtmlListLen57 = iconHtmlList57.length;
+        for (var iconHtmlIndex57 = 0; iconHtmlIndex57 < iconHtmlListLen57; iconHtmlIndex57++) {
+          var iconHtmlData57 = iconHtmlList57[iconHtmlIndex57];
+          $htmlContent({content: iconHtmlData57}, null, opt_ijData);
+        }
+      ie_close('div');
+    }
+    if (opt_data.item.label) {
+      ie_open('span', null, null,
+          'class', 'label list-label pull-right ' + opt_data.item.label['class']);
+        itext((goog.asserts.assert((opt_data.item.label.content) != null), opt_data.item.label.content));
+      ie_close('span');
+    }
+  ie_close('li');
+}
+exports.render = $render;
 if (goog.DEBUG) {
-  Templates.ListItem.render.soyTemplateName = 'Templates.ListItem.render';
+  $render.soyTemplateName = 'ListItem.render';
 }
 
 
 /**
- * @param {Object.<string, *>=} opt_data
+ * @param {{
+ *    content: (!soydata.SanitizedHtml|string)
+ * }} opt_data
  * @param {(null|undefined)=} opt_ignored
- * @param {Object.<string, *>=} opt_ijData
- * @return {!soydata.SanitizedHtml}
+ * @param {Object<string, *>=} opt_ijData
+ * @return {void}
  * @suppress {checkTypes}
  */
-Templates.ListItem.item = function(opt_data, opt_ignored, opt_ijData) {
-  var output = ((opt_data.item.avatar) ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + ((opt_data.item.textSecondary) ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
-  if (opt_data.item.icons) {
-    var iconList55 = opt_data.item.icons;
-    var iconListLen55 = iconList55.length;
-    for (var iconIndex55 = 0; iconIndex55 < iconListLen55; iconIndex55++) {
-      var iconData55 = iconList55[iconIndex55];
-      output += '<span class="btn-icon ' + soy.$$escapeHtmlAttribute(iconData55) + ' pull-right"></span>';
-    }
-  }
-  if (opt_data.item.iconsHtml) {
-    output += '<div class="pull-right">';
-    var iconHtmlList63 = opt_data.item.iconsHtml;
-    var iconHtmlListLen63 = iconHtmlList63.length;
-    for (var iconHtmlIndex63 = 0; iconHtmlIndex63 < iconHtmlListLen63; iconHtmlIndex63++) {
-      var iconHtmlData63 = iconHtmlList63[iconHtmlIndex63];
-      output += soy.$$escapeHtml(iconHtmlData63);
-    }
-    output += '</div>';
-  }
-  output += (opt_data.item.label) ? '<span class="label list-label pull-right ' + soy.$$escapeHtmlAttribute(opt_data.item.label['class']) + '">' + soy.$$escapeHtml(opt_data.item.label.content) + '</span>' : '';
-  return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-};
+function $htmlContent(opt_data, opt_ignored, opt_ijData) {
+  soy.asserts.assertType((opt_data.content instanceof Function) || (opt_data.content instanceof soydata.UnsanitizedText) || goog.isString(opt_data.content), 'content', opt_data.content, 'Function');
+  var content = /** @type {Function} */ (opt_data.content);
+  content();
+}
+exports.htmlContent = $htmlContent;
 if (goog.DEBUG) {
-  Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
+  $htmlContent.soyTemplateName = 'ListItem.htmlContent';
 }
 
-Templates.ListItem.render.params = ["id","index","item"];
-Templates.ListItem.item.params = ["item"];
+exports.render.params = ["id","index","item","elementClasses"];
+exports.htmlContent.params = ["content"];
+templates = exports;
+return exports;
+
+});
 
 class ListItem extends Component {}
-ListItem.RENDERER = SoyRenderer;
-SoyAop.registerTemplates('ListItem');
-export default ListItem;
+Soy.register(ListItem, templates);
+export default templates;
+export { ListItem, templates };
 /* jshint ignore:end */
