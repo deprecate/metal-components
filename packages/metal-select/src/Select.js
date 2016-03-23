@@ -2,14 +2,17 @@
 
 import core from 'metal';
 import dom from 'metal-dom';
-import SelectBase from './Select.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
+
 import 'metal-dropdown';
+import templates from './Select.soy';
 
 /**
  * Responsible for rendering and handling a custom select component, based
  * on `Dropdown`.
  */
-class Select extends SelectBase {
+class Select extends Component {
 	/**
 	 * Finds the index of the given element in the items array.
 	 * @param {!Element} element
@@ -47,13 +50,13 @@ class Select extends SelectBase {
 	}
 
 	/**
-	 * Handles a `attrsSynced` event for the dropdown.
+	 * Handles a `stateSynced` event for the dropdown.
 	 * @param {!Object} data
 	 * @protected
 	 */
-	handleDropdownAttrsSynced_(data) {
+	handleDropdownStateSynced_(data) {
 		if (this.openedWithKeyboard_) {
-			// This is done on `attrsSynced` because the items need to have already
+			// This is done on `stateSynced` because the items need to have already
 			// been made visible before we try focusing them.
 			this.focusIndex_(0);
 			this.openedWithKeyboard_ = false;
@@ -104,13 +107,14 @@ class Select extends SelectBase {
 		}
 	}
 }
+Soy.register(Select, templates);
 
 /**
- * Attributes definition.
+ * State definition.
  * @type {!Object}
  * @static
  */
-Select.ATTRS = {
+Select.STATE = {
 	/**
 	 * The CSS class used by the select menu arrow.
 	 * @type {string}

@@ -3,7 +3,6 @@
 import dom from 'metal-dom';
 import Dropdown from 'metal-dropdown';
 import Select from '../src/Select';
-import { SoyTemplates } from 'metal-soy';
 
 describe('Select', function() {
 	var select;
@@ -43,7 +42,7 @@ describe('Select', function() {
 		assert.ok(dom.hasClass(select.element.querySelector('button'), 'btn-default'));
 	});
 
-	it('should use the CSS class given by the `buttonClass` attr', function() {
+	it('should use the CSS class given by the `buttonClass` state', function() {
 		select = new Select({
 			buttonClass: 'myClass',
 			items: ['First', 'Second', 'Third'],
@@ -98,7 +97,7 @@ describe('Select', function() {
 		assert.strictEqual('second', select.element.querySelector('input[type="hidden"]').value);
 	});
 
-	it('should set the hidden input\'s name as specified by the `hiddenInputName` attr', function() {
+	it('should set the hidden input\'s name as specified by the `hiddenInputName` state', function() {
 		select = new Select({
 			hiddenInputName: 'order',
 			items: ['First', 'Second', 'Third']
@@ -137,7 +136,7 @@ describe('Select', function() {
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
-		select.components[select.id + '-dropdown'].once('attrsChanged', function() {
+		select.components[select.id + '-dropdown'].once('stateChanged', function() {
 			assert.strictEqual('Second ', select.element.querySelector('button').textContent);
 			done();
 		});
@@ -149,19 +148,19 @@ describe('Select', function() {
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
-		select.components[select.id + '-dropdown'].once('attrsChanged', function() {
+		select.components[select.id + '-dropdown'].once('stateChanged', function() {
 			assert.strictEqual('second', select.element.querySelector('input[type="hidden"]').value);
 			done();
 		});
 	});
 
-	it('should update `selectedIndex` attr when item is selected', function(done) {
+	it('should update `selectedIndex` state when item is selected', function(done) {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
-		select.components[select.id + '-dropdown'].once('attrsChanged', function() {
+		select.components[select.id + '-dropdown'].once('stateChanged', function() {
 			assert.strictEqual(1, select.selectedIndex);
 			done();
 		});
@@ -188,7 +187,7 @@ describe('Select', function() {
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				assert.ok(select.getDropdown().expanded);
 				assert.strictEqual(document.activeElement, select.element.querySelector('.select-option a'));
 				done();
@@ -204,7 +203,7 @@ describe('Select', function() {
 				keyCode: 32
 			});
 			assert.ok(select.getDropdown().expanded);
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				assert.strictEqual(document.activeElement, select.element.querySelector('.select-option a'));
 				done();
 			});
@@ -227,7 +226,7 @@ describe('Select', function() {
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				assert.ok(select.getDropdown().expanded);
 				done();
 			});
@@ -242,7 +241,7 @@ describe('Select', function() {
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 40
 				});
@@ -268,7 +267,7 @@ describe('Select', function() {
 			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 40
 				});
@@ -291,7 +290,7 @@ describe('Select', function() {
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 38
 				});
@@ -317,7 +316,7 @@ describe('Select', function() {
 			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
-			select.getDropdown().once('attrsChanged', function() {
+			select.getDropdown().once('stateChanged', function() {
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 38
 				});
@@ -333,39 +332,40 @@ describe('Select', function() {
 	});
 
 	describe('Soy', function() {
-		it('should render correct selected item if `selectedIndex` is given', function() {
-			var templateFn = SoyTemplates.get('Select', 'render');
-			var content = templateFn({
-				id: 'select',
-				items: ['First', 'Second', 'Third'],
-				selectedIndex: 1
-			});
+		afterEach(function() {
+			document.body.innerHTML = '';
+		});
 
-			var element = dom.buildFragment(content);
-			assert.strictEqual('Second', element.querySelector('input[type="hidden"]').value);
+		it('should render correct selected item if `selectedIndex` is given', function() {
+			IncrementalDOM.patch(document.body, () => {
+				Select.TEMPLATE({
+					id: 'select',
+					items: ['First', 'Second', 'Third'],
+					selectedIndex: 1
+				});
+			});
+			assert.strictEqual('Second', document.querySelector('#select input[type="hidden"]').value);
 		});
 
 		it('should automatically render first item as selected if `selectedIndex` is not given', function() {
-			var templateFn = SoyTemplates.get('Select', 'render');
-			var content = templateFn({
-				id: 'select',
-				items: ['First', 'Second', 'Third']
+			IncrementalDOM.patch(document.body, () => {
+				Select.TEMPLATE({
+					id: 'select',
+					items: ['First', 'Second', 'Third']
+				});
 			});
-
-			var element = dom.buildFragment(content);
-			assert.strictEqual('First', element.querySelector('input[type="hidden"]').value);
+			assert.strictEqual('First', document.querySelector('#select input[type="hidden"]').value);
 		});
 
 		it('should not select any item if `label` is given but `selectedIndex` is not', function() {
-			var templateFn = SoyTemplates.get('Select', 'render');
-			var content = templateFn({
-				id: 'select',
-				items: ['First', 'Second', 'Third'],
-				label: 'Order'
+			IncrementalDOM.patch(document.body, () => {
+				Select.TEMPLATE({
+					id: 'select',
+					items: ['First', 'Second', 'Third'],
+					label: 'Order'
+				});
 			});
-
-			var element = dom.buildFragment(content);
-			assert.strictEqual('', element.querySelector('input[type="hidden"]').value);
+			assert.strictEqual('', document.querySelector('#select input[type="hidden"]').value);
 		});
 	});
 });
