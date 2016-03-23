@@ -403,7 +403,6 @@ describe('Modal', function() {
 			overlay: true
 		};
 		var element = document.createElement('div');
-		dom.enterDocument(element);
 		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
 
 		element = element.querySelector('#modal');
