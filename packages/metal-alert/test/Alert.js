@@ -97,9 +97,10 @@ describe('Alert', function() {
 			spinnerClasses: 'my-spinner',
 			dismissible: true
 		};
-		IncrementalDOM.patch(document.body, () => Alert.TEMPLATE(config));
+		var element = document.createElement('div');
+		IncrementalDOM.patch(element, () => Alert.TEMPLATE(config));
 
-		var markupFromDom = document.getElementById('alert').outerHTML;
+		var markupFromDom = element.querySelector('#alert').outerHTML;
 		component = new Alert(config).decorate();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
