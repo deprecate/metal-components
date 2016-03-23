@@ -42,7 +42,7 @@ describe('ButtonGroup', function() {
 		assert.strictEqual(0, buttonGroup.buttons.length);
 	});
 
-	it('should add ButtonGroup.SELECTED_CLASS to buttons specified in "selected" attr', function() {
+	it('should add ButtonGroup.SELECTED_CLASS to buttons specified in "selected" state', function() {
 		buttonGroup = new ButtonGroup({
 			buttons: [
 				{
@@ -64,7 +64,7 @@ describe('ButtonGroup', function() {
 		assert.ok(dom.hasClass(buttonElements[2], ButtonGroup.SELECTED_CLASS));
 	});
 
-	it('should add/remove ButtonGroup.SELECTED_CLASS to elements when clicked', function() {
+	it('should add/remove ButtonGroup.SELECTED_CLASS to elements when clicked', function(done) {
 		buttonGroup = new ButtonGroup({
 			buttons: [
 				{
@@ -81,16 +81,23 @@ describe('ButtonGroup', function() {
 		assert.ok(!dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
 
 		dom.triggerEvent(buttonElements[0], 'click');
-		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
-		assert.ok(!dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
+		buttonGroup.once('stateChanged', function() {
+			assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
+			assert.ok(!dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
 
-		dom.triggerEvent(buttonElements[1], 'click');
-		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
-		assert.ok(dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
+			dom.triggerEvent(buttonElements[1], 'click');
+			buttonGroup.once('stateChanged', function() {
+				assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
+				assert.ok(dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
 
-		dom.triggerEvent(buttonElements[0], 'click');
-		assert.ok(!dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
-		assert.ok(dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
+				dom.triggerEvent(buttonElements[0], 'click');
+				buttonGroup.once('stateChanged', function() {
+					assert.ok(!dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
+					assert.ok(dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
+					done();
+				});
+			});
+		});
 	});
 
 	it('should automatically select the number of buttons remaining to reach `minSelected`', function() {

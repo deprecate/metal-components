@@ -1,40 +1,15 @@
 'use strict';
 
 import core from 'metal';
-import dom from 'metal-dom';
-import ButtonGroupBase from './ButtonGroup.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
+
+import templates from './ButtonGroup.soy';
 
 /**
  * Responsible for handling groups of buttons.
  */
-class ButtonGroup extends ButtonGroupBase {
-	/**
-	 * @inheritDoc
-	 */
-	constructor(opt_config) {
-		super(opt_config);
-
-		this.buttonElements_ = null;
-
-		this.on('selectedChanged', this.defaultSelectedChanged_, true);
-	}
-
-	/**
-	 * The default behavior of the `selectedChanged` event. Adds or removes the CSS
-	 * class defined by `ButtonGroup.SELECTED_CLASS` to each button.
-	 * @param {!Object} event
-	 * @protected
-	 */
-	defaultSelectedChanged_(event) {
-		for (var i = 0; i < this.buttonElements_.length; i++) {
-			if (event.newVal.indexOf(this.buttons[i].label) !== -1) {
-				dom.addClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
-			} else {
-				dom.removeClasses(this.buttonElements_[i], ButtonGroup.SELECTED_CLASS);
-			}
-		}
-	}
-
+class ButtonGroup extends Component {
 	/**
 	 * Handles a `click` event fired on one of the buttons. Appropriately selects
 	 * or deselects the clicked button.
@@ -55,7 +30,7 @@ class ButtonGroup extends ButtonGroupBase {
 	}
 
 	/**
-	 * Setter function for the `selected` attribute. Checks if the minimum number
+	 * Setter function for the `selected` state. Checks if the minimum number
 	 * of buttons is selected. If not, the remaining number of buttons needed to
 	 * reach the minimum will be selected.
 	 * @param {!Object<number, boolean>|!Array<string>} selected
@@ -73,22 +48,15 @@ class ButtonGroup extends ButtonGroupBase {
 		}
 		return selected;
 	}
-
-	/**
-	 * Called whenever the `buttons` attr changes, as well as on the first
-	 * render. This just stores the new button elements for later use.
-	 */
-	syncButtons() {
-		this.buttonElements_ = this.element.querySelectorAll('button');
-	}
 }
+Soy.register(ButtonGroup, templates);
 
 /**
- * Attributes definition.
+ * State definition.
  * @type {!Object}
  * @static
  */
-ButtonGroup.ATTRS = {
+ButtonGroup.STATE = {
 	/**
 	 * Configuration for the buttons that should be rendered in this group.
 	 * Each button config should be given as an object. Supported options are:
@@ -128,13 +96,6 @@ ButtonGroup.ATTRS = {
 		}
 	}
 };
-
-/**
- * Default element classes.
- * @type {string}
- * @static
- */
-ButtonGroup.ELEMENT_CLASSES = 'btn-group';
 
 /**
  * The CSS class added to selected buttons.
