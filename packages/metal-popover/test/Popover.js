@@ -77,14 +77,16 @@ describe('Popover', function() {
 	});
 
 	it('should decorate', function() {
-		IncrementalDOM.patch(document.body, () => {
+		var element = document.createElement('div');
+		dom.enterDocument(element);
+		IncrementalDOM.patch(element, () => {
 			Popover.TEMPLATE({
 				id: 'popover',
 				content: 'content',
 				title: 'title'
 			});
 		});
-		var outerHTML = document.getElementById('popover').outerHTML;
+		var outerHTML = element.querySelector('#popover').outerHTML;
 
 		popover = new Popover({
 			element: '#popover',
