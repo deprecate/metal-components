@@ -72,6 +72,12 @@ describe('Alert', function() {
 		});
 	});
 
+	it('should show alert via `show` method', function() {
+		component = new Alert().render();
+		component.show();
+		assert.ok(component.visible);
+	});
+
 	it('should alert be not dismissible', function() {
 		component = new Alert({
 			visible: true,
