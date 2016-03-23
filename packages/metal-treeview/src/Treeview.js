@@ -1,25 +1,19 @@
 'use strict';
 
-import dom from 'metal-dom';
-import TreeviewBase from './Treeview.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
+
+import templates from './Treeview.soy';
 
 /**
  * Treeview component.
  */
-class Treeview extends TreeviewBase {
+class Treeview extends Component {
 	/**
-	 * Called after this component has been attached to the dom.
-	 */
-	attached() {
-		this.on('nodesChanged', this.onNodesChanged_);
-		this.getRenderer().on('renderSurface', this.handleRenderSurface_.bind(this));
-	}
-
-	/**
-	 * Gets the node object from the nodes attribute that is located at the given
+	 * Gets the node object from the `nodes` state that is located at the given
 	 * index path.
 	 * @param {!Array<number>} path An array of indexes indicating where the searched
-	 *   node is located inside the nodes attribute.
+	 *   node is located inside the `nodes` state.
 	 * @return {!Object}
 	 */
 	getNodeObj(path) {
@@ -31,23 +25,12 @@ class Treeview extends TreeviewBase {
 	}
 
 	/**
-	 * Gets the node object that the given element id represents from the nodes
-	 * attribute
-	 * @param {string} id
-	 * @return {!Object}
-	 */
-	getNodeObjFromId_(id) {
-		var path = id.substr(this.id.length + 1).split('-');
-		return this.getNodeObj(path);
-	}
-
-	/**
 	 * This is called when one of this tree view's nodes is clicked.
 	 * @param {!Event} event
 	 * @protected
 	 */
 	handleNodeClicked_(event) {
-		this.toggleExpandedState_(event.delegateTarget);
+		this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
 	}
 
 	/**
@@ -58,32 +41,8 @@ class Treeview extends TreeviewBase {
 	 */
 	handleNodeKeyUp_(event) {
 		if (event.keyCode === 13 || event.keyCode === 32) {
-			this.toggleExpandedState_(event.delegateTarget);
+			this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
 		}
-	}
-
-	/**
-	 * Handles a `renderSurface` event. Prevents rerendering surfaces when the changes
-	 * the surface was caused by a ui event that has already updated the screen.
-	 * @param {!Object} data
-	 * @param {!Object} event
-	 * @protected
-	 */
-	handleRenderSurface_(data, event) {
-		if (this.ignoreSurfaceUpdate_) {
-			event.preventDefault();
-			this.ignoreSurfaceUpdate_ = false;
-		}
-	}
-
-	/**
-	 * Fired when the `nodes` attribute changes. Make sure that any other
-	 * updates to the `nodes` attribute made after ignoreSurfaceUpdate_ is
-	 * set to true, cause surfaces to update again.
-	 * @protected
-	 */
-	onNodesChanged_() {
-		this.ignoreSurfaceUpdate_ = false;
 	}
 
 	/**
@@ -92,35 +51,20 @@ class Treeview extends TreeviewBase {
 	 * @protected
 	 */
 	toggleExpandedState_(node) {
-		var nodeObj = this.getNodeObjFromId_(node.parentNode.parentNode.id);
+		var path = node.getAttribute('data-treeview-path').split('-');
+		var nodeObj = this.getNodeObj(path);
 		nodeObj.expanded = !nodeObj.expanded;
-		if (nodeObj.expanded) {
-			dom.addClasses(node.parentNode, 'expanded');
-			node.setAttribute('aria-expanded', 'true');
-		} else {
-			dom.removeClasses(node.parentNode, 'expanded');
-			node.setAttribute('aria-expanded', 'false');
-		}
-
 		this.nodes = this.nodes;
-		this.ignoreSurfaceUpdate_ = true;
 	}
 }
+Soy.register(Treeview, templates);
 
 /**
- * Default tree view elementClasses.
- * @default treeView
- * @type {string}
- * @static
- */
-Treeview.ELEMENT_CLASSES = 'treeview';
-
-/**
- * Treeview attributes definition.
+ * Treeview state definition.
  * @type {!Object}
  * @static
  */
-Treeview.ATTRS = {
+Treeview.STATE = {
 	/**
 	 * This tree view's nodes. Each node should have a name, and can optionally
 	 * have nested children nodes. It should also indicate if its children are

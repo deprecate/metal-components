@@ -2,7 +2,6 @@
 
 import dom from 'metal-dom';
 import { object } from 'metal';
-import { SoyTemplates } from 'metal-soy';
 import Treeview from '../src/Treeview';
 
 var treeview;
@@ -76,7 +75,7 @@ describe('Treeview', function() {
 		assert.ok(!nodesElement);
 	});
 
-	it('should expand children nodes when specified on the attribute', function() {
+	it('should expand children nodes when specified on the state', function() {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -104,7 +103,7 @@ describe('Treeview', function() {
 		assert.ok(!dom.hasClass(nodesElement.childNodes[1].childNodes[0], 'expanded'));
 	});
 
-	it('should expand/collapse children nodes when parent node is clicked', function() {
+	it('should expand/collapse children nodes when parent node is clicked', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -122,15 +121,20 @@ describe('Treeview', function() {
 		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
 
 		dom.triggerEvent(nodeMainElement, 'click');
-		assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
-		assert.strictEqual('true', nodeMainElement.getAttribute('aria-expanded'));
+		treeview.once('stateChanged', function() {
+			assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
+			assert.strictEqual('true', nodeMainElement.getAttribute('aria-expanded'));
 
-		dom.triggerEvent(nodeMainElement, 'click');
-		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
-		assert.strictEqual('false', nodeMainElement.getAttribute('aria-expanded'));
+			dom.triggerEvent(nodeMainElement, 'click');
+			treeview.once('stateChanged', function() {
+				assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+				assert.strictEqual('false', nodeMainElement.getAttribute('aria-expanded'));
+				done();
+			});
+		});
 	});
 
-	it('should expand/collapse children nodes when ENTER is pressed on parent node', function() {
+	it('should expand/collapse children nodes when ENTER is pressed on parent node', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -150,15 +154,20 @@ describe('Treeview', function() {
 		dom.triggerEvent(nodeMainElement, 'keyup', {
 			keyCode: 13
 		});
-		assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
+		treeview.once('stateChanged', function() {
+			assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
 
-		dom.triggerEvent(nodeMainElement, 'keyup', {
-			keyCode: 13
+			dom.triggerEvent(nodeMainElement, 'keyup', {
+				keyCode: 13
+			});
+			treeview.once('stateChanged', function() {
+				assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+				done();
+			});
 		});
-		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
 	});
 
-	it('should expand/collapse children nodes when SPACE is pressed on parent node', function() {
+	it('should expand/collapse children nodes when SPACE is pressed on parent node', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -178,12 +187,17 @@ describe('Treeview', function() {
 		dom.triggerEvent(nodeMainElement, 'keyup', {
 			keyCode: 32
 		});
-		assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
+		treeview.once('stateChanged', function() {
+			assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
 
-		dom.triggerEvent(nodeMainElement, 'keyup', {
-			keyCode: 32
+			dom.triggerEvent(nodeMainElement, 'keyup', {
+				keyCode: 32
+			});
+			treeview.once('stateChanged', function() {
+				assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
+				done();
+			});
 		});
-		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
 	});
 
 	it('should not expand/collapse children nodes when key different from SPACE and ENTER is pressed on parent node', function() {
@@ -256,13 +270,13 @@ describe('Treeview', function() {
 		var nodeMainElement = nodeElement.querySelector('.treeview-node-main');
 
 		dom.triggerEvent(nodeMainElement, 'click');
-		treeview.on('attrsChanged', function() {
+		treeview.on('stateChanged', function() {
 			assert.strictEqual(nodeElement, treeview.element.querySelector('.treeview-node'));
 			done();
 		});
 	});
 
-	it('should replace surface contents when nodes attr changes without click', function(done) {
+	it('should replace surface contents when nodes state changes without click', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -278,7 +292,7 @@ describe('Treeview', function() {
 
 		var nodeElement = treeview.element.querySelector('.treeview-node');
 		treeview.nodes = [];
-		treeview.on('attrsChanged', function() {
+		treeview.on('stateChanged', function() {
 			assert.notStrictEqual(nodeElement, treeview.element.querySelector('.treeview-node'));
 			done();
 		});
@@ -298,14 +312,14 @@ describe('Treeview', function() {
 				}
 			]
 		};
-		dom.append(document.body, SoyTemplates.get('Treeview', 'render')(data).content);
+		IncrementalDOM.patch(document.body, () => Treeview.TEMPLATE(data));
 
 		var element = document.getElementById('decorated');
 		var soyRenderedContent = element.innerHTML;
 
 		treeview = new Treeview(object.mixin({
 			element: element
-		}, data)).decorate();
+		}, data)).render();
 		assert.strictEqual(soyRenderedContent, treeview.element.innerHTML);
 	});
 });
