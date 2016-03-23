@@ -89,11 +89,11 @@ class AutocompleteBase extends Component {
 }
 
 /**
- * AutocompleteBase attributes definition.
+ * AutocompleteBase state definition.
  * @type {!Object}
  * @static
  */
-AutocompleteBase.ATTRS = {
+AutocompleteBase.STATE = {
 	/**
 	 * Function or array, which have to return the results from the query.
 	 * If function, it should return an `array` or a `Promise`. In case of

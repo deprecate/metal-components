@@ -243,7 +243,7 @@ describe('Autocomplete', function() {
 			assert.strictEqual(0, Align.align.callCount);
 
 			component.visible = true;
-			component.once('attrsSynced', function() {
+			component.once('stateSynced', function() {
 				assert.strictEqual(1, Align.align.callCount);
 				done();
 			});

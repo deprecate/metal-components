@@ -6,9 +6,10 @@ import dom from 'metal-dom';
 import { CancellablePromise as Promise } from 'metal-promise';
 import { Align } from 'metal-position';
 import AutocompleteBase from './AutocompleteBase';
-import { SoyRenderer } from 'metal-soy';
-import './Autocomplete.soy';
+import Soy from 'metal-soy';
+
 import 'metal-list';
+import templates from './Autocomplete.soy';
 
 /*
  * Autocomplete component.
@@ -119,7 +120,7 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
-	 * Synchronization logic for `visible` attribute.
+	 * Synchronization logic for `visible` state.
 	 * @param {boolean} visible
 	 */
 	syncVisible(visible) {
@@ -145,13 +146,14 @@ class Autocomplete extends AutocompleteBase {
 		}
 	}
 }
+Soy.register(Autocomplete, templates);
 
 /**
- * Attributes definition.
+ * State definition.
  * @type {!Object}
  * @static
  */
-Autocomplete.ATTRS = {
+Autocomplete.STATE = {
 	/**
 	 * Function that converts a given item to the format that should be used by
 	 * the autocomplete.
@@ -165,12 +167,5 @@ Autocomplete.ATTRS = {
 		}
 	}
 };
-
-/**
- * The class that will be used as this component's renderer.
- * @type {!Function}
- * @static
- */
-Autocomplete.RENDERER = SoyRenderer;
 
 export default Autocomplete;
