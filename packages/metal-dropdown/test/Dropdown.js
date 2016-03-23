@@ -212,10 +212,11 @@ describe('Dropdown', function() {
 			body: () => IncrementalDOM.text('body'),
 			header: () => IncrementalDOM.text('header')
 		};
-		IncrementalDOM.patch(document.body, () => Dropdown.TEMPLATE(config));
+		var element = document.createElement('div');
+		IncrementalDOM.patch(element, () => Dropdown.TEMPLATE(config));
 
-		var markupFromDom = document.getElementById('dropdown').outerHTML;
-		component = new Dropdown(config).decorate();
+		var markupFromDom = element.querySelector('#dropdown').outerHTML;
+		component = new Dropdown(config).render();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
 	});
