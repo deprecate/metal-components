@@ -332,40 +332,39 @@ describe('Select', function() {
 	});
 
 	describe('Soy', function() {
-		afterEach(function() {
-			document.body.innerHTML = '';
-		});
-
 		it('should render correct selected item if `selectedIndex` is given', function() {
-			IncrementalDOM.patch(document.body, () => {
+			var element = document.createElement('div');
+			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
 					items: ['First', 'Second', 'Third'],
 					selectedIndex: 1
 				});
 			});
-			assert.strictEqual('Second', document.querySelector('#select input[type="hidden"]').value);
+			assert.strictEqual('Second', element.querySelector('#select input[type="hidden"]').value);
 		});
 
 		it('should automatically render first item as selected if `selectedIndex` is not given', function() {
-			IncrementalDOM.patch(document.body, () => {
+			var element = document.createElement('div');
+			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
 					items: ['First', 'Second', 'Third']
 				});
 			});
-			assert.strictEqual('First', document.querySelector('#select input[type="hidden"]').value);
+			assert.strictEqual('First', element.querySelector('#select input[type="hidden"]').value);
 		});
 
 		it('should not select any item if `label` is given but `selectedIndex` is not', function() {
-			IncrementalDOM.patch(document.body, () => {
+			var element = document.createElement('div');
+			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
 					items: ['First', 'Second', 'Third'],
 					label: 'Order'
 				});
 			});
-			assert.strictEqual('', document.querySelector('#select input[type="hidden"]').value);
+			assert.strictEqual('', element.querySelector('#select input[type="hidden"]').value);
 		});
 	});
 });
