@@ -1,11 +1,14 @@
-define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], function (exports, _component, _soy) {
+define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.templates = exports.ListItem = undefined;
 
-  var _component2 = _interopRequireDefault(_component);
+  var _Component3 = _interopRequireDefault(_Component2);
+
+  var _Soy2 = _interopRequireDefault(_Soy);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -43,68 +46,112 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], fu
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Templates = _soy.SoyTemplates.get();
-  // This file was automatically generated from ListItem.soy.
-  // Please don't edit this file by hand.
+  var templates;
+  goog.loadModule(function (exports) {
 
-  /**
-   * @fileoverview Templates in namespace Templates.ListItem.
-   */
+    // This file was automatically generated from ListItem.soy.
+    // Please don't edit this file by hand.
 
-  if (typeof Templates.ListItem == 'undefined') {
-    Templates.ListItem = {};
-  }
+    /**
+     * @fileoverview Templates in namespace ListItem.
+     * @public
+     */
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ListItem.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<li id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="listitem list-group-item component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix" data-index="' + soy.$$escapeHtmlAttribute(opt_data.index) + '">' + Templates.ListItem.item(opt_data, null, opt_ijData) + '</li>');
-  };
-  if (goog.DEBUG) {
-    Templates.ListItem.render.soyTemplateName = 'Templates.ListItem.render';
-  }
+    goog.module('ListItem.incrementaldom');
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.ListItem.item = function (opt_data, opt_ignored, opt_ijData) {
-    var output = (opt_data.item.avatar ? '<span class="list-image pull-left ' + soy.$$escapeHtmlAttribute(opt_data.item.avatar['class']) + '">' + soy.$$escapeHtml(opt_data.item.avatar.content) + '</span>' : '') + '<div class="list-main-content pull-left"><div class="list-text-primary">' + soy.$$escapeHtml(opt_data.item.textPrimary) + '</div>' + (opt_data.item.textSecondary ? '<div class="list-text-secondary">' + soy.$$escapeHtml(opt_data.item.textSecondary) + '</div>' : '') + '</div>';
-    if (opt_data.item.icons) {
-      var iconList55 = opt_data.item.icons;
-      var iconListLen55 = iconList55.length;
-      for (var iconIndex55 = 0; iconIndex55 < iconListLen55; iconIndex55++) {
-        var iconData55 = iconList55[iconIndex55];
-        output += '<span class="btn-icon ' + soy.$$escapeHtmlAttribute(iconData55) + ' pull-right"></span>';
+    var soy = goog.require('soy');
+    var soydata = goog.require('soydata');
+    /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    var IncrementalDom = goog.require('incrementaldom');
+    var ie_open = IncrementalDom.elementOpen;
+    var ie_close = IncrementalDom.elementClose;
+    var ie_void = IncrementalDom.elementVoid;
+    var ie_open_start = IncrementalDom.elementOpenStart;
+    var ie_open_end = IncrementalDom.elementOpenEnd;
+    var itext = IncrementalDom.text;
+    var iattr = IncrementalDom.attr;
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render(opt_data, opt_ignored, opt_ijData) {
+      ie_open('li', null, null, 'id', opt_data.id, 'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix', 'data-index', opt_data.index);
+      if (opt_data.item.avatar) {
+        ie_open('span', null, null, 'class', 'list-image pull-left ' + opt_data.item.avatar['class']);
+        $htmlContent({ content: opt_data.item.avatar.content }, null, opt_ijData);
+        ie_close('span');
       }
-    }
-    if (opt_data.item.iconsHtml) {
-      output += '<div class="pull-right">';
-      var iconHtmlList63 = opt_data.item.iconsHtml;
-      var iconHtmlListLen63 = iconHtmlList63.length;
-      for (var iconHtmlIndex63 = 0; iconHtmlIndex63 < iconHtmlListLen63; iconHtmlIndex63++) {
-        var iconHtmlData63 = iconHtmlList63[iconHtmlIndex63];
-        output += soy.$$escapeHtml(iconHtmlData63);
+      ie_open('div', null, null, 'class', 'list-main-content pull-left');
+      ie_open('div', null, null, 'class', 'list-text-primary');
+      itext((goog.asserts.assert((opt_data.item.textPrimary ? opt_data.item.textPrimary : '') != null), opt_data.item.textPrimary ? opt_data.item.textPrimary : ''));
+      ie_close('div');
+      if (opt_data.item.textSecondary) {
+        ie_open('div', null, null, 'class', 'list-text-secondary');
+        itext((goog.asserts.assert(opt_data.item.textSecondary != null), opt_data.item.textSecondary));
+        ie_close('div');
       }
-      output += '</div>';
+      ie_close('div');
+      if (opt_data.item.icons) {
+        var iconList50 = opt_data.item.icons;
+        var iconListLen50 = iconList50.length;
+        for (var iconIndex50 = 0; iconIndex50 < iconListLen50; iconIndex50++) {
+          var iconData50 = iconList50[iconIndex50];
+          ie_void('span', null, null, 'class', 'btn-icon ' + iconData50 + ' pull-right');
+        }
+      }
+      if (opt_data.item.iconsHtml) {
+        ie_open('div', null, null, 'class', 'pull-right');
+        var iconHtmlList57 = opt_data.item.iconsHtml;
+        var iconHtmlListLen57 = iconHtmlList57.length;
+        for (var iconHtmlIndex57 = 0; iconHtmlIndex57 < iconHtmlListLen57; iconHtmlIndex57++) {
+          var iconHtmlData57 = iconHtmlList57[iconHtmlIndex57];
+          $htmlContent({ content: iconHtmlData57 }, null, opt_ijData);
+        }
+        ie_close('div');
+      }
+      if (opt_data.item.label) {
+        ie_open('span', null, null, 'class', 'label list-label pull-right ' + opt_data.item.label['class']);
+        itext((goog.asserts.assert(opt_data.item.label.content != null), opt_data.item.label.content));
+        ie_close('span');
+      }
+      ie_close('li');
     }
-    output += opt_data.item.label ? '<span class="label list-label pull-right ' + soy.$$escapeHtmlAttribute(opt_data.item.label['class']) + '">' + soy.$$escapeHtml(opt_data.item.label.content) + '</span>' : '';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.ListItem.item.soyTemplateName = 'Templates.ListItem.item';
-  }
+    exports.render = $render;
+    if (goog.DEBUG) {
+      $render.soyTemplateName = 'ListItem.render';
+    }
 
-  Templates.ListItem.render.params = ["id", "index", "item"];
-  Templates.ListItem.item.params = ["item"];
+    /**
+     * @param {{
+     *    content: (!soydata.SanitizedHtml|string)
+     * }} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $htmlContent(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.content instanceof Function || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, 'Function');
+      var content = /** @type {Function} */opt_data.content;
+      content();
+    }
+    exports.htmlContent = $htmlContent;
+    if (goog.DEBUG) {
+      $htmlContent.soyTemplateName = 'ListItem.htmlContent';
+    }
+
+    exports.render.params = ["id", "index", "item", "elementClasses"];
+    exports.htmlContent.params = ["content"];
+    exports.templates = templates = exports;
+    return exports;
+  });
 
   var ListItem = function (_Component) {
     _inherits(ListItem, _Component);
@@ -116,12 +163,13 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], fu
     }
 
     return ListItem;
-  }(_component2.default);
+  }(_Component3.default);
 
   ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
 
-  ListItem.RENDERER = _soy.SoyRenderer;
-  _soy.SoyAop.registerTemplates('ListItem');
-  exports.default = ListItem;
+  _Soy2.default.register(ListItem, templates);
+  exports.default = templates;
+  exports.ListItem = ListItem;
+  exports.templates = templates;
 });
 //# sourceMappingURL=ListItem.soy.js.map

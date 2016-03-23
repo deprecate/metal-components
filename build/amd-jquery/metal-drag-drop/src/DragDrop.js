@@ -174,11 +174,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
 
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	DragDrop.ATTRS = {
+	DragDrop.STATE = {
 		/**
    * The "aria-dropeffect" value to be set for all targets. If not set,
    * this html attribute will have to be set manually on the targets.

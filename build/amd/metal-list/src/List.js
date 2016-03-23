@@ -1,4 +1,4 @@
-define(['exports', 'metal-dom/src/all/dom', './List.soy.js', './ListItem.js'], function (exports, _dom, _ListSoy) {
+define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-soy/src/Soy', './List.soy', './ListItem'], function (exports, _dom, _component, _Soy, _List) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,11 @@ define(['exports', 'metal-dom/src/all/dom', './List.soy.js', './ListItem.js'], f
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _ListSoy2 = _interopRequireDefault(_ListSoy);
+	var _component2 = _interopRequireDefault(_component);
+
+	var _Soy2 = _interopRequireDefault(_Soy);
+
+	var _List2 = _interopRequireDefault(_List);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -45,25 +49,14 @@ define(['exports', 'metal-dom/src/all/dom', './List.soy.js', './ListItem.js'], f
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var List = function (_ListBase) {
-		_inherits(List, _ListBase);
+	var List = function (_Component) {
+		_inherits(List, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function List(opt_config) {
+		function List() {
 			_classCallCheck(this, List);
 
-			return _possibleConstructorReturn(this, _ListBase.call(this, opt_config));
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
-
-		/**
-   * Handles click event on the list. The function fires an
-   * {@code itemSelected} event.
-   * @param {!Event} event The native click event
-   */
-
 
 		List.prototype.handleClick = function handleClick(event) {
 			var target = event.target;
@@ -77,25 +70,18 @@ define(['exports', 'metal-dom/src/all/dom', './List.soy.js', './ListItem.js'], f
 		};
 
 		return List;
-	}(_ListSoy2.default);
+	}(_component2.default);
 
 	List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
 
+	_Soy2.default.register(List, _List2.default);
 
 	/**
-  * Default list elementClasses.
-  * @default list
-  * @type {string}
-  * @static
-  */
-	List.ELEMENT_CLASSES = 'list';
-
-	/**
-  * List attributes definition.
+  * List state definition.
   * @type {!Object}
   * @static
   */
-	List.ATTRS = {
+	List.STATE = {
 		/**
    * The list items. Each is represented by an object that can have the following keys:
    *   - textPrimary: The item's main content.
@@ -118,7 +104,9 @@ define(['exports', 'metal-dom/src/all/dom', './List.soy.js', './ListItem.js'], f
    * The list items as HTML to be added directly to the list.
    * @type {string}
    */
-		itemsHtml: {}
+		itemsHtml: {
+			isHtml: true
+		}
 	};
 
 	exports.default = List;

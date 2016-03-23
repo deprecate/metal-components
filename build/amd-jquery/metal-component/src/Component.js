@@ -1,17 +1,17 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/src/Attribute', './ComponentCollector', './ComponentRegistry', './ComponentRenderer', 'metal-events/src/events'], function (exports, _metal, _dom, _Attribute2, _ComponentCollector, _ComponentRegistry, _ComponentRenderer, _events) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentCollector', './ComponentRegistry', './ComponentRenderer', 'metal-events/src/events', 'metal-state/src/State'], function (exports, _metal, _dom, _ComponentCollector, _ComponentRegistry, _ComponentRenderer, _events, _State2) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _Attribute3 = _interopRequireDefault(_Attribute2);
-
 	var _ComponentCollector2 = _interopRequireDefault(_ComponentCollector);
 
 	var _ComponentRegistry2 = _interopRequireDefault(_ComponentRegistry);
 
 	var _ComponentRenderer2 = _interopRequireDefault(_ComponentRenderer);
+
+	var _State3 = _interopRequireDefault(_State2);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -49,13 +49,28 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Component = function (_Attribute) {
-		_inherits(Component, _Attribute);
+	var Component = function (_State) {
+		_inherits(Component, _State);
+
+		/**
+   * Constructor function for `Component`.
+   * @param {Object=} opt_config An object with the initial values for this
+   *     component's state.
+   * @constructor
+   */
 
 		function Component(opt_config) {
 			_classCallCheck(this, Component);
 
-			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
+
+			/**
+    * All listeners that were attached until the `DomEventEmitterProxy` instance
+    * was created.
+    * @type {!Object<string, bool>}
+    * @protected
+    */
+			_this.attachedListeners_ = {};
 
 			/**
     * Gets all nested components.
@@ -71,13 +86,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			_this.decorating_ = false;
 
 			/**
-    * Holds events that were listened through the `delegate` Component function.
-    * @type {EventHandler}
-    * @protected
-    */
-			_this.delegateEventHandler_ = null;
-
-			/**
     * Instance of `DomEventEmitterProxy` which proxies events from the component's
     * element to the component itself.
     * @type {DomEventEmitterProxy}
@@ -86,11 +94,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			_this.elementEventProxy_ = null;
 
 			/**
-    * The `EventHandler` instance for events attached from the `events` attribute.
+    * The `EventHandler` instance for events attached from the `events` state key.
     * @type {!EventHandler}
     * @protected
     */
-			_this.eventsAttrHandler_ = new _events.EventHandler();
+			_this.eventsStateKeyHandler_ = new _events.EventHandler();
 
 			/**
     * Whether the element is in document.
@@ -120,22 +128,27 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			_this.DEFAULT_ELEMENT_PARENT = document.body;
 
 			_metal.core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
-			_metal.core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_TAG_NAME', _metal.array.firstDefinedValue);
 			_metal.core.mergeSuperClassesProperty(_this.constructor, 'RENDERER', _metal.array.firstDefinedValue);
 
 			_this.renderer_ = new _this.constructor.RENDERER_MERGED(_this);
-			_this.delegateEventHandler_ = new _events.EventHandler();
 
 			_this.created_();
 			return _this;
 		}
 
 		/**
-   * Adds the listeners specified in the given object.
-   * @param {Object} events
+   * Adds the necessary classes to the component's element.
    * @protected
    */
 
+
+		Component.prototype.addElementClasses_ = function addElementClasses_() {
+			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
+			if (this.elementClasses) {
+				classesToAdd = classesToAdd + ' ' + this.elementClasses;
+			}
+			_dom.dom.addClasses(this.element, classesToAdd);
+		};
 
 		Component.prototype.addListenersFromObj_ = function addListenersFromObj_(events) {
 			var eventNames = Object.keys(events || {});
@@ -148,19 +161,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 					} else {
 						handler = this.on(eventNames[i], info.fn);
 					}
-					this.eventsAttrHandler_.add(handler);
+					this.eventsStateKeyHandler_.add(handler);
 				}
 			}
 		};
 
-		Component.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_default, opt_origin) {
-			if (!this.elementEventProxy_ && _dom.dom.supportsEvent(this.constructor.ELEMENT_TAG_NAME_MERGED, event)) {
-				this.elementEventProxy_ = new _dom.DomEventEmitterProxy(this.element, this);
-			}
-			_Attribute.prototype.addSingleListener_.call(this, event, listener, opt_default, opt_origin);
-		};
-
 		Component.prototype.attach = function attach(opt_parentElement, opt_siblingElement) {
+			if (!this.element) {
+				throw new Error(Component.Error.ELEMENT_NOT_CREATED);
+			}
 			if (!this.inDocument) {
 				this.renderElement_(opt_parentElement, opt_siblingElement);
 				this.inDocument = true;
@@ -173,19 +182,21 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		Component.prototype.attached = function attached() {};
 
 		Component.prototype.created_ = function created_() {
+			this.on('stateChanged', this.handleStateChanged_);
+			Component.componentsCollector.addComponent(this);
+
+			this.newListenerHandle_ = this.on('newListener', this.handleNewListener_);
+
 			this.on('eventsChanged', this.onEventsChanged_);
 			this.addListenersFromObj_(this.events);
-
-			this.on('attrsChanged', this.handleAttributesChanges_);
-			Component.componentsCollector.addComponent(this);
 		};
 
-		Component.prototype.addSubComponent = function addSubComponent(componentName, opt_componentData) {
+		Component.prototype.addSubComponent = function addSubComponent(componentNameOrCtor, opt_componentData) {
 			// Avoid accessing id from component if possible, since that may cause
 			// the lookup of the component's element in the dom unnecessarily, which is
 			// bad for performance.
 			var id = (opt_componentData || {}).id;
-			var component = Component.componentsCollector.createComponent(componentName, opt_componentData);
+			var component = Component.componentsCollector.createComponent(componentNameOrCtor, opt_componentData);
 			this.components[id || component.id] = component;
 			return component;
 		};
@@ -198,9 +209,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		};
 
 		Component.prototype.delegate = function delegate(eventName, selector, callback) {
-			var handle = _dom.dom.delegate(this.element, eventName, selector, callback);
-			this.delegateEventHandler_.add(handle);
-			return handle;
+			return this.on('delegate:' + eventName + ':' + selector, callback);
 		};
 
 		Component.prototype.detach = function detach() {
@@ -225,16 +234,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 				this.elementEventProxy_ = null;
 			}
 
-			this.delegateEventHandler_.removeAllListeners();
-			this.delegateEventHandler_ = null;
-
 			this.disposeSubComponents(Object.keys(this.components));
 			this.components = null;
 
 			this.renderer_.dispose();
 			this.renderer_ = null;
 
-			_Attribute.prototype.disposeInternal.call(this);
+			_State.prototype.disposeInternal.call(this);
 		};
 
 		Component.prototype.disposeSubComponents = function disposeSubComponents(ids) {
@@ -288,12 +294,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			return document.getElementById(id) || this.element && this.element.querySelector('#' + id);
 		};
 
-		Component.prototype.fireAttrChange_ = function fireAttrChange_(attr, opt_change) {
-			var fn = this['sync' + attr.charAt(0).toUpperCase() + attr.slice(1)];
+		Component.prototype.fireStateKeyChange_ = function fireStateKeyChange_(key, opt_change) {
+			var fn = this['sync' + key.charAt(0).toUpperCase() + key.slice(1)];
 			if (_metal.core.isFunction(fn)) {
 				if (!opt_change) {
 					opt_change = {
-						newVal: this[attr],
+						newVal: this[key],
 						prevVal: undefined
 					};
 				}
@@ -322,9 +328,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			return this.renderer_;
 		};
 
-		Component.prototype.handleAttributesChanges_ = function handleAttributesChanges_(event) {
-			this.syncAttrsFromChanges_(event.changes);
-			this.emit('attrsSynced', event);
+		Component.prototype.handleStateChanged_ = function handleStateChanged_(event) {
+			this.syncStateFromChanges_(event.changes);
+			this.emit('stateSynced', event);
+		};
+
+		Component.prototype.handleNewListener_ = function handleNewListener_(event) {
+			this.attachedListeners_[event] = true;
 		};
 
 		Component.prototype.makeId_ = function makeId_() {
@@ -343,8 +353,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			}).join(' ');
 		};
 
+		Component.prototype.onElementChanged_ = function onElementChanged_(event) {
+			if (event.prevVal === event.newVal) {
+				// The `elementChanged` event will be fired whenever the element is set,
+				// even if its value hasn't actually changed, since that's how State
+				// handles objects. We need to check manually here.
+				return;
+			}
+
+			this.elementEventProxy_.setOriginEmitter(event.newVal);
+			event.newVal.id = this.id;
+			this.addElementClasses_();
+			this.syncVisible(this.visible);
+		};
+
 		Component.prototype.onEventsChanged_ = function onEventsChanged_(event) {
-			this.eventsAttrHandler_.removeAllListeners();
+			this.eventsStateKeyHandler_.removeAllListeners();
 			this.addListenersFromObj_(event.newVal);
 		};
 
@@ -352,15 +376,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			_ComponentRegistry2.default.register(constructorFn, opt_name);
 		};
 
-		Component.prototype.render = function render(opt_parentElement, opt_siblingElement) {
+		Component.prototype.render = function render(opt_parentElement, opt_siblingElement, opt_skipRender) {
 			if (this.wasRendered) {
 				throw new Error(Component.Error.ALREADY_RENDERED);
 			}
 
-			this.emit('render', {
-				decorating: this.decorating_
-			});
-			this.syncAttrs_();
+			if (!opt_skipRender) {
+				this.emit('render', {
+					decorating: this.decorating_
+				});
+			}
+			this.setUpProxy_();
+			this.syncState_();
 			if (opt_parentElement !== false) {
 				this.attach(opt_parentElement, opt_siblingElement);
 			}
@@ -369,9 +396,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		};
 
 		Component.prototype.renderAsSubComponent = function renderAsSubComponent() {
-			this.syncAttrs_();
-			this.attach();
-			this.wasRendered = true;
+			this.render(null, null, true);
 		};
 
 		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
@@ -383,40 +408,47 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			}
 		};
 
-		Component.prototype.setterElementFn_ = function setterElementFn_(val) {
-			var element = _dom.dom.toElement(val);
-			if (!element) {
-				element = this.valueElementFn_();
-			}
-			return element;
+		Component.prototype.setterElementFn_ = function setterElementFn_(newVal, currentVal) {
+			return _dom.dom.toElement(newVal) || currentVal;
 		};
 
-		Component.prototype.syncAttrs_ = function syncAttrs_() {
-			var attrNames = this.getAttrNames();
-			for (var i = 0; i < attrNames.length; i++) {
-				this.fireAttrChange_(attrNames[i]);
+		Component.prototype.setUpProxy_ = function setUpProxy_() {
+			var proxy = new _dom.DomEventEmitterProxy(this.element, this);
+			this.elementEventProxy_ = proxy;
+
+			_metal.object.map(this.attachedListeners_, proxy.proxyEvent.bind(proxy));
+			this.attachedListeners_ = null;
+
+			this.newListenerHandle_.removeListener();
+			this.newListenerHandle_ = null;
+
+			this.on('elementChanged', this.onElementChanged_);
+		};
+
+		Component.prototype.syncState_ = function syncState_() {
+			var keys = this.getStateKeys();
+			for (var i = 0; i < keys.length; i++) {
+				this.fireStateKeyChange_(keys[i]);
 			}
 		};
 
-		Component.prototype.syncAttrsFromChanges_ = function syncAttrsFromChanges_(changes) {
-			for (var attr in changes) {
-				this.fireAttrChange_(attr, changes[attr]);
+		Component.prototype.syncStateFromChanges_ = function syncStateFromChanges_(changes) {
+			for (var key in changes) {
+				this.fireStateKeyChange_(key, changes[key]);
 			}
 		};
 
 		Component.prototype.syncElementClasses = function syncElementClasses(newVal, prevVal) {
-			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
-			if (newVal) {
-				classesToAdd = classesToAdd + ' ' + newVal;
-			}
-			if (prevVal) {
+			if (this.element && prevVal) {
 				_dom.dom.removeClasses(this.element, prevVal);
 			}
-			_dom.dom.addClasses(this.element, classesToAdd);
+			this.addElementClasses_();
 		};
 
 		Component.prototype.syncVisible = function syncVisible(newVal) {
-			this.element.style.display = newVal ? '' : 'none';
+			if (this.element) {
+				this.element.style.display = newVal ? '' : 'none';
+			}
 		};
 
 		Component.prototype.validatorElementClassesFn_ = function validatorElementClassesFn_(val) {
@@ -435,21 +467,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 			return _metal.core.isString(val);
 		};
 
-		Component.prototype.valueElementFn_ = function valueElementFn_() {
-			if (!this.id) {
-				// This may happen because the default value of "id" depends on "element",
-				// and the default value of "element" depends on "id".
-				this.id = this.makeId_();
-			}
-			return this.renderer_.buildElement();
-		};
-
 		Component.prototype.valueIdFn_ = function valueIdFn_() {
-			return this.hasBeenSet('element') && this.element.id ? this.element.id : this.makeId_();
+			var hasElement = this.hasBeenSet('element') && this.element;
+			return hasElement && this.element.id ? this.element.id : this.makeId_();
 		};
 
 		return Component;
-	}(_Attribute3.default);
+	}(_State3.default);
 
 	Component.prototype.registerMetalComponent && Component.prototype.registerMetalComponent(Component, 'Component')
 
@@ -463,11 +487,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 	Component.componentsCollector = new _ComponentCollector2.default();
 
 	/**
-  * Component attributes definition.
+  * Component state definition.
   * @type {Object}
   * @static
   */
-	Component.ATTRS = {
+	Component.STATE = {
 		/**
    * Component element bounding box.
    * @type {Element}
@@ -475,9 +499,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
    */
 		element: {
 			setter: 'setterElementFn_',
-			validator: 'validatorElementFn_',
-			valueFn: 'valueElementFn_',
-			writeOnce: true
+			validator: 'validatorElementFn_'
 		},
 
 		/**
@@ -526,18 +548,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
   * @protected
   * @static
   */
-	Component.ELEMENT_CLASSES = 'component';
-
-	/**
-  * Element tag name is a string that specifies the type of element to be
-  * created. The nodeName of the created element is initialized with the
-  * value of tag name.
-  * @type {string}
-  * @default div
-  * @protected
-  * @static
-  */
-	Component.ELEMENT_TAG_NAME = 'div';
+	Component.ELEMENT_CLASSES = '';
 
 	/**
   * The `ComponentRenderer` that should be used. Components need to set this
@@ -557,14 +568,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
    * Error when the component is already rendered and another render attempt
    * is made.
    */
-		ALREADY_RENDERED: 'Component already rendered'
+		ALREADY_RENDERED: 'Component already rendered.',
+
+		/**
+   * Error when the component is attached but its element hasn't been created yet.
+   */
+		ELEMENT_NOT_CREATED: 'Can\'t attach component element. It hasn\'t been created yet.'
 	};
 
 	/**
-  * A list with attribute names that will automatically be rejected as invalid.
+  * A list with state key names that will automatically be rejected as invalid.
   * @type {!Array<string>}
   */
-	Component.INVALID_ATTRS = ['components'];
+	Component.INVALID_KEYS = ['components'];
 
 	exports.default = Component;
 });

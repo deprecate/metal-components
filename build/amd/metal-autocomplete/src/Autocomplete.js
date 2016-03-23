@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/soy', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _soy) {
+define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/Soy', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _Soy, _Autocomplete) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -12,6 +12,10 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _AutocompleteBase3 = _interopRequireDefault(_AutocompleteBase2);
+
+	var _Soy2 = _interopRequireDefault(_Soy);
+
+	var _Autocomplete2 = _interopRequireDefault(_Autocomplete);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -154,13 +158,14 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 	Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
 
+	_Soy2.default.register(Autocomplete, _Autocomplete2.default);
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	Autocomplete.ATTRS = {
+	Autocomplete.STATE = {
 		/**
    * Function that converts a given item to the format that should be used by
    * the autocomplete.
@@ -174,13 +179,6 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			}
 		}
 	};
-
-	/**
-  * The class that will be used as this component's renderer.
-  * @type {!Function}
-  * @static
-  */
-	Autocomplete.RENDERER = _soy.SoyRenderer;
 
 	exports.default = Autocomplete;
 });

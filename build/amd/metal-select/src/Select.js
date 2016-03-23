@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Select.soy', 'metal-dropdown/src/Dropdown'], function (exports, _metal, _dom, _Select) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-soy/src/Soy', './Select.soy', 'metal-dropdown/src/Dropdown'], function (exports, _metal, _dom, _component, _Soy, _Select) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -8,6 +8,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Select.soy', '
 	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
+
+	var _component2 = _interopRequireDefault(_component);
+
+	var _Soy2 = _interopRequireDefault(_Soy);
 
 	var _Select2 = _interopRequireDefault(_Select);
 
@@ -47,13 +51,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Select.soy', '
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Select = function (_SelectBase) {
-		_inherits(Select, _SelectBase);
+	var Select = function (_Component) {
+		_inherits(Select, _Component);
 
 		function Select() {
 			_classCallCheck(this, Select);
 
-			return _possibleConstructorReturn(this, _SelectBase.apply(this, arguments));
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
 
 		Select.prototype.findItemIndex_ = function findItemIndex_(element) {
@@ -77,9 +81,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Select.soy', '
 			return this.components[this.id + '-dropdown'];
 		};
 
-		Select.prototype.handleDropdownAttrsSynced_ = function handleDropdownAttrsSynced_(data) {
+		Select.prototype.handleDropdownStateSynced_ = function handleDropdownStateSynced_(data) {
 			if (this.openedWithKeyboard_) {
-				// This is done on `attrsSynced` because the items need to have already
+				// This is done on `stateSynced` because the items need to have already
 				// been made visible before we try focusing them.
 				this.focusIndex_(0);
 				this.openedWithKeyboard_ = false;
@@ -120,17 +124,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Select.soy', '
 		};
 
 		return Select;
-	}(_Select2.default);
+	}(_component2.default);
 
 	Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
 
+	_Soy2.default.register(Select, _Select2.default);
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	Select.ATTRS = {
+	Select.STATE = {
 		/**
    * The CSS class used by the select menu arrow.
    * @type {string}

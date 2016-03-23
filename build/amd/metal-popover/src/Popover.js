@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-tooltip/src/Tooltip', './Popover.soy'], function (exports, _metal, _Tooltip) {
+define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/Tooltip', './Popover.soy'], function (exports, _metal, _Soy, _Tooltip, _Popover) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -6,6 +6,10 @@ define(['exports', 'metal/src/metal', 'metal-tooltip/src/Tooltip', './Popover.so
 	});
 
 	var _metal2 = _interopRequireDefault(_metal);
+
+	var _Soy2 = _interopRequireDefault(_Soy);
+
+	var _Popover2 = _interopRequireDefault(_Popover);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -73,13 +77,18 @@ define(['exports', 'metal/src/metal', 'metal-tooltip/src/Tooltip', './Popover.so
 
 	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 
+	_Soy2.default.register(Popover, _Popover2.default);
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	Popover.ATTRS = {
+	Popover.STATE = {
+		/**
+   * The popover's content.
+   * @type {string}
+   */
 		content: {
 			validator: _metal2.default.isString
 		},
@@ -101,8 +110,6 @@ define(['exports', 'metal/src/metal', 'metal-tooltip/src/Tooltip', './Popover.so
   * @static
   */
 	Popover.Align = _Tooltip.TooltipBase.Align;
-
-	Popover.ELEMENT_CLASSES = 'popover';
 
 	exports.default = Popover;
 });

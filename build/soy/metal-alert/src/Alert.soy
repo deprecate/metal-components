@@ -1,4 +1,4 @@
-{namespace Templates.Alert}
+{namespace Alert}
 
 /**
  * This renders the main element
@@ -9,10 +9,9 @@
  * @param spinnerDone
  * @param? elementClasses
  * @param? spinnerClasses
- * @skipUpdates elementClasses
  */
 {template .render}
-	<div id="{$id}" class="alert alert-dismissible component{$elementClasses ? ' ' + $elementClasses : ''}" role="alert">
+	<div id="{$id}" class="alert{$dismissible ? ' alert-dismissible' : ''}{$elementClasses ? ' ' + $elementClasses : ''}" role="alert">
 		{if $spinner}
 			<span class="alert-spinner{$spinnerClasses ? ' ' + $spinnerClasses : ''}{$spinnerDone ? ' alert-spinner-done' : ''}"></span>
 		{/if}

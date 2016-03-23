@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-position/src/all/position'], function (exports, _metal, _Attribute2, _position) {
+define(['exports', 'metal/src/metal', 'metal-state/src/State', 'metal-position/src/all/position'], function (exports, _metal, _State2, _position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-po
 
 	var _metal2 = _interopRequireDefault(_metal);
 
-	var _Attribute3 = _interopRequireDefault(_Attribute2);
+	var _State3 = _interopRequireDefault(_State2);
 
 	var _position2 = _interopRequireDefault(_position);
 
@@ -47,8 +47,8 @@ define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-po
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var DragAutoScroll = function (_Attribute) {
-		_inherits(DragAutoScroll, _Attribute);
+	var DragAutoScroll = function (_State) {
+		_inherits(DragAutoScroll, _State);
 
 		/**
    * @inheritDoc
@@ -57,7 +57,7 @@ define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-po
 		function DragAutoScroll(opt_config) {
 			_classCallCheck(this, DragAutoScroll);
 
-			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			/**
     * The handler for the current call to `setTimeout`.
@@ -74,7 +74,7 @@ define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-po
 
 
 		DragAutoScroll.prototype.disposeInternal = function disposeInternal() {
-			_Attribute.prototype.disposeInternal.call(this);
+			_State.prototype.disposeInternal.call(this);
 			this.stop();
 		};
 
@@ -137,17 +137,17 @@ define(['exports', 'metal/src/metal', 'metal-attribute/src/Attribute', 'metal-po
 		};
 
 		return DragAutoScroll;
-	}(_Attribute3.default);
+	}(_State3.default);
 
 	DragAutoScroll.prototype.registerMetalComponent && DragAutoScroll.prototype.registerMetalComponent(DragAutoScroll, 'DragAutoScroll')
 
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	DragAutoScroll.ATTRS = {
+	DragAutoScroll.STATE = {
 		/**
    * The delay in ms before an element is scrolled automatically.
    * @type {number}

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/src/Attribute', 'metal-events/src/events', 'metal-position/src/all/position'], function (exports, _metal, _dom, _Attribute2, _events, _position) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/State', 'metal-events/src/events', 'metal-position/src/all/position'], function (exports, _metal, _dom, _State2, _events, _position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 
 	var _metal2 = _interopRequireDefault(_metal);
 
-	var _Attribute3 = _interopRequireDefault(_Attribute2);
+	var _State3 = _interopRequireDefault(_State2);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -49,8 +49,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Affix = function (_Attribute) {
-		_inherits(Affix, _Attribute);
+	var Affix = function (_State) {
+		_inherits(Affix, _State);
 
 		/**
    * @inheritDoc
@@ -59,7 +59,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		function Affix(opt_config) {
 			_classCallCheck(this, Affix);
 
-			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			if (!Affix.emitter_) {
 				Affix.emitter_ = new _events2.default();
@@ -97,7 +97,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		Affix.prototype.disposeInternal = function disposeInternal() {
 			_dom.dom.removeClasses(this.element, Affix.Position.Bottom + ' ' + Affix.Position.Default + ' ' + Affix.Position.Top);
 			this.scrollHandle_.dispose();
-			_Attribute.prototype.disposeInternal.call(this);
+			_State.prototype.disposeInternal.call(this);
 		};
 
 		Affix.prototype.checkPosition = function checkPosition() {
@@ -135,7 +135,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		};
 
 		return Affix;
-	}(_Attribute3.default);
+	}(_State3.default);
 
 	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
 
@@ -150,7 +150,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		Default: 'affix'
 	};
 
-	Affix.ATTRS = {
+	Affix.STATE = {
 		/**
    * The scrollElement element to be used as scrollElement area for affix. The scrollElement is
    * where the scroll event is listened from.

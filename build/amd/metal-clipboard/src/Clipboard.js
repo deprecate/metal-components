@@ -1,15 +1,15 @@
-define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-dom/src/all/dom'], function (exports, _Attribute3, _metal, _dom) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/State'], function (exports, _metal, _dom, _State3) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _Attribute4 = _interopRequireDefault(_Attribute3);
-
 	var _metal2 = _interopRequireDefault(_metal);
 
 	var _dom2 = _interopRequireDefault(_dom);
+
+	var _State4 = _interopRequireDefault(_State3);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -47,8 +47,8 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Clipboard = function (_Attribute) {
-		_inherits(Clipboard, _Attribute);
+	var Clipboard = function (_State) {
+		_inherits(Clipboard, _State);
 
 		/**
    * Delegates a click event to the passed selector.
@@ -57,7 +57,7 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
 		function Clipboard(opt_config) {
 			_classCallCheck(this, Clipboard);
 
-			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			_this.listener_ = _dom2.default.on(_this.selector, 'click', function (e) {
 				return _this.initialize(e);
@@ -94,17 +94,17 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
 		};
 
 		return Clipboard;
-	}(_Attribute4.default);
+	}(_State4.default);
 
 	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
 
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	Clipboard.ATTRS = {
+	Clipboard.STATE = {
 		/**
    * A function that returns the name of the clipboard action that should be done
    * when for the given element (either 'copy' or 'cut').
@@ -154,17 +154,17 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
   * ClipboardAction component.
   */
 
-	var ClipboardAction = function (_Attribute2) {
-		_inherits(ClipboardAction, _Attribute2);
+	var ClipboardAction = function (_State2) {
+		_inherits(ClipboardAction, _State2);
 
 		/**
-   * Initializes selection either from a `text` or `target` attribute.
+   * Initializes selection either from a `text` or `target` state.
    */
 
 		function ClipboardAction(opt_config) {
 			_classCallCheck(this, ClipboardAction);
 
-			var _this2 = _possibleConstructorReturn(this, _Attribute2.call(this, opt_config));
+			var _this2 = _possibleConstructorReturn(this, _State2.call(this, opt_config));
 
 			if (_this2.text) {
 				_this2.selectValue();
@@ -201,7 +201,7 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
 
 		ClipboardAction.prototype.disposeInternal = function disposeInternal() {
 			this.removeFakeElement();
-			_Attribute2.prototype.disposeInternal.call(this);
+			_State2.prototype.disposeInternal.call(this);
 		};
 
 		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
@@ -265,17 +265,17 @@ define(['exports', 'metal-attribute/src/Attribute', 'metal/src/metal', 'metal-do
 		};
 
 		return ClipboardAction;
-	}(_Attribute4.default);
+	}(_State4.default);
 
 	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
 
 
 	/**
-  * Attributes definition.
+  * State definition.
   * @type {!Object}
   * @static
   */
-	ClipboardAction.ATTRS = {
+	ClipboardAction.STATE = {
 		/**
    * The action to be performed (either 'copy' or 'cut').
    * @type {string}

@@ -117,18 +117,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 		}
 
 		/**
-   * Adds a simple attribute with the given name to the component, if it doesn't
-   * exist yet.
-   * @param {string} attrName
-   * @param {Object=} opt_initialValue Optional initial value for the new attr.
+   * Adds a simple state key to the component, if it doesn't exist yet.
+   * @param {string} key
+   * @param {Object=} opt_initialValue Optional initial value for the new key.
    * @protected
    */
 
 
-		SurfaceRenderer.prototype.addMissingAttr_ = function addMissingAttr_(attrName, opt_initialValue) {
-			if (!this.component_.getAttrConfig(attrName)) {
-				this.component_.addAttr(attrName, {}, opt_initialValue);
+		SurfaceRenderer.prototype.addMissingStateKey_ = function addMissingStateKey_(key, opt_initialValue) {
+			if (!this.component_.getStateKeyConfig(key)) {
+				this.component_.addToState(key, {}, opt_initialValue);
 			}
+		};
+
+		SurfaceRenderer.prototype.addSubComponent = function addSubComponent(componentName, componentId) {
+			var data = this.getSurfaceFromElementId(componentId).componentData || {};
+			data.id = componentId;
+			data.element = '#' + componentId;
+			return this.component_.addSubComponent(componentName, data);
 		};
 
 		SurfaceRenderer.prototype.addSurface = function addSurface(surfaceId, opt_surfaceConfig) {
@@ -144,7 +150,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 					this.addSubComponent(config.componentName, surfaceElementId);
 				}
 			}
-			this.cacheSurfaceRenderAttrs_(surfaceElementId, config.renderAttrs);
+			this.cacheSurfaceRenderKeys_(surfaceElementId, config.renderKeys);
 
 			return this;
 		};
@@ -158,7 +164,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 
 		SurfaceRenderer.prototype.addSurfacesFromStaticHint_ = function addSurfacesFromStaticHint_() {
 			_metal.core.mergeSuperClassesProperty(this.component_.constructor, 'SURFACES', this.mergeObjects_);
-			this.surfacesRenderAttrs_ = {};
+			this.surfacesRenderKeys_ = {};
 
 			var configs = this.component_.constructor.SURFACES_MERGED;
 			for (var surfaceId in configs) {
@@ -172,17 +178,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 				this.removedSurfaces_.push(surface);
 				surface.parent = null;
 			}
-		};
-
-		SurfaceRenderer.prototype.buildElement = function buildElement() {
-			var compId = this.component_.id;
-			var element = this.findElementInContent_(compId, this.getElementContent_(true) || '');
-			if (!element) {
-				element = this.findElementInContent_(compId, this.getComponentHtml(''));
-			}
-			_dom.dom.removeChildren(element);
-			_dom.dom.exitDocument(element);
-			return element;
 		};
 
 		SurfaceRenderer.prototype.buildFragment_ = function buildFragment_(content) {
@@ -207,14 +202,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 			surface.cacheState = cacheState;
 		};
 
-		SurfaceRenderer.prototype.cacheSurfaceRenderAttrs_ = function cacheSurfaceRenderAttrs_(surfaceElementId, renderAttrs) {
-			var attrs = renderAttrs || [];
-			for (var i = 0; i < attrs.length; i++) {
-				if (!this.surfacesRenderAttrs_[attrs[i]]) {
-					this.surfacesRenderAttrs_[attrs[i]] = {};
-					this.addMissingAttr_(attrs[i], this.component_.getInitialConfig()[attrs[i]]);
+		SurfaceRenderer.prototype.cacheSurfaceRenderKeys_ = function cacheSurfaceRenderKeys_(surfaceElementId, renderKeys) {
+			var keys = renderKeys || [];
+			for (var i = 0; i < keys.length; i++) {
+				if (!this.surfacesRenderKeys_[keys[i]]) {
+					this.surfacesRenderKeys_[keys[i]] = {};
+					this.addMissingStateKey_(keys[i], this.component_.getInitialConfig()[keys[i]]);
 				}
-				this.surfacesRenderAttrs_[attrs[i]][surfaceElementId] = true;
+				this.surfacesRenderKeys_[keys[i]][surfaceElementId] = true;
 			}
 		};
 
@@ -259,13 +254,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 			return surface;
 		};
 
-		SurfaceRenderer.prototype.addSubComponent = function addSubComponent(componentName, componentId) {
-			var data = this.getSurfaceFromElementId(componentId).componentData || {};
-			data.id = componentId;
-			data.element = '#' + componentId;
-			return this.component_.addSubComponent(componentName, data);
-		};
-
 		SurfaceRenderer.prototype.createSurfaceElement_ = function createSurfaceElement_(surfaceElementId) {
 			var el = document.createElement(this.component_.constructor.SURFACE_TAG_NAME_MERGED);
 			el.id = surfaceElementId;
@@ -305,7 +293,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 			this.eventsCollector_.dispose();
 			this.eventsCollector_ = null;
 
-			this.surfacesRenderAttrs_ = null;
+			this.surfacesRenderKeys_ = null;
 
 			Object.keys(this.surfaceIds_).forEach(function (surfaceId) {
 				return _this2.removeSurface(surfaceId, true);
@@ -313,11 +301,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 			this.surfaceIds_ = null;
 		};
 
-		SurfaceRenderer.prototype.emitRenderSurfaceEvent_ = function emitRenderSurfaceEvent_(surfaceElementId, opt_content, opt_cacheContent, opt_renderAttrs) {
+		SurfaceRenderer.prototype.emitRenderSurfaceEvent_ = function emitRenderSurfaceEvent_(surfaceElementId, opt_content, opt_cacheContent, opt_renderKeys) {
 			this.emit('renderSurface', {
 				cacheContent: opt_cacheContent,
 				content: opt_content,
-				renderAttrs: opt_renderAttrs || [],
+				renderKeys: opt_renderKeys || [],
 				surfaceElementId: surfaceElementId,
 				surfaceId: this.getSurfaceId(this.getSurfaceFromElementId(surfaceElementId))
 			});
@@ -337,11 +325,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 		};
 
 		SurfaceRenderer.prototype.getComponentHtml = function getComponentHtml(content) {
-			return this.wrapContentIfNecessary(content, this.component_.id, this.component_.constructor.ELEMENT_TAG_NAME_MERGED);
+			return this.wrapContentIfNecessary(content, this.component_.id, 'div');
 		};
 
-		SurfaceRenderer.prototype.getElementContent_ = function getElementContent_(opt_skipContents) {
-			return this.getSurfaceContent(this.getSurface(this.component_.id), opt_skipContents);
+		SurfaceRenderer.prototype.getElementContent_ = function getElementContent_() {
+			return this.getSurfaceContent(this.getSurface(this.component_.id));
 		};
 
 		SurfaceRenderer.prototype.getElementExtendedContent = function getElementExtendedContent() {
@@ -353,13 +341,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 
 		SurfaceRenderer.prototype.getModifiedSurfacesFromChanges_ = function getModifiedSurfacesFromChanges_(changes) {
 			var surfaces = {};
-			for (var attr in changes) {
-				var surfaceNames = Object.keys(this.surfacesRenderAttrs_[attr] || {});
+			for (var key in changes) {
+				var surfaceNames = Object.keys(this.surfacesRenderKeys_[key] || {});
 				for (var i = 0; i < surfaceNames.length; i++) {
 					if (!surfaces[surfaceNames[i]]) {
 						surfaces[surfaceNames[i]] = [];
 					}
-					surfaces[surfaceNames[i]].push(attr);
+					surfaces[surfaceNames[i]].push(key);
 				}
 			}
 			return surfaces;
@@ -503,7 +491,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 
 		SurfaceRenderer.prototype.render = function render(data) {
 			var id = this.component_.id;
-			if (data.decorating) {
+			if (data.decorating && this.component_.element) {
 				var extendedContent = this.getElementExtendedContent();
 				var extendedCacheState = this.computeSurfaceCacheState_(extendedContent);
 				var originalContent = _html2.default.compress(this.component_.element.outerHTML);
@@ -522,7 +510,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 				var surface = this.getSurfaceFromElementId(surfaceElementId);
 				_Component2.default.componentsCollector.updateComponent(surfaceElementId, surface.componentData);
 			} else {
-				if (opt_content && _dom.dom.isEmpty(component.element)) {
+				if (!component.element) {
+					component.element = this.component_.findElementById(surfaceElementId);
+				} else if (opt_content && _dom.dom.isEmpty(component.element)) {
 					// If we have the rendered content for this component, but it hasn't
 					// been rendered in its element yet, we render it manually here. That
 					// can happen if the subcomponent's element is set before the parent
@@ -571,10 +561,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-html/src/h
 			var element = this.component_.element;
 			var newContent = this.buildFragment_(content);
 			var newElement = this.findElementInContent_(this.component_.id, newContent);
+
+			if (!element) {
+				if (newElement) {
+					this.component_.element = newElement;
+					return;
+				} else {
+					this.component_.element = document.createElement('div');
+					element = this.component_.element;
+				}
+			}
+
 			if (newElement) {
 				this.updateElementAttributes_(element, newElement);
 				newContent = newElement.childNodes;
 			}
+
 			_dom.dom.removeChildren(element);
 			_dom.dom.append(element, newContent);
 		};

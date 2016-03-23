@@ -56,10 +56,13 @@ define(['exports', './ComponentRegistry', 'metal/src/metal'], function (exports,
 			ComponentCollector.components[component.id] = component;
 		};
 
-		ComponentCollector.prototype.createComponent = function createComponent(componentName, opt_data) {
+		ComponentCollector.prototype.createComponent = function createComponent(componentNameOrCtor, opt_data) {
 			var component = ComponentCollector.components[(opt_data || {}).id];
 			if (!component) {
-				var ConstructorFn = _ComponentRegistry2.default.getConstructor(componentName);
+				var ConstructorFn = componentNameOrCtor;
+				if (_metal.core.isString(ConstructorFn)) {
+					ConstructorFn = _ComponentRegistry2.default.getConstructor(componentNameOrCtor);
+				}
 				component = new ConstructorFn(opt_data);
 			}
 			return component;
@@ -72,7 +75,7 @@ define(['exports', './ComponentRegistry', 'metal/src/metal'], function (exports,
 		ComponentCollector.prototype.updateComponent = function updateComponent(id, opt_data) {
 			var component = ComponentCollector.components[id];
 			if (component && opt_data) {
-				component.setAttrs(opt_data);
+				component.setState(opt_data);
 			}
 			return component;
 		};

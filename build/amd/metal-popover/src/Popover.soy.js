@@ -1,11 +1,14 @@
-define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], function (exports, _component, _soy) {
+define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.templates = exports.Popover = undefined;
 
-  var _component2 = _interopRequireDefault(_component);
+  var _Component3 = _interopRequireDefault(_Component2);
+
+  var _Soy2 = _interopRequireDefault(_Soy);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -43,67 +46,66 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], fu
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Templates = _soy.SoyTemplates.get();
-  // This file was automatically generated from Popover.soy.
-  // Please don't edit this file by hand.
+  var templates;
+  goog.loadModule(function (exports) {
 
-  /**
-   * @fileoverview Templates in namespace Templates.Popover.
-   */
+    // This file was automatically generated from Popover.soy.
+    // Please don't edit this file by hand.
 
-  if (typeof Templates.Popover == 'undefined') {
-    Templates.Popover = {};
-  }
+    /**
+     * @fileoverview Templates in namespace Popover.
+     * @public
+     */
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Popover.render = function (opt_data, opt_ignored, opt_ijData) {
-    var output = '';
-    var positionClasses__soy3 = ['top', 'right', 'bottom', 'left'];
-    var positionClass__soy4 = opt_data.position != null ? positionClasses__soy3[opt_data.position] : 'bottom';
-    output += '<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="popover component ' + soy.$$escapeHtmlAttribute(positionClass__soy4) + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '" role="tooltip"><div class="arrow"></div>' + Templates.Popover.title(opt_data, null, opt_ijData) + Templates.Popover.innerContent(opt_data, null, opt_ijData) + '</div>';
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml(output);
-  };
-  if (goog.DEBUG) {
-    Templates.Popover.render.soyTemplateName = 'Templates.Popover.render';
-  }
+    goog.module('Popover.incrementaldom');
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Popover.title = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<h3 id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-title" class="popover-title' + soy.$$escapeHtmlAttribute(opt_data.title ? '' : ' hidden') + '">' + soy.$$escapeHtml(opt_data.title) + '</h3>');
-  };
-  if (goog.DEBUG) {
-    Templates.Popover.title.soyTemplateName = 'Templates.Popover.title';
-  }
+    var soy = goog.require('soy');
+    var soydata = goog.require('soydata');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    var IncrementalDom = goog.require('incrementaldom');
+    var ie_open = IncrementalDom.elementOpen;
+    var ie_close = IncrementalDom.elementClose;
+    var ie_void = IncrementalDom.elementVoid;
+    var ie_open_start = IncrementalDom.elementOpenStart;
+    var ie_open_end = IncrementalDom.elementOpenEnd;
+    var itext = IncrementalDom.text;
+    var iattr = IncrementalDom.attr;
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Popover.innerContent = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-innerContent" class="popover-content"><p>' + soy.$$escapeHtml(opt_data.content ? opt_data.content : '') + '</p></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Popover.innerContent.soyTemplateName = 'Templates.Popover.innerContent';
-  }
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render(opt_data, opt_ignored, opt_ijData) {
+      var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
+      var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
+      var positionClass__soy5 = currentPosition__soy4 != null ? positionClasses__soy3[currentPosition__soy4] : 'bottom';
+      ie_open('div', null, null, 'id', opt_data.id, 'class', 'popover ' + positionClass__soy5 + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tooltip');
+      ie_void('div', null, null, 'class', 'arrow');
+      ie_open('h3', null, null, 'class', 'popover-title' + (opt_data.title ? '' : ' hidden'));
+      itext((goog.asserts.assert((opt_data.title ? opt_data.title : '') != null), opt_data.title ? opt_data.title : ''));
+      ie_close('h3');
+      ie_open('div', null, null, 'class', 'popover-content');
+      ie_open('p');
+      itext((goog.asserts.assert((opt_data.content ? opt_data.content : '') != null), opt_data.content ? opt_data.content : ''));
+      ie_close('p');
+      ie_close('div');
+      ie_close('div');
+    }
+    exports.render = $render;
+    if (goog.DEBUG) {
+      $render.soyTemplateName = 'Popover.render';
+    }
 
-  Templates.Popover.render.params = ["id"];
-  Templates.Popover.title.params = ["id", "title"];
-  Templates.Popover.innerContent.params = ["content", "id"];
+    exports.render.params = ["alignedPosition", "content", "elementClasses", "id", "position", "title"];
+    exports.templates = templates = exports;
+    return exports;
+  });
 
   var Popover = function (_Component) {
     _inherits(Popover, _Component);
@@ -115,12 +117,13 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], fu
     }
 
     return Popover;
-  }(_component2.default);
+  }(_Component3.default);
 
   Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
 
-  Popover.RENDERER = _soy.SoyRenderer;
-  _soy.SoyAop.registerTemplates('Popover');
-  exports.default = Popover;
+  _Soy2.default.register(Popover, templates);
+  exports.default = templates;
+  exports.Popover = Popover;
+  exports.templates = templates;
 });
 //# sourceMappingURL=Popover.soy.js.map

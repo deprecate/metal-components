@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'metal-anim/src/Anim', 'metal-events/src/events', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Alert, _Anim, _events, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/Anim', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-soy/src/Soy', './Alert.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Anim, _component, _events, _Soy, _Alert, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,9 +7,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Alert2 = _interopRequireDefault(_Alert);
-
 	var _Anim2 = _interopRequireDefault(_Anim);
+
+	var _component2 = _interopRequireDefault(_component);
+
+	var _Soy2 = _interopRequireDefault(_Soy);
+
+	var _Alert2 = _interopRequireDefault(_Alert);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -49,13 +53,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Alert = function (_AlertBase) {
-		_inherits(Alert, _AlertBase);
+	var Alert = function (_Component) {
+		_inherits(Alert, _Component);
 
 		function Alert(opt_config) {
 			_classCallCheck(this, Alert);
 
-			var _this = _possibleConstructorReturn(this, _AlertBase.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
 
 			_this.eventHandler_ = new _events.EventHandler();
 			return _this;
@@ -67,7 +71,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 
 
 		Alert.prototype.detached = function detached() {
-			_AlertBase.prototype.detached.call(this);
+			_Component.prototype.detached.call(this);
 			this.eventHandler_.removeAllListeners();
 			clearTimeout(this.delay_);
 		};
@@ -103,8 +107,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 			} else {
 				this.eventHandler_.removeAllListeners();
 			}
+		};
 
-			_dom2.default[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
+		Alert.prototype.syncHideDelay = function syncHideDelay(hideDelay) {
+			if (_metal.core.isNumber(hideDelay) && this.visible) {
+				clearTimeout(this.delay_);
+				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
+			}
 		};
 
 		Alert.prototype.syncVisible = function syncVisible(visible) {
@@ -119,33 +128,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Alert.soy', 'm
 			}
 		};
 
-		Alert.prototype.syncHideDelay = function syncHideDelay(hideDelay) {
-			if (_metal.core.isNumber(hideDelay) && this.visible) {
-				clearTimeout(this.delay_);
-				this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
-			}
-		};
-
 		return Alert;
-	}(_Alert2.default);
+	}(_component2.default);
 
 	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
 
+	_Soy2.default.register(Alert, _Alert2.default);
 
 	/**
-  * Default alert elementClasses.
-  * @default alert
-  * @type {string}
-  * @static
-  */
-	Alert.ELEMENT_CLASSES = 'alert';
-
-	/**
-  * Alert attributes definition.
+  * Alert state definition.
   * @type {!Object}
   * @static
   */
-	Alert.ATTRS = {
+	Alert.STATE = {
 		/**
    * The CSS classes that should be added to the alert when being shown/hidden.
    * @type {!Object}

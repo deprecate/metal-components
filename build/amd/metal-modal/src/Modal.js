@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src/events', './Modal.soy'], function (exports, _metal, _dom, _events, _Modal) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src/events', './Modal.soy', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _metal, _dom, _events, _Modal, _component, _Soy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -10,6 +10,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Modal2 = _interopRequireDefault(_Modal);
+
+	var _component2 = _interopRequireDefault(_component);
+
+	var _Soy2 = _interopRequireDefault(_Soy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -47,8 +51,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Modal = function (_ModalBase) {
-		_inherits(Modal, _ModalBase);
+	var Modal = function (_Component) {
+		_inherits(Modal, _Component);
 
 		/**
    * @inheritDoc
@@ -57,7 +61,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		function Modal(opt_config) {
 			_classCallCheck(this, Modal);
 
-			var _this = _possibleConstructorReturn(this, _ModalBase.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
 
 			_this.eventHandler_ = new _events.EventHandler();
 			return _this;
@@ -82,14 +86,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		};
 
 		Modal.prototype.detached = function detached() {
-			_ModalBase.prototype.detached.call(this);
+			_Component.prototype.detached.call(this);
 			this.eventHandler_.removeAllListeners();
 		};
 
 		Modal.prototype.disposeInternal = function disposeInternal() {
 			_dom2.default.exitDocument(this.overlayElement);
 			this.unrestrictFocus_();
-			_ModalBase.prototype.disposeInternal.call(this);
+			_Component.prototype.disposeInternal.call(this);
 		};
 
 		Modal.prototype.handleDocumentFocus_ = function handleDocumentFocus_(event) {
@@ -160,20 +164,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		};
 
 		return Modal;
-	}(_Modal2.default);
+	}(_component2.default);
 
 	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
 
 
-	/**
-  * Default modal elementClasses.
-  * @default modal
-  * @type {string}
-  * @static
-  */
-	Modal.ELEMENT_CLASSES = 'modal';
-
-	Modal.ATTRS = {
+	Modal.STATE = {
 		/**
    * A selector for the element that should be automatically focused when the modal
    * becomes visible, or `false` if no auto focus should happen. Defaults to the
@@ -250,6 +246,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 			value: 'dialog'
 		}
 	};
+
+	_Soy2.default.register(Modal, _Modal2.default);
 
 	exports.default = Modal;
 });

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/src/Attribute', 'metal-position/src/all/position'], function (exports, _metal, _dom, _Attribute2, _position) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', 'metal-state/src/State'], function (exports, _metal, _dom, _position, _State2) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,9 +9,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Attribute3 = _interopRequireDefault(_Attribute2);
-
 	var _position2 = _interopRequireDefault(_position);
+
+	var _State3 = _interopRequireDefault(_State2);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -49,8 +49,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Scrollspy = function (_Attribute) {
-		_inherits(Scrollspy, _Attribute);
+	var Scrollspy = function (_State) {
+		_inherits(Scrollspy, _State);
 
 		/**
    * @inheritDoc
@@ -59,7 +59,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		function Scrollspy(opt_config) {
 			_classCallCheck(this, Scrollspy);
 
-			var _this = _possibleConstructorReturn(this, _Attribute.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			/**
     * Holds the regions cache.
@@ -88,7 +88,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		Scrollspy.prototype.disposeInternal = function disposeInternal() {
 			this.deactivateAll();
 			this.scrollHandle_.dispose();
-			_Attribute.prototype.disposeInternal.call(this);
+			_State.prototype.disposeInternal.call(this);
 		};
 
 		Scrollspy.prototype.activate = function activate(index) {
@@ -215,15 +215,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-attribute/
 		};
 
 		return Scrollspy;
-	}(_Attribute3.default);
+	}(_State3.default);
 
 	Scrollspy.prototype.registerMetalComponent && Scrollspy.prototype.registerMetalComponent(Scrollspy, 'Scrollspy')
 
 
-	Scrollspy.ATTRS = {
+	Scrollspy.STATE = {
 		/**
    * Class to be used as active class.
-   * @attribute activeClass
    * @type {string}
    */
 		activeClass: {

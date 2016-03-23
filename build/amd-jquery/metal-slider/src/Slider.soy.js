@@ -1,11 +1,14 @@
-define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], function (exports, _component, _soy) {
+define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
+  exports.templates = exports.Slider = undefined;
 
-  var _component2 = _interopRequireDefault(_component);
+  var _Component3 = _interopRequireDefault(_Component2);
+
+  var _Soy2 = _interopRequireDefault(_Soy);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -43,78 +46,66 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], fu
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   }
 
-  var Templates = _soy.SoyTemplates.get();
-  // This file was automatically generated from Slider.soy.
-  // Please don't edit this file by hand.
+  var templates;
+  goog.loadModule(function (exports) {
 
-  /**
-   * @fileoverview Templates in namespace Templates.Slider.
-   */
+    // This file was automatically generated from Slider.soy.
+    // Please don't edit this file by hand.
 
-  if (typeof Templates.Slider == 'undefined') {
-    Templates.Slider = {};
-  }
+    /**
+     * @fileoverview Templates in namespace Slider.
+     * @public
+     */
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Slider.render = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '" class="slider component' + soy.$$escapeHtmlAttribute(opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + '">' + Templates.Slider.input(opt_data, null, opt_ijData) + Templates.Slider.label(opt_data, null, opt_ijData) + Templates.Slider.rail(opt_data, null, opt_ijData) + '</div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Slider.render.soyTemplateName = 'Templates.Slider.render';
-  }
+    goog.module('Slider.incrementaldom');
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Slider.input = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-input"><input name="' + soy.$$escapeHtmlAttribute(opt_data.inputName ? opt_data.inputName : opt_data.id) + '" type="hidden" value="' + soy.$$escapeHtmlAttribute(opt_data.value) + '"></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Slider.input.soyTemplateName = 'Templates.Slider.input';
-  }
+    var soy = goog.require('soy');
+    var soydata = goog.require('soydata');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    var IncrementalDom = goog.require('incrementaldom');
+    var ie_open = IncrementalDom.elementOpen;
+    var ie_close = IncrementalDom.elementClose;
+    var ie_void = IncrementalDom.elementVoid;
+    var ie_open_start = IncrementalDom.elementOpenStart;
+    var ie_open_end = IncrementalDom.elementOpenEnd;
+    var itext = IncrementalDom.text;
+    var iattr = IncrementalDom.attr;
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Slider.label = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-label"><span>' + soy.$$escapeHtml(opt_data.value) + '</span></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Slider.label.soyTemplateName = 'Templates.Slider.label';
-  }
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render(opt_data, opt_ignored, opt_ijData) {
+      ie_open('div', null, null, 'id', opt_data.id, 'class', 'slider component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      ie_open('input', null, null, 'name', opt_data.inputName ? opt_data.inputName : opt_data.id, 'type', 'hidden', 'value', opt_data.value);
+      ie_close('input');
+      ie_open('span');
+      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      ie_close('span');
+      var percentage__soy14 = 100 * (opt_data.value - opt_data.min) / (opt_data.max - opt_data.min) + '%';
+      ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
+      ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy14);
+      ie_open('div', null, null, 'class', 'rail-handle');
+      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0');
+      ie_close('div');
+      ie_close('div');
+      ie_close('div');
+    }
+    exports.render = $render;
+    if (goog.DEBUG) {
+      $render.soyTemplateName = 'Slider.render';
+    }
 
-  /**
-   * @param {Object.<string, *>=} opt_data
-   * @param {(null|undefined)=} opt_ignored
-   * @param {Object.<string, *>=} opt_ijData
-   * @return {!soydata.SanitizedHtml}
-   * @suppress {checkTypes}
-   */
-  Templates.Slider.rail = function (opt_data, opt_ignored, opt_ijData) {
-    return soydata.VERY_UNSAFE.ordainSanitizedHtml('<div id="' + soy.$$escapeHtmlAttribute(opt_data.id) + '-rail"><div class="rail" data-onmousedown="onRailMouseDown_"><div class="rail-active"></div><div class="rail-handle"><div class="handle" tabindex="0"></div></div></div></div>');
-  };
-  if (goog.DEBUG) {
-    Templates.Slider.rail.soyTemplateName = 'Templates.Slider.rail';
-  }
-
-  Templates.Slider.render.params = ["id"];
-  Templates.Slider.input.params = ["id", "inputName", "value"];
-  Templates.Slider.label.params = ["id", "value"];
-  Templates.Slider.rail.params = ["id"];
+    exports.render.params = ["elementClasses", "id", "inputName", "max", "min", "value"];
+    exports.templates = templates = exports;
+    return exports;
+  });
 
   var Slider = function (_Component) {
     _inherits(Slider, _Component);
@@ -126,12 +117,13 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/soy'], fu
     }
 
     return Slider;
-  }(_component2.default);
+  }(_Component3.default);
 
   Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
 
-  Slider.RENDERER = _soy.SoyRenderer;
-  _soy.SoyAop.registerTemplates('Slider');
-  exports.default = Slider;
+  _Soy2.default.register(Slider, templates);
+  exports.default = templates;
+  exports.Slider = Slider;
+  exports.templates = templates;
 });
 //# sourceMappingURL=Slider.soy.js.map
