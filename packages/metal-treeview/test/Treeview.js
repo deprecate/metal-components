@@ -312,9 +312,11 @@ describe('Treeview', function() {
 				}
 			]
 		};
-		IncrementalDOM.patch(document.body, () => Treeview.TEMPLATE(data));
+		var element = document.createElement('div');
+		IncrementalDOM.patch(element, () => Treeview.TEMPLATE(data));
 
-		var element = document.getElementById('decorated');
+		element = element.querySelector('#decorated');
+		dom.enterDocument(element);
 		var soyRenderedContent = element.innerHTML;
 
 		treeview = new Treeview(object.mixin({
