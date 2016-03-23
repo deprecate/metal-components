@@ -11,6 +11,7 @@ module.exports = function (config) {
 		'src/**/*.scss'
 	);
 	config.preprocessors['src/**/*.scss'] = ['scss'];
+	config.preprocessors['node_modules/metal-drag-drop/test/**/*.js'] = ['babel', 'commonjs'];
 	config.scssPreprocessor = {
 		options: {
 			sourceMap: true

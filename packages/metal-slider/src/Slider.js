@@ -1,29 +1,18 @@
 'use strict';
 
 import core from 'metal';
+import dom from 'metal-dom';
+import Component from 'metal-component';
 import { Drag } from 'metal-drag-drop';
 import Position from 'metal-position';
-import SliderBase from './Slider.soy';
+import Soy from 'metal-soy';
+
+import templates from './Slider.soy';
 
 /**
  * Slider component.
  */
-class Slider extends SliderBase {
-	/**
-	 * @inheritDoc
-	 */
-	constructor(opt_config) {
-		super(opt_config);
-
-		/**
-		 * Map of different slider DOM elements. Used as a cache to prevent unnecessary dom lookups
-		 * on succesive queries.
-		 * @type {Map}
-		 * @protected
-		 */
-		this.elements_ = new Map();
-	}
-
+class Slider extends Component {
 	/**
 	 * @inheritDoc
 	 */
@@ -34,17 +23,10 @@ class Slider extends SliderBase {
 		 * @protected
 		 */
 		this.drag_ = new Drag({
-			constrain: this.getElement_('.rail'),
-			handles: this.getElement_('.handle'),
-			sources: this.getElement_('.rail-handle')
+			constrain: this.element.querySelector('.rail'),
+			handles: this.element.querySelector('.handle'),
+			sources: this.element.querySelector('.rail-handle')
 		});
-
-		/**
-		 * Position and dimensions of the slider element.
-		 * @type {DOMRect}
-		 * @protected
-		 */
-		this.elementRegion_ = Position.getRegion(this.element);
 
 		this.attachDragEvents_();
 	}
@@ -63,28 +45,7 @@ class Slider extends SliderBase {
 	 */
 	disposeInternal() {
 		super.disposeInternal();
-
 		this.drag_.dispose();
-		this.elements_ = null;
-		this.elementRegion_ = null;
-	}
-
-	/**
-	 * Returns a DOM element inside the slider component based on a selector query.
-	 * @param {string} query Query selector matching the desired element inside the Slider.
-	 * @return {Element} The slider element, or null if none was found.
-	 * @protected
-	 */
-	getElement_(query) {
-		let element = this.elements_.get(query);
-
-		if (!element) {
-			element = this.element.querySelector(query);
-
-			this.elements_.set(query, element);
-		}
-
-		return element;
 	}
 
 	/**
@@ -93,14 +54,14 @@ class Slider extends SliderBase {
 	 * @protected
 	 */
 	onRailMouseDown_(event) {
-		if (event.target === this.getElement_('.rail') || event.target === this.getElement_('.rail-active')) {
+		if (dom.hasClass(event.target, 'rail') || dom.hasClass(event.target, 'rail-active')) {
 			this.updateValue_(event.offsetX, 0);
 		}
 	}
 
 	/**
-	 * Synchronizes the slider UI with the max attribute.
-	 * @param {number} newVal The new value of the attribute.
+	 * Synchronizes the slider UI with the `max` state key.
+	 * @param {number} newVal The new value of the state key.
 	 */
 	syncMax(newVal) {
 		if (newVal < this.value) {
@@ -111,8 +72,8 @@ class Slider extends SliderBase {
 	}
 
 	/**
-	 * Synchronizes the slider UI with the min attribute.
-	 * @param {number} newVal The new value of the attribute.
+	 * Synchronizes the slider UI with the `min` state key.
+	 * @param {number} newVal The new value of the state key.
 	 */
 	syncMin(newVal) {
 		if (newVal > this.value) {
@@ -135,13 +96,10 @@ class Slider extends SliderBase {
 	 * @protected
 	 */
 	updateHandlePosition_() {
-		let positionValue = (100 * (this.value - this.min) / (this.max - this.min)) + '%';
-
-		if (!(this.drag_ && this.drag_.isDragging())) {
-			this.getElement_('.rail-handle').style.left = positionValue;
+		if (!this.drag_ || !this.drag_.isDragging()) {
+			let positionValue = (100 * (this.value - this.min) / (this.max - this.min)) + '%';
+			this.element.querySelector('.rail-handle').style.left = positionValue;
 		}
-
-		this.getElement_('.rail-active').style.width = positionValue;
 	}
 
 	/**
@@ -151,7 +109,8 @@ class Slider extends SliderBase {
 	 * @protected
 	 */
 	updateValue_(handlePosition, offset) {
-		this.value = Math.round(offset + (handlePosition / this.elementRegion_.width) * (this.max - this.min));
+		var region = Position.getRegion(this.element);
+		this.value = Math.round(offset + (handlePosition / region.width) * (this.max - this.min));
 	}
 
 	/**
@@ -163,8 +122,12 @@ class Slider extends SliderBase {
 		this.updateValue_(data.relativeX, this.min);
 	}
 }
+Soy.register(Slider, templates);
 
-Slider.ATTRS = {
+/**
+ * `Slider`'s state definition.
+ */
+Slider.STATE = {
 	/**
 	 * Name of the hidden input field that holds the slider value. Useful when slider is embedded
 	 * inside a form so it can automatically send its value.
@@ -204,13 +167,5 @@ Slider.ATTRS = {
 		value: 80
 	}
 };
-
-/**
- * Default slider elementClasses.
- * @default slider
- * @type {string}
- * @static
- */
-Slider.ELEMENT_CLASSES = 'slider';
 
 export default Slider;
