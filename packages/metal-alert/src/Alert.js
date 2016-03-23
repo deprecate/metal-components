@@ -2,14 +2,17 @@
 
 import { core } from 'metal';
 import dom from 'metal-dom';
-import AlertBase from './Alert.soy';
 import Anim from 'metal-anim';
+import Component from 'metal-component';
 import { EventHandler } from 'metal-events';
+import Soy from 'metal-soy';
+
+import templates from './Alert.soy';
 
 /**
  * Alert component.
  */
-class Alert extends AlertBase {
+class Alert extends Component {
 	constructor(opt_config) {
 		super(opt_config);
 		this.eventHandler_ = new EventHandler();
@@ -67,7 +70,7 @@ class Alert extends AlertBase {
 	}
 
 	/**
-	 * Synchronization logic for `dismissible` attribute.
+	 * Synchronization logic for `dismissible` state.
 	 * @param {boolean} dismissible
 	 */
 	syncDismissible(dismissible) {
@@ -76,12 +79,21 @@ class Alert extends AlertBase {
 		} else {
 			this.eventHandler_.removeAllListeners();
 		}
-
-		dom[dismissible ? 'addClasses' : 'removeClasses'](this.element, 'alert-dismissible');
 	}
 
 	/**
-	 * Synchronization logic for `visible` attribute.
+	 * Synchronization logic for `hideDelay` state.
+	 * @param {?number} hideDelay
+	 */
+	syncHideDelay(hideDelay) {
+		if (core.isNumber(hideDelay) && this.visible) {
+			clearTimeout(this.delay_);
+			this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
+		}
+	}
+
+	/**
+	 * Synchronization logic for `visible` state.
 	 * @param {boolean} visible
 	 */
 	syncVisible(visible) {
@@ -95,34 +107,15 @@ class Alert extends AlertBase {
 			this.syncHideDelay(this.hideDelay);
 		}
 	}
-
-	/**
-	 * Synchronization logic for `hideDelay` attribute.
-	 * @param {?number} hideDelay
-	 */
-	syncHideDelay(hideDelay) {
-		if (core.isNumber(hideDelay) && this.visible) {
-			clearTimeout(this.delay_);
-			this.delay_ = setTimeout(this.hide.bind(this), hideDelay);
-		}
-	}
-
 }
+Soy.register(Alert, templates);
 
 /**
- * Default alert elementClasses.
- * @default alert
- * @type {string}
- * @static
- */
-Alert.ELEMENT_CLASSES = 'alert';
-
-/**
- * Alert attributes definition.
+ * Alert state definition.
  * @type {!Object}
  * @static
  */
-Alert.ATTRS = {
+Alert.STATE = {
 	/**
 	 * The CSS classes that should be added to the alert when being shown/hidden.
 	 * @type {!Object}

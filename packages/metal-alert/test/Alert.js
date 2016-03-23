@@ -2,7 +2,6 @@
 
 import dom from 'metal-dom';
 import Alert from '../src/Alert';
-import { SoyTemplates } from 'metal-soy';
 
 describe('Alert', function() {
 	var component;
@@ -92,15 +91,12 @@ describe('Alert', function() {
 			spinnerClasses: 'my-spinner',
 			dismissible: true
 		};
+		IncrementalDOM.patch(document.body, () => Alert.TEMPLATE(config));
 
-		var markup = SoyTemplates.get('Alert', 'render')(config);
-		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('alert').outerHTML;
 		component = new Alert(config).decorate();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
-
-		component.dispose();
 	});
 
 	it('should close alert when click outside', function(done) {
@@ -158,9 +154,9 @@ describe('Alert', function() {
 			spinnerDone: false
 		}).render();
 		assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
-		component.once('attrsChanged', () => {
+		component.once('stateChanged', () => {
 			assert.ok(dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
-			component.once('attrsChanged', () => {
+			component.once('stateChanged', () => {
 				assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
 				done();
 			});
