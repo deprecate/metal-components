@@ -52,7 +52,7 @@ function $render(opt_data, opt_ignored, opt_ijData) {
         'class', 'list-main-content pull-left');
       ie_open('div', null, null,
           'class', 'list-text-primary');
-        itext((goog.asserts.assert((opt_data.item.textPrimary ? opt_data.item.textPrimary : '') != null), opt_data.item.textPrimary ? opt_data.item.textPrimary : ''));
+        $htmlContent({content: opt_data.item.textPrimary}, null, opt_ijData);
       ie_close('div');
       if (opt_data.item.textSecondary) {
         ie_open('div', null, null,
@@ -62,22 +62,22 @@ function $render(opt_data, opt_ignored, opt_ijData) {
       }
     ie_close('div');
     if (opt_data.item.icons) {
-      var iconList50 = opt_data.item.icons;
-      var iconListLen50 = iconList50.length;
-      for (var iconIndex50 = 0; iconIndex50 < iconListLen50; iconIndex50++) {
-        var iconData50 = iconList50[iconIndex50];
+      var iconList51 = opt_data.item.icons;
+      var iconListLen51 = iconList51.length;
+      for (var iconIndex51 = 0; iconIndex51 < iconListLen51; iconIndex51++) {
+        var iconData51 = iconList51[iconIndex51];
         ie_void('span', null, null,
-            'class', 'btn-icon ' + iconData50 + ' pull-right');
+            'class', 'btn-icon ' + iconData51 + ' pull-right');
       }
     }
     if (opt_data.item.iconsHtml) {
       ie_open('div', null, null,
           'class', 'pull-right');
-        var iconHtmlList57 = opt_data.item.iconsHtml;
-        var iconHtmlListLen57 = iconHtmlList57.length;
-        for (var iconHtmlIndex57 = 0; iconHtmlIndex57 < iconHtmlListLen57; iconHtmlIndex57++) {
-          var iconHtmlData57 = iconHtmlList57[iconHtmlIndex57];
-          $htmlContent({content: iconHtmlData57}, null, opt_ijData);
+        var iconHtmlList58 = opt_data.item.iconsHtml;
+        var iconHtmlListLen58 = iconHtmlList58.length;
+        for (var iconHtmlIndex58 = 0; iconHtmlIndex58 < iconHtmlListLen58; iconHtmlIndex58++) {
+          var iconHtmlData58 = iconHtmlList58[iconHtmlIndex58];
+          $htmlContent({content: iconHtmlData58}, null, opt_ijData);
         }
       ie_close('div');
     }
@@ -97,7 +97,7 @@ if (goog.DEBUG) {
 
 /**
  * @param {{
- *    content: (!soydata.SanitizedHtml|string)
+ *    content: (?soydata.SanitizedHtml|string|undefined)
  * }} opt_data
  * @param {(null|undefined)=} opt_ignored
  * @param {Object<string, *>=} opt_ijData
@@ -105,9 +105,12 @@ if (goog.DEBUG) {
  * @suppress {checkTypes}
  */
 function $htmlContent(opt_data, opt_ignored, opt_ijData) {
-  soy.asserts.assertType((opt_data.content instanceof Function) || (opt_data.content instanceof soydata.UnsanitizedText) || goog.isString(opt_data.content), 'content', opt_data.content, 'Function');
-  var content = /** @type {Function} */ (opt_data.content);
-  content();
+  opt_data = opt_data || {};
+  soy.asserts.assertType(opt_data.content == null || (opt_data.content instanceof Function) || (opt_data.content instanceof soydata.UnsanitizedText) || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
+  var content = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.content);
+  if (content) {
+    content();
+  }
 }
 exports.htmlContent = $htmlContent;
 if (goog.DEBUG) {

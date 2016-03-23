@@ -16,7 +16,11 @@
 			</span>
 		{/if}
 		<div class="list-main-content pull-left">
-			<div class="list-text-primary">{$item.textPrimary ? $item.textPrimary : ''}</div>
+			<div class="list-text-primary">
+				{call .htmlContent}
+					{param content: $item.textPrimary /}
+				{/call}
+			</div>
 			{if $item.textSecondary}
 				<div class="list-text-secondary">{$item.textSecondary}</div>
 			{/if}
@@ -46,7 +50,9 @@
 /**
  * Prints the given param content as html.
  */
-{template .htmlContent}
-	{@param content: html}
-	{$content}
+{template .htmlContent kind="html"}
+	{@param? content: html}
+	{if $content}
+		{$content}
+	{/if}
 {/template}

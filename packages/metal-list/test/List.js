@@ -61,13 +61,14 @@ describe('List', function() {
 			items: [{
 				textPrimary: 'Item 1'
 			}, {
-				textPrimary: 'Item 2'
+				textPrimary: '<a href="#">Item 2</a>'
 			}]
 		}).render();
 
 		var contents = list.element.querySelectorAll('li .list-text-primary');
 		assert.strictEqual('Item 1', contents[0].textContent);
 		assert.strictEqual('Item 2', contents[1].textContent);
+		assert.strictEqual('A', contents[1].childNodes[0].tagName);
 	});
 
 	it('should render the text secondary of given items', function() {

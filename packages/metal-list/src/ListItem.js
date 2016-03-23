@@ -15,6 +15,9 @@ class ListItem extends Component {
 	 * @protected
 	 */
 	setterItemFn_(item) {
+		if (item.textPrimary && core.isString(item.textPrimary)) {
+			item.textPrimary = Soy.toIncDom(item.textPrimary);
+		}
 		if (item.avatar && item.avatar.content && core.isString(item.avatar.content)) {
 			item.avatar.content = Soy.toIncDom(item.avatar.content);
 		}
