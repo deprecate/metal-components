@@ -41,13 +41,15 @@ describe('Switcher', function() {
 	});
 
 	it('should decorate', function() {
-		IncrementalDOM.patch(document.body, () => {
+		var element = document.createElement('div');
+		dom.enterDocument(element);
+		IncrementalDOM.patch(element, () => {
 			Switcher.TEMPLATE({
 				checked: true,
 				id: 'switcher'
 			});
 		});
-		var outerHTML = document.getElementById('switcher').outerHTML;
+		var outerHTML = element.querySelector('#switcher').outerHTML;
 
 		switcher = new Switcher({
 			checked: true,
