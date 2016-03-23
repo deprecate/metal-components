@@ -4,7 +4,6 @@ import { async } from 'metal';
 import dom from 'metal-dom';
 import { Align } from 'metal-position';
 import Dropdown from '../src/Dropdown';
-import { SoyTemplates } from 'metal-soy';
 
 describe('Dropdown', function() {
 	var component;
@@ -58,7 +57,7 @@ describe('Dropdown', function() {
 		assert.ok(!component.expanded);
 		assert.ok(!dom.hasClass(component.element, 'open'));
 		component.open();
-		component.once('attrsChanged', function() {
+		component.once('stateChanged', function() {
 			assert.ok(component.expanded);
 			assert.ok(dom.hasClass(component.element, 'open'));
 			component.dispose();
@@ -72,7 +71,7 @@ describe('Dropdown', function() {
 		}).render();
 		assert.ok(dom.hasClass(component.element, 'open'));
 		component.close();
-		component.once('attrsChanged', function() {
+		component.once('stateChanged', function() {
 			assert.ok(!component.expanded);
 			assert.ok(!dom.hasClass(component.element, 'open'));
 			component.dispose();
@@ -85,11 +84,11 @@ describe('Dropdown', function() {
 		assert.ok(!component.expanded);
 		assert.ok(!dom.hasClass(component.element, 'open'));
 		component.toggle();
-		component.once('attrsChanged', function() {
+		component.once('stateChanged', function() {
 			assert.ok(component.expanded);
 			assert.ok(dom.hasClass(component.element, 'open'));
 			component.toggle();
-			component.once('attrsChanged', function() {
+			component.once('stateChanged', function() {
 				assert.ok(!component.expanded);
 				assert.ok(!dom.hasClass(component.element, 'open'));
 				component.dispose();
@@ -102,20 +101,31 @@ describe('Dropdown', function() {
 		component = new Dropdown({
 			position: 'up'
 		}).render();
-		assert.ok(dom.hasClass(component.element, 'dropdown'));
+		assert.ok(!dom.hasClass(component.element, 'dropdown'));
 		assert.ok(dom.hasClass(component.element, 'dropup'));
+
 		component.position = 'down';
-		async.nextTick(function() {
+		component.once('stateChanged', function() {
 			assert.ok(dom.hasClass(component.element, 'dropdown'));
 			assert.ok(!dom.hasClass(component.element, 'dropup'));
-			component.position = 'invalid';
-			async.nextTick(function() {
-				assert.ok(dom.hasClass(component.element, 'dropdown'));
-				assert.ok(!dom.hasClass(component.element, 'dropinvalid'));
-				component.dispose();
-				done();
-			});
+			done();
 		});
+	});
+
+	it('should only accept valid positions', function() {
+		component = new Dropdown({
+			position: 'up'
+		}).render();
+		assert.strictEqual(Align.TopLeft, component.position);
+
+		component.position = 'down';
+		assert.strictEqual(Align.BottomLeft, component.position);
+
+		component.position = Align.TopCenter;
+		assert.strictEqual(Align.TopCenter, component.position);
+
+		component.position = 'invalid';
+		assert.strictEqual(Align.TopCenter, component.position);
 	});
 
 	it('should set position css class on dropdown-menu when positionClassOnMenu is true', function() {
@@ -128,7 +138,7 @@ describe('Dropdown', function() {
 		assert.ok(dom.hasClass(element.querySelector('.dropdown-menu'), 'dropright'));
 	});
 
-	it('should set class for the current position according to `classMap` attribute', function() {
+	it('should set class for the current position according to `classMap` state', function() {
 		component = new Dropdown({
 			classMap: {
 				[Align.RightCenter]: 'my-right-class'
@@ -157,7 +167,7 @@ describe('Dropdown', function() {
 
 			assert.strictEqual(0, Align.align.callCount);
 			component.expanded = true;
-			component.once('attrsSynced', function() {
+			component.once('stateSynced', function() {
 				assert.strictEqual(1, Align.align.callCount);
 				done();
 			});
@@ -171,7 +181,7 @@ describe('Dropdown', function() {
 
 			assert.strictEqual(0, Align.align.callCount);
 			component.expanded = true;
-			component.once('attrsSynced', function() {
+			component.once('stateSynced', function() {
 				assert.strictEqual(0, Align.align.callCount);
 				done();
 			});
@@ -199,17 +209,14 @@ describe('Dropdown', function() {
 		var config = {
 			element: '#dropdown',
 			id: 'dropdown',
-			body: 'body',
-			header: 'header'
+			body: () => IncrementalDOM.text('body'),
+			header: () => IncrementalDOM.text('header')
 		};
+		IncrementalDOM.patch(document.body, () => Dropdown.TEMPLATE(config));
 
-		var markup = SoyTemplates.get('Dropdown', 'render')(config);
-		dom.append(document.body, markup.content);
 		var markupFromDom = document.getElementById('dropdown').outerHTML;
 		component = new Dropdown(config).decorate();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
-
-		component.dispose();
 	});
 });

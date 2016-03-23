@@ -3,13 +3,16 @@
 import { core, object } from 'metal';
 import dom from 'metal-dom';
 import { Align } from 'metal-position';
-import DropdownBase from './Dropdown.soy';
+import Component from 'metal-component';
 import { EventHandler } from 'metal-events';
+import Soy from 'metal-soy';
+
+import templates from './Dropdown.soy';
 
 /**
  * Dropdown component.
  */
-class Dropdown extends DropdownBase {
+class Dropdown extends Component {
 	/**
 	 * @inheritDoc
 	 */
@@ -69,7 +72,7 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * The setter function for the `classMap` attribute.
+	 * The setter function for the `classMap` staet.
 	 * @param {Object} val
 	 * @return {!Object}
 	 * @protected
@@ -79,7 +82,7 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * The setter function for the `position` attribute. Converts the supported
+	 * The setter function for the `position` state. Converts the supported
 	 * string positions into the appropriate `Align` position constants.
 	 * @param {string|number} val
 	 * @return {number}
@@ -93,31 +96,17 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * Synchronization logic for `expanded` attribute.
+	 * Synchronization logic for `expanded` state.
 	 * @param {boolean} expanded
 	 */
 	syncExpanded(expanded) {
-		if (expanded) {
-			dom.addClasses(this.element, 'open');
-			if (this.alignElementSelector) {
-				var alignElement = this.element.querySelector(this.alignElementSelector);
-				if (alignElement) {
-					var bodyElement = this.getRenderer().getSurfaceElement('body');
-					var position = Align.align(bodyElement, alignElement, this.position);
-					this.updatePositionCss_(position);
-				}
+		if (expanded && this.alignElementSelector) {
+			var alignElement = this.element.querySelector(this.alignElementSelector);
+			if (alignElement) {
+				var bodyElement = this.element.querySelector('.dropdown-menu');
+				this.alignedPosition = Align.align(bodyElement, alignElement, this.position);
 			}
-		} else {
-			dom.removeClasses(this.element, 'open');
 		}
-	}
-
-	/**
-	 * Synchronization logic for `position` attribute.
-	 * @param {string} position
-	 */
-	syncPosition(position) {
-		this.updatePositionCss_(position);
 	}
 
 	/**
@@ -128,24 +117,7 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * Updates the component's css class according to the position it's aligned to.
-	 * @param {string} position
-	 * @protected
-	 */
-	updatePositionCss_(position) {
-		var element = this.element;
-		if (this.positionClassOnMenu) {
-			element = element.querySelector('.dropdown-menu');
-		}
-		if (this.alignedPosition_) {
-			dom.removeClasses(element, this.classMap[this.alignedPosition_]);
-		}
-		dom.addClasses(element, this.classMap[position]);
-		this.alignedPosition_ = position;
-	}
-
-	/**
-	 * Validator for the `position` attribute.
+	 * Validator for the `position` state.
 	 * @param {string|number} position
 	 * @return {boolean}
 	 * @protected
@@ -164,7 +136,7 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * Gets the default value for the `body` attribute. Retrieves existing
+	 * Gets the default value for the `body` state. Retrieves existing
 	 * html for the body from the element, if there is any.
 	 * @return {?string}
 	 * @protected
@@ -175,7 +147,7 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * Gets the default value for the `classMap` attribute.
+	 * Gets the default value for the `classMap` state.
 	 * @return {!Object}
 	 * @protected
 	 */
@@ -193,7 +165,7 @@ class Dropdown extends DropdownBase {
 	}
 
 	/**
-	 * Gets the default value for the `header` attribute. Retrieves existing
+	 * Gets the default value for the `header` state. Retrieves existing
 	 * html for the header from the element, if there is any.
 	 * @return {?string}
 	 * @protected
@@ -212,13 +184,22 @@ class Dropdown extends DropdownBase {
 		return '';
 	}
 }
+Soy.register(Dropdown, templates);
 
 /**
- * Attrbutes definition.
+ * State definition.
  * @type {!Object}
  * @static
  */
-Dropdown.ATTRS = {
+Dropdown.STATE = {
+	/**
+	 * The current position of the tooltip after being aligned via `Align.align`.
+	 * @type {number}
+	 */
+	alignedPosition: {
+		validator: Align.isValidPosition
+	},
+
 	/**
 	 * Optional selector for finding the element that the dropdown should be
 	 * aligned to. If given, the dropdown will automatically find the best position
@@ -281,7 +262,7 @@ Dropdown.ATTRS = {
 	},
 
 	/**
-	 * Flag indicating if the position class (specified by `classMap` attribute)
+	 * Flag indicating if the position class (specified by `classMap` state)
 	 * should be added on the "dropdown-menu" element, instead of the main element.
 	 * @type {boolean}
 	 */
@@ -289,13 +270,5 @@ Dropdown.ATTRS = {
 		value: false
 	}
 };
-
-/**
- * Default dropdown elementClasses.
- * @default dropdown
- * @type {string}
- * @static
- */
-Dropdown.ELEMENT_CLASSES = 'dropdown';
 
 export default Dropdown;
