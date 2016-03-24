@@ -1,24 +1,10 @@
 'use strict';
 
-var components = [
-	'metal-affix',
-	'metal-alert',
-	'metal-autocomplete',
-	'metal-button-group',
-	'metal-clipboard',
-	'metal-dropdown',
-	'metal-list',
-	'metal-modal',
-	'metal-popover',
-	'metal-progressbar',
-	'metal-scrollspy',
-	'metal-select',
-	'metal-slider',
-	'metal-switcher',
-	'metal-toggler',
-	'metal-tooltip',
-	'metal-treeview'
-];
+var packageJson = require('./package.json');
+
+var components = Object.keys(packageJson.dependencies).filter(function(key) {
+	return key.startsWith('metal-');
+});
 
 module.exports = {
 	getComponentPaths: function(folder, ext) {
