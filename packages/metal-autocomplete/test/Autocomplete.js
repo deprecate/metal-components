@@ -111,10 +111,7 @@ describe('Autocomplete', function() {
 		input.focus();
 		async.nextTick(function() {
 			async.nextTick(function() {
-				component.once('select', function(value) {
-					assert.deepEqual({
-						'textPrimary': 'Alabama'
-					}, value);
+				component.once('select', function() {
 					async.nextTick(function() {
 						assert.ok(!component.visible);
 						done();
