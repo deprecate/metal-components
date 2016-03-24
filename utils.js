@@ -15,6 +15,7 @@ var components = [
 	'metal-select',
 	'metal-slider',
 	'metal-switcher',
+	'metal-toggler',
 	'metal-tooltip',
 	'metal-treeview'
 ];

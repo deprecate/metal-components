@@ -35,6 +35,7 @@
     "metal-select": "metal/metal-select#master",
     "metal-slider": "metal/metal-slider#master",
     "metal-switcher": "metal/metal-switcher#master",
+    "metal-toggler": "metal/metal-toggler#master",
     "metal-tooltip": "metal/metal-tooltip#master",
     "metal-treeview": "metal/metal-treeview#master"
   },
