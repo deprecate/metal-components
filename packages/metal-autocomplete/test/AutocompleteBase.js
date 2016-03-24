@@ -140,7 +140,7 @@ describe('AutocompleteBase', function() {
 			inputElement: input
 		}).render();
 		component.emit('select', {
-			textPrimary: 'foo'
+			text: 'foo'
 		});
 		assert.strictEqual('foo', input.value);
 	});

@@ -161,9 +161,15 @@ Autocomplete.STATE = {
 	 */
 	format: {
 		value: function(item) {
-			return core.isString(item) ? {
-				textPrimary: item
-			} : item;
+			if (core.isString(item)) {
+				item = {
+					textPrimary: item
+				};
+			}
+			if (core.isObject(item) && !item.text) {
+				item.text = item.textPrimary;
+			}
+			return item;
 		}
 	}
 };

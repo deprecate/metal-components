@@ -134,7 +134,7 @@ AutocompleteBase.STATE = {
 	 */
 	select: {
 		value: function(selectedValue) {
-			this.inputElement.value = selectedValue.textPrimary;
+			this.inputElement.value = selectedValue.text;
 			this.inputElement.focus();
 		},
 		validator: core.isFunction

@@ -111,7 +111,8 @@ describe('Autocomplete', function() {
 		input.focus();
 		async.nextTick(function() {
 			async.nextTick(function() {
-				component.once('select', function() {
+				component.once('select', function(value) {
+					assert.strictEqual('Alabama', value.text);
 					async.nextTick(function() {
 						assert.ok(!component.visible);
 						done();
