@@ -1,4 +1,4 @@
-{namespace Templates.Datatable}
+{namespace Datatable}
 
 /**
  * @param data
@@ -8,7 +8,7 @@
  * @param? tableClasses
  */
 {template .render}
-	<div id="{$id}" class="datatable component{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div id="{$id}" class="datatable{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .render_ data="$data"}
 			{param displayColumnsType: $displayColumnsType /}
 			{param tableClasses: $tableClasses /}
@@ -20,13 +20,17 @@
  * @param type
  * @param? columns
  */
-{template .render_ private="true"}
+{template .render_}
 	{switch $type}
 		{case 'array'}
 			{if $columns}
-				{call .renderArrayOfObjects_ data="all" /}
+				<span>
+					{call .renderArrayOfObjects_ data="all" /}
+				</span>
 			{else}
-				{call .renderArray_ data="all" /}
+				<span>
+					{call .renderArray_ data="all" /}
+				</span>
 			{/if}
 		{case 'boolean'}
 			{call .renderBoolean_ data="all" /}
@@ -48,7 +52,7 @@
  * @param? displayColumnsType
  * @param? tableClasses
  */
-{template .renderArray_ private="true"}
+{template .renderArray_}
 	<span class="datatable-array">
 		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, {length($value)} items</span>
 		<table class="{$tableClasses ? $tableClasses + '' : ''} hidden">
@@ -75,7 +79,7 @@
  * @param? displayColumnsType
  * @param? tableClasses
  */
-{template .renderArrayOfObjects_ private="true"}
+{template .renderArrayOfObjects_}
 	<span class="datatable-array-object">
 		<table class="{$tableClasses ? $tableClasses : ''}">
 			<thead>
@@ -111,21 +115,20 @@
 /**
  * @param value
  */
-{template .renderBoolean_ private="true"}
+{template .renderBoolean_}
 	<span class="datatable-boolean">{$value}</span>
 {/template}
 
 /**
- * @param value
  */
-{template .renderNull_ private="true"}
-	<span class="datatable-null">{$value}</span>
+{template .renderNull_}
+	<span class="datatable-null">null</span>
 {/template}
 
 /**
  * @param value
  */
-{template .renderNumber_ private="true"}
+{template .renderNumber_}
 	<span class="datatable-number">{$value}</span>
 {/template}
 
@@ -136,49 +139,47 @@
  * @param? displayColumnsType
  * @param? tableClasses
  */
-{template .renderObject_ private="true"}
+{template .renderObject_}
 	<span class="datatable-object">
 		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, {length(keys($value))} items</span>
-			<table class="{$tableClasses ? $tableClasses : ''} hidden">
-				<thead>
-					<tr>
-						{foreach $column in $columns}
-							<th>
-								{$column}
-								{if $displayColumnsType and $columnsType}
-									<span class="datatable-type">{$columnsType[$column]}</span>
-								{/if}
-							</th>
-						{/foreach}
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						{foreach $column in $columns}
-							<td>
-								{call .render_ data="$value[$column]"}
-									{param displayColumnsType: $displayColumnsType /}
-									{param tableClasses: $tableClasses /}
-								{/call}
-							</td>
-						{/foreach}
-					</tr>
-				</tbody>
-			</table>
-		</span>
+		<table class="{$tableClasses ? $tableClasses : ''} hidden">
+			<thead>
+				<tr>
+					{foreach $column in $columns}
+						<th>
+							{$column}
+							{if $displayColumnsType and $columnsType}
+								<span class="datatable-type">{$columnsType[$column]}</span>
+							{/if}
+						</th>
+					{/foreach}
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					{foreach $column in $columns}
+						<td>
+							{call .render_ data="$value[$column]"}
+								{param displayColumnsType: $displayColumnsType /}
+								{param tableClasses: $tableClasses /}
+							{/call}
+						</td>
+					{/foreach}
+				</tr>
+			</tbody>
+		</table>
 	</span>
 {/template}
 
 /**
- * @param value
  */
-{template .renderUndefined_ private="true"}
-	<span class="datatable-undefined">{$value}</span>
+{template .renderUndefined_}
+	<span class="datatable-undefined">undefined</span>
 {/template}
 
 /**
- * @param value
  */
-{template .renderString_ private="true"}
+{template .renderString_}
+	{@param value: html}
 	<span class="datatable-string">{$value}</span>
 {/template}

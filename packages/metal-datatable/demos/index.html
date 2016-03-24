@@ -3,7 +3,6 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Demo: Datatable</title>
-	<script src="../node_modules/closure-templates/soyutils.js"></script>
 	<script src="../build/globals/datatable.js"></script>
 	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 	<style>
@@ -64,7 +63,7 @@
 <body>
 	<h1>Datatable</h1>
 	<h2>Simple</h2>
-	
+
 	<div id="simple"></div>
 	<h2>Nested Object</h2>
 	<div id="nestedObject"></div>
@@ -170,7 +169,7 @@
 
 		var sanitized_html = [
 			{
-				name: metal.SoyRenderer.sanitizeHtml('La <b>Plage</b>')
+				name: 'La <b>Plage</b>'
 			}
 		];
 		new metal.Datatable({ data: sanitized_html }).render('#html');

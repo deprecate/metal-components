@@ -2,10 +2,11 @@
 
 import core from 'metal';
 import dom from 'metal-dom';
-import SoyRenderer from 'metal-soy';
-import DatatableBase from './Datatable.soy';
+import templates from './Datatable.soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
 
-class Datatable extends DatatableBase {
+class Datatable extends Component {
 
 	/**
 	 * Visits array items and asserts that it only contains one literal type.
@@ -106,9 +107,6 @@ class Datatable extends DatatableBase {
 		if (value === undefined) {
 			return Datatable.TYPES.UNDEFINED;
 		}
-		if (SoyRenderer.isSanitizedHtml(value)) {
-			return Datatable.TYPES.STRING;
-		}
 		if (Array.isArray(value)) {
 			return Datatable.TYPES.ARRAY;
 		}
@@ -171,17 +169,18 @@ class Datatable extends DatatableBase {
 		var acceptArray = (val, key, reference) => reference[key] = this.visitValuesAndExpandType_(val);
 		var acceptObject = (val, key, reference) => reference[key] = this.visitValuesAndExpandType_(val);
 		this.visit_(value, acceptArray, acceptObject);
+		var type = this.getValueType_(value);
 		var expanded = {
-			type: this.getValueType_(value),
-			value: value
+			type: type,
+			value: type === Datatable.TYPES.STRING ? Soy.toIncDom(value) : value
 		};
 		this.collectColumnsFromValues_(expanded);
 		return expanded;
 	}
-
 }
+Soy.register(Datatable, templates);
 
-Datatable.ATTRS = {
+Datatable.STATE = {
 	/**
 	 * Data to be plotted on datatable. Any JSON type is supported if it does
 	 * not contain mixed types inside an array.

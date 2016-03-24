@@ -1,3 +1,7 @@
+'use strict';
+
+import Soy from 'metal-soy';
+
 var data_nested_deep = [{
 	"name": "Eduardo Lundgren",
 	"email": "edu@rdo.io",
@@ -20,160 +24,162 @@ var data_nested_deep = [{
 	}
 }];
 
-var data_nested_deep_expanded = {
-	"type": "array",
-	"value": [
-		{
-			"type": "object",
-			"value": {
-				"name": {
-					"type": "string",
-					"value": "Eduardo Lundgren"
-				},
-				"email": {
-					"type": "string",
-					"value": "edu@rdo.io"
-				},
-				"address": {
-					"type": "object",
-					"value": {
-						"street": {
-							"type": "object",
-							"value": {
-								"name": {
-									"type": "string",
-									"value": "The Bowery"
+var data_nested_deep_expanded_fn = function() {
+	return {
+		"type": "array",
+		"value": [
+			{
+				"type": "object",
+				"value": {
+					"name": {
+						"type": "string",
+						"value": Soy.toIncDom("Eduardo Lundgren")
+					},
+					"email": {
+						"type": "string",
+						"value": Soy.toIncDom("edu@rdo.io")
+					},
+					"address": {
+						"type": "object",
+						"value": {
+							"street": {
+								"type": "object",
+								"value": {
+									"name": {
+										"type": "string",
+										"value": Soy.toIncDom("The Bowery")
+									},
+									"coordinates": {
+										"type": "array",
+										"value": [
+											{
+												"type": "number",
+												"value": 40.574788
+											},
+											{
+												"type": "number",
+												"value": -73.980954
+											}
+										]
+									}
 								},
-								"coordinates": {
-									"type": "array",
-									"value": [
-										{
-											"type": "number",
-											"value": 40.574788
-										},
-										{
-											"type": "number",
-											"value": -73.980954
-										}
-									]
+								"columns": [
+									"coordinates",
+									"name"
+								],
+								"columnsType": {
+									"name": "string",
+									"coordinates": "array"
 								}
 							},
-							"columns": [
-								"coordinates",
-								"name"
-							],
-							"columnsType": {
-								"name": "string",
-								"coordinates": "array"
+							"city": {
+								"type": "string",
+								"value": Soy.toIncDom("New York")
 							}
 						},
-						"city": {
-							"type": "string",
-							"value": "New York"
+						"columns": [
+							"city",
+							"street"
+						],
+						"columnsType": {
+							"street": "object",
+							"city": "string"
 						}
-					},
-					"columns": [
-						"city",
-						"street"
-					],
-					"columnsType": {
-						"street": "object",
-						"city": "string"
 					}
+				},
+				"columns": [
+					"address",
+					"email",
+					"name"
+				],
+				"columnsType": {
+					"name": "string",
+					"email": "string",
+					"address": "object"
 				}
 			},
-			"columns": [
-				"address",
-				"email",
-				"name"
-			],
-			"columnsType": {
-				"name": "string",
-				"email": "string",
-				"address": "object"
-			}
-		},
-		{
-			"type": "object",
-			"value": {
-				"name": {
-					"type": "string",
-					"value": "Adélaide"
-				},
-				"email": {
-					"type": "string",
-					"value": "adelaide@domain.com"
-				},
-				"address": {
-					"type": "object",
-					"value": {
-						"street": {
-							"type": "object",
-							"value": {
-								"name": {
-									"type": "string",
-									"value": "La Pigalle"
+			{
+				"type": "object",
+				"value": {
+					"name": {
+						"type": "string",
+						"value": Soy.toIncDom("Adélaide")
+					},
+					"email": {
+						"type": "string",
+						"value": Soy.toIncDom("adelaide@domain.com")
+					},
+					"address": {
+						"type": "object",
+						"value": {
+							"street": {
+								"type": "object",
+								"value": {
+									"name": {
+										"type": "string",
+										"value": Soy.toIncDom("La Pigalle")
+									},
+									"coordinates": {
+										"type": "array",
+										"value": [
+											{
+												"type": "number",
+												"value": 48.882245
+											},
+											{
+												"type": "number",
+												"value": 2.337238
+											}
+										]
+									}
 								},
-								"coordinates": {
-									"type": "array",
-									"value": [
-										{
-											"type": "number",
-											"value": 48.882245
-										},
-										{
-											"type": "number",
-											"value": 2.337238
-										}
-									]
+								"columns": [
+									"coordinates",
+									"name"
+								],
+								"columnsType": {
+									"name": "string",
+									"coordinates": "array"
 								}
 							},
-							"columns": [
-								"coordinates",
-								"name"
-							],
-							"columnsType": {
-								"name": "string",
-								"coordinates": "array"
+							"city": {
+								"type": "string",
+								"value": Soy.toIncDom("Paris")
 							}
 						},
-						"city": {
-							"type": "string",
-							"value": "Paris"
+						"columns": [
+							"city",
+							"street"
+						],
+						"columnsType": {
+							"street": "object",
+							"city": "string"
 						}
-					},
-					"columns": [
-						"city",
-						"street"
-					],
-					"columnsType": {
-						"street": "object",
-						"city": "string"
 					}
+				},
+				"columns": [
+					"address",
+					"email",
+					"name"
+				],
+				"columnsType": {
+					"name": "string",
+					"email": "string",
+					"address": "object"
 				}
-			},
-			"columns": [
-				"address",
-				"email",
-				"name"
-			],
-			"columnsType": {
-				"name": "string",
-				"email": "string",
-				"address": "object"
 			}
+		],
+		"columns": [
+			"address",
+			"email",
+			"name"
+		],
+		"columnsType": {
+			"name": "string",
+			"email": "string",
+			"address": "object"
 		}
-	],
-	"columns": [
-		"address",
-		"email",
-		"name"
-	],
-	"columnsType": {
-		"name": "string",
-		"email": "string",
-		"address": "object"
-	}
+	};
 };
 
-export { data_nested_deep, data_nested_deep_expanded };
+export { data_nested_deep, data_nested_deep_expanded_fn };
