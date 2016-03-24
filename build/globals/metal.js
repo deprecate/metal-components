@@ -20940,6 +20940,198 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var core = this.metal.metal;
+	var dom = this.metal.dom;
+	var EventHandler = this.metalNamed.events.EventHandler;
+	var State = this.metal.State;
+
+	/**
+  * Toggler component.
+  */
+
+	var Toggler = function (_State) {
+		babelHelpers.inherits(Toggler, _State);
+
+		/**
+   * @inheritDoc
+   */
+
+		function Toggler(opt_config) {
+			babelHelpers.classCallCheck(this, Toggler);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _State.call(this, opt_config));
+
+			_this.headerEventHandler_ = new EventHandler();
+
+			_this.on('headerChanged', _this.syncHeader);
+			_this.syncHeader();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Toggler.prototype.disposeInternal = function disposeInternal() {
+			_State.prototype.disposeInternal.call(this);
+			this.headerEventHandler_.removeAllListeners();
+		};
+
+		/**
+   * Gets the content to be toggled by the given header element.
+   * @param {!Element} header
+   * @protected
+   */
+
+
+		Toggler.prototype.getContentElement_ = function getContentElement_(header) {
+			if (core.isElement(this.content)) {
+				return this.content;
+			}
+
+			var content = dom.next(header, this.content);
+			if (content) {
+				return content;
+			}
+
+			content = header.querySelector(this.content);
+			if (content) {
+				return content;
+			}
+
+			return this.container.querySelector(this.content);
+		};
+
+		/**
+   * Handles a `click` event on the header.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		Toggler.prototype.handleClick_ = function handleClick_(event) {
+			this.toggle(event.delegateTarget || event.currentTarget);
+		};
+
+		/**
+   * Handles a `keydown` event on the header.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		Toggler.prototype.handleKeydown_ = function handleKeydown_(event) {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.toggle(event.delegateTarget || event.currentTarget);
+				event.preventDefault();
+			}
+		};
+
+		/**
+   * Syncs the component according to the value of the `header` state,
+   * attaching events to the new element and detaching from any previous one.
+   */
+
+
+		Toggler.prototype.syncHeader = function syncHeader() {
+			this.headerEventHandler_.removeAllListeners();
+			if (this.header) {
+				if (core.isString(this.header)) {
+					this.headerEventHandler_.add(dom.delegate(this.container, 'click', this.header, this.handleClick_.bind(this)), dom.delegate(this.container, 'keydown', this.header, this.handleKeydown_.bind(this)));
+				} else {
+					this.headerEventHandler_.add(dom.on(this.header, 'click', this.handleClick_.bind(this)), dom.on(this.header, 'keydown', this.handleKeydown_.bind(this)));
+				}
+			}
+		};
+
+		/**
+   * Toggles the content's visibility.
+   */
+
+
+		Toggler.prototype.toggle = function toggle(header) {
+			var content = this.getContentElement_(header);
+			dom.toggleClasses(content, Toggler.CSS_EXPANDED);
+			dom.toggleClasses(content, Toggler.CSS_COLLAPSED);
+
+			if (dom.hasClass(content, Toggler.CSS_EXPANDED)) {
+				dom.addClasses(header, Toggler.CSS_HEADER_EXPANDED);
+				dom.removeClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+			} else {
+				dom.removeClasses(header, Toggler.CSS_HEADER_EXPANDED);
+				dom.addClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+			}
+		};
+
+		return Toggler;
+	}(State);
+
+	/**
+  * State configuration.
+  */
+
+
+	Toggler.prototype.registerMetalComponent && Toggler.prototype.registerMetalComponent(Toggler, 'Toggler')
+	Toggler.STATE = {
+		/**
+   * The element where the header/content selectors will be looked for.
+   * @type {string|!Element}
+   */
+		container: {
+			setter: dom.toElement,
+			validator: function validator(value) {
+				return core.isString(value) || core.isElement(value);
+			},
+			value: document
+		},
+
+		/**
+   * The element that should be expanded/collapsed by this toggler.
+   * @type {string|!Element}
+   */
+		content: {
+			validator: function validator(value) {
+				return core.isString(value) || core.isElement(value);
+			}
+		},
+
+		/**
+   * The element that should be trigger toggling.
+   * @type {string|!Element}
+   */
+		header: {
+			validator: function validator(value) {
+				return core.isString(value) || core.isElement(value);
+			}
+		}
+	};
+
+	/**
+  * The CSS class added to the content when it's collapsed.
+  */
+	Toggler.CSS_COLLAPSED = 'toggler-collapsed';
+
+	/**
+  * The CSS class added to the content when it's expanded.
+  */
+	Toggler.CSS_EXPANDED = 'toggler-expanded';
+
+	/**
+  * The CSS class added to the header when the content is collapsed.
+  */
+	Toggler.CSS_HEADER_COLLAPSED = 'toggler-header-collapsed';
+
+	/**
+  * The CSS class added to the header when the content is expanded.
+  */
+	Toggler.CSS_HEADER_EXPANDED = 'toggler-header-expanded';
+
+	this.metal.Toggler = Toggler;
+}).call(this);
+'use strict';
+
+(function () {
   /* jshint ignore:start */
   var Component = this.metal.Component;
   var Soy = this.metal.Soy;
