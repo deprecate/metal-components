@@ -22,7 +22,11 @@
 				{/call}
 			</div>
 			{if $item.textSecondary}
-				<div class="list-text-secondary">{$item.textSecondary}</div>
+				<div class="list-text-secondary">
+					{call .htmlContent}
+						{param content: $item.textSecondary /}
+					{/call}
+				</div>
 			{/if}
 		</div>
 		{if $item.icons}

@@ -57,27 +57,27 @@ function $render(opt_data, opt_ignored, opt_ijData) {
       if (opt_data.item.textSecondary) {
         ie_open('div', null, null,
             'class', 'list-text-secondary');
-          itext((goog.asserts.assert((opt_data.item.textSecondary) != null), opt_data.item.textSecondary));
+          $htmlContent({content: opt_data.item.textSecondary}, null, opt_ijData);
         ie_close('div');
       }
     ie_close('div');
     if (opt_data.item.icons) {
-      var iconList51 = opt_data.item.icons;
-      var iconListLen51 = iconList51.length;
-      for (var iconIndex51 = 0; iconIndex51 < iconListLen51; iconIndex51++) {
-        var iconData51 = iconList51[iconIndex51];
+      var iconList52 = opt_data.item.icons;
+      var iconListLen52 = iconList52.length;
+      for (var iconIndex52 = 0; iconIndex52 < iconListLen52; iconIndex52++) {
+        var iconData52 = iconList52[iconIndex52];
         ie_void('span', null, null,
-            'class', 'btn-icon ' + iconData51 + ' pull-right');
+            'class', 'btn-icon ' + iconData52 + ' pull-right');
       }
     }
     if (opt_data.item.iconsHtml) {
       ie_open('div', null, null,
           'class', 'pull-right');
-        var iconHtmlList58 = opt_data.item.iconsHtml;
-        var iconHtmlListLen58 = iconHtmlList58.length;
-        for (var iconHtmlIndex58 = 0; iconHtmlIndex58 < iconHtmlListLen58; iconHtmlIndex58++) {
-          var iconHtmlData58 = iconHtmlList58[iconHtmlIndex58];
-          $htmlContent({content: iconHtmlData58}, null, opt_ijData);
+        var iconHtmlList59 = opt_data.item.iconsHtml;
+        var iconHtmlListLen59 = iconHtmlList59.length;
+        for (var iconHtmlIndex59 = 0; iconHtmlIndex59 < iconHtmlListLen59; iconHtmlIndex59++) {
+          var iconHtmlData59 = iconHtmlList59[iconHtmlIndex59];
+          $htmlContent({content: iconHtmlData59}, null, opt_ijData);
         }
       ie_close('div');
     }

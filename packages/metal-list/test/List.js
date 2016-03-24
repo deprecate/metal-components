@@ -76,13 +76,14 @@ describe('List', function() {
 			items: [{
 				textSecondary: 'Help 1'
 			}, {
-				textSecondary: 'Help 2'
+				textSecondary: '<span>Help 2</span>'
 			}]
 		}).render();
 
 		var helpNodes = list.element.querySelectorAll('li .list-text-secondary');
 		assert.strictEqual('Help 1', helpNodes[0].textContent);
 		assert.strictEqual('Help 2', helpNodes[1].textContent);
+		assert.strictEqual('SPAN', helpNodes[1].childNodes[0].tagName);
 	});
 
 	it('should render the icons of given items', function() {
