@@ -173,9 +173,15 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
    */
 		format: {
 			value: function value(item) {
-				return _metal2.default.isString(item) ? {
-					textPrimary: item
-				} : item;
+				if (_metal2.default.isString(item)) {
+					item = {
+						textPrimary: item
+					};
+				}
+				if (_metal2.default.isObject(item) && !item.text) {
+					item.text = item.textPrimary;
+				}
+				return item;
 			}
 		}
 	};

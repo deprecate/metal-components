@@ -61,6 +61,12 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		}
 
 		ListItem.prototype.setterItemFn_ = function setterItemFn_(item) {
+			if (item.textPrimary && _metal2.default.isString(item.textPrimary)) {
+				item.textPrimary = _Soy2.default.toIncDom(item.textPrimary);
+			}
+			if (item.textSecondary && _metal2.default.isString(item.textSecondary)) {
+				item.textSecondary = _Soy2.default.toIncDom(item.textSecondary);
+			}
 			if (item.avatar && item.avatar.content && _metal2.default.isString(item.avatar.content)) {
 				item.avatar.content = _Soy2.default.toIncDom(item.avatar.content);
 			}

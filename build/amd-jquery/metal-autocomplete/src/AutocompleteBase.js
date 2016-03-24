@@ -171,7 +171,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
    */
 		select: {
 			value: function value(selectedValue) {
-				this.inputElement.value = selectedValue.textPrimary;
+				this.inputElement.value = selectedValue.text;
 				this.inputElement.focus();
 			},
 			validator: _metal2.default.isFunction
