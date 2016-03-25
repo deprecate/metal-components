@@ -1,6 +1,7 @@
 'use strict';
 
 import dom from 'metal-dom';
+import Soy from 'metal-soy';
 import Alert from '../src/Alert';
 
 describe('Alert', function() {
@@ -92,7 +93,7 @@ describe('Alert', function() {
 			element: '#alert',
 			elementClasses: 'alert-success fade',
 			id: 'alert',
-			body: 'body',
+			body: Soy.toIncDom('<b>body</b>'),
 			spinner: true,
 			spinnerClasses: 'my-spinner',
 			dismissible: true

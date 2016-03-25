@@ -2,7 +2,6 @@
 
 /**
  * This renders the main element
- * @param body
  * @param dismissible
  * @param id
  * @param spinner
@@ -11,6 +10,7 @@
  * @param? spinnerClasses
  */
 {template .render}
+	{@param body: html}
 	<div id="{$id}" class="alert{$dismissible ? ' alert-dismissible' : ''}{$elementClasses ? ' ' + $elementClasses : ''}" role="alert">
 		{if $spinner}
 			<span class="alert-spinner{$spinnerClasses ? ' ' + $spinnerClasses : ''}{$spinnerDone ? ' alert-spinner-done' : ''}"></span>

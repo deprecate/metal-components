@@ -17,9 +17,9 @@ goog.module('Alert.incrementaldom');
 var soy = goog.require('soy');
 var soydata = goog.require('soydata');
 /** @suppress {extraRequire} */
-goog.require('goog.i18n.bidi');
-/** @suppress {extraRequire} */
 goog.require('goog.asserts');
+/** @suppress {extraRequire} */
+goog.require('goog.i18n.bidi');
 var IncrementalDom = goog.require('incrementaldom');
 var ie_open = IncrementalDom.elementOpen;
 var ie_close = IncrementalDom.elementClose;
@@ -31,13 +31,23 @@ var iattr = IncrementalDom.attr;
 
 
 /**
- * @param {Object<string, *>=} opt_data
+ * @param {{
+ *    dismissible: (?),
+ *    id: (?),
+ *    spinner: (?),
+ *    spinnerDone: (?),
+ *    elementClasses: (?),
+ *    spinnerClasses: (?),
+ *    body: (!soydata.SanitizedHtml|string)
+ * }} opt_data
  * @param {(null|undefined)=} opt_ignored
  * @param {Object<string, *>=} opt_ijData
  * @return {void}
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
+  soy.asserts.assertType((opt_data.body instanceof Function) || (opt_data.body instanceof soydata.UnsanitizedText) || goog.isString(opt_data.body), 'body', opt_data.body, 'Function');
+  var body = /** @type {Function} */ (opt_data.body);
   ie_open('div', null, null,
       'id', opt_data.id,
       'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
@@ -48,8 +58,8 @@ function $render(opt_data, opt_ignored, opt_ijData) {
     }
     ie_open('span', null, null,
         'class', 'alert-body');
-      if (opt_data.body) {
-        itext((goog.asserts.assert((opt_data.body) != null), opt_data.body));
+      if (body) {
+        body();
       }
     ie_close('span');
     if (opt_data.dismissible) {

@@ -12876,6 +12876,7 @@ babelHelpers;
 
 (function () {
 	var core = this.metal.metal;
+	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
 	var HTML2IncDom = this.metal.withParser;
 	var IncrementalDomRenderer = this.metal.IncrementalDomRenderer;
 	var SoyAop = this.metal.SoyAop;
@@ -12942,6 +12943,25 @@ babelHelpers;
 		};
 
 		/**
+   * Returns the requested template function. This function will be wrapped in
+   * another though, just to defer the requirement of the template's module
+   * being ready until the function is actually called.
+   * @param {string} namespace The soy template's namespace.
+   * @param {string} templateName The name of the template function.
+   * @return {!function()}
+   */
+
+
+		Soy.getTemplate = function getTemplate(namespace, templateName) {
+			return function (opt_data, opt_ignored, opt_ijData) {
+				if (!goog.loadedModules_[namespace]) {
+					throw new Error('No template with namespace "' + namespace + '" has been loaded yet.');
+				}
+				return goog.loadedModules_[namespace][templateName](opt_data, opt_ignored, opt_ijData);
+			};
+		};
+
+		/**
    * Handles an intercepted soy template call. If the call is for a component's
    * main template, then it will be replaced with a call that incremental dom
    * can use for both handling an instance of that component and rendering it.
@@ -12956,36 +12976,6 @@ babelHelpers;
 			var ctor = originalFn.componentCtor;
 			var data = opt_data;
 			IncrementalDOM.elementVoid('Component', null, [], 'ctor', ctor, 'data', data);
-		};
-
-		/**
-   * Converts the given html string into an incremental dom function.
-   * @param {string} value
-   * @return {!function()}
-   */
-
-
-		Soy.toIncDom = function toIncDom(value) {
-			return HTML2IncDom.buildFn(value);
-		};
-
-		/**
-   * Overrides the original `IncrementalDomRenderer` method so that only
-   * state keys used by the main template can cause updates.
-   * @param {!Object} changes
-   * @return {boolean}
-   */
-
-
-		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
-			var fn = this.component_.constructor.TEMPLATE;
-			var params = fn ? SoyAop.getOriginalFn(fn).params : [];
-			for (var i = 0; i < params.length; i++) {
-				if (changes[params[i]]) {
-					return true;
-				}
-			}
-			return false;
 		};
 
 		/**
@@ -13006,6 +12996,7 @@ babelHelpers;
 			componentCtor.TEMPLATE = SoyAop.getOriginalFn(templates[mainTemplate]);
 			componentCtor.TEMPLATE.componentCtor = componentCtor;
 			SoyAop.registerForInterception(templates, mainTemplate);
+			ComponentRegistry.register(componentCtor);
 		};
 
 		/**
@@ -13037,6 +13028,36 @@ babelHelpers;
 
 		Soy.setInjectedData = function setInjectedData(data) {
 			ijData = data || {};
+		};
+
+		/**
+   * Overrides the original `IncrementalDomRenderer` method so that only
+   * state keys used by the main template can cause updates.
+   * @param {!Object} changes
+   * @return {boolean}
+   */
+
+
+		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
+			var fn = this.component_.constructor.TEMPLATE;
+			var params = fn ? SoyAop.getOriginalFn(fn).params : [];
+			for (var i = 0; i < params.length; i++) {
+				if (changes[params[i]]) {
+					return true;
+				}
+			}
+			return false;
+		};
+
+		/**
+   * Converts the given html string into an incremental dom function.
+   * @param {string} value
+   * @return {!function()}
+   */
+
+
+		Soy.toIncDom = function toIncDom(value) {
+			return HTML2IncDom.buildFn(value);
 		};
 
 		return Soy;
@@ -13071,9 +13092,9 @@ babelHelpers;
     var soy = goog.require('soy');
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
-    goog.require('goog.i18n.bidi');
-    /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -13084,20 +13105,30 @@ babelHelpers;
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    dismissible: (?),
+     *    id: (?),
+     *    spinner: (?),
+     *    spinnerDone: (?),
+     *    elementClasses: (?),
+     *    spinnerClasses: (?),
+     *    body: (!soydata.SanitizedHtml|string)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, 'Function');
+      var body = /** @type {Function} */opt_data.body;
       ie_open('div', null, null, 'id', opt_data.id, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
       if (opt_data.spinner) {
         ie_void('span', null, null, 'class', 'alert-spinner' + (opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + (opt_data.spinnerDone ? ' alert-spinner-done' : ''));
       }
       ie_open('span', null, null, 'class', 'alert-body');
-      if (opt_data.body) {
-        itext((goog.asserts.assert(opt_data.body != null), opt_data.body));
+      if (body) {
+        body();
       }
       ie_close('span');
       if (opt_data.dismissible) {
@@ -13304,6 +13335,7 @@ babelHelpers;
    * @type {string}
    */
 		body: {
+			isHtml: true,
 			value: ''
 		},
 
