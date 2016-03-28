@@ -183,4 +183,15 @@ describe.only('Datatable', function() {
 		assert.strictEqual(expandedData, datatable.data);
 		datatable.dispose();
 	});
+
+	it('should detect sanitized html objects as string', function() {
+		var datatable = new Datatable({
+			data: {
+				content: '',
+				contentKind: 'HTML'
+			}
+		}).render();
+		assert.strictEqual('string', datatable.data.type);
+		datatable.dispose();
+	});
 });

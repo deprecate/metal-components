@@ -110,6 +110,9 @@ class Datatable extends Component {
 		if (Array.isArray(value)) {
 			return Datatable.TYPES.ARRAY;
 		}
+		if (core.isObject(value) && value.contentKind === 'HTML') {
+			return Datatable.TYPES.STRING;
+		}
 		return typeof value;
 	}
 
@@ -123,11 +126,11 @@ class Datatable extends Component {
 	}
 
 	setData_(data) {
-		if (this.isAlreadyExpanded(data)) {
-			return data;
+		if (!this.isAlreadyExpanded(data)) {
+			this.assertNoMixedTypesInArrays_(data);
+			data = this.visitValuesAndExpandType_(data);
 		}
-		this.assertNoMixedTypesInArrays_(data);
-		return this.visitValuesAndExpandType_(data);
+		return this.visitValuesAndWrapStringValues_(data);
 	}
 
 	/**
@@ -172,11 +175,32 @@ class Datatable extends Component {
 		var type = this.getValueType_(value);
 		var expanded = {
 			type: type,
-			value: type === Datatable.TYPES.STRING ? Soy.toIncDom(value) : value
+			value: value
 		};
 		this.collectColumnsFromValues_(expanded);
 		return expanded;
 	}
+
+	/**
+	 * Visits all json values and wraps it in special `Soy.toIncDom` helper if
+	 * it's string.
+	 * @param {*} value The value to start the visit.
+	 * @return {object} Wrapped string.
+	 * @protected
+	 */
+	visitValuesAndWrapStringValues_(value) {
+		var acceptArray = (val, key, reference) => reference[key] = this.visitValuesAndWrapStringValues_(val);
+		var acceptObject = (val, key, reference) => reference[key] = this.visitValuesAndWrapStringValues_(val);
+		this.visit_(value, acceptArray, acceptObject);
+		if (core.isObject(value)) {
+			var type = this.getValueType_(value.value);
+			if (type === Datatable.TYPES.STRING) {
+				value.value = Soy.toIncDom(value.value);
+			}
+		}
+		return value;
+	}
+
 }
 Soy.register(Datatable, templates);
 
