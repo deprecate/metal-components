@@ -13112,7 +13112,7 @@ babelHelpers;
      *    spinnerDone: (?),
      *    elementClasses: (?),
      *    spinnerClasses: (?),
-     *    body: (!soydata.SanitizedHtml|string)
+     *    body: (?soydata.SanitizedHtml|string|undefined)
      * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
@@ -13120,8 +13120,8 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      soy.asserts.assertType(opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, 'Function');
-      var body = /** @type {Function} */opt_data.body;
+      soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
+      var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       ie_open('div', null, null, 'id', opt_data.id, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
       if (opt_data.spinner) {
         ie_void('span', null, null, 'class', 'alert-spinner' + (opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + (opt_data.spinnerDone ? ' alert-spinner-done' : ''));
@@ -13335,8 +13335,7 @@ babelHelpers;
    * @type {string}
    */
 		body: {
-			isHtml: true,
-			value: ''
+			isHtml: true
 		},
 
 		/**
