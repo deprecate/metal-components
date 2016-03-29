@@ -40,10 +40,10 @@ var $templateAlias1 = $import1.render;
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
+  opt_data = opt_data || {};
   ie_open('div', null, null,
-      'id', opt_data.id,
       'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-    $templateAlias1({events: {itemSelected: opt_data.id + ':onListItemSelected_'}, id: opt_data.id + '-list'}, null, opt_ijData);
+    $templateAlias1({events: {itemSelected: opt_data.onListItemSelected_}, key: 'list'}, null, opt_ijData);
   ie_close('div');
 }
 exports.render = $render;
@@ -51,7 +51,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Autocomplete.render';
 }
 
-exports.render.params = ["elementClasses","id"];
+exports.render.params = ["elementClasses","onListItemSelected_"];
 templates = exports;
 return exports;
 

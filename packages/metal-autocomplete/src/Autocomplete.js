@@ -60,7 +60,7 @@ class Autocomplete extends AutocompleteBase {
 	 * @return {!List}
 	 */
 	getList() {
-		return this.components[this.id + '-list'];
+		return this.components.list;
 	}
 
 	/**
