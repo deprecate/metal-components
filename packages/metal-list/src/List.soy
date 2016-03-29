@@ -3,12 +3,11 @@
 /**
  * This renders the main element
  * @param? elementClasses
- * @param? id
  * @param? items
  */
 {template .render}
 	{@param? itemsHtml: html}
-	<div id="{$id}" class="list{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div class="list{$elementClasses ? ' ' + $elementClasses : ''}">
 		<ul class="list-group" data-onclick="handleClick">
 			{if isNonnull($itemsHtml)}
 				{$itemsHtml}
