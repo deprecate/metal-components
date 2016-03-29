@@ -2,13 +2,12 @@
 
 /**
  * @param data
- * @param id
  * @param? displayColumnsType
  * @param? elementClasses
  * @param? tableClasses
  */
 {template .render}
-	<div id="{$id}" class="datatable{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div class="datatable{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .render_ data="$data"}
 			{param displayColumnsType: $displayColumnsType /}
 			{param tableClasses: $tableClasses /}
