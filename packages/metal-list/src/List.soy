@@ -14,9 +14,9 @@
 			{else}
 				{foreach $item in $items}
 					{call ListItem.render}
-						{param id: $id + '-items-' + index($item) /}
 						{param index: index($item) /}
 						{param item: $item /}
+						{param key: '-items-' + index($item) /}
 					{/call}
 				{/foreach}
 			{/if}

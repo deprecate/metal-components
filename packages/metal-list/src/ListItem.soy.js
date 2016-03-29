@@ -39,7 +39,6 @@ var iattr = IncrementalDom.attr;
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
   ie_open('li', null, null,
-      'id', opt_data.id,
       'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix',
       'data-index', opt_data.index);
     if (opt_data.item.avatar) {
@@ -62,22 +61,22 @@ function $render(opt_data, opt_ignored, opt_ijData) {
       }
     ie_close('div');
     if (opt_data.item.icons) {
-      var iconList52 = opt_data.item.icons;
-      var iconListLen52 = iconList52.length;
-      for (var iconIndex52 = 0; iconIndex52 < iconListLen52; iconIndex52++) {
-        var iconData52 = iconList52[iconIndex52];
+      var iconList48 = opt_data.item.icons;
+      var iconListLen48 = iconList48.length;
+      for (var iconIndex48 = 0; iconIndex48 < iconListLen48; iconIndex48++) {
+        var iconData48 = iconList48[iconIndex48];
         ie_void('span', null, null,
-            'class', 'btn-icon ' + iconData52 + ' pull-right');
+            'class', 'btn-icon ' + iconData48 + ' pull-right');
       }
     }
     if (opt_data.item.iconsHtml) {
       ie_open('div', null, null,
           'class', 'pull-right');
-        var iconHtmlList59 = opt_data.item.iconsHtml;
-        var iconHtmlListLen59 = iconHtmlList59.length;
-        for (var iconHtmlIndex59 = 0; iconHtmlIndex59 < iconHtmlListLen59; iconHtmlIndex59++) {
-          var iconHtmlData59 = iconHtmlList59[iconHtmlIndex59];
-          $htmlContent({content: iconHtmlData59}, null, opt_ijData);
+        var iconHtmlList55 = opt_data.item.iconsHtml;
+        var iconHtmlListLen55 = iconHtmlList55.length;
+        for (var iconHtmlIndex55 = 0; iconHtmlIndex55 < iconHtmlListLen55; iconHtmlIndex55++) {
+          var iconHtmlData55 = iconHtmlList55[iconHtmlIndex55];
+          $htmlContent({content: iconHtmlData55}, null, opt_ijData);
         }
       ie_close('div');
     }
