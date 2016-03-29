@@ -71,7 +71,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'List.render';
 }
 
-exports.render.params = ["itemsHtml","elementClasses","id","items"];
+exports.render.params = ["itemsHtml","elementClasses","items"];
 templates = exports;
 return exports;
 

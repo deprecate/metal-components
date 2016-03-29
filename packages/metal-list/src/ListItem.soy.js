@@ -117,7 +117,7 @@ if (goog.DEBUG) {
   $htmlContent.soyTemplateName = 'ListItem.htmlContent';
 }
 
-exports.render.params = ["id","index","item","elementClasses"];
+exports.render.params = ["index","item","elementClasses"];
 exports.htmlContent.params = ["content"];
 templates = exports;
 return exports;
