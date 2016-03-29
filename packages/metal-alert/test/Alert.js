@@ -90,9 +90,7 @@ describe('Alert', function() {
 
 	it('should decorate', function() {
 		var config = {
-			element: '#alert',
 			elementClasses: 'alert-success fade',
-			id: 'alert',
 			body: Soy.toIncDom('<b>body</b>'),
 			spinner: true,
 			spinnerClasses: 'my-spinner',
@@ -101,7 +99,7 @@ describe('Alert', function() {
 		var element = document.createElement('div');
 		IncrementalDOM.patch(element, () => Alert.TEMPLATE(config));
 
-		var markupFromDom = element.querySelector('#alert').outerHTML;
+		var markupFromDom = element.childNodes[0].outerHTML;
 		component = new Alert(config).decorate();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
