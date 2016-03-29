@@ -367,7 +367,7 @@ describe('Select', function() {
 					id: 'select',
 					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
 					values: ['First', 'Second', 'Third'],
-					label: 'Order'
+					label: Soy.toIncDom('Order')
 				});
 			});
 			assert.strictEqual('', element.querySelector('#select input[type="hidden"]').value);

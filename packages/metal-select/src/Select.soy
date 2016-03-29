@@ -8,10 +8,11 @@
  * @param id
  * @param items
  * @param? values
- * @param? label
  * @param? selectedIndex
  */
 {template .render}
+	{@param? label: html}
+
 	<div id="{$id}" class="select component{$elementClasses ? ' ' + $elementClasses : ''}" data-onkeydown="handleKeyDown_">
 		{let $currSelectedIndex: isNonnull($selectedIndex) ? $selectedIndex : ($label or (length($items) == 0) ? -1 : 0) /}
 		<input

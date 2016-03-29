@@ -33,18 +33,30 @@ var $templateAlias1 = Soy.getTemplate('Dropdown.incrementaldom', 'render');
 
 
 /**
- * @param {Object<string, *>=} opt_data
+ * @param {{
+ *    arrowClass: (?),
+ *    buttonClass: (?),
+ *    elementClasses: (?),
+ *    hiddenInputName: (?),
+ *    id: (?),
+ *    items: (?),
+ *    values: (?),
+ *    selectedIndex: (?),
+ *    label: (?soydata.SanitizedHtml|string|undefined)
+ * }} opt_data
  * @param {(null|undefined)=} opt_ignored
  * @param {Object<string, *>=} opt_ijData
  * @return {void}
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
+  soy.asserts.assertType(opt_data.label == null || (opt_data.label instanceof Function) || (opt_data.label instanceof soydata.UnsanitizedText) || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+  var label = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.label);
   ie_open('div', null, null,
       'id', opt_data.id,
       'class', 'select component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
       'data-onkeydown', 'handleKeyDown_');
-    var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : opt_data.label || opt_data.items.length == 0 ? -1 : 0;
+    var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
     ie_open('input', null, null,
         'type', 'hidden',
         'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '',
@@ -71,8 +83,8 @@ function $render(opt_data, opt_ignored, opt_ijData) {
           'type', 'button',
           'data-onclick', 'toggle');
         if (currSelectedIndex__soy8 == -1) {
-          if (opt_data.label) {
-            itext((goog.asserts.assert((opt_data.label) != null), opt_data.label));
+          if (label) {
+            label();
           }
         } else {
           $renderAsHtml_({value: opt_data.items[currSelectedIndex__soy8]}, null, opt_ijData);
@@ -110,7 +122,7 @@ if (goog.DEBUG) {
   $renderAsHtml_.soyTemplateName = 'Select.renderAsHtml_';
 }
 
-exports.render.params = ["arrowClass","buttonClass","elementClasses","hiddenInputName","id","items","values","label","selectedIndex"];
+exports.render.params = ["label","arrowClass","buttonClass","elementClasses","hiddenInputName","id","items","values","selectedIndex"];
 exports.renderAsHtml_.params = ["value"];
 templates = exports;
 return exports;

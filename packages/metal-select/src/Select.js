@@ -171,6 +171,7 @@ Select.STATE = {
 	 * @type {string}
 	 */
 	label: {
+		setter: (label) => Soy.toIncDom(label),
 		validator: core.isString
 	},
 
