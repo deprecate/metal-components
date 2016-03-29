@@ -215,7 +215,7 @@ describe('Dropdown', function() {
 		var element = document.createElement('div');
 		IncrementalDOM.patch(element, () => Dropdown.TEMPLATE(config));
 
-		var markupFromDom = element.querySelector('#dropdown').outerHTML;
+		var markupFromDom = element.childNodes[0].outerHTML;
 		component = new Dropdown(config).render();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
