@@ -1,14 +1,13 @@
 {namespace Select}
 
 /**
- * This renders the main element.
  * @param? arrowClass
- * @param buttonClass
+ * @param? buttonClass
  * @param? elementClasses
  * @param? hiddenInputName
  * @param id
  * @param items
- * @param label
+ * @param? label
  * @param? selectedIndex
  */
 {template .render}
@@ -29,8 +28,8 @@
 			{/param}
 			{param events: ['stateSynced': $id + ':handleDropdownStateSynced_'] /}
 			{param header kind="html"}
-				<button class="{$buttonClass} dropdown-select" type="button" data-onclick="toggle">
-					{let $buttonLabel: $currSelectedIndex == -1 ? $label : $items[$currSelectedIndex] /}
+				<button class="{$buttonClass ? $buttonClass : ''} dropdown-select" type="button" data-onclick="toggle">
+					{let $buttonLabel: $currSelectedIndex == -1 ? ($label ? $label : '') : $items[$currSelectedIndex] /}
 					{$buttonLabel ? $buttonLabel : ''} <span class="{$arrowClass ? $arrowClass : 'caret'}"></span>
 				</button>
 			{/param}
