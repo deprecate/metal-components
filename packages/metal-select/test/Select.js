@@ -340,7 +340,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
+					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
 					values: ['First', 'Second', 'Third'],
 					selectedIndex: 1
 				});
@@ -353,7 +353,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
+					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
 					values: ['First', 'Second', 'Third']
 				});
 			});
@@ -365,7 +365,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
+					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
 					values: ['First', 'Second', 'Third'],
 					label: 'Order'
 				});
