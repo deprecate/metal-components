@@ -113,8 +113,8 @@ describe('Select', function() {
 			items: ['First', 'Second', 'Third']
 		}).render();
 
-		assert.ok(select.components[select.id + '-dropdown'] instanceof Dropdown);
-		assert.ok(select.components[select.id + '-dropdown'], select.getDropdown());
+		assert.ok(select.components.dropdown instanceof Dropdown);
+		assert.ok(select.components.dropdown, select.getDropdown());
 	});
 
 	it('should open/close dropdown when button is clicked', function() {
@@ -138,7 +138,7 @@ describe('Select', function() {
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
-		select.components[select.id + '-dropdown'].once('stateChanged', function() {
+		select.components.dropdown.once('stateChanged', function() {
 			assert.strictEqual('Second ', select.element.querySelector('button').textContent);
 			done();
 		});
@@ -151,7 +151,7 @@ describe('Select', function() {
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
-		select.components[select.id + '-dropdown'].once('stateChanged', function() {
+		select.components.dropdown.once('stateChanged', function() {
 			assert.strictEqual('second', select.element.querySelector('input[type="hidden"]').value);
 			done();
 		});
@@ -163,7 +163,7 @@ describe('Select', function() {
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
-		select.components[select.id + '-dropdown'].once('stateChanged', function() {
+		select.components.dropdown.once('stateChanged', function() {
 			assert.strictEqual(1, select.selectedIndex);
 			done();
 		});
@@ -239,12 +239,12 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
-			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
 			select.getDropdown().once('stateChanged', function() {
+				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 40
 				});
@@ -267,10 +267,10 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
-			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
 			select.getDropdown().once('stateChanged', function() {
+				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 40
 				});
@@ -288,12 +288,12 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
-			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
 			select.getDropdown().once('stateChanged', function() {
+				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 38
 				});
@@ -316,10 +316,10 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
-			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
 			select.getDropdown().once('stateChanged', function() {
+				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 38
 				});
@@ -345,7 +345,7 @@ describe('Select', function() {
 					selectedIndex: 1
 				});
 			});
-			assert.strictEqual('Second', element.querySelector('#select input[type="hidden"]').value);
+			assert.strictEqual('Second', element.childNodes[0].querySelector('input[type="hidden"]').value);
 		});
 
 		it('should automatically render first item as selected if `selectedIndex` is not given', function() {
@@ -357,7 +357,7 @@ describe('Select', function() {
 					values: ['First', 'Second', 'Third']
 				});
 			});
-			assert.strictEqual('First', element.querySelector('#select input[type="hidden"]').value);
+			assert.strictEqual('First', element.childNodes[0].querySelector('input[type="hidden"]').value);
 		});
 
 		it('should not select any item if `label` is given but `selectedIndex` is not', function() {
@@ -370,7 +370,7 @@ describe('Select', function() {
 					label: Soy.toIncDom('Order')
 				});
 			});
-			assert.strictEqual('', element.querySelector('#select input[type="hidden"]').value);
+			assert.strictEqual('', element.childNodes[0].querySelector('input[type="hidden"]').value);
 		});
 	});
 });

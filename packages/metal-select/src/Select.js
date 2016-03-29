@@ -46,7 +46,7 @@ class Select extends Component {
 	 * @return {!Dropdown}
 	 */
 	getDropdown() {
-		return this.components[this.id + '-dropdown'];
+		return this.components.dropdown;
 	}
 
 	/**
@@ -72,7 +72,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemClick_(event) {
-		this.selectedIndex = this.findItemIndex_(event.delegateTarget);
+		this.selectedIndex = this.findItemIndex_(event.currentTarget);
 		this.getDropdown().close();
 		event.preventDefault();
 	}

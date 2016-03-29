@@ -28,8 +28,8 @@ var ie_open_start = IncrementalDom.elementOpenStart;
 var ie_open_end = IncrementalDom.elementOpenEnd;
 var itext = IncrementalDom.text;
 var iattr = IncrementalDom.attr;
-
-var $templateAlias1 = Soy.getTemplate('Dropdown.incrementaldom', 'render');
+var $import1 = goog.require('Dropdown.incrementaldom');
+var $templateAlias1 = $import1.render;
 
 
 /**
@@ -37,8 +37,9 @@ var $templateAlias1 = Soy.getTemplate('Dropdown.incrementaldom', 'render');
  *    arrowClass: (?),
  *    buttonClass: (?),
  *    elementClasses: (?),
+ *    handleDropdownStateSynced_: (?),
+ *    handleItemClick_: (?),
  *    hiddenInputName: (?),
- *    id: (?),
  *    items: (?),
  *    values: (?),
  *    selectedIndex: (?),
@@ -50,51 +51,51 @@ var $templateAlias1 = Soy.getTemplate('Dropdown.incrementaldom', 'render');
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
+  var $$temp;
   soy.asserts.assertType(opt_data.label == null || (opt_data.label instanceof Function) || (opt_data.label instanceof soydata.UnsanitizedText) || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
   var label = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.label);
   ie_open('div', null, null,
-      'id', opt_data.id,
-      'class', 'select component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
+      'class', 'select' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
       'data-onkeydown', 'handleKeyDown_');
-    var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
+    var currSelectedIndex__soy6 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
     ie_open('input', null, null,
         'type', 'hidden',
         'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '',
-        'value', currSelectedIndex__soy8 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy8] : '');
+        'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
     ie_close('input');
-    var param14 = function() {
-      var itemList23 = opt_data.items;
-      var itemListLen23 = itemList23.length;
-      for (var itemIndex23 = 0; itemIndex23 < itemListLen23; itemIndex23++) {
-        var itemData23 = itemList23[itemIndex23];
+    var param12 = function() {
+      var itemList21 = opt_data.items;
+      var itemListLen21 = itemList21.length;
+      for (var itemIndex21 = 0; itemIndex21 < itemListLen21; itemIndex21++) {
+        var itemData21 = itemList21[itemIndex21];
         ie_open('li', null, null,
-            'data-onclick', opt_data.id + ':handleItemClick_',
-            'class', 'select-option' + (currSelectedIndex__soy8 == itemIndex23 ? ' selected' : ''));
+            'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp,
+            'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex21 ? ' selected' : ''));
           ie_open('a', null, null,
               'href', 'javascript:;');
-            $renderAsHtml_({value: itemData23}, null, opt_ijData);
+            $renderAsHtml_({value: itemData21}, null, opt_ijData);
           ie_close('a');
         ie_close('li');
       }
     };
-    var param26 = function() {
+    var param24 = function() {
       ie_open('button', null, null,
           'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select',
           'type', 'button',
           'data-onclick', 'toggle');
-        if (currSelectedIndex__soy8 == -1) {
+        if (currSelectedIndex__soy6 == -1) {
           if (label) {
             label();
           }
         } else {
-          $renderAsHtml_({value: opt_data.items[currSelectedIndex__soy8]}, null, opt_ijData);
+          $renderAsHtml_({value: opt_data.items[currSelectedIndex__soy6]}, null, opt_ijData);
         }
         itext(' ');
         ie_void('span', null, null,
             'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
       ie_close('button');
     };
-    $templateAlias1({body: param14, events: {stateSynced: opt_data.id + ':handleDropdownStateSynced_'}, header: param26, id: opt_data.id + '-dropdown'}, null, opt_ijData);
+    $templateAlias1({body: param12, events: {stateSynced: opt_data.handleDropdownStateSynced_}, header: param24, key: 'dropdown'}, null, opt_ijData);
   ie_close('div');
 }
 exports.render = $render;
@@ -122,7 +123,7 @@ if (goog.DEBUG) {
   $renderAsHtml_.soyTemplateName = 'Select.renderAsHtml_';
 }
 
-exports.render.params = ["label","arrowClass","buttonClass","elementClasses","hiddenInputName","id","items","values","selectedIndex"];
+exports.render.params = ["label","arrowClass","buttonClass","elementClasses","handleDropdownStateSynced_","handleItemClick_","hiddenInputName","items","values","selectedIndex"];
 exports.renderAsHtml_.params = ["value"];
 templates = exports;
 return exports;
