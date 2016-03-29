@@ -1,9 +1,17 @@
-define(['exports'], function (exports) {
+define(['exports', './unescape'], function (exports, _unescape) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+
+	var _unescape2 = _interopRequireDefault(_unescape);
+
+	function _interopRequireDefault(obj) {
+		return obj && obj.__esModule ? obj : {
+			default: obj
+		};
+	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -44,7 +52,7 @@ define(['exports'], function (exports) {
 				},
 
 				chars: function chars(text) {
-					IncrementalDOM.text(text);
+					IncrementalDOM.text(text, _unescape2.default);
 				}
 			});
 		};

@@ -77,8 +77,6 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 		return Popover;
 	}(_Tooltip.TooltipBase);
 
-	Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
-
 	_Soy2.default.register(Popover, _Popover2.default);
 
 	/**

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'html2incdom/src/withParser', 'metal-incremental-dom/src/IncrementalDomRenderer', './SoyAop', 'metal-soy-bundle/build/bundle', './requireWarning'], function (exports, _metal, _withParser, _IncrementalDomRenderer, _SoyAop) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html2incdom/src/withParser', 'metal-incremental-dom/src/IncrementalDomRenderer', './SoyAop', 'metal-soy-bundle/build/bundle', './requireWarning'], function (exports, _metal, _component, _withParser, _IncrementalDomRenderer, _SoyAop) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -70,13 +70,13 @@ define(['exports', 'metal/src/metal', 'html2incdom/src/withParser', 'metal-incre
 			this.addedMissingStateKeys_ = true;
 			var component = this.component_;
 			for (var i = 0; i < keys.length; i++) {
-				if (!component.getStateKeyConfig(keys[i])) {
+				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
 					component.addToState(keys[i], {}, component.getInitialConfig()[keys[i]]);
 				}
 			}
 		};
 
-		Soy.prototype.buildTemplateData_ = function buildTemplateData_() {
+		Soy.prototype.buildTemplateData_ = function buildTemplateData_(params) {
 			var component = this.component_;
 			var data = {};
 			component.getStateKeys().forEach(function (key) {
@@ -87,12 +87,26 @@ define(['exports', 'metal/src/metal', 'html2incdom/src/withParser', 'metal-incre
 				}
 
 				var value = component[key];
-				if (component.getStateKeyConfig(key).isHtml && _metal2.default.isString(value)) {
+				if (component.getStateKeyConfig(key).isHtml) {
 					value = Soy.toIncDom(value);
 				}
 				data[key] = value;
 			});
+			for (var i = 0; i < params.length; i++) {
+				if (!data[params[i]] && _metal2.default.isFunction(component[params[i]])) {
+					data[params[i]] = component[params[i]].bind(component);
+				}
+			}
 			return data;
+		};
+
+		Soy.getTemplate = function getTemplate(namespace, templateName) {
+			return function (opt_data, opt_ignored, opt_ijData) {
+				if (!goog.loadedModules_[namespace]) {
+					throw new Error('No template with namespace "' + namespace + '" has been loaded yet.');
+				}
+				return goog.loadedModules_[namespace][templateName](opt_data, opt_ignored, opt_ijData);
+			};
 		};
 
 		Soy.handleInterceptedCall_ = function handleInterceptedCall_(originalFn, opt_data) {
@@ -101,8 +115,32 @@ define(['exports', 'metal/src/metal', 'html2incdom/src/withParser', 'metal-incre
 			IncrementalDOM.elementVoid('Component', null, [], 'ctor', ctor, 'data', data);
 		};
 
-		Soy.toIncDom = function toIncDom(value) {
-			return _withParser2.default.buildFn(value);
+		Soy.register = function register(componentCtor, templates) {
+			var mainTemplate = arguments.length <= 2 || arguments[2] === undefined ? 'render' : arguments[2];
+
+			componentCtor.RENDERER = Soy;
+			componentCtor.TEMPLATE = _SoyAop2.default.getOriginalFn(templates[mainTemplate]);
+			componentCtor.TEMPLATE.componentCtor = componentCtor;
+			_SoyAop2.default.registerForInterception(templates, mainTemplate);
+			_component.ComponentRegistry.register(componentCtor);
+		};
+
+		Soy.prototype.renderIncDom = function renderIncDom() {
+			var elementTemplate = this.component_.constructor.TEMPLATE;
+			if (_metal2.default.isFunction(elementTemplate)) {
+				elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
+				this.addMissingStateKeys_(elementTemplate.params);
+
+				_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
+				elementTemplate(this.buildTemplateData_(elementTemplate.params), null, ijData);
+				_SoyAop2.default.stopInterception();
+			} else {
+				_IncrementalDomRender.prototype.renderIncDom.call(this);
+			}
+		};
+
+		Soy.setInjectedData = function setInjectedData(data) {
+			ijData = data || {};
 		};
 
 		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
@@ -116,37 +154,25 @@ define(['exports', 'metal/src/metal', 'html2incdom/src/withParser', 'metal-incre
 			return false;
 		};
 
-		Soy.register = function register(componentCtor, templates) {
-			var mainTemplate = arguments.length <= 2 || arguments[2] === undefined ? 'render' : arguments[2];
-
-			componentCtor.RENDERER = Soy;
-			componentCtor.TEMPLATE = _SoyAop2.default.getOriginalFn(templates[mainTemplate]);
-			componentCtor.TEMPLATE.componentCtor = componentCtor;
-			_SoyAop2.default.registerForInterception(templates, mainTemplate);
+		Soy.toHtmlString = function toHtmlString(incDomFn) {
+			var element = document.createElement('div');
+			IncrementalDOM.patch(element, incDomFn);
+			return element.innerHTML;
 		};
 
-		Soy.prototype.renderIncDom = function renderIncDom() {
-			var elementTemplate = this.component_.constructor.TEMPLATE;
-			if (_metal2.default.isFunction(elementTemplate)) {
-				elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
-				this.addMissingStateKeys_(elementTemplate.params);
-
-				_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(), null, ijData);
-				_SoyAop2.default.stopInterception();
-			} else {
-				_IncrementalDomRender.prototype.renderIncDom.call(this);
+		Soy.toIncDom = function toIncDom(value) {
+			if (_metal2.default.isObject(value) && _metal2.default.isString(value.content) && value.contentKind === 'HTML') {
+				value = value.content;
 			}
-		};
-
-		Soy.setInjectedData = function setInjectedData(data) {
-			ijData = data || {};
+			if (_metal2.default.isString(value)) {
+				value = _withParser2.default.buildFn(value);
+			}
+			return value;
 		};
 
 		return Soy;
 	}(_IncrementalDomRenderer2.default);
 
-	Soy.prototype.registerMetalComponent && Soy.prototype.registerMetalComponent(Soy, 'Soy')
 	exports.default = Soy;
 	exports.Soy = Soy;
 	exports.SoyAop = _SoyAop2.default;

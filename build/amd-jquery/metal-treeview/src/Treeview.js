@@ -86,8 +86,6 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy', './
 		return Treeview;
 	}(_component2.default);
 
-	Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
-
 	_Soy2.default.register(Treeview, _Treeview2.default);
 
 	/**

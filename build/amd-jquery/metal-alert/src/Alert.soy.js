@@ -62,9 +62,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var soy = goog.require('soy');
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
-    goog.require('goog.i18n.bidi');
-    /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -75,20 +75,30 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    dismissible: (?),
+     *    id: (?),
+     *    spinner: (?),
+     *    spinnerDone: (?),
+     *    elementClasses: (?),
+     *    spinnerClasses: (?),
+     *    body: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
+      var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       ie_open('div', null, null, 'id', opt_data.id, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
       if (opt_data.spinner) {
         ie_void('span', null, null, 'class', 'alert-spinner' + (opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + (opt_data.spinnerDone ? ' alert-spinner-done' : ''));
       }
       ie_open('span', null, null, 'class', 'alert-body');
-      if (opt_data.body) {
-        itext((goog.asserts.assert(opt_data.body != null), opt_data.body));
+      if (body) {
+        body();
       }
       ie_close('span');
       if (opt_data.dismissible) {
@@ -121,8 +131,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     return Alert;
   }(_Component3.default);
-
-  Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
 
   _Soy2.default.register(Alert, templates);
   exports.default = templates;

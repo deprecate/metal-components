@@ -65,8 +65,6 @@ define(['exports', 'metal-soy/src/Soy', './TooltipBase', './Tooltip.soy'], funct
 		return Tooltip;
 	}(_TooltipBase3.default);
 
-	Tooltip.prototype.registerMetalComponent && Tooltip.prototype.registerMetalComponent(Tooltip, 'Tooltip')
-
 	_Soy2.default.register(Tooltip, _Tooltip2.default);
 
 	/**

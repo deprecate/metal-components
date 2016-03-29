@@ -65,6 +65,11 @@
   margin: 9px auto;
   width: 2px; }
 
+/* Toggler
+	 ========================================================================== */
+.toggler-collapsed {
+  display: none; }
+
 /* TreeView
 	 ========================================================================== */
 .treeview ul {
@@ -106,8 +111,3 @@
 
 .treeview .treeview-node-wrapper.expanded > .treeview-nodes {
   display: block; }
-
-/* Toggler
-	 ========================================================================== */
-.toggler-collapsed {
-  display: none; }

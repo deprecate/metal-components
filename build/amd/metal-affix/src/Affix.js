@@ -137,9 +137,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		return Affix;
 	}(_State3.default);
 
-	Affix.prototype.registerMetalComponent && Affix.prototype.registerMetalComponent(Affix, 'Affix')
-
-
 	/**
   * Holds positions enum.
   * @enum {string}

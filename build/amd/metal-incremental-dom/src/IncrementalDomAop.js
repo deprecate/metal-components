@@ -20,11 +20,12 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			return fnStack[0];
 		};
 
-		IncrementalDomAop.startInterception = function startInterception(openFn, closeFn) {
+		IncrementalDomAop.startInterception = function startInterception(openFn, closeFn, attributesFn) {
 			openFn = openFn.bind(null, fnStack[0].elementOpen);
 			closeFn = closeFn.bind(null, fnStack[0].elementClose);
 			fnStack.push({
 				attr: fnAttr,
+				attributes: attributesFn.bind(null, fnStack[0].attributes),
 				elementClose: closeFn,
 				elementOpen: openFn,
 				elementOpenEnd: function elementOpenEnd() {
@@ -50,6 +51,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 	var fnStack = [{
 		attr: IncrementalDOM.attr,
+		attributes: IncrementalDOM.attributes[IncrementalDOM.symbols.default],
 		elementClose: IncrementalDOM.elementClose,
 		elementOpen: IncrementalDOM.elementOpen,
 		elementOpenEnd: IncrementalDOM.elementOpenEnd,
@@ -78,6 +80,8 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	IncrementalDOM.elementOpenEnd = handleCall.bind(null, 'elementOpenEnd');
 	IncrementalDOM.elementOpenStart = handleCall.bind(null, 'elementOpenStart');
 	IncrementalDOM.elementVoid = handleCall.bind(null, 'elementVoid');
+
+	IncrementalDOM.attributes[IncrementalDOM.symbols.default] = handleCall.bind(null, 'attributes');
 
 	exports.default = IncrementalDomAop;
 });

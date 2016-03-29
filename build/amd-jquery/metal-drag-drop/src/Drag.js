@@ -524,9 +524,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './helpers/DragAu
 		return Drag;
 	}(_State3.default);
 
-	Drag.prototype.registerMetalComponent && Drag.prototype.registerMetalComponent(Drag, 'Drag')
-
-
 	/**
   * State definition.
   * @type {!Object}

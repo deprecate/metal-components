@@ -110,8 +110,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     return Switcher;
   }(_Component3.default);
 
-  Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
-
   _Soy2.default.register(Switcher, templates);
   exports.default = templates;
   exports.Switcher = Switcher;

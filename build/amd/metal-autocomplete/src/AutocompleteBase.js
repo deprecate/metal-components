@@ -120,9 +120,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		return AutocompleteBase;
 	}(_component2.default);
 
-	AutocompleteBase.prototype.registerMetalComponent && AutocompleteBase.prototype.registerMetalComponent(AutocompleteBase, 'AutocompleteBase')
-
-
 	/**
   * AutocompleteBase state definition.
   * @type {!Object}

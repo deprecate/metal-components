@@ -147,8 +147,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     return ButtonGroup;
   }(_Component3.default);
 
-  ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
-
   _Soy2.default.register(ButtonGroup, templates);
   exports.default = templates;
   exports.ButtonGroup = ButtonGroup;

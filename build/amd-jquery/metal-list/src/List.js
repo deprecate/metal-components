@@ -74,8 +74,6 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component',
 		return List;
 	}(_component2.default);
 
-	List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
-
 	_Soy2.default.register(List, _List2.default);
 
 	/**

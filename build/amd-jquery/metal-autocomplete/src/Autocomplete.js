@@ -101,7 +101,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		Autocomplete.prototype.getList = function getList() {
-			return this.components[this.id + '-list'];
+			return this.components.list;
 		};
 
 		Autocomplete.prototype.handleDocClick_ = function handleDocClick_() {
@@ -157,8 +157,6 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		return Autocomplete;
 	}(_AutocompleteBase3.default);
-
-	Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
 
 	_Soy2.default.register(Autocomplete, _Autocomplete2.default);
 

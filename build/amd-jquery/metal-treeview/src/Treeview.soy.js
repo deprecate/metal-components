@@ -164,8 +164,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     return Treeview;
   }(_Component3.default);
 
-  Treeview.prototype.registerMetalComponent && Treeview.prototype.registerMetalComponent(Treeview, 'Treeview')
-
   _Soy2.default.register(Treeview, templates);
   exports.default = templates;
   exports.Treeview = Treeview;

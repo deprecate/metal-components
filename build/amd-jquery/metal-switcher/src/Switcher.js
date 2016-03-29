@@ -67,9 +67,6 @@ define(['exports', 'metal/src/metal', './Switcher.soy', 'metal-component/src/all
 		return Switcher;
 	}(_component2.default);
 
-	Switcher.prototype.registerMetalComponent && Switcher.prototype.registerMetalComponent(Switcher, 'Switcher')
-
-
 	/**
   * Switcher state definition.
   * @type {!Object}

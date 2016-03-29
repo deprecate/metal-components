@@ -114,8 +114,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     return ProgressBar;
   }(_Component3.default);
 
-  ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
-
   _Soy2.default.register(ProgressBar, templates);
   exports.default = templates;
   exports.ProgressBar = ProgressBar;

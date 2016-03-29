@@ -133,9 +133,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		return Toggler;
 	}(_State3.default);
 
-	Toggler.prototype.registerMetalComponent && Toggler.prototype.registerMetalComponent(Toggler, 'Toggler')
-
-
 	/**
   * State configuration.
   */

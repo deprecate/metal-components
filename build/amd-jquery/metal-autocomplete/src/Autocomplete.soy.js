@@ -84,8 +84,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      $templateAlias1({ events: { itemSelected: opt_data.id + ':onListItemSelected_' }, id: opt_data.id + '-list' }, null, opt_ijData);
+      opt_data = opt_data || {};
+      ie_open('div', null, null, 'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      $templateAlias1({ events: { itemSelected: opt_data.onListItemSelected_ }, key: 'list' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -93,7 +94,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'Autocomplete.render';
     }
 
-    exports.render.params = ["elementClasses", "id"];
+    exports.render.params = ["elementClasses", "onListItemSelected_"];
     exports.templates = templates = exports;
     return exports;
   });
@@ -109,8 +110,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     return Autocomplete;
   }(_Component3.default);
-
-  Autocomplete.prototype.registerMetalComponent && Autocomplete.prototype.registerMetalComponent(Autocomplete, 'Autocomplete')
 
   _Soy2.default.register(Autocomplete, templates);
   exports.default = templates;

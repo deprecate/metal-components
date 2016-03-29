@@ -62,9 +62,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var soy = goog.require('soy');
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
-    goog.require('goog.i18n.bidi');
-    /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -77,38 +77,57 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var $templateAlias1 = $import1.render;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    arrowClass: (?),
+     *    buttonClass: (?),
+     *    elementClasses: (?),
+     *    handleDropdownStateSynced_: (?),
+     *    handleItemClick_: (?),
+     *    hiddenInputName: (?),
+     *    items: (?),
+     *    values: (?),
+     *    selectedIndex: (?),
+     *    label: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'select component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onkeydown', 'handleKeyDown_');
-      var currSelectedIndex__soy8 = opt_data.selectedIndex != null ? opt_data.selectedIndex : opt_data.label || opt_data.items.length == 0 ? -1 : 0;
-      ie_open('input', null, null, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy8 == -1 ? '' : opt_data.items[currSelectedIndex__soy8]);
+      var $$temp;
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
+      ie_open('div', null, null, 'class', 'select' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onkeydown', 'handleKeyDown_');
+      var currSelectedIndex__soy6 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
+      ie_open('input', null, null, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
       ie_close('input');
-      var param14 = function param14() {
-        var itemList22 = opt_data.items;
-        var itemListLen22 = itemList22.length;
-        for (var itemIndex22 = 0; itemIndex22 < itemListLen22; itemIndex22++) {
-          var itemData22 = itemList22[itemIndex22];
-          ie_open('li', null, null, 'data-onclick', opt_data.id + ':handleItemClick_', 'class', 'select-option' + (currSelectedIndex__soy8 == itemIndex22 ? ' selected' : ''));
+      var param12 = function param12() {
+        var itemList21 = opt_data.items;
+        var itemListLen21 = itemList21.length;
+        for (var itemIndex21 = 0; itemIndex21 < itemListLen21; itemIndex21++) {
+          var itemData21 = itemList21[itemIndex21];
+          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex21 ? ' selected' : ''));
           ie_open('a', null, null, 'href', 'javascript:;');
-          itext((goog.asserts.assert(itemData22 != null), itemData22));
+          $renderAsHtml_({ value: itemData21 }, null, opt_ijData);
           ie_close('a');
           ie_close('li');
         }
       };
-      var param25 = function param25() {
-        ie_open('button', null, null, 'class', opt_data.buttonClass + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle');
-        var buttonLabel__soy29 = currSelectedIndex__soy8 == -1 ? opt_data.label : opt_data.items[currSelectedIndex__soy8];
-        itext((goog.asserts.assert((buttonLabel__soy29 ? buttonLabel__soy29 : '') != null), buttonLabel__soy29 ? buttonLabel__soy29 : ''));
+      var param24 = function param24() {
+        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle');
+        if (currSelectedIndex__soy6 == -1) {
+          if (label) {
+            label();
+          }
+        } else {
+          $renderAsHtml_({ value: opt_data.items[currSelectedIndex__soy6] }, null, opt_ijData);
+        }
         itext(' ');
         ie_void('span', null, null, 'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
         ie_close('button');
       };
-      $templateAlias1({ body: param14, events: { stateSynced: opt_data.id + ':handleDropdownStateSynced_' }, header: param25, id: opt_data.id + '-dropdown' }, null, opt_ijData);
+      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, header: param24, key: 'dropdown' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -116,7 +135,27 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'Select.render';
     }
 
-    exports.render.params = ["arrowClass", "buttonClass", "elementClasses", "hiddenInputName", "id", "items", "label", "selectedIndex"];
+    /**
+     * @param {{
+     *    value: (!soydata.SanitizedHtml|string)
+     * }} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderAsHtml_(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.value instanceof Function || opt_data.value instanceof soydata.UnsanitizedText || goog.isString(opt_data.value), 'value', opt_data.value, 'Function');
+      var value = /** @type {Function} */opt_data.value;
+      value();
+    }
+    exports.renderAsHtml_ = $renderAsHtml_;
+    if (goog.DEBUG) {
+      $renderAsHtml_.soyTemplateName = 'Select.renderAsHtml_';
+    }
+
+    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "handleDropdownStateSynced_", "handleItemClick_", "hiddenInputName", "items", "values", "selectedIndex"];
+    exports.renderAsHtml_.params = ["value"];
     exports.templates = templates = exports;
     return exports;
   });
@@ -132,8 +171,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     return Select;
   }(_Component3.default);
-
-  Select.prototype.registerMetalComponent && Select.prototype.registerMetalComponent(Select, 'Select')
 
   _Soy2.default.register(Select, templates);
   exports.default = templates;

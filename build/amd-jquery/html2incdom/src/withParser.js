@@ -1,4 +1,4 @@
-define(['exports', './HTML2IncDom.js', './HTMLParser'], function (exports, _HTML2IncDom) {
+define(['exports', './HTML2IncDom', './HTMLParser'], function (exports, _HTML2IncDom) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {

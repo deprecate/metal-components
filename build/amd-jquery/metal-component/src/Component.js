@@ -1,11 +1,9 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentCollector', './ComponentRegistry', './ComponentRenderer', 'metal-events/src/events', 'metal-state/src/State'], function (exports, _metal, _dom, _ComponentCollector, _ComponentRegistry, _ComponentRenderer, _events, _State2) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegistry', './ComponentRenderer', 'metal-events/src/events', 'metal-state/src/State'], function (exports, _metal, _dom, _ComponentRegistry, _ComponentRenderer, _events, _State2) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _ComponentCollector2 = _interopRequireDefault(_ComponentCollector);
 
 	var _ComponentRegistry2 = _interopRequireDefault(_ComponentRegistry);
 
@@ -183,22 +181,20 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 
 		Component.prototype.created_ = function created_() {
 			this.on('stateChanged', this.handleStateChanged_);
-			Component.componentsCollector.addComponent(this);
-
 			this.newListenerHandle_ = this.on('newListener', this.handleNewListener_);
-
 			this.on('eventsChanged', this.onEventsChanged_);
 			this.addListenersFromObj_(this.events);
 		};
 
-		Component.prototype.addSubComponent = function addSubComponent(componentNameOrCtor, opt_componentData) {
-			// Avoid accessing id from component if possible, since that may cause
-			// the lookup of the component's element in the dom unnecessarily, which is
-			// bad for performance.
-			var id = (opt_componentData || {}).id;
-			var component = Component.componentsCollector.createComponent(componentNameOrCtor, opt_componentData);
-			this.components[id || component.id] = component;
-			return component;
+		Component.prototype.addSubComponent = function addSubComponent(key, componentNameOrCtor, opt_data) {
+			if (!this.components[key]) {
+				var ConstructorFn = componentNameOrCtor;
+				if (_metal.core.isString(ConstructorFn)) {
+					ConstructorFn = _ComponentRegistry2.default.getConstructor(componentNameOrCtor);
+				}
+				this.components[key] = new ConstructorFn(opt_data);
+			}
+			return this.components[key];
 		};
 
 		Component.prototype.decorate = function decorate() {
@@ -243,13 +239,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 			_State.prototype.disposeInternal.call(this);
 		};
 
-		Component.prototype.disposeSubComponents = function disposeSubComponents(ids) {
-			for (var i = 0; i < ids.length; i++) {
-				var component = this.components[ids[i]];
+		Component.prototype.disposeSubComponents = function disposeSubComponents(keys) {
+			for (var i = 0; i < keys.length; i++) {
+				var component = this.components[keys[i]];
 				if (!component.isDisposed()) {
-					Component.componentsCollector.removeComponent(component);
 					component.dispose();
-					delete this.components[ids[i]];
+					delete this.components[keys[i]];
 				}
 			}
 		};
@@ -273,25 +268,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 		};
 
 		Component.prototype.getListenerFn = function getListenerFn(fnName) {
-			var fnComponent;
-			var split = fnName.split(':');
-			if (split.length === 2) {
-				fnName = split[1];
-				fnComponent = _ComponentCollector2.default.components[split[0]];
-				if (!fnComponent) {
-					console.error('No component with the id "' + split[0] + '" has been collected' + 'yet. Make sure that you specify an id for an existing component when ' + 'adding inline listeners.');
-				}
-			}
-			fnComponent = fnComponent || this;
-			if (_metal.core.isFunction(fnComponent[fnName])) {
-				return fnComponent[fnName].bind(fnComponent);
+			if (_metal.core.isFunction(this[fnName])) {
+				return this[fnName].bind(this);
 			} else {
-				console.error('No function named "' + fnName + '" was found in the component with id "' + fnComponent.id + '". Make sure that you specify valid function names when adding ' + 'inline listeners.');
+				console.error('No function named "' + fnName + '" was found in the ' + 'component "' + _metal.core.getFunctionName(this.constructor) + '". Make ' + 'sure that you specify valid function names when adding inline listeners.');
 			}
-		};
-
-		Component.prototype.findElementById = function findElementById(id) {
-			return document.getElementById(id) || this.element && this.element.querySelector('#' + id);
 		};
 
 		Component.prototype.fireStateKeyChange_ = function fireStateKeyChange_(key, opt_change) {
@@ -307,23 +288,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 			}
 		};
 
-		Component.prototype.getComponentsWithPrefix = function getComponentsWithPrefix(prefix) {
-			var _this2 = this;
-
-			var ids = Object.keys(this.components).filter(function (id) {
-				return id.indexOf(prefix) === 0;
-			});
-			var map = {};
-			ids.forEach(function (id) {
-				return map[id] = _this2.components[id];
-			});
-			return map;
-		};
-
-		Component.prototype.getName = function getName() {
-			return this.constructor.NAME || _metal.core.getFunctionName(this.constructor);
-		};
-
 		Component.prototype.getRenderer = function getRenderer() {
 			return this.renderer_;
 		};
@@ -335,10 +299,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 
 		Component.prototype.handleNewListener_ = function handleNewListener_(event) {
 			this.attachedListeners_[event] = true;
-		};
-
-		Component.prototype.makeId_ = function makeId_() {
-			return 'metal_c_' + _metal.core.getUid(this);
 		};
 
 		Component.prototype.mergeElementClasses_ = function mergeElementClasses_(values) {
@@ -362,7 +322,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 			}
 
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
-			event.newVal.id = this.id;
 			this.addElementClasses_();
 			this.syncVisible(this.visible);
 		};
@@ -370,10 +329,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 		Component.prototype.onEventsChanged_ = function onEventsChanged_(event) {
 			this.eventsStateKeyHandler_.removeAllListeners();
 			this.addListenersFromObj_(event.newVal);
-		};
-
-		Component.prototype.registerMetalComponent = function registerMetalComponent(constructorFn, opt_name) {
-			_ComponentRegistry2.default.register(constructorFn, opt_name);
 		};
 
 		Component.prototype.render = function render(opt_parentElement, opt_siblingElement, opt_skipRender) {
@@ -401,7 +356,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 
 		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
 			var element = this.element;
-			element.id = this.id;
 			if (opt_siblingElement || !element.parentNode) {
 				var parent = _dom.dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
 				parent.insertBefore(element, _dom.dom.toElement(opt_siblingElement));
@@ -463,28 +417,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 			return !_metal.core.isDefAndNotNull(val) || _metal.core.isObject(val);
 		};
 
-		Component.prototype.validatorIdFn_ = function validatorIdFn_(val) {
-			return _metal.core.isString(val);
-		};
-
-		Component.prototype.valueIdFn_ = function valueIdFn_() {
-			var hasElement = this.hasBeenSet('element') && this.element;
-			return hasElement && this.element.id ? this.element.id : this.makeId_();
-		};
-
 		return Component;
 	}(_State3.default);
-
-	Component.prototype.registerMetalComponent && Component.prototype.registerMetalComponent(Component, 'Component')
-
-
-	/**
-  * Helper responsible for extracting components from strings and config data.
-  * @type {!ComponentCollector}
-  * @protected
-  * @static
-  */
-	Component.componentsCollector = new _ComponentCollector2.default();
 
 	/**
   * Component state definition.
@@ -519,17 +453,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentColle
 		events: {
 			validator: 'validatorEventsFn_',
 			value: null
-		},
-
-		/**
-   * Component element id. If not specified will be generated.
-   * @type {string}
-   * @writeOnce
-   */
-		id: {
-			validator: 'validatorIdFn_',
-			valueFn: 'valueIdFn_',
-			writeOnce: true
 		},
 
 		/**

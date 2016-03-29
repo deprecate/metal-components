@@ -142,11 +142,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 				if (dataTitle) {
 					this.title = dataTitle;
 				}
-				if (this.visible) {
-					alignElement.setAttribute('aria-describedby', this.id);
-				} else {
-					alignElement.removeAttribute('aria-describedby');
-				}
 				if (this.inDocument) {
 					this.alignedPosition = TooltipBase.Align.align(this.element, alignElement, this.position);
 				}
@@ -186,9 +181,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 
 		return TooltipBase;
 	}(_component2.default);
-
-	TooltipBase.prototype.registerMetalComponent && TooltipBase.prototype.registerMetalComponent(TooltipBase, 'TooltipBase')
-
 
 	/**
   * @inheritDoc
@@ -263,7 +255,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
    * Content to be placed inside tooltip.
    * @type {string}
    */
-		title: {}
+		title: {
+			isHtml: true
+		}
 	};
 
 	/**

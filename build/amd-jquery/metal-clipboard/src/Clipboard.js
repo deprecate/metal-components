@@ -98,9 +98,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		return Clipboard;
 	}(_State4.default);
 
-	Clipboard.prototype.registerMetalComponent && Clipboard.prototype.registerMetalComponent(Clipboard, 'Clipboard')
-
-
 	/**
   * State definition.
   * @type {!Object}
@@ -268,9 +265,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 
 		return ClipboardAction;
 	}(_State4.default);
-
-	ClipboardAction.prototype.registerMetalComponent && ClipboardAction.prototype.registerMetalComponent(ClipboardAction, 'ClipboardAction')
-
 
 	/**
   * State definition.

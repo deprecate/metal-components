@@ -119,8 +119,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     return Slider;
   }(_Component3.default);
 
-  Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
-
   _Soy2.default.register(Slider, templates);
   exports.default = templates;
   exports.Slider = Slider;

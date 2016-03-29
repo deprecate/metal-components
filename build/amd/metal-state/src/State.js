@@ -343,9 +343,6 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		return State;
 	}(_events.EventEmitter);
 
-	State.prototype.registerMetalComponent && State.prototype.registerMetalComponent(State, 'State')
-
-
 	/**
   * A list with state key names that will automatically be rejected as invalid.
   * Subclasses can define their own invalid keys by setting this static on their

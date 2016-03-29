@@ -129,8 +129,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
 		return Alert;
 	}(_component2.default);
 
-	Alert.prototype.registerMetalComponent && Alert.prototype.registerMetalComponent(Alert, 'Alert')
-
 	_Soy2.default.register(Alert, _Alert2.default);
 
 	/**
@@ -156,7 +154,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
    * @type {string}
    */
 		body: {
-			value: ''
+			isHtml: true
 		},
 
 		/**

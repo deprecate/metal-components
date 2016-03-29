@@ -1,13 +1,12 @@
 {namespace ListItem}
 
 /**
- * @param? id
  * @param index
  * @param item
  * @param? elementClasses
  */
 {template .render}
-	<li id="{$id}" class="listitem list-group-item {$elementClasses ? ' ' + $elementClasses : ''} clearfix" data-index="{$index}">
+	<li class="listitem list-group-item {$elementClasses ? ' ' + $elementClasses : ''} clearfix" data-index="{$index}">
 		{if $item.avatar}
 			<span class="list-image pull-left {$item.avatar.class}">
 				{call .htmlContent}

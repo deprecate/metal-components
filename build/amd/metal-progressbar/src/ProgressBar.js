@@ -83,9 +83,6 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		return ProgressBar;
 	}(_component2.default);
 
-	ProgressBar.prototype.registerMetalComponent && ProgressBar.prototype.registerMetalComponent(ProgressBar, 'ProgressBar')
-
-
 	/**
   * State definition.
   * @type {!Object}

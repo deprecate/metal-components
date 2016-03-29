@@ -88,8 +88,6 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		return ButtonGroup;
 	}(_component2.default);
 
-	ButtonGroup.prototype.registerMetalComponent && ButtonGroup.prototype.registerMetalComponent(ButtonGroup, 'ButtonGroup')
-
 	_Soy2.default.register(ButtonGroup, _ButtonGroup2.default);
 
 	/**

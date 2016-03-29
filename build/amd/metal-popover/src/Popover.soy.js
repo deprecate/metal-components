@@ -119,8 +119,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     return Popover;
   }(_Component3.default);
 
-  Popover.prototype.registerMetalComponent && Popover.prototype.registerMetalComponent(Popover, 'Popover')
-
   _Soy2.default.register(Popover, templates);
   exports.default = templates;
   exports.Popover = Popover;

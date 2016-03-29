@@ -166,9 +166,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		return Modal;
 	}(_component2.default);
 
-	Modal.prototype.registerMetalComponent && Modal.prototype.registerMetalComponent(Modal, 'Modal')
-
-
 	Modal.STATE = {
 		/**
    * A selector for the element that should be automatically focused when the modal

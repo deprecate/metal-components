@@ -3,21 +3,20 @@
 /**
  * This renders the main element
  * @param? elementClasses
- * @param? id
  * @param? items
  */
 {template .render}
 	{@param? itemsHtml: html}
-	<div id="{$id}" class="list{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div class="list{$elementClasses ? ' ' + $elementClasses : ''}">
 		<ul class="list-group" data-onclick="handleClick">
 			{if isNonnull($itemsHtml)}
 				{$itemsHtml}
 			{else}
 				{foreach $item in $items}
 					{call ListItem.render}
-						{param id: $id + '-items-' + index($item) /}
 						{param index: index($item) /}
 						{param item: $item /}
+						{param key: '-items-' + index($item) /}
 					{/call}
 				{/foreach}
 			{/if}

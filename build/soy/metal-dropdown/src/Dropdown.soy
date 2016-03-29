@@ -5,7 +5,6 @@
  * @param? classMap
  * @param? elementClasses
  * @param? expanded
- * @param? id
  * @param? position
  * @param? positionClassOnMenu
  */
@@ -16,7 +15,7 @@
 	{let $classes: $classMap ? $classMap : ['dropup', 'dropup', 'dropright', 'dropdown', 'dropdown', 'dropdown', 'dropleft', 'dropup'] /}
 	{let $currentPosition: isNonnull($alignedPosition) ? $alignedPosition : $position /}
 	{let $positionClass: isNonnull($currentPosition) ? $classes[$currentPosition] : 'dropdown' /}
-	<div id="{$id}" class="{$positionClassOnMenu ? 'dropdown' : $positionClass}{$elementClasses ? ' ' + $elementClasses : ''}{$expanded ? ' open' : ''}">
+	<div class="{$positionClassOnMenu ? 'dropdown' : $positionClass}{$elementClasses ? ' ' + $elementClasses : ''}{$expanded ? ' open' : ''}">
 		{if $header}
 			{$header}
 		{/if}

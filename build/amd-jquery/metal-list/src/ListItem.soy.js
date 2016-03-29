@@ -82,7 +82,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('li', null, null, 'id', opt_data.id, 'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix', 'data-index', opt_data.index);
+      ie_open('li', null, null, 'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix', 'data-index', opt_data.index);
       if (opt_data.item.avatar) {
         ie_open('span', null, null, 'class', 'list-image pull-left ' + opt_data.item.avatar['class']);
         $htmlContent({ content: opt_data.item.avatar.content }, null, opt_ijData);
@@ -99,20 +99,20 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       }
       ie_close('div');
       if (opt_data.item.icons) {
-        var iconList52 = opt_data.item.icons;
-        var iconListLen52 = iconList52.length;
-        for (var iconIndex52 = 0; iconIndex52 < iconListLen52; iconIndex52++) {
-          var iconData52 = iconList52[iconIndex52];
-          ie_void('span', null, null, 'class', 'btn-icon ' + iconData52 + ' pull-right');
+        var iconList48 = opt_data.item.icons;
+        var iconListLen48 = iconList48.length;
+        for (var iconIndex48 = 0; iconIndex48 < iconListLen48; iconIndex48++) {
+          var iconData48 = iconList48[iconIndex48];
+          ie_void('span', null, null, 'class', 'btn-icon ' + iconData48 + ' pull-right');
         }
       }
       if (opt_data.item.iconsHtml) {
         ie_open('div', null, null, 'class', 'pull-right');
-        var iconHtmlList59 = opt_data.item.iconsHtml;
-        var iconHtmlListLen59 = iconHtmlList59.length;
-        for (var iconHtmlIndex59 = 0; iconHtmlIndex59 < iconHtmlListLen59; iconHtmlIndex59++) {
-          var iconHtmlData59 = iconHtmlList59[iconHtmlIndex59];
-          $htmlContent({ content: iconHtmlData59 }, null, opt_ijData);
+        var iconHtmlList55 = opt_data.item.iconsHtml;
+        var iconHtmlListLen55 = iconHtmlList55.length;
+        for (var iconHtmlIndex55 = 0; iconHtmlIndex55 < iconHtmlListLen55; iconHtmlIndex55++) {
+          var iconHtmlData55 = iconHtmlList55[iconHtmlIndex55];
+          $htmlContent({ content: iconHtmlData55 }, null, opt_ijData);
         }
         ie_close('div');
       }
@@ -150,7 +150,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $htmlContent.soyTemplateName = 'ListItem.htmlContent';
     }
 
-    exports.render.params = ["id", "index", "item", "elementClasses"];
+    exports.render.params = ["index", "item", "elementClasses"];
     exports.htmlContent.params = ["content"];
     exports.templates = templates = exports;
     return exports;
@@ -167,8 +167,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     return ListItem;
   }(_Component3.default);
-
-  ListItem.prototype.registerMetalComponent && ListItem.prototype.registerMetalComponent(ListItem, 'ListItem')
 
   _Soy2.default.register(ListItem, templates);
   exports.default = templates;

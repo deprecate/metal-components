@@ -170,9 +170,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
 		return DragDrop;
 	}(_Drag3.default);
 
-	DragDrop.prototype.registerMetalComponent && DragDrop.prototype.registerMetalComponent(DragDrop, 'DragDrop')
-
-
 	/**
   * State definition.
   * @type {!Object}

@@ -3,13 +3,13 @@
 /**
  * This renders the main element.
  * @param? elementClasses
- * @param id
+ * @param? onListItemSelected_
  */
 {template .render}
-	<div id="{$id}" class="autocomplete autocomplete-list component {$elementClasses ? ' ' + $elementClasses : ''}">
+	<div class="autocomplete autocomplete-list component {$elementClasses ? ' ' + $elementClasses : ''}">
 		{call List.render}
-			{param events: ['itemSelected': $id + ':onListItemSelected_'] /}
-			{param id: $id + '-list' /}
+			{param events: ['itemSelected': $onListItemSelected_] /}
+			{param key: 'list' /}
 		{/call}
 	</div>
 {/template}

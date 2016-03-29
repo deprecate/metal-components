@@ -82,7 +82,6 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		return ComponentRenderer;
 	}(_events.EventEmitter);
 
-	ComponentRenderer.prototype.registerMetalComponent && ComponentRenderer.prototype.registerMetalComponent(ComponentRenderer, 'ComponentRenderer')
 	exports.default = ComponentRenderer;
 });
 //# sourceMappingURL=ComponentRenderer.js.map

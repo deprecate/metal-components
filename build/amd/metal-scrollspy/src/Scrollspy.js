@@ -217,9 +217,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		return Scrollspy;
 	}(_State3.default);
 
-	Scrollspy.prototype.registerMetalComponent && Scrollspy.prototype.registerMetalComponent(Scrollspy, 'Scrollspy')
-
-
 	Scrollspy.STATE = {
 		/**
    * Class to be used as active class.

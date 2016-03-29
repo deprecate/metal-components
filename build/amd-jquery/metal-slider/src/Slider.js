@@ -134,8 +134,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		return Slider;
 	}(_component2.default);
 
-	Slider.prototype.registerMetalComponent && Slider.prototype.registerMetalComponent(Slider, 'Slider')
-
 	_Soy2.default.register(Slider, _Slider2.default);
 
 	/**

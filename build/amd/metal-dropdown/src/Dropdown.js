@@ -180,8 +180,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		return Dropdown;
 	}(_component2.default);
 
-	Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
-
 	_Soy2.default.register(Dropdown, _Dropdown2.default);
 
 	/**

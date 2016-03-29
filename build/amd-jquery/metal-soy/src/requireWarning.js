@@ -1,4 +1,4 @@
-define([], function () {
+define(['metal-soy-bundle/build/bundle'], function () {
 	'use strict';
 
 	var original = goog.require;

@@ -79,7 +79,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     /**
      * @param {{
      *    elementClasses: (?),
-     *    id: (?),
      *    items: (?),
      *    itemsHtml: (?soydata.SanitizedHtml|string|undefined)
      * }} opt_data
@@ -89,18 +88,19 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      opt_data = opt_data || {};
       soy.asserts.assertType(opt_data.itemsHtml == null || opt_data.itemsHtml instanceof Function || opt_data.itemsHtml instanceof soydata.UnsanitizedText || goog.isString(opt_data.itemsHtml), 'itemsHtml', opt_data.itemsHtml, '?soydata.SanitizedHtml|string|undefined');
       var itemsHtml = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.itemsHtml;
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'list' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      ie_open('div', null, null, 'class', 'list' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
       ie_open('ul', null, null, 'class', 'list-group', 'data-onclick', 'handleClick');
       if (itemsHtml != null) {
         itemsHtml();
       } else {
-        var itemList16 = opt_data.items;
-        var itemListLen16 = itemList16.length;
-        for (var itemIndex16 = 0; itemIndex16 < itemListLen16; itemIndex16++) {
-          var itemData16 = itemList16[itemIndex16];
-          $templateAlias1({ id: opt_data.id + '-items-' + itemIndex16, index: itemIndex16, item: itemData16 }, null, opt_ijData);
+        var itemList14 = opt_data.items;
+        var itemListLen14 = itemList14.length;
+        for (var itemIndex14 = 0; itemIndex14 < itemListLen14; itemIndex14++) {
+          var itemData14 = itemList14[itemIndex14];
+          $templateAlias1({ index: itemIndex14, item: itemData14, key: '-items-' + itemIndex14 }, null, opt_ijData);
         }
       }
       ie_close('ul');
@@ -111,7 +111,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'List.render';
     }
 
-    exports.render.params = ["itemsHtml", "elementClasses", "id", "items"];
+    exports.render.params = ["itemsHtml", "elementClasses", "items"];
     exports.templates = templates = exports;
     return exports;
   });
@@ -127,8 +127,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     return List;
   }(_Component3.default);
-
-  List.prototype.registerMetalComponent && List.prototype.registerMetalComponent(List, 'List')
 
   _Soy2.default.register(List, templates);
   exports.default = templates;

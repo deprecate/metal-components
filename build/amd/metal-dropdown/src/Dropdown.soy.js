@@ -80,7 +80,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      *    classMap: (?),
      *    elementClasses: (?),
      *    expanded: (?),
-     *    id: (?),
      *    position: (?),
      *    positionClassOnMenu: (?),
      *    body: (?soydata.SanitizedHtml|string|undefined),
@@ -92,6 +91,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      opt_data = opt_data || {};
       soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       soy.asserts.assertType(opt_data.header == null || opt_data.header instanceof Function || opt_data.header instanceof soydata.UnsanitizedText || goog.isString(opt_data.header), 'header', opt_data.header, '?soydata.SanitizedHtml|string|undefined');
@@ -99,7 +99,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       var classes__soy3 = opt_data.classMap ? opt_data.classMap : ['dropup', 'dropup', 'dropright', 'dropdown', 'dropdown', 'dropdown', 'dropleft', 'dropup'];
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
       var positionClass__soy5 = currentPosition__soy4 != null ? classes__soy3[currentPosition__soy4] : 'dropdown';
-      ie_open('div', null, null, 'id', opt_data.id, 'class', (opt_data.positionClassOnMenu ? 'dropdown' : positionClass__soy5) + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + (opt_data.expanded ? ' open' : ''));
+      ie_open('div', null, null, 'class', (opt_data.positionClassOnMenu ? 'dropdown' : positionClass__soy5) + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + (opt_data.expanded ? ' open' : ''));
       if (header) {
         header();
       }
@@ -115,7 +115,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'Dropdown.render';
     }
 
-    exports.render.params = ["body", "header", "alignedPosition", "classMap", "elementClasses", "expanded", "id", "position", "positionClassOnMenu"];
+    exports.render.params = ["body", "header", "alignedPosition", "classMap", "elementClasses", "expanded", "position", "positionClassOnMenu"];
     exports.templates = templates = exports;
     return exports;
   });
@@ -131,8 +131,6 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     return Dropdown;
   }(_Component3.default);
-
-  Dropdown.prototype.registerMetalComponent && Dropdown.prototype.registerMetalComponent(Dropdown, 'Dropdown')
 
   _Soy2.default.register(Dropdown, templates);
   exports.default = templates;

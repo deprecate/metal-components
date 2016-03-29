@@ -139,9 +139,6 @@ define(['exports', 'metal/src/metal', 'metal-state/src/State', 'metal-position/s
 		return DragAutoScroll;
 	}(_State3.default);
 
-	DragAutoScroll.prototype.registerMetalComponent && DragAutoScroll.prototype.registerMetalComponent(DragAutoScroll, 'DragAutoScroll')
-
-
 	/**
   * State definition.
   * @type {!Object}
