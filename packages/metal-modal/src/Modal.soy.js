@@ -32,7 +32,6 @@ var iattr = IncrementalDom.attr;
 
 /**
  * @param {{
- *    id: string,
  *    body: (?soydata.SanitizedHtml|string|undefined),
  *    elementClasses: (null|string|undefined),
  *    footer: (?soydata.SanitizedHtml|string|undefined),
@@ -45,8 +44,7 @@ var iattr = IncrementalDom.attr;
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
-  soy.asserts.assertType(goog.isString(opt_data.id) || (opt_data.id instanceof goog.soy.data.SanitizedContent), 'id', opt_data.id, 'string|goog.soy.data.SanitizedContent');
-  var id = /** @type {string|goog.soy.data.SanitizedContent} */ (opt_data.id);
+  opt_data = opt_data || {};
   soy.asserts.assertType(opt_data.body == null || (opt_data.body instanceof Function) || (opt_data.body instanceof soydata.UnsanitizedText) || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
   var body = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.body);
   soy.asserts.assertType(opt_data.elementClasses == null || (opt_data.elementClasses instanceof goog.soy.data.SanitizedContent) || goog.isString(opt_data.elementClasses), 'elementClasses', opt_data.elementClasses, 'null|string|undefined');
@@ -58,10 +56,8 @@ function $render(opt_data, opt_ignored, opt_ijData) {
   soy.asserts.assertType(opt_data.role == null || (opt_data.role instanceof goog.soy.data.SanitizedContent) || goog.isString(opt_data.role), 'role', opt_data.role, 'null|string|undefined');
   var role = /** @type {null|string|undefined} */ (opt_data.role);
   ie_open('div', null, null,
-      'id', id,
       'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''),
-      'role', role ? role : 'dialog',
-      'aria-labelledby', id + '-header');
+      'role', role ? role : 'dialog');
     ie_open('div', null, null,
         'class', 'modal-dialog',
         'tabindex', '0');
@@ -104,7 +100,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Modal.render';
 }
 
-exports.render.params = ["id","body","elementClasses","footer","header","role"];
+exports.render.params = ["body","elementClasses","footer","header","role"];
 templates = exports;
 return exports;
 

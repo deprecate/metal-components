@@ -396,7 +396,6 @@ describe('Modal', function() {
 
 	it('should handle calling template without passing "elementClasses"', function() {
 		var data = {
-			id: 'modal',
 			header: () => IncrementalDOM.text('header'),
 			body: () => IncrementalDOM.text('body'),
 			footer: () => IncrementalDOM.text('footer'),
@@ -405,7 +404,7 @@ describe('Modal', function() {
 		var element = document.createElement('div');
 		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
 
-		element = element.querySelector('#modal');
+		element = element.childNodes[0];
 		assert.strictEqual('modal', element.className);
 	});
 
