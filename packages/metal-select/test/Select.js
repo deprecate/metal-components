@@ -2,6 +2,7 @@
 
 import dom from 'metal-dom';
 import Dropdown from 'metal-dropdown';
+import Soy from 'metal-soy';
 import Select from '../src/Select';
 
 describe('Select', function() {
@@ -90,6 +91,7 @@ describe('Select', function() {
 	it('should set the hidden input\'s value as the selected item\'s value', function() {
 		select = new Select({
 			items: ['first', 'second'],
+			values: ['first', 'second'],
 			label: 'Foo',
 			selectedIndex: 1
 		}).render();
@@ -145,6 +147,7 @@ describe('Select', function() {
 	it('should update hidden input\'s value when item is selected', function(done) {
 		select = new Select({
 			items: ['first', 'second'],
+			values: ['first', 'second']
 		}).render();
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
@@ -337,7 +340,8 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'],
+					items: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
+					values: ['First', 'Second', 'Third'],
 					selectedIndex: 1
 				});
 			});
@@ -349,7 +353,8 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third']
+					items: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
+					values: ['First', 'Second', 'Third']
 				});
 			});
 			assert.strictEqual('First', element.querySelector('#select input[type="hidden"]').value);
@@ -360,7 +365,8 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'],
+					items: [Soy.toIncDom('First'), Soy.toIncDom('Second'), Soy.toIncDom('Third')],
+					values: ['First', 'Second', 'Third'],
 					label: 'Order'
 				});
 			});

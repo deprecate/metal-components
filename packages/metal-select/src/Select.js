@@ -106,6 +106,16 @@ class Select extends Component {
 			return;
 		}
 	}
+
+	/**
+	 * Setter for items attribute.
+	 * @param {!Array<string>} items
+	 * @protected
+	 */
+	setItems_(items) {
+		return items.map((item) => Soy.toIncDom(item));
+	}
+
 }
 Soy.register(Select, templates);
 
@@ -143,14 +153,12 @@ Select.STATE = {
 	},
 
 	/**
-	 * A list representing the select dropdown items. Can be either already a list
-	 * of objects specifying both name and value for each item, or just a list of
-	 * names, in which case the values will be the indexes where the names show up
-	 * on the list.
-	 * @type {!Array<string>|!Array<!{name: string, value: string}>}
+	 * A list representing the select dropdown items.
+	 * @type {!Array<string>}
 	 * @default []
 	 */
 	items: {
+		setter: 'setItems_',
 		validator: val => val instanceof Array,
 		valueFn: function() {
 			return [];
@@ -175,6 +183,14 @@ Select.STATE = {
 		valueFn: function() {
 			return this.label || !this.items.length ? -1 : 0;
 		}
+	},
+
+	/**
+	 * A list representing the select dropdown values.
+	 * @type {Array<string>=}
+	 */
+	values: {
+		validator: val => val instanceof Array
 	}
 };
 

@@ -24,7 +24,8 @@
 		}).render('#first');
 
 		window.select2 = new metal.Select({
-			items: ['Number', 'String', 'Boolean', 'Array', 'Object'],
+			items: ['Number', 'String', 'Boolean', 'Array', '<i>Object</i>'],
+			values: ['Number', 'String', 'Boolean', 'Array', 'Object'],
 			label: 'Type',
 		}).render('#second');
 	</script>

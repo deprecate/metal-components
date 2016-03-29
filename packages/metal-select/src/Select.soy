@@ -7,6 +7,7 @@
  * @param? hiddenInputName
  * @param id
  * @param items
+ * @param? values
  * @param? label
  * @param? selectedIndex
  */
@@ -16,24 +17,43 @@
 		<input
 			type="hidden"
 			name="{$hiddenInputName ? $hiddenInputName : ''}"
-			value="{$currSelectedIndex == -1 ? '' : $items[$currSelectedIndex]}"
+			value="{$currSelectedIndex == -1 ? '' : $values ? $values[$currSelectedIndex] : ''}"
 		>
 		{call Dropdown.render}
 			{param body kind="html"}
 				{foreach $item in $items}
 					<li data-onclick="{$id}:handleItemClick_" class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
-						<a href="javascript:;">{$item}</a>
+						<a href="javascript:;">
+							{call .renderAsHtml_}
+								{param value: $item /}
+							{/call}
+						</a>
 					</li>
 				{/foreach}
 			{/param}
 			{param events: ['stateSynced': $id + ':handleDropdownStateSynced_'] /}
 			{param header kind="html"}
 				<button class="{$buttonClass ? $buttonClass : ''} dropdown-select" type="button" data-onclick="toggle">
-					{let $buttonLabel: $currSelectedIndex == -1 ? ($label ? $label : '') : $items[$currSelectedIndex] /}
-					{$buttonLabel ? $buttonLabel : ''} <span class="{$arrowClass ? $arrowClass : 'caret'}"></span>
+					{if $currSelectedIndex == -1}
+						{if $label}
+							{$label}
+						{/if}
+					{else}
+						{call .renderAsHtml_}
+							{param value: $items[$currSelectedIndex] /}
+						{/call}
+					{/if}
+					{sp}<span class="{$arrowClass ? $arrowClass : 'caret'}"></span>
 				</button>
 			{/param}
 			{param id: $id + '-dropdown' /}
 		{/call}
 	</div>
+{/template}
+
+/**
+ */
+{template .renderAsHtml_}
+	{@param value: html}
+	{$value}
 {/template}
