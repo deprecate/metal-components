@@ -354,12 +354,11 @@ describe('Modal', function() {
 			role: 'dialog'
 		};
 		var element = document.createElement('div');
-		dom.enterDocument(element);
 		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
 		var outerHTML = element.innerHTML;
 
 		modal = new Modal({
-			element: '#modal',
+			element: element.childNodes[0],
 			elementClasses: 'centered',
 			header: 'header',
 			body: 'body',
@@ -380,11 +379,10 @@ describe('Modal', function() {
 			overlay: true
 		};
 		var element = document.createElement('div');
-		dom.enterDocument(element);
 		IncrementalDOM.patch(element, () => Modal.TEMPLATE(data));
 
 		modal = new Modal({
-			element: '#modal',
+			element: element.childNodes[0],
 			header: 'header',
 			body: 'body',
 			footer: 'footer',
