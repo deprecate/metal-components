@@ -45,16 +45,15 @@ describe('Switcher', function() {
 		dom.enterDocument(element);
 		IncrementalDOM.patch(element, () => {
 			Switcher.TEMPLATE({
-				checked: true,
-				id: 'switcher'
+				checked: true
 			});
 		});
-		var outerHTML = element.querySelector('#switcher').outerHTML;
+		var outerHTML = element.childNodes[0].outerHTML;
 
 		switcher = new Switcher({
 			checked: true,
-			element: '#switcher'
-		}).decorate();
+			element: element.childNodes[0]
+		}).render();
 
 		assert.strictEqual(switcher.element.outerHTML, outerHTML);
 	});

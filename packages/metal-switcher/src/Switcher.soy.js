@@ -38,8 +38,8 @@ var iattr = IncrementalDom.attr;
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
+  opt_data = opt_data || {};
   ie_open('div', null, null,
-      'id', opt_data.id,
       'class', 'switcher' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + (opt_data.checked ? ' switcher-on' : ''),
       'data-onclick', 'handleClick');
     ie_open('div', null, null,
@@ -54,7 +54,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Switcher.render';
 }
 
-exports.render.params = ["checked","elementClasses","id"];
+exports.render.params = ["checked","elementClasses"];
 templates = exports;
 return exports;
 
