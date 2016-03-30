@@ -239,12 +239,12 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
 			select.getDropdown().once('stateChanged', function() {
-				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 40
 				});
@@ -267,10 +267,10 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
 			select.getDropdown().once('stateChanged', function() {
-				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 40
 				});
@@ -288,12 +288,12 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
 			});
 			select.getDropdown().once('stateChanged', function() {
-				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 38
 				});
@@ -316,10 +316,10 @@ describe('Select', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			}).render();
+			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
 			select.getDropdown().once('stateChanged', function() {
-				var options = select.element.querySelectorAll('.select-option a');
 				dom.triggerEvent(select.element, 'keydown', {
 					keyCode: 38
 				});
