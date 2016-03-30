@@ -5,7 +5,6 @@
  * @param? alignedPosition
  * @param? content
  * @param? elementClasses
- * @param id
  * @param? position
  * @param? title
  */
@@ -13,7 +12,7 @@
 	{let $positionClasses: ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'] /}
 	{let $currentPosition: isNonnull($alignedPosition) ? $alignedPosition : $position /}
 	{let $positionClass: isNonnull($currentPosition) ? $positionClasses[$currentPosition] : 'bottom' /}
-	<div id="{$id}" class="popover {$positionClass}{$elementClasses ? ' ' + $elementClasses : ''}" role="tooltip">
+	<div class="popover {$positionClass}{$elementClasses ? ' ' + $elementClasses : ''}" role="tooltip">
 		<div class="arrow"></div>
 		<h3 class="popover-title{$title ? '' : ' hidden'}">{$title ? $title : ''}</h3>
 		<div class="popover-content">

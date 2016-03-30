@@ -81,19 +81,18 @@ describe('Popover', function() {
 		dom.enterDocument(element);
 		IncrementalDOM.patch(element, () => {
 			Popover.TEMPLATE({
-				id: 'popover',
 				content: 'content',
 				title: 'title'
 			});
 		});
-		var outerHTML = element.querySelector('#popover').outerHTML;
+		var outerHTML = element.childNodes[0].outerHTML;
 
 		popover = new Popover({
-			element: '#popover',
+			element: element.childNodes[0],
 			content: 'content',
 			title: 'title',
 			visible: false
-		}).decorate();
+		}).render();
 
 		assert.strictEqual(popover.element.outerHTML, outerHTML);
 	});

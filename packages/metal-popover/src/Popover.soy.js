@@ -38,11 +38,11 @@ var iattr = IncrementalDom.attr;
  * @suppress {checkTypes}
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
+  opt_data = opt_data || {};
   var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
   var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
   var positionClass__soy5 = currentPosition__soy4 != null ? positionClasses__soy3[currentPosition__soy4] : 'bottom';
   ie_open('div', null, null,
-      'id', opt_data.id,
       'class', 'popover ' + positionClass__soy5 + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
       'role', 'tooltip');
     ie_void('div', null, null,
@@ -64,7 +64,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Popover.render';
 }
 
-exports.render.params = ["alignedPosition","content","elementClasses","id","position","title"];
+exports.render.params = ["alignedPosition","content","elementClasses","position","title"];
 templates = exports;
 return exports;
 
