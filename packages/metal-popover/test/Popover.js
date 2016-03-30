@@ -18,11 +18,29 @@ describe('Popover', function() {
 		assert.strictEqual('content', innerElement.textContent);
 	});
 
+	it('should render html content', function() {
+		popover = new Popover({
+			content: '<b>content</b>'
+		}).render();
+		var innerElement = popover.element.querySelector('.popover-content p');
+		assert.strictEqual('B', innerElement.childNodes[0].tagName);
+		assert.strictEqual('content', innerElement.textContent);
+	});
+
 	it('should render title', function() {
 		popover = new Popover({
 			title: 'title'
 		}).render();
 		var innerElement = popover.element.querySelector('.popover-title');
+		assert.strictEqual('title', innerElement.textContent);
+	});
+
+	it('should render html title', function() {
+		popover = new Popover({
+			title: '<b>title</b>'
+		}).render();
+		var innerElement = popover.element.querySelector('.popover-title');
+		assert.strictEqual('B', innerElement.childNodes[0].tagName);
 		assert.strictEqual('title', innerElement.textContent);
 	});
 
@@ -81,7 +99,7 @@ describe('Popover', function() {
 		dom.enterDocument(element);
 		IncrementalDOM.patch(element, () => {
 			Popover.TEMPLATE({
-				content: 'content',
+				content: () => IncrementalDOM.text('content'),
 				title: () => IncrementalDOM.text('title')
 			});
 		});

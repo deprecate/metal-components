@@ -33,9 +33,9 @@ var iattr = IncrementalDom.attr;
 /**
  * @param {{
  *    alignedPosition: (?),
- *    content: (?),
  *    elementClasses: (?),
  *    position: (?),
+ *    content: (?soydata.SanitizedHtml|string|undefined),
  *    title: (?soydata.SanitizedHtml|string|undefined)
  * }} opt_data
  * @param {(null|undefined)=} opt_ignored
@@ -45,6 +45,8 @@ var iattr = IncrementalDom.attr;
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
   opt_data = opt_data || {};
+  soy.asserts.assertType(opt_data.content == null || (opt_data.content instanceof Function) || (opt_data.content instanceof soydata.UnsanitizedText) || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
+  var content = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.content);
   soy.asserts.assertType(opt_data.title == null || (opt_data.title instanceof Function) || (opt_data.title instanceof soydata.UnsanitizedText) || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
   var title = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.title);
   var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
@@ -64,7 +66,9 @@ function $render(opt_data, opt_ignored, opt_ijData) {
     ie_open('div', null, null,
         'class', 'popover-content');
       ie_open('p');
-        itext((goog.asserts.assert((opt_data.content ? opt_data.content : '') != null), opt_data.content ? opt_data.content : ''));
+        if (content) {
+          content();
+        }
       ie_close('p');
     ie_close('div');
   ie_close('div');
@@ -74,7 +78,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Popover.render';
 }
 
-exports.render.params = ["title","alignedPosition","content","elementClasses","position"];
+exports.render.params = ["content","title","alignedPosition","elementClasses","position"];
 templates = exports;
 return exports;
 
