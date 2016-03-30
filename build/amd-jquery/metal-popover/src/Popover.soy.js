@@ -62,9 +62,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var soy = goog.require('soy');
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
-    goog.require('goog.i18n.bidi');
-    /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -75,24 +75,39 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    alignedPosition: (?),
+     *    elementClasses: (?),
+     *    position: (?),
+     *    content: (?soydata.SanitizedHtml|string|undefined),
+     *    title: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      opt_data = opt_data || {};
+      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
+      var content = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.content;
+      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
+      var title = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.title;
       var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
       var positionClass__soy5 = currentPosition__soy4 != null ? positionClasses__soy3[currentPosition__soy4] : 'bottom';
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'popover ' + positionClass__soy5 + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tooltip');
+      ie_open('div', null, null, 'class', 'popover ' + positionClass__soy5 + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tooltip');
       ie_void('div', null, null, 'class', 'arrow');
-      ie_open('h3', null, null, 'class', 'popover-title' + (opt_data.title ? '' : ' hidden'));
-      itext((goog.asserts.assert((opt_data.title ? opt_data.title : '') != null), opt_data.title ? opt_data.title : ''));
+      ie_open('h3', null, null, 'class', 'popover-title' + (title ? '' : ' hidden'));
+      if (title) {
+        title();
+      }
       ie_close('h3');
       ie_open('div', null, null, 'class', 'popover-content');
       ie_open('p');
-      itext((goog.asserts.assert((opt_data.content ? opt_data.content : '') != null), opt_data.content ? opt_data.content : ''));
+      if (content) {
+        content();
+      }
       ie_close('p');
       ie_close('div');
       ie_close('div');
@@ -102,7 +117,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'Popover.render';
     }
 
-    exports.render.params = ["alignedPosition", "content", "elementClasses", "id", "position", "title"];
+    exports.render.params = ["content", "title", "alignedPosition", "elementClasses", "position"];
     exports.templates = templates = exports;
     return exports;
   });

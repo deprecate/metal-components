@@ -90,6 +90,7 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
    * @type {string}
    */
 		content: {
+			isHtml: true,
 			validator: _metal2.default.isString
 		},
 
