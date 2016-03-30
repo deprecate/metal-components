@@ -82,7 +82,7 @@ describe('Popover', function() {
 		IncrementalDOM.patch(element, () => {
 			Popover.TEMPLATE({
 				content: 'content',
-				title: 'title'
+				title: () => IncrementalDOM.text('title')
 			});
 		});
 		var outerHTML = element.childNodes[0].outerHTML;
