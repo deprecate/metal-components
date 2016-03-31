@@ -364,7 +364,7 @@ describe('Modal', function() {
 			body: 'body',
 			footer: 'footer',
 			visible: false
-		}).decorate();
+		}).render();
 
 		assert.strictEqual(modal.element.outerHTML, outerHTML);
 	});
