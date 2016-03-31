@@ -100,7 +100,7 @@ describe('Alert', function() {
 		IncrementalDOM.patch(element, () => Alert.TEMPLATE(config));
 
 		var markupFromDom = element.childNodes[0].outerHTML;
-		component = new Alert(config).decorate();
+		component = new Alert(config).render();
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
 	});
