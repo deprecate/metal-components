@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
+var karma = require('karma');
 var liferay = require('liferay-gulp-tasks');
 var metal = require('gulp-metal');
 var runSequence = require('run-sequence');
@@ -12,6 +13,7 @@ metal.registerTasks({
 	buildSrc: utils.getComponentPaths('src'),
 	bundleFileName: 'metal.js',
 	cssSrc: 'node_modules/metal-*/src/**/*.css',
+	karma: karma,
 	scssSrc: 'node_modules/metal-*/src/**/*.scss'
 });
 
