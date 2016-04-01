@@ -357,12 +357,15 @@ babelHelpers;
    */
 
 		array.equal = function equal(arr1, arr2) {
+			if (arr1.length !== arr2.length) {
+				return false;
+			}
 			for (var i = 0; i < arr1.length; i++) {
 				if (arr1[i] !== arr2[i]) {
 					return false;
 				}
 			}
-			return arr1.length === arr2.length;
+			return true;
 		};
 
 		/**
@@ -755,8 +758,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.core;
-
 	var object = function () {
 		function object() {
 			babelHelpers.classCallCheck(this, object);
@@ -785,22 +786,16 @@ babelHelpers;
    * @param {string} name The fully qualified name.
    * @param {object=} opt_obj The object within which to look; default is
    *     <code>window</code>.
-   * @return {?} The value (object or primitive) or, if not found, null.
+   * @return {?} The value (object or primitive) or, if not found, undefined.
    */
 
 
 		object.getObjectByName = function getObjectByName(name, opt_obj) {
+			var scope = opt_obj || window;
 			var parts = name.split('.');
-			var cur = opt_obj || window;
-			var part;
-			while (part = parts.shift()) {
-				if (core.isDefAndNotNull(cur[part])) {
-					cur = cur[part];
-				} else {
-					return null;
-				}
-			}
-			return cur;
+			return parts.reduce(function (part, key) {
+				return part[key];
+			}, scope);
 		};
 
 		/**
@@ -907,7 +902,7 @@ babelHelpers;
   var object = this.metal.object;
   var string = this.metal.string;
   this.metal.metal = core;
-  this.metalNamed.metal = {};
+  this.metalNamed.metal = this.metalNamed.metal || {};
   this.metalNamed.metal.core = core;
   this.metalNamed.metal.array = array;
   this.metalNamed.metal.async = async;
@@ -1404,7 +1399,6 @@ babelHelpers;
 (function () {
 	var array = this.metalNamed.metal.array;
 	var Disposable = this.metalNamed.metal.Disposable;
-	var object = this.metalNamed.metal.object;
 
 	/**
   * EventEmitterProxy utility. It's responsible for linking two EventEmitter
@@ -1679,7 +1673,7 @@ babelHelpers;
   var EventHandle = this.metal.EventHandle;
   var EventHandler = this.metal.EventHandler;
   this.metal.events = EventEmitter;
-  this.metalNamed.events = {};
+  this.metalNamed.events = this.metalNamed.events || {};
   this.metalNamed.events.EventEmitter = EventEmitter;
   this.metalNamed.events.EventEmitterProxy = EventEmitterProxy;
   this.metalNamed.events.EventHandle = EventHandle;
@@ -2862,7 +2856,7 @@ babelHelpers;
   var globalEval = this.metal.globalEval;
   var globalEvalStyles = this.metal.globalEvalStyles;
   this.metal.dom = dom;
-  this.metalNamed.dom = {};
+  this.metalNamed.dom = this.metalNamed.dom || {};
   this.metalNamed.dom.dom = dom;
   this.metalNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
   this.metalNamed.dom.DomEventHandle = DomEventHandle;
@@ -4147,7 +4141,7 @@ babelHelpers;
   var Geometry = this.metal.Geometry;
   var Position = this.metal.Position;
   this.metal.position = Position;
-  this.metalNamed.position = {};
+  this.metalNamed.position = this.metalNamed.position || {};
   this.metalNamed.position.Align = Align;
   this.metalNamed.position.Geometry = Geometry;
   this.metalNamed.position.Position = Position;
@@ -4561,10 +4555,7 @@ babelHelpers;
 		};
 
 		/**
-   * Renders the component's whole content (including its main element). When
-   * decorating this should avoid replacing the existing content if it's already
-   * correct.
-   * @param {decorating: boolean} data
+   * Renders the component's whole content (including its main element).
    */
 
 
@@ -4672,13 +4663,6 @@ babelHelpers;
     * @type {!Array<!Component>}
     */
 			_this.components = {};
-
-			/**
-    * Whether the element is being decorated.
-    * @type {boolean}
-    * @protected
-    */
-			_this.decorating_ = false;
 
 			/**
     * Instance of `DomEventEmitterProxy` which proxies events from the component's
@@ -4839,23 +4823,6 @@ babelHelpers;
 				this.components[key] = new ConstructorFn(opt_data);
 			}
 			return this.components[key];
-		};
-
-		/**
-   * Lifecycle. Creates the component using existing DOM elements. Often the
-   * component can be created using existing elements in the DOM to leverage
-   * progressive enhancement. Any extra operation necessary to prepare the
-   * component DOM must be implemented in this phase. Decorate phase replaces
-   * render phase.
-   * @chainable
-   */
-
-
-		Component.prototype.decorate = function decorate() {
-			this.decorating_ = true;
-			this.render();
-			this.decorating_ = false;
-			return this;
 		};
 
 		/**
@@ -5102,11 +5069,9 @@ babelHelpers;
 		};
 
 		/**
-   * Lifecycle. Renders the component into the DOM. Render phase replaces
-   * decorate phase, without progressive enhancement support.
+   * Lifecycle. Renders the component into the DOM.
    *
    * Render Lifecycle:
-   *   render - Decorate is manually called.
    *   render event - The "render" event is emitted. Renderers act on this step.
    *   state synchronization - All synchronization methods are called.
    *   attach - Attach Lifecycle is called.
@@ -5133,9 +5098,7 @@ babelHelpers;
 			}
 
 			if (!opt_skipRender) {
-				this.emit('render', {
-					decorating: this.decorating_
-				});
+				this.emit('render');
 			}
 			this.setUpProxy_();
 			this.syncState_();
@@ -5551,7 +5514,7 @@ babelHelpers;
 	var ComponentRenderer = this.metal.ComponentRenderer;
 	var EventsCollector = this.metal.EventsCollector;
 	this.metal.component = Component;
-	this.metalNamed.component = {};
+	this.metalNamed.component = this.metalNamed.component || {};
 	this.metalNamed.component.Component = Component;
 	this.metalNamed.component.ComponentRegistry = ComponentRegistry;
 	this.metalNamed.component.ComponentRenderer = ComponentRenderer;
@@ -10921,8 +10884,6 @@ babelHelpers;
       exports.notifications = notifications;
     });
 
-    //# sourceMappingURL=incremental-dom.js.map
-
     goog.loadModule(function () {
       goog.module('incrementaldom');
       return IncrementalDOM;
@@ -11470,6 +11431,7 @@ babelHelpers;
 (function () {
 	var array = this.metalNamed.metal.array;
 	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
 	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
 	var EventsCollector = this.metalNamed.component.EventsCollector;
@@ -11551,6 +11513,20 @@ babelHelpers;
 		};
 
 		/**
+   * Gets the current rendering data for this component.
+   * @return {!Object}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.getRenderingData = function getRenderingData() {
+			if (!this.renderingData_) {
+				this.renderingData_ = object.mixin({}, this.component_.getInitialConfig());
+			}
+			return this.renderingData_;
+		};
+
+		/**
    * Gets the sub component referenced by the given tag and config data,
    * creating it if it doesn't yet exist.
    * @param {string} key The sub component's key.
@@ -11563,10 +11539,10 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.getSubComponent_ = function getSubComponent_(key, tagOrCtor, config) {
 			var comp = this.component_.addSubComponent(key, tagOrCtor, config);
-
 			if (comp.wasRendered) {
 				comp.setState(config);
 			}
+			comp.componentIncrementalDomKey_ = key;
 			return comp;
 		};
 
@@ -11674,8 +11650,8 @@ babelHelpers;
 			var attrsArr = array.slice(arguments, 4);
 			this.addInlineListeners_((statics || []).concat(attrsArr));
 			var args = array.slice(arguments, 1);
-			if (!this.rootElementReached_) {
-				args[1] = IncrementalDomRenderer.componentKey;
+			if (!this.rootElementReached_ && this.component_.componentIncrementalDomKey_) {
+				args[1] = this.component_.componentIncrementalDomKey_;
 			}
 			var node = originalFn.apply(null, args);
 			if (!this.rootElementReached_) {
@@ -11720,7 +11696,13 @@ babelHelpers;
 			for (var i = 0; i < attrsArr.length; i += 2) {
 				config[attrsArr[i]] = attrsArr[i + 1];
 			}
-			var comp = this.renderSubComponent_(tag, config);
+
+			var tagOrCtor = tag;
+			if (tag === 'Component' && config.ctor) {
+				tagOrCtor = config.ctor;
+				config = config.data || {};
+			}
+			var comp = this.renderSubComponent_(tagOrCtor, config);
 			return comp.element;
 		};
 
@@ -11749,6 +11731,7 @@ babelHelpers;
    * Calls functions from `IncrementalDOM` to build the component element's
    * content. Can be overriden by subclasses (for integration with template
    * engines for example).
+   * @param {!Object} data Data passed to the component when rendering it.
    */
 
 
@@ -11760,10 +11743,11 @@ babelHelpers;
    * Runs the incremental dom functions for rendering this component, but
    * doesn't call `patch` yet. Rather, this will be the function that should be
    * called by `patch`.
+   * @param {Object=} opt_data Data passed to the component when rendering it.
    */
 
 
-		IncrementalDomRenderer.prototype.renderWithoutPatch = function renderWithoutPatch() {
+		IncrementalDomRenderer.prototype.renderWithoutPatch = function renderWithoutPatch(opt_data) {
 			// Mark that there shouldn't be an update for state changes so far, since
 			// render has already been called.
 			this.changes_ = {};
@@ -11773,7 +11757,8 @@ babelHelpers;
 			this.generatedKeyCount_ = 0;
 			this.listenersToAttach_ = [];
 			IncrementalDomAop.startInterception(this.handleInterceptedOpenCall_.bind(this), this.handleInterceptedCloseCall_.bind(this), this.handleInterceptedAttributesCall_.bind(this));
-			this.renderIncDom();
+			object.mixin(this.getRenderingData(), opt_data);
+			this.renderIncDom(this.getRenderingData());
 			IncrementalDomAop.stopInterception();
 			this.attachInlineListeners_();
 		};
@@ -11827,25 +11812,17 @@ babelHelpers;
    * The sub component is created, added to its parent and rendered. If it
    * had already been rendered before though, it will only have its state
    * updated instead.
-   * @param {string} tag The tag name.
+   * @param {string|!function()} tagOrCtor The tag name or constructor function.
    * @param {!Object} config The config object for the sub component.
    * @return {!Component} The updated sub component.
    * @protected
    */
 
 
-		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tag, config) {
-			var tagOrCtor = tag;
-			if (tag === 'Component' && config.ctor) {
-				tagOrCtor = config.ctor;
-				config = config.data || {};
-			}
-
+		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tagOrCtor, config) {
 			var key = config.key || 'sub' + this.generatedKeyCount_++;
 			var comp = this.getSubComponent_(key, tagOrCtor, config);
-			IncrementalDomRenderer.componentKey = key;
-			comp.getRenderer().renderWithoutPatch();
-			IncrementalDomRenderer.componentKey = null;
+			comp.getRenderer().renderWithoutPatch(config);
 			if (!comp.wasRendered) {
 				comp.renderAsSubComponent();
 			}
@@ -11944,7 +11921,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
 	var HTML2IncDom = this.metal.withParser;
 	var IncrementalDomRenderer = this.metal.IncrementalDomRenderer;
@@ -11957,23 +11935,30 @@ babelHelpers;
 	var Soy = function (_IncrementalDomRender) {
 		babelHelpers.inherits(Soy, _IncrementalDomRender);
 
-		function Soy() {
-			babelHelpers.classCallCheck(this, Soy);
-			return babelHelpers.possibleConstructorReturn(this, _IncrementalDomRender.apply(this, arguments));
-		}
-
 		/**
-   * Adds the specified state keys to the component, if they don't exist yet.
-   * @param {Array<string>} keys
+   * @inheritDoc
+   */
+
+		function Soy(comp) {
+			babelHelpers.classCallCheck(this, Soy);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _IncrementalDomRender.call(this, comp));
+
+			_this.addMissingStateKeys_();
+			return _this;
+		}
+		/**
+   * Adds the template params to the component's state, if they don't exist yet.
    * @protected
    */
 
-		Soy.prototype.addMissingStateKeys_ = function addMissingStateKeys_(keys) {
-			if (this.addedMissingStateKeys_) {
+
+		Soy.prototype.addMissingStateKeys_ = function addMissingStateKeys_() {
+			var elementTemplate = this.component_.constructor.TEMPLATE;
+			if (!core.isFunction(elementTemplate)) {
 				return;
 			}
-
-			this.addedMissingStateKeys_ = true;
+			var keys = SoyAop.getOriginalFn(elementTemplate).params;
 			var component = this.component_;
 			for (var i = 0; i < keys.length; i++) {
 				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
@@ -11987,15 +11972,16 @@ babelHelpers;
    * template call's data. The copying needs to be done because, if the component
    * itself is passed directly, some problems occur when soy tries to merge it
    * with other data, due to property getters and setters. This is safer.
+   * @param {!Object} data Data passed to the component when rendering it.
    * @param {!Array<string>} params The params used by this template.
    * @return {!Object}
    * @protected
    */
 
 
-		Soy.prototype.buildTemplateData_ = function buildTemplateData_(params) {
+		Soy.prototype.buildTemplateData_ = function buildTemplateData_(data, params) {
 			var component = this.component_;
-			var data = {};
+			data = object.mixin({}, data);
 			component.getStateKeys().forEach(function (key) {
 				// Get all state values except "element", since it helps performance
 				// and the element shouldn't be referenced inside a soy template anyway.
@@ -12077,18 +12063,17 @@ babelHelpers;
 		/**
    * Overrides the default method from `IncrementalDomRenderer` so the component's
    * soy template can be used for rendering.
+   * @param {!Object} data Data passed to the component when rendering it.
    * @override
    */
 
 
-		Soy.prototype.renderIncDom = function renderIncDom() {
+		Soy.prototype.renderIncDom = function renderIncDom(data) {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
 			if (core.isFunction(elementTemplate)) {
 				elementTemplate = SoyAop.getOriginalFn(elementTemplate);
-				this.addMissingStateKeys_(elementTemplate.params);
-
 				SoyAop.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(elementTemplate.params), null, ijData);
+				elementTemplate(this.buildTemplateData_(data, elementTemplate.params), null, ijData);
 				SoyAop.stopInterception();
 			} else {
 				_IncrementalDomRender.prototype.renderIncDom.call(this);
@@ -12158,7 +12143,7 @@ babelHelpers;
 	}(IncrementalDomRenderer);
 
 	this.metal.Soy = Soy;
-	this.metalNamed.Soy = {};
+	this.metalNamed.Soy = this.metalNamed.Soy || {};
 	this.metalNamed.Soy.Soy = Soy;
 	this.metalNamed.Soy.SoyAop = SoyAop;
 }).call(this);
@@ -12200,7 +12185,6 @@ babelHelpers;
     /**
      * @param {{
      *    dismissible: (?),
-     *    id: (?),
      *    spinner: (?),
      *    spinnerDone: (?),
      *    elementClasses: (?),
@@ -12215,7 +12199,7 @@ babelHelpers;
     function $render(opt_data, opt_ignored, opt_ijData) {
       soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
+      ie_open('div', null, null, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
       if (opt_data.spinner) {
         ie_void('span', null, null, 'class', 'alert-spinner' + (opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + (opt_data.spinnerDone ? ' alert-spinner-done' : ''));
       }
@@ -12238,7 +12222,7 @@ babelHelpers;
       $render.soyTemplateName = 'Alert.render';
     }
 
-    exports.render.params = ["body", "dismissible", "id", "spinner", "spinnerDone", "elementClasses", "spinnerClasses"];
+    exports.render.params = ["body", "dismissible", "spinner", "spinnerDone", "elementClasses", "spinnerClasses"];
     templates = exports;
     return exports;
   });
@@ -12256,7 +12240,7 @@ babelHelpers;
 
   Soy.register(Alert, templates);
   this.metal.Alert = templates;
-  this.metalNamed.Alert = {};
+  this.metalNamed.Alert = this.metalNamed.Alert || {};
   this.metalNamed.Alert.Alert = Alert;
   this.metalNamed.Alert.templates = templates;
   /* jshint ignore:end */
@@ -13428,7 +13412,7 @@ babelHelpers;
   /** @override */
   CancellablePromise.CancellationError.prototype.name = 'cancel';
 
-  this.metalNamed.Promise = {};
+  this.metalNamed.Promise = this.metalNamed.Promise || {};
   this.metalNamed.Promise.CancellablePromise = CancellablePromise;
   this.metal.Promise = CancellablePromise;
 }).call(this);
@@ -13740,7 +13724,7 @@ babelHelpers;
 
   Soy.register(ListItem, templates);
   this.metal.ListItem = templates;
-  this.metalNamed.ListItem = {};
+  this.metalNamed.ListItem = this.metalNamed.ListItem || {};
   this.metalNamed.ListItem.ListItem = ListItem;
   this.metalNamed.ListItem.templates = templates;
   /* jshint ignore:end */
@@ -13852,8 +13836,8 @@ babelHelpers;
     var ie_open_end = IncrementalDom.elementOpenEnd;
     var itext = IncrementalDom.text;
     var iattr = IncrementalDom.attr;
-    var $import1 = goog.require('ListItem.incrementaldom');
-    var $templateAlias1 = $import1.render;
+
+    var $templateAlias1 = Soy.getTemplate('ListItem.incrementaldom', 'render');
 
     /**
      * @param {{
@@ -13908,7 +13892,7 @@ babelHelpers;
 
   Soy.register(List, templates);
   this.metal.List = templates;
-  this.metalNamed.List = {};
+  this.metalNamed.List = this.metalNamed.List || {};
   this.metalNamed.List.List = List;
   this.metalNamed.List.templates = templates;
   /* jshint ignore:end */
@@ -14024,8 +14008,8 @@ babelHelpers;
     var ie_open_end = IncrementalDom.elementOpenEnd;
     var itext = IncrementalDom.text;
     var iattr = IncrementalDom.attr;
-    var $import1 = goog.require('List.incrementaldom');
-    var $templateAlias1 = $import1.render;
+
+    var $templateAlias1 = Soy.getTemplate('List.incrementaldom', 'render');
 
     /**
      * @param {Object<string, *>=} opt_data
@@ -14063,7 +14047,7 @@ babelHelpers;
 
   Soy.register(Autocomplete, templates);
   this.metal.Autocomplete = templates;
-  this.metalNamed.Autocomplete = {};
+  this.metalNamed.Autocomplete = this.metalNamed.Autocomplete || {};
   this.metalNamed.Autocomplete.Autocomplete = Autocomplete;
   this.metalNamed.Autocomplete.templates = templates;
   /* jshint ignore:end */
@@ -14283,7 +14267,7 @@ babelHelpers;
   var Autocomplete = this.metal.Autocomplete;
   var AutocompleteBase = this.metal.AutocompleteBase;
   this.metal.autocomplete = Autocomplete;
-  this.metalNamed.autocomplete = {};
+  this.metalNamed.autocomplete = this.metalNamed.autocomplete || {};
   this.metalNamed.autocomplete.Autocomplete = Autocomplete;
   this.metalNamed.autocomplete.AutocompleteBase = AutocompleteBase;
 }).call(this);
@@ -14396,7 +14380,7 @@ babelHelpers;
 
   Soy.register(ButtonGroup, templates);
   this.metal.ButtonGroup = templates;
-  this.metalNamed.ButtonGroup = {};
+  this.metalNamed.ButtonGroup = this.metalNamed.ButtonGroup || {};
   this.metalNamed.ButtonGroup.ButtonGroup = ButtonGroup;
   this.metalNamed.ButtonGroup.templates = templates;
   /* jshint ignore:end */
@@ -14952,7 +14936,7 @@ babelHelpers;
 
   Soy.register(Dropdown, templates);
   this.metal.Dropdown = templates;
-  this.metalNamed.Dropdown = {};
+  this.metalNamed.Dropdown = this.metalNamed.Dropdown || {};
   this.metalNamed.Dropdown.Dropdown = Dropdown;
   this.metalNamed.Dropdown.templates = templates;
   /* jshint ignore:end */
@@ -15375,7 +15359,7 @@ babelHelpers;
 
   Soy.register(Modal, templates);
   this.metal.Modal = templates;
-  this.metalNamed.Modal = {};
+  this.metalNamed.Modal = this.metalNamed.Modal || {};
   this.metalNamed.Modal.Modal = Modal;
   this.metalNamed.Modal.templates = templates;
   /* jshint ignore:end */
@@ -16090,7 +16074,7 @@ babelHelpers;
 
   Soy.register(Tooltip, templates);
   this.metal.Tooltip = templates;
-  this.metalNamed.Tooltip = {};
+  this.metalNamed.Tooltip = this.metalNamed.Tooltip || {};
   this.metalNamed.Tooltip.Tooltip = Tooltip;
   this.metalNamed.Tooltip.templates = templates;
   /* jshint ignore:end */
@@ -16138,7 +16122,7 @@ babelHelpers;
 	Tooltip.Align = TooltipBase.Align;
 
 	this.metal.Tooltip = Tooltip;
-	this.metalNamed.Tooltip = {};
+	this.metalNamed.Tooltip = this.metalNamed.Tooltip || {};
 	this.metalNamed.Tooltip.Tooltip = Tooltip;
 	this.metalNamed.Tooltip.TooltipBase = TooltipBase;
 }).call(this);
@@ -16238,7 +16222,7 @@ babelHelpers;
 
   Soy.register(Popover, templates);
   this.metal.Popover = templates;
-  this.metalNamed.Popover = {};
+  this.metalNamed.Popover = this.metalNamed.Popover || {};
   this.metalNamed.Popover.Popover = Popover;
   this.metalNamed.Popover.templates = templates;
   /* jshint ignore:end */
@@ -16414,7 +16398,7 @@ babelHelpers;
 
   Soy.register(ProgressBar, templates);
   this.metal.ProgressBar = templates;
-  this.metalNamed.ProgressBar = {};
+  this.metalNamed.ProgressBar = this.metalNamed.ProgressBar || {};
   this.metalNamed.ProgressBar.ProgressBar = ProgressBar;
   this.metalNamed.ProgressBar.templates = templates;
   /* jshint ignore:end */
@@ -16908,8 +16892,8 @@ babelHelpers;
     var ie_open_end = IncrementalDom.elementOpenEnd;
     var itext = IncrementalDom.text;
     var iattr = IncrementalDom.attr;
-    var $import1 = goog.require('Dropdown.incrementaldom');
-    var $templateAlias1 = $import1.render;
+
+    var $templateAlias1 = Soy.getTemplate('Dropdown.incrementaldom', 'render');
 
     /**
      * @param {{
@@ -17008,7 +16992,7 @@ babelHelpers;
 
   Soy.register(Select, templates);
   this.metal.Select = templates;
-  this.metalNamed.Select = {};
+  this.metalNamed.Select = this.metalNamed.Select || {};
   this.metalNamed.Select.Select = Select;
   this.metalNamed.Select.templates = templates;
   /* jshint ignore:end */
@@ -18839,7 +18823,7 @@ babelHelpers;
 (function () {
   var Drag = this.metal.Drag;
   var DragDrop = this.metal.DragDrop;
-  this.metalNamed.drag = {};
+  this.metalNamed.drag = this.metalNamed.drag || {};
   this.metalNamed.drag.Drag = Drag;
   this.metalNamed.drag.DragDrop = DragDrop;
 }).call(this);
@@ -18924,7 +18908,7 @@ babelHelpers;
 
   Soy.register(Slider, templates);
   this.metal.Slider = templates;
-  this.metalNamed.Slider = {};
+  this.metalNamed.Slider = this.metalNamed.Slider || {};
   this.metalNamed.Slider.Slider = Slider;
   this.metalNamed.Slider.templates = templates;
   /* jshint ignore:end */
@@ -19204,7 +19188,7 @@ babelHelpers;
 
   Soy.register(Switcher, templates);
   this.metal.Switcher = templates;
-  this.metalNamed.Switcher = {};
+  this.metalNamed.Switcher = this.metalNamed.Switcher || {};
   this.metalNamed.Switcher.Switcher = Switcher;
   this.metalNamed.Switcher.templates = templates;
   /* jshint ignore:end */
@@ -19579,7 +19563,7 @@ babelHelpers;
 
   Soy.register(Treeview, templates);
   this.metal.Treeview = templates;
-  this.metalNamed.Treeview = {};
+  this.metalNamed.Treeview = this.metalNamed.Treeview || {};
   this.metalNamed.Treeview.Treeview = Treeview;
   this.metalNamed.Treeview.templates = templates;
   /* jshint ignore:end */

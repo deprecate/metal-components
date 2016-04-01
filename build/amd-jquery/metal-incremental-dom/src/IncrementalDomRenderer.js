@@ -103,12 +103,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			this.component_.disposeSubComponents(unused);
 		};
 
+		IncrementalDomRenderer.prototype.getRenderingData = function getRenderingData() {
+			if (!this.renderingData_) {
+				this.renderingData_ = _metal.object.mixin({}, this.component_.getInitialConfig());
+			}
+			return this.renderingData_;
+		};
+
 		IncrementalDomRenderer.prototype.getSubComponent_ = function getSubComponent_(key, tagOrCtor, config) {
 			var comp = this.component_.addSubComponent(key, tagOrCtor, config);
-
 			if (comp.wasRendered) {
 				comp.setState(config);
 			}
+			comp.componentIncrementalDomKey_ = key;
 			return comp;
 		};
 
@@ -160,8 +167,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			var attrsArr = _metal.array.slice(arguments, 4);
 			this.addInlineListeners_((statics || []).concat(attrsArr));
 			var args = _metal.array.slice(arguments, 1);
-			if (!this.rootElementReached_) {
-				args[1] = IncrementalDomRenderer.componentKey;
+			if (!this.rootElementReached_ && this.component_.componentIncrementalDomKey_) {
+				args[1] = this.component_.componentIncrementalDomKey_;
 			}
 			var node = originalFn.apply(null, args);
 			if (!this.rootElementReached_) {
@@ -185,7 +192,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			for (var i = 0; i < attrsArr.length; i += 2) {
 				config[attrsArr[i]] = attrsArr[i + 1];
 			}
-			var comp = this.renderSubComponent_(tag, config);
+
+			var tagOrCtor = tag;
+			if (tag === 'Component' && config.ctor) {
+				tagOrCtor = config.ctor;
+				config = config.data || {};
+			}
+			var comp = this.renderSubComponent_(tagOrCtor, config);
 			return comp.element;
 		};
 
@@ -201,7 +214,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			IncrementalDOM.elementVoid('div');
 		};
 
-		IncrementalDomRenderer.prototype.renderWithoutPatch = function renderWithoutPatch() {
+		IncrementalDomRenderer.prototype.renderWithoutPatch = function renderWithoutPatch(opt_data) {
 			// Mark that there shouldn't be an update for state changes so far, since
 			// render has already been called.
 			this.changes_ = {};
@@ -211,7 +224,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			this.generatedKeyCount_ = 0;
 			this.listenersToAttach_ = [];
 			_IncrementalDomAop2.default.startInterception(this.handleInterceptedOpenCall_.bind(this), this.handleInterceptedCloseCall_.bind(this), this.handleInterceptedAttributesCall_.bind(this));
-			this.renderIncDom();
+			_metal.object.mixin(this.getRenderingData(), opt_data);
+			this.renderIncDom(this.getRenderingData());
 			_IncrementalDomAop2.default.stopInterception();
 			this.attachInlineListeners_();
 		};
@@ -239,18 +253,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		};
 
-		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tag, config) {
-			var tagOrCtor = tag;
-			if (tag === 'Component' && config.ctor) {
-				tagOrCtor = config.ctor;
-				config = config.data || {};
-			}
-
+		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tagOrCtor, config) {
 			var key = config.key || 'sub' + this.generatedKeyCount_++;
 			var comp = this.getSubComponent_(key, tagOrCtor, config);
-			IncrementalDomRenderer.componentKey = key;
-			comp.getRenderer().renderWithoutPatch();
-			IncrementalDomRenderer.componentKey = null;
+			comp.getRenderer().renderWithoutPatch(config);
 			if (!comp.wasRendered) {
 				comp.renderAsSubComponent();
 			}

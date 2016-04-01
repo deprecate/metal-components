@@ -77,13 +77,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			_this.components = {};
 
 			/**
-    * Whether the element is being decorated.
-    * @type {boolean}
-    * @protected
-    */
-			_this.decorating_ = false;
-
-			/**
     * Instance of `DomEventEmitterProxy` which proxies events from the component's
     * element to the component itself.
     * @type {DomEventEmitterProxy}
@@ -195,13 +188,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 				this.components[key] = new ConstructorFn(opt_data);
 			}
 			return this.components[key];
-		};
-
-		Component.prototype.decorate = function decorate() {
-			this.decorating_ = true;
-			this.render();
-			this.decorating_ = false;
-			return this;
 		};
 
 		Component.prototype.delegate = function delegate(eventName, selector, callback) {
@@ -337,9 +323,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			}
 
 			if (!opt_skipRender) {
-				this.emit('render', {
-					decorating: this.decorating_
-				});
+				this.emit('render');
 			}
 			this.setUpProxy_();
 			this.syncState_();

@@ -5368,8 +5368,6 @@ define([], function () {
       exports.notifications = notifications;
     });
 
-    //# sourceMappingURL=incremental-dom.js.map
-
     goog.loadModule(function () {
       goog.module('incrementaldom');
       return IncrementalDOM;

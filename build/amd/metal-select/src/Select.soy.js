@@ -73,8 +73,8 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     var ie_open_end = IncrementalDom.elementOpenEnd;
     var itext = IncrementalDom.text;
     var iattr = IncrementalDom.attr;
-    var $import1 = goog.require('Dropdown.incrementaldom');
-    var $templateAlias1 = $import1.render;
+
+    var $templateAlias1 = _Soy2.default.getTemplate('Dropdown.incrementaldom', 'render');
 
     /**
      * @param {{

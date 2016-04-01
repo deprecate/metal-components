@@ -6,8 +6,6 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 	});
 	exports.SoyAop = exports.Soy = undefined;
 
-	var _metal2 = _interopRequireDefault(_metal);
-
 	var _withParser2 = _interopRequireDefault(_withParser);
 
 	var _IncrementalDomRenderer2 = _interopRequireDefault(_IncrementalDomRenderer);
@@ -56,18 +54,30 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 	var Soy = function (_IncrementalDomRender) {
 		_inherits(Soy, _IncrementalDomRender);
 
-		function Soy() {
+		/**
+   * @inheritDoc
+   */
+
+		function Soy(comp) {
 			_classCallCheck(this, Soy);
 
-			return _possibleConstructorReturn(this, _IncrementalDomRender.apply(this, arguments));
-		}
+			var _this = _possibleConstructorReturn(this, _IncrementalDomRender.call(this, comp));
 
-		Soy.prototype.addMissingStateKeys_ = function addMissingStateKeys_(keys) {
-			if (this.addedMissingStateKeys_) {
+			_this.addMissingStateKeys_();
+			return _this;
+		}
+		/**
+   * Adds the template params to the component's state, if they don't exist yet.
+   * @protected
+   */
+
+
+		Soy.prototype.addMissingStateKeys_ = function addMissingStateKeys_() {
+			var elementTemplate = this.component_.constructor.TEMPLATE;
+			if (!_metal.core.isFunction(elementTemplate)) {
 				return;
 			}
-
-			this.addedMissingStateKeys_ = true;
+			var keys = _SoyAop2.default.getOriginalFn(elementTemplate).params;
 			var component = this.component_;
 			for (var i = 0; i < keys.length; i++) {
 				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
@@ -76,9 +86,9 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			}
 		};
 
-		Soy.prototype.buildTemplateData_ = function buildTemplateData_(params) {
+		Soy.prototype.buildTemplateData_ = function buildTemplateData_(data, params) {
 			var component = this.component_;
-			var data = {};
+			data = _metal.object.mixin({}, data);
 			component.getStateKeys().forEach(function (key) {
 				// Get all state values except "element", since it helps performance
 				// and the element shouldn't be referenced inside a soy template anyway.
@@ -93,7 +103,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 				data[key] = value;
 			});
 			for (var i = 0; i < params.length; i++) {
-				if (!data[params[i]] && _metal2.default.isFunction(component[params[i]])) {
+				if (!data[params[i]] && _metal.core.isFunction(component[params[i]])) {
 					data[params[i]] = component[params[i]].bind(component);
 				}
 			}
@@ -125,14 +135,12 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			_component.ComponentRegistry.register(componentCtor);
 		};
 
-		Soy.prototype.renderIncDom = function renderIncDom() {
+		Soy.prototype.renderIncDom = function renderIncDom(data) {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
-			if (_metal2.default.isFunction(elementTemplate)) {
+			if (_metal.core.isFunction(elementTemplate)) {
 				elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
-				this.addMissingStateKeys_(elementTemplate.params);
-
 				_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(elementTemplate.params), null, ijData);
+				elementTemplate(this.buildTemplateData_(data, elementTemplate.params), null, ijData);
 				_SoyAop2.default.stopInterception();
 			} else {
 				_IncrementalDomRender.prototype.renderIncDom.call(this);
@@ -161,10 +169,10 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		};
 
 		Soy.toIncDom = function toIncDom(value) {
-			if (_metal2.default.isObject(value) && _metal2.default.isString(value.content) && value.contentKind === 'HTML') {
+			if (_metal.core.isObject(value) && _metal.core.isString(value.content) && value.contentKind === 'HTML') {
 				value = value.content;
 			}
-			if (_metal2.default.isString(value)) {
+			if (_metal.core.isString(value)) {
 				value = _withParser2.default.buildFn(value);
 			}
 			return value;
