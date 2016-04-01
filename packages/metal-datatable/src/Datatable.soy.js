@@ -61,13 +61,15 @@ function $render_(opt_data, opt_ignored, opt_ijData) {
   switch ((goog.isObject($$temp = opt_data.type)) ? $$temp.toString() : $$temp) {
     case 'array':
       if (opt_data.columns) {
-        ie_open('span');
+        var content__soy15 = function() {
           $renderArrayOfObjects_(opt_data, null, opt_ijData);
-        ie_close('span');
+        };
+        content__soy15();
       } else {
-        ie_open('span');
+        var content__soy19 = function() {
           $renderArray_(opt_data, null, opt_ijData);
-        ie_close('span');
+        };
+        content__soy19();
       }
       break;
     case 'boolean':

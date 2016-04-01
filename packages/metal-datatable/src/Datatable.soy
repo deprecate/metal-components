@@ -23,13 +23,15 @@
 	{switch $type}
 		{case 'array'}
 			{if $columns}
-				<span>
+				{let $content kind="html"}
 					{call .renderArrayOfObjects_ data="all" /}
-				</span>
+				{/let}
+				{$content}
 			{else}
-				<span>
+				{let $content kind="html"}
 					{call .renderArray_ data="all" /}
-				</span>
+				{/let}
+				{$content}
 			{/if}
 		{case 'boolean'}
 			{call .renderBoolean_ data="all" /}
