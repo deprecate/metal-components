@@ -1,2 +1,14 @@
 .rating {
+  .rating-item {
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    padding: 0;
+    background: transparent;
+  }
+}
+
+.rate-label {
+  margin-right: 5px;
+  float: left;
 }
