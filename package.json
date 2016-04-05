@@ -44,7 +44,6 @@
     "chai": "^3.4.1",
     "gulp": "^3.8.11",
     "gulp-metal": "^1.0.0",
-    "html2incdom": "^0.1.1",
     "isparta": "^4.0.0",
     "karma": "^0.13.9",
     "karma-babel-preprocessor": "^6.0.1",
@@ -58,7 +57,6 @@
     "karma-source-map-support": "^1.1.0",
     "liferay-gulp-tasks": "^0.2.1",
     "merge": "^1.2.0",
-    "metal-soy-bundle": "^0.2.0",
     "mocha": "^2.3.4",
     "run-sequence": "^1.1.5",
     "sinon": "^1.17.2"

@@ -33,7 +33,7 @@ module.exports = function (config) {
 
 		preprocessors: merge(coveragePreprocessors, {
 			'node_modules/html2incdom/src/*.js': ['babel', 'commonjs'],
-			'node_modules/metal-soy-bundle/build/bundle.js': ['commonjs'],
+			'node_modules/metal-soy-bundle/build/bundle.js': ['babel', 'commonjs'],
 			'node_modules/metal*/src/**/*.js': ['babel', 'commonjs'],
 			'node_modules/metal-*/test/**/*.js': ['babel', 'commonjs'],
 			'node_modules/metal-*/src/**/*.scss': ['scss']
