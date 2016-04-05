@@ -2,12 +2,12 @@
 
 /**
  * This renders the main element.
- * @param? elementClasses
  * @param? label
  * @param cssClasses
+ * @param disabled
+ * @param inputHiddenName
  * @param options
  * @param value
- * @param disabled
  */
 {template .render}
   <div
@@ -15,7 +15,7 @@
     aria-valuemax="{$options[$options.length -1].value}"
     aria-valuenow="{$options[$value] ? $options[$value].value : ''}"
     aria-valuetext="{$options[$value] ? $options[$value].title : ''}"
-    class="rating component{$elementClasses ? ' ' + $elementClasses : ''}">
+    class="rating">
     {if $label}
       <label class="rate-label">{$label}</label>
     {/if}

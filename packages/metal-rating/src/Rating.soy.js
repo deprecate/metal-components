@@ -43,7 +43,7 @@ function $render(opt_data, opt_ignored, opt_ijData) {
       'aria-valuemax', opt_data.options[opt_data.options.length - 1].value,
       'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '',
       'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '',
-      'class', 'rating component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      'class', 'rating');
     if (opt_data.label) {
       ie_open('label', null, null,
           'class', 'rate-label');
@@ -52,21 +52,22 @@ function $render(opt_data, opt_ignored, opt_ijData) {
     }
     ie_open('div', null, null,
         'class', 'rating-items');
-      var optionLimit20 = opt_data.options.length;
-      for (var option20 = 0; option20 < optionLimit20; option20++) {
+      var optionLimit18 = opt_data.options.length;
+      for (var option18 = 0; option18 < optionLimit18; option18++) {
         ie_void('button', null, null,
             'aria-disabled', opt_data.disabled,
-            'aria-pressed', option20 <= opt_data.value ? true : false,
-            'aria-label', opt_data.options[option20].title,
-            'class', 'btn rating-item ' + (option20 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off),
-            'data-index', option20,
-            'title', opt_data.options[option20].title,
+            'aria-pressed', option18 <= opt_data.value ? true : false,
+            'aria-label', opt_data.options[option18].title,
+            'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off),
+            'data-index', option18,
+            'title', opt_data.options[option18].title,
             'type', 'button');
       }
     ie_close('div');
     ie_open('input', null, null,
         'type', 'hidden',
         'aria-hidden', 'true',
+        'name', opt_data.inputHiddenName,
         'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
     ie_close('input');
   ie_close('div');
@@ -76,7 +77,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Rating.render';
 }
 
-exports.render.params = ["elementClasses","label","cssClasses","options","value","disabled"];
+exports.render.params = ["label","cssClasses","disabled","inputHiddenName","options","value"];
 templates = exports;
 return exports;
 
