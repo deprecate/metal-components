@@ -1,5 +1,6 @@
 'use strict';
 
+import { async } from 'metal';
 import dom from 'metal-dom';
 import Rating from '../src/Rating';
 
@@ -22,7 +23,7 @@ describe('Rating', function() {
     assert.strictEqual("This is an awesome Metal Component", rating.element.textContent);
   });
 
-  it('should highlight until item clicked', function() {
+  it('should highlight until item clicked', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -35,10 +36,11 @@ describe('Rating', function() {
       assert.isTrue(elements[2].classList.contains('glyphicon-star'));
       assert.isTrue(elements[3].classList.contains('glyphicon-star-empty'));
       assert.isTrue(elements[4].classList.contains('glyphicon-star-empty'));
+      done();
     });
   });
 
-  it('should set the rate value by click', function() {
+  it('should set the rate value by click', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -46,10 +48,11 @@ describe('Rating', function() {
 
     rating.once('stateSynced', function(){
       assert.strictEqual(rating.value, 4);
+      done();
     });
   });
 
-  it('should highlight items until mouseover event target element', function() {
+  it('should highlight items until mouseover event target element', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -62,30 +65,31 @@ describe('Rating', function() {
       assert.isTrue(elements[2].classList.contains('glyphicon-star'));
       assert.isTrue(elements[3].classList.contains('glyphicon-star'));
       assert.isTrue(elements[4].classList.contains('glyphicon-star'));
+      done();
     });
   });
 
-  it('should highlight the element according to current rate after mouseleave event', function() {
+  it('should highlight the element according to current value after mouseleave event', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
+
     dom.triggerEvent(elements[4], 'click');
-
-    rating.once('stateSynced', function(){
-      dom.triggerEvent(rating, 'mouseleave');
-
-      rating.once('stateSynced', function(){
+    async.nextTick(function(){
+      dom.triggerEvent(rating.element, 'mouseleave');
+      async.nextTick(function(){
         elements = rating.element.querySelectorAll('.rating-item');
         assert.isTrue(elements[0].classList.contains('glyphicon-star'));
         assert.isTrue(elements[1].classList.contains('glyphicon-star'));
         assert.isTrue(elements[2].classList.contains('glyphicon-star'));
         assert.isTrue(elements[3].classList.contains('glyphicon-star'));
         assert.isTrue(elements[4].classList.contains('glyphicon-star'));
+        done();
       });
     });
   });
 
-  it('should clear rate if the user click twice in the same element', function() {
+  it('should clear rate if the user click twice in the same element', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -100,12 +104,12 @@ describe('Rating', function() {
       assert.isTrue(elements[2].classList.contains('glyphicon-star-empty'));
       assert.isTrue(elements[3].classList.contains('glyphicon-star-empty'));
       assert.isTrue(elements[4].classList.contains('glyphicon-star-empty'));
-
       assert.strictEqual(rating.value, defaultValue);
+      done();
     });
   });
 
-  it('should not reset the rating value if the canReset attribute is false.', function() {
+  it('should not reset the rating value if the canReset attribute is false.', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -118,10 +122,11 @@ describe('Rating', function() {
 
     rating.once('stateSynced', function() {
       assert.strictEqual(rating.value, 4);
+      done();
     });
   });
 
-  it('should not change rate attribute if rating is disabled', function() {
+  it('should not change rate attribute if rating is disabled', function(done) {
     rating = new Rating().render();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -133,6 +138,7 @@ describe('Rating', function() {
 
     rating.once('stateSynced', function() {
       assert.strictEqual(rating.value, defaultValue);
+      done();
     });
   });
 });
