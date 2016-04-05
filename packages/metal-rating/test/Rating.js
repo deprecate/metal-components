@@ -173,4 +173,22 @@ describe('Rating', function() {
     rating.options = true;
     assert.strictEqual(rating.options, defaultOptions);
   });
+
+  it('should not highlight options when mouse is over if the component is disabled', function(done) {
+    rating = new Rating().render();
+    rating.disabled = true;
+
+    var elements = rating.element.querySelectorAll('.rating-item');
+    dom.triggerEvent(elements[2], 'mouseover');
+
+    async.nextTick(function(){
+      elements = rating.element.querySelectorAll('.rating-item');
+      assert.isTrue(elements[0].classList.contains('glyphicon-star-empty'));
+      assert.isTrue(elements[1].classList.contains('glyphicon-star-empty'));
+      assert.isTrue(elements[2].classList.contains('glyphicon-star-empty'));
+      assert.isTrue(elements[3].classList.contains('glyphicon-star-empty'));
+      assert.isTrue(elements[4].classList.contains('glyphicon-star-empty'));
+      done();
+    });
+  });
 });
