@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html2incdom/src/withParser', 'metal-incremental-dom/src/IncrementalDomRenderer', './SoyAop', 'metal-soy-bundle/build/bundle', './requireWarning'], function (exports, _metal, _component, _withParser, _IncrementalDomRenderer, _SoyAop) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html2incdom/src/withParser', 'metal-incremental-dom/src/IncrementalDomRenderer', './SoyAop', 'metal-soy-bundle/build/bundle'], function (exports, _metal, _component, _withParser, _IncrementalDomRenderer, _SoyAop) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {

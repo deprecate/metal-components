@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', './IncrementalDomAop'], function (exports, _metal, _dom, _component, _IncrementalDomAop) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', './IncrementalDomAop', './incremental-dom'], function (exports, _metal, _dom, _component, _IncrementalDomAop) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -143,6 +143,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				if (_metal.core.isFunction(value)) {
 					_dom2.default.on(element, eventName, value);
 				}
+			} else if (name === 'checked') {
+				// This is a temporary fix to account for incremental dom setting
+				// "checked" as an attribute only, which can cause bugs since that won't
+				// necessarily check/uncheck the element it's set on. See
+				// https://github.com/google/incremental-dom/issues/198 for more details.
+				element.checked = _metal.core.isDefAndNotNull(value) && value !== false;
 			}
 			originalFn(element, name, value);
 		};
@@ -256,7 +262,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tagOrCtor, config) {
 			var key = config.key || 'sub' + this.generatedKeyCount_++;
 			var comp = this.getSubComponent_(key, tagOrCtor, config);
-			comp.getRenderer().renderWithoutPatch(config);
+			var renderer = comp.getRenderer();
+			if (renderer instanceof IncrementalDomRenderer) {
+				renderer.renderWithoutPatch(config);
+			} else {
+				console.warn('IncrementalDomRenderer doesn\'t support rendering sub components ' + 'that don\'t use IncrementalDomRenderer as well, like:', comp);
+			}
 			if (!comp.wasRendered) {
 				comp.renderAsSubComponent();
 			}
