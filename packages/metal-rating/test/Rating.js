@@ -155,4 +155,22 @@ describe('Rating', function() {
       done();
     });
   });
+
+  it('should options attribute just accept array as value', function() {
+    rating = new Rating().render();
+
+    var defaultOptions = rating.options;
+
+    rating.options = { 'title': 'It isn`t a valid value' };
+    assert.strictEqual(rating.options, defaultOptions);
+
+    rating.options = 9999;
+    assert.strictEqual(rating.options, defaultOptions);
+
+    rating.options = 'It isn`t a valid value';
+    assert.strictEqual(rating.options, defaultOptions);
+
+    rating.options = true;
+    assert.strictEqual(rating.options, defaultOptions);
+  });
 });

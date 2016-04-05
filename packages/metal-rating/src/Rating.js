@@ -151,6 +151,7 @@ Rating.STATE = {
      * @type {array}
      */
     options: {
+        validator: Array.isArray,
         value: [
             {
                 value: 1,
