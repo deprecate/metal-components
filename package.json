@@ -22,7 +22,7 @@
     "bootstrap": "^3.3.6",
     "bootstrap-sass": "^3.3.6",
     "metal-affix": "^1.0.0-rc.1",
-    "metal-alert": "^1.0.0-rc.2",
+    "metal-alert": "^1.0.0-rc.4",
     "metal-autocomplete": "^1.0.0-rc.1",
     "metal-button-group": "^1.0.0-rc.1",
     "metal-clipboard": "^1.0.0-rc.1",
