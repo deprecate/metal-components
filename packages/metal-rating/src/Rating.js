@@ -45,7 +45,7 @@ class Rating extends Component {
     }
 
     /**
-     * Handles mouseout event
+     * Handles mouseleave event
      * @protected
      */
     handleMouseLeaveEvent() {
@@ -80,7 +80,7 @@ class Rating extends Component {
     }
 
     /**
-     * Handles mouseout event
+     * Set value attribute with the previous rating selected
      * @protected
      */
     setPreviousRate_() {
