@@ -12322,8 +12322,8 @@ babelHelpers;
 
 
 		Alert.prototype.hideCompletely_ = function hideCompletely_() {
-			if (!this.isDisposed && this.visible) {
-				_Component.prototype.syncVisible.call(this, this.visible);
+			if (!this.isDisposed() && !this.visible) {
+				_Component.prototype.syncVisible.call(this, false);
 			}
 		};
 
@@ -12378,20 +12378,19 @@ babelHelpers;
    */
 
 
-		Alert.prototype.syncVisible = function syncVisible(visible) {
+		Alert.prototype.syncVisible = function syncVisible(visible, prevVisible) {
 			var _this2 = this;
 
+			var shouldAsync = false;
 			if (!visible) {
 				dom.once(this.element, 'animationend', this.hideCompletely_.bind(this));
 				dom.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
-			} else {
+			} else if (core.isDef(prevVisible)) {
+				shouldAsync = true;
 				_Component.prototype.syncVisible.call(this, true);
 			}
 
-			// We need to start the animation synchronously because of the possible
-			// previous call to `super.syncVisible`, which doesn't allow the show
-			// animation to work as expected.
-			setTimeout(function () {
+			var showOrHide = function showOrHide() {
 				if (_this2.isDisposed()) {
 					return;
 				}
@@ -12406,7 +12405,16 @@ babelHelpers;
 				if (visible && core.isNumber(_this2.hideDelay)) {
 					_this2.syncHideDelay(_this2.hideDelay);
 				}
-			}, 0);
+			};
+
+			if (shouldAsync) {
+				// We need to start the animation asynchronously because of the possible
+				// previous call to `super.syncVisible`, which doesn't allow the show
+				// animation to work as expected.
+				setTimeout(showOrHide, 0);
+			} else {
+				showOrHide();
+			}
 		};
 
 		return Alert;
