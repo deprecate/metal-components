@@ -49,7 +49,6 @@ class Rating extends Component {
      * @protected
      */
     handleMouseLeaveEvent() {
-        this.currentMouseTarget_ = undefined;
         this.setPreviousRate_();
     }
 
@@ -61,12 +60,8 @@ class Rating extends Component {
     handleMouseOverEvent(event) {
         if (!this.disabled) {
             let index = Number.parseInt(event.delegateTarget.getAttribute('data-index'), 10);
-
-            if (this.currentMouseTarget_ !== index) {
-                this.value = index;
-            }
-
-            this.currentMouseTarget_ = index;
+                
+            this.value = index;
         }
     }
 
