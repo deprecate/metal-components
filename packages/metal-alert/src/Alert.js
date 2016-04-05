@@ -61,8 +61,8 @@ class Alert extends Component {
 	 * @protected
 	 */
 	hideCompletely_() {
-		if (!this.isDisposed && this.visible) {
-			super.syncVisible(this.visible);
+		if (!this.isDisposed() && !this.visible) {
+			super.syncVisible(false);
 		}
  	}
 
@@ -107,18 +107,17 @@ class Alert extends Component {
 	 * Synchronization logic for `visible` state.
 	 * @param {boolean} visible
 	 */
-	syncVisible(visible) {
+	syncVisible(visible, prevVisible) {
+		var shouldAsync = false;
 		if (!visible) {
 			dom.once(this.element, 'animationend', this.hideCompletely_.bind(this));
 			dom.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
-		} else {
+		} else if (core.isDef(prevVisible)) {
+			shouldAsync = true;
 			super.syncVisible(true);
 		}
 
-		// We need to start the animation synchronously because of the possible
-		// previous call to `super.syncVisible`, which doesn't allow the show
-		// animation to work as expected.
-		setTimeout(() => {
+		var showOrHide = () => {
 			if (this.isDisposed()) {
 				return;
 			}
@@ -133,7 +132,16 @@ class Alert extends Component {
 			if (visible && core.isNumber(this.hideDelay)) {
 				this.syncHideDelay(this.hideDelay);
 			}
-		}, 0);
+		};
+
+		if (shouldAsync) {
+			// We need to start the animation asynchronously because of the possible
+			// previous call to `super.syncVisible`, which doesn't allow the show
+			// animation to work as expected.
+			setTimeout(showOrHide, 0);
+		} else {
+			showOrHide();
+		}
 	}
 }
 Soy.register(Alert, templates);
