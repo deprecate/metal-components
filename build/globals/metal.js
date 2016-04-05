@@ -12315,6 +12315,19 @@ babelHelpers;
 		};
 
 		/**
+   * Hides the alert completely (with display "none"). This is called after the
+   * hiding animation is done.
+   * @protected
+   */
+
+
+		Alert.prototype.hideCompletely_ = function hideCompletely_() {
+			if (!this.isDisposed && this.visible) {
+				_Component.prototype.syncVisible.call(this, this.visible);
+			}
+		};
+
+		/**
    * Toggles the visibility of the alert.
    */
 
@@ -12366,15 +12379,34 @@ babelHelpers;
 
 
 		Alert.prototype.syncVisible = function syncVisible(visible) {
-			dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
-			dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
-			// Some browsers do not fire transitionend events when running in background
-			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
-			Anim.emulateEnd(this.element);
+			var _this2 = this;
 
-			if (visible && core.isNumber(this.hideDelay)) {
-				this.syncHideDelay(this.hideDelay);
+			if (!visible) {
+				dom.once(this.element, 'animationend', this.hideCompletely_.bind(this));
+				dom.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
+			} else {
+				_Component.prototype.syncVisible.call(this, true);
 			}
+
+			// We need to start the animation synchronously because of the possible
+			// previous call to `super.syncVisible`, which doesn't allow the show
+			// animation to work as expected.
+			setTimeout(function () {
+				if (_this2.isDisposed()) {
+					return;
+				}
+
+				dom.removeClasses(_this2.element, _this2.animClasses[visible ? 'hide' : 'show']);
+				dom.addClasses(_this2.element, _this2.animClasses[visible ? 'show' : 'hide']);
+
+				// Some browsers do not fire transitionend events when running in background
+				// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
+				Anim.emulateEnd(_this2.element);
+
+				if (visible && core.isNumber(_this2.hideDelay)) {
+					_this2.syncHideDelay(_this2.hideDelay);
+				}
+			}, 0);
 		};
 
 		return Alert;
@@ -16079,6 +16111,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var dom = this.metal.dom;
 	var Soy = this.metal.Soy;
 	var TooltipBase = this.metal.TooltipBase;
 	var templates = this.metal.Tooltip;
@@ -16096,12 +16129,32 @@ babelHelpers;
 		}
 
 		/**
+   * Hides the alert completely (with display "none"). This is called after the
+   * hiding animation is done.
+   * @protected
+   */
+
+		Tooltip.prototype.hideCompletely_ = function hideCompletely_() {
+			if (!this.visible) {
+				this.element.style.display = 'none';
+			}
+		};
+
+		/**
    * State synchronization logic for `visible`. Updates the element's opacity,
    * since bootstrap uses opacity instead of display for tooltip visibility.
    * @param {boolean} visible
    */
 
+
 		Tooltip.prototype.syncVisible = function syncVisible(visible) {
+			if (!visible) {
+				dom.once(this.element, 'animationend', this.hideCompletely_.bind(this));
+				dom.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
+			} else {
+				this.element.style.display = '';
+			}
+
 			this.element.style.opacity = visible ? 1 : '';
 			_TooltipBase.prototype.syncVisible.call(this, visible);
 		};

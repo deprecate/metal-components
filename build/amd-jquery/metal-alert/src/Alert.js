@@ -93,6 +93,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
 			this.visible = false;
 		};
 
+		Alert.prototype.hideCompletely_ = function hideCompletely_() {
+			if (!this.isDisposed && this.visible) {
+				_Component.prototype.syncVisible.call(this, this.visible);
+			}
+		};
+
 		Alert.prototype.toggle = function toggle() {
 			this.visible = !this.visible;
 		};
@@ -117,15 +123,34 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
 		};
 
 		Alert.prototype.syncVisible = function syncVisible(visible) {
-			_dom2.default.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
-			_dom2.default.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
-			// Some browsers do not fire transitionend events when running in background
-			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
-			_Anim2.default.emulateEnd(this.element);
+			var _this2 = this;
 
-			if (visible && _metal.core.isNumber(this.hideDelay)) {
-				this.syncHideDelay(this.hideDelay);
+			if (!visible) {
+				_dom2.default.once(this.element, 'animationend', this.hideCompletely_.bind(this));
+				_dom2.default.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
+			} else {
+				_Component.prototype.syncVisible.call(this, true);
 			}
+
+			// We need to start the animation synchronously because of the possible
+			// previous call to `super.syncVisible`, which doesn't allow the show
+			// animation to work as expected.
+			setTimeout(function () {
+				if (_this2.isDisposed()) {
+					return;
+				}
+
+				_dom2.default.removeClasses(_this2.element, _this2.animClasses[visible ? 'hide' : 'show']);
+				_dom2.default.addClasses(_this2.element, _this2.animClasses[visible ? 'show' : 'hide']);
+
+				// Some browsers do not fire transitionend events when running in background
+				// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
+				_Anim2.default.emulateEnd(_this2.element);
+
+				if (visible && _metal.core.isNumber(_this2.hideDelay)) {
+					_this2.syncHideDelay(_this2.hideDelay);
+				}
+			}, 0);
 		};
 
 		return Alert;

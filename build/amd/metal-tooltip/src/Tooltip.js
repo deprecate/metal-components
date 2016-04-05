@@ -1,10 +1,12 @@
-define(['exports', 'metal-soy/src/Soy', './TooltipBase', './Tooltip.soy'], function (exports, _Soy, _TooltipBase2, _Tooltip) {
+define(['exports', 'metal-dom/src/all/dom', 'metal-soy/src/Soy', './TooltipBase', './Tooltip.soy'], function (exports, _dom, _Soy, _TooltipBase2, _Tooltip) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 	exports.TooltipBase = exports.Tooltip = undefined;
+
+	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -57,7 +59,20 @@ define(['exports', 'metal-soy/src/Soy', './TooltipBase', './Tooltip.soy'], funct
 			return _possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
 		}
 
+		Tooltip.prototype.hideCompletely_ = function hideCompletely_() {
+			if (!this.visible) {
+				this.element.style.display = 'none';
+			}
+		};
+
 		Tooltip.prototype.syncVisible = function syncVisible(visible) {
+			if (!visible) {
+				_dom2.default.once(this.element, 'animationend', this.hideCompletely_.bind(this));
+				_dom2.default.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
+			} else {
+				this.element.style.display = '';
+			}
+
 			this.element.style.opacity = visible ? 1 : '';
 			_TooltipBase.prototype.syncVisible.call(this, visible);
 		};
