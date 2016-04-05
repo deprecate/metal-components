@@ -31,7 +31,7 @@ class Rating extends Component {
      */
     handleClickEvent(event) {
         if (!this.disabled) {
-            let index = parseInt(event.delegateTarget.dataset.index, 10);
+            let index = parseInt(event.delegateTarget.getAttribute('data-index'), 10);
 
             if (index === this.ratingClicked && this.canReset) {
                 this.reset();
@@ -60,7 +60,7 @@ class Rating extends Component {
      */
     handleMouseOverEvent(event) {
         if (!this.disabled) {
-            let index = Number.parseInt(event.delegateTarget.dataset.index, 10);
+            let index = Number.parseInt(event.delegateTarget.getAttribute('data-index'), 10);
 
             if (this.currentMouseTarget_ !== index) {
                 this.value = index;
