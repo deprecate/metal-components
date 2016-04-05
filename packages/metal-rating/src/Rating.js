@@ -12,7 +12,7 @@ class Rating extends Component {
     constructor(opt_config) {
         super(opt_config);
 
-        this.ratingClicked_ = -1;
+        this.ratingClicked_ = this.value;
     }
 
     /**

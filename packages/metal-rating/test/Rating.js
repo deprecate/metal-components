@@ -126,6 +126,20 @@ describe('Rating', function() {
     });
   });
 
+  it('should reset startup attributes to its initial values.', function(done) {
+    rating = new Rating().render();
+
+    var elements = rating.element.querySelectorAll('.rating-item');
+    dom.triggerEvent(elements[4], 'click');
+    dom.triggerEvent(elements[4], 'click');
+
+    rating.once('stateSynced', function() {
+      assert.strictEqual(rating.value, -1);
+      assert.strictEqual(rating.ratingClicked_, -1);
+      done();
+    });
+  });
+
   it('should not change rate attribute if rating is disabled', function(done) {
     rating = new Rating().render();
 
