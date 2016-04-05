@@ -12,7 +12,7 @@ class Rating extends Component {
     constructor(opt_config) {
         super(opt_config);
 
-        this.ratingClicked = -1;
+        this.ratingClicked_ = -1;
     }
 
     /**
@@ -33,14 +33,14 @@ class Rating extends Component {
         if (!this.disabled) {
             let index = parseInt(event.delegateTarget.getAttribute('data-index'), 10);
 
-            if (index === this.ratingClicked && this.canReset) {
+            if (index === this.ratingClicked_ && this.canReset) {
                 this.reset();
             }
             else {
                 this.value = index;
             }
 
-            this.ratingClicked = this.value;
+            this.ratingClicked_ = this.value;
         }
     }
 
@@ -76,7 +76,7 @@ class Rating extends Component {
      */
     reset() {
         this.value = -1;
-        this.ratingClicked = -1;
+        this.ratingClicked_ = -1;
     }
 
     /**
@@ -84,7 +84,7 @@ class Rating extends Component {
      * @protected
      */
     setPreviousRate_() {
-        this.value = this.ratingClicked;
+        this.value = this.ratingClicked_;
     }
 }
 
