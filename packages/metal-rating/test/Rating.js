@@ -18,9 +18,9 @@ describe('Rating', function() {
 
   it('should render specified label.', function() {
     rating = new Rating({
-      label: "This is an awesome Metal Component"
+      label: 'This is an awesome Metal Component'
     }).render();
-    assert.strictEqual("This is an awesome Metal Component", rating.element.textContent);
+    assert.strictEqual('This is an awesome Metal Component', rating.element.textContent);
   });
 
   it('should highlight until item clicked', function(done) {

@@ -45,6 +45,32 @@ class Rating extends Component {
     }
 
     /**
+     * Handles mouseout event
+     * @protected
+     */
+    handleMouseLeaveEvent() {
+        this.currentMouseTarget_ = undefined;
+        this.setPreviousRate_();
+    }
+
+    /**
+     * Handles mouseover event
+     * @param {event} event
+     * @protected
+     */
+    handleMouseOverEvent(event) {
+        if (!this.disabled) {
+            let index = Number.parseInt(event.delegateTarget.dataset.index, 10);
+
+            if (this.currentMouseTarget_ !== index) {
+                this.value = index;
+            }
+
+            this.currentMouseTarget_ = index;
+        }
+    }
+
+    /**
      * Reset rating attributes to its initial value
      * @protected
      */
@@ -57,38 +83,22 @@ class Rating extends Component {
      * Handles mouseout event
      * @protected
      */
-    handleMouseLeaveEvent() {
-        this._currentMouseTarget = undefined;
-        this._setPreviousRate();
-    }
-
-    /**
-     * Handles mouseout event
-     * @protected
-     */
-    _setPreviousRate() {
+    setPreviousRate_() {
         this.value = this.ratingClicked;
-    }
-
-    /**
-     * Handles mouseover event
-     * @param {event} event
-     * @protected
-     */
-    handleMouseOverEvent(event) {
-        if (!this.disabled) {
-            let index = Number.parseInt(event.delegateTarget.dataset.index, 10);
-
-            if (this._currentMouseTarget !== index) {
-                this.value = index;
-            }
-
-            this._currentMouseTarget = index;
-        }
     }
 }
 
 Rating.STATE = {
+
+    /**
+     * Flag indicating if this component can be reset or not
+     * @type {boolean}
+     * @default true
+     */
+    canReset: {
+      value: true,
+      validator: core.isBoolean
+    },
 
     /**
      * Optional CSS classes to be added to the inner rating element.
@@ -102,29 +112,44 @@ Rating.STATE = {
     },
 
     /**
-    * Block or unblock rating functionality.
-    * @type {?boolean}
-    * @default false
-    */
+     * Block or unblock rating functionality.
+     * @type {?boolean}
+     * @default false
+     */
     disabled: {
         value: false,
         validator: core.isBoolean
     },
 
     /**
-    * Rating current index value.
-    * @type {?number}
-    * @default null
-    */
-    value: {
-        validator: core.isNumber,
-        value: -1
+     * Name of the hidden input. It can be used to send 
+     * current option value as a form data.
+     *
+     * @attribute inputHiddenName
+     * @type {string}
+     * @default 'rate'
+     */
+    inputHiddenName: {
+        value: 'rate',
+        validator: core.isString
     },
 
     /**
-    * List of rate options.
-    * @type {array}
-    */
+     * Label to be displayed with the Rating elements.
+     *
+     * @attribute label
+     * @type {string}
+     * @default ''
+     */
+    label: {
+        value: '',
+        validator: core.isString
+    },
+
+    /**
+     * List of rate options.
+     * @type {array}
+     */
     options: {
         value: [
             {
@@ -151,38 +176,13 @@ Rating.STATE = {
     },
 
     /**
-    * Flag indicating if this component can be reset or not
-    * @type {boolean}
-    * @default true
-    */
-    canReset: {
-      value: true,
-      validator: core.isBoolean
-    },
-
-    /**
-    * Label to be displayed with the Rating elements.
-    *
-    * @attribute label
-    * @type {string}
-    * @default ''
-    */
-    label: {
-        value: '',
-        validator: core.isString
-    },
-
-    /**
-    * Name of the hidden input. It can be used to send 
-    * current option value as a form data.
-    *
-    * @attribute inputHiddenName
-    * @type {string}
-    * @default 'rate'
-    */
-    inputHiddenName: {
-        value: 'rate',
-        validator: core.isString
+     * Rating current index value.
+     * @type {?number}
+     * @default null
+     */
+    value: {
+        validator: core.isNumber,
+        value: -1
     }
 };
 Soy.register(Rating, templates);
