@@ -56,6 +56,17 @@ class Alert extends Component {
 	}
 
 	/**
+	 * Hides the alert completely (with display "none"). This is called after the
+	 * hiding animation is done.
+	 * @protected
+	 */
+	hideCompletely_() {
+		if (!this.isDisposed && this.visible) {
+			super.syncVisible(this.visible);
+		}
+ 	}
+
+	/**
 	 * Toggles the visibility of the alert.
 	 */
 	toggle() {
@@ -97,15 +108,32 @@ class Alert extends Component {
 	 * @param {boolean} visible
 	 */
 	syncVisible(visible) {
-		dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
-		dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
-		// Some browsers do not fire transitionend events when running in background
-		// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
-		Anim.emulateEnd(this.element);
-
-		if (visible && core.isNumber(this.hideDelay)) {
-			this.syncHideDelay(this.hideDelay);
+		if (!visible) {
+			dom.once(this.element, 'animationend', this.hideCompletely_.bind(this));
+			dom.once(this.element, 'transitionend', this.hideCompletely_.bind(this));
+		} else {
+			super.syncVisible(true);
 		}
+
+		// We need to start the animation synchronously because of the possible
+		// previous call to `super.syncVisible`, which doesn't allow the show
+		// animation to work as expected.
+		setTimeout(() => {
+			if (this.isDisposed()) {
+				return;
+			}
+
+			dom.removeClasses(this.element, this.animClasses[visible ? 'hide' : 'show']);
+			dom.addClasses(this.element, this.animClasses[visible ? 'show' : 'hide']);
+
+			// Some browsers do not fire transitionend events when running in background
+			// tab, see https://bugzilla.mozilla.org/show_bug.cgi?id=683696.
+			Anim.emulateEnd(this.element);
+
+			if (visible && core.isNumber(this.hideDelay)) {
+				this.syncHideDelay(this.hideDelay);
+			}
+		}, 0);
 	}
 }
 Soy.register(Alert, templates);
