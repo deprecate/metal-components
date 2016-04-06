@@ -14,10 +14,14 @@ goog.loadModule(function(exports) {
 
 goog.module('Datatable.incrementaldom');
 
+/** @suppress {extraRequire} */
 var soy = goog.require('soy');
+/** @suppress {extraRequire} */
 var soydata = goog.require('soydata');
 /** @suppress {extraRequire} */
 goog.require('goog.asserts');
+/** @suppress {extraRequire} */
+goog.require('soy.asserts');
 /** @suppress {extraRequire} */
 goog.require('goog.i18n.bidi');
 var IncrementalDom = goog.require('incrementaldom');
@@ -61,15 +65,9 @@ function $render_(opt_data, opt_ignored, opt_ijData) {
   switch ((goog.isObject($$temp = opt_data.type)) ? $$temp.toString() : $$temp) {
     case 'array':
       if (opt_data.columns) {
-        var content__soy15 = function() {
-          $renderArrayOfObjects_(opt_data, null, opt_ijData);
-        };
-        content__soy15();
+        $renderArrayOfObjects_(opt_data, null, opt_ijData);
       } else {
-        var content__soy19 = function() {
-          $renderArray_(opt_data, null, opt_ijData);
-        };
-        content__soy19();
+        $renderArray_(opt_data, null, opt_ijData);
       }
       break;
     case 'boolean':
@@ -118,13 +116,13 @@ function $renderArray_(opt_data, opt_ignored, opt_ijData) {
     ie_open('table', null, null,
         'class', (opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden');
       ie_open('tbody');
-        var itemValueList45 = opt_data.value;
-        var itemValueListLen45 = itemValueList45.length;
-        for (var itemValueIndex45 = 0; itemValueIndex45 < itemValueListLen45; itemValueIndex45++) {
-          var itemValueData45 = itemValueList45[itemValueIndex45];
+        var itemValueList41 = opt_data.value;
+        var itemValueListLen41 = itemValueList41.length;
+        for (var itemValueIndex41 = 0; itemValueIndex41 < itemValueListLen41; itemValueIndex41++) {
+          var itemValueData41 = itemValueList41[itemValueIndex41];
           ie_open('tr');
             ie_open('td');
-              $render_(soy.$$augmentMap(itemValueData45, {tableClasses: opt_data.tableClasses, displayColumnsType: opt_data.displayColumnsType}), null, opt_ijData);
+              $render_(soy.$$augmentMap(itemValueData41, {tableClasses: opt_data.tableClasses, displayColumnsType: opt_data.displayColumnsType}), null, opt_ijData);
             ie_close('td');
           ie_close('tr');
         }
@@ -152,16 +150,16 @@ function $renderArrayOfObjects_(opt_data, opt_ignored, opt_ijData) {
         'class', opt_data.tableClasses ? opt_data.tableClasses : '');
       ie_open('thead');
         ie_open('tr');
-          var columnList60 = opt_data.columns;
-          var columnListLen60 = columnList60.length;
-          for (var columnIndex60 = 0; columnIndex60 < columnListLen60; columnIndex60++) {
-            var columnData60 = columnList60[columnIndex60];
+          var columnList56 = opt_data.columns;
+          var columnListLen56 = columnList56.length;
+          for (var columnIndex56 = 0; columnIndex56 < columnListLen56; columnIndex56++) {
+            var columnData56 = columnList56[columnIndex56];
             ie_open('th');
-              itext((goog.asserts.assert((columnData60) != null), columnData60));
+              itext((goog.asserts.assert((columnData56) != null), columnData56));
               if (opt_data.displayColumnsType && opt_data.columnsType) {
                 ie_open('span', null, null,
                     'class', 'datatable-type');
-                  itext((goog.asserts.assert((opt_data.columnsType[columnData60]) != null), opt_data.columnsType[columnData60]));
+                  itext((goog.asserts.assert((opt_data.columnsType[columnData56]) != null), opt_data.columnsType[columnData56]));
                 ie_close('span');
               }
             ie_close('th');
@@ -169,17 +167,17 @@ function $renderArrayOfObjects_(opt_data, opt_ignored, opt_ijData) {
         ie_close('tr');
       ie_close('thead');
       ie_open('tbody');
-        var itemValueList72 = opt_data.value;
-        var itemValueListLen72 = itemValueList72.length;
-        for (var itemValueIndex72 = 0; itemValueIndex72 < itemValueListLen72; itemValueIndex72++) {
-          var itemValueData72 = itemValueList72[itemValueIndex72];
+        var itemValueList68 = opt_data.value;
+        var itemValueListLen68 = itemValueList68.length;
+        for (var itemValueIndex68 = 0; itemValueIndex68 < itemValueListLen68; itemValueIndex68++) {
+          var itemValueData68 = itemValueList68[itemValueIndex68];
           ie_open('tr');
-            var columnList69 = opt_data.columns;
-            var columnListLen69 = columnList69.length;
-            for (var columnIndex69 = 0; columnIndex69 < columnListLen69; columnIndex69++) {
-              var columnData69 = columnList69[columnIndex69];
+            var columnList65 = opt_data.columns;
+            var columnListLen65 = columnList65.length;
+            for (var columnIndex65 = 0; columnIndex65 < columnListLen65; columnIndex65++) {
+              var columnData65 = columnList65[columnIndex65];
               ie_open('td');
-                $render_(soy.$$augmentMap(itemValueData72.value[columnData69], {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData);
+                $render_(soy.$$augmentMap(itemValueData68.value[columnData65], {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData);
               ie_close('td');
             }
           ie_close('tr');
@@ -272,16 +270,16 @@ function $renderObject_(opt_data, opt_ignored, opt_ijData) {
         'class', (opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden');
       ie_open('thead');
         ie_open('tr');
-          var columnList99 = opt_data.columns;
-          var columnListLen99 = columnList99.length;
-          for (var columnIndex99 = 0; columnIndex99 < columnListLen99; columnIndex99++) {
-            var columnData99 = columnList99[columnIndex99];
+          var columnList95 = opt_data.columns;
+          var columnListLen95 = columnList95.length;
+          for (var columnIndex95 = 0; columnIndex95 < columnListLen95; columnIndex95++) {
+            var columnData95 = columnList95[columnIndex95];
             ie_open('th');
-              itext((goog.asserts.assert((columnData99) != null), columnData99));
+              itext((goog.asserts.assert((columnData95) != null), columnData95));
               if (opt_data.displayColumnsType && opt_data.columnsType) {
                 ie_open('span', null, null,
                     'class', 'datatable-type');
-                  itext((goog.asserts.assert((opt_data.columnsType[columnData99]) != null), opt_data.columnsType[columnData99]));
+                  itext((goog.asserts.assert((opt_data.columnsType[columnData95]) != null), opt_data.columnsType[columnData95]));
                 ie_close('span');
               }
             ie_close('th');
@@ -290,12 +288,12 @@ function $renderObject_(opt_data, opt_ignored, opt_ijData) {
       ie_close('thead');
       ie_open('tbody');
         ie_open('tr');
-          var columnList107 = opt_data.columns;
-          var columnListLen107 = columnList107.length;
-          for (var columnIndex107 = 0; columnIndex107 < columnListLen107; columnIndex107++) {
-            var columnData107 = columnList107[columnIndex107];
+          var columnList103 = opt_data.columns;
+          var columnListLen103 = columnList103.length;
+          for (var columnIndex103 = 0; columnIndex103 < columnListLen103; columnIndex103++) {
+            var columnData103 = columnList103[columnIndex103];
             ie_open('td');
-              $render_(soy.$$augmentMap(opt_data.value[columnData107], {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData);
+              $render_(soy.$$augmentMap(opt_data.value[columnData103], {displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses}), null, opt_ijData);
             ie_close('td');
           }
         ie_close('tr');
