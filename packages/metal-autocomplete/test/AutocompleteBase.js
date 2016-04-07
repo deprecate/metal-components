@@ -28,7 +28,7 @@ describe('AutocompleteBase', function() {
 		component = new AutocompleteBase({
 			data: data,
 			inputElement: input
-		}).render();
+		});
 		assert.isFunction(component.data);
 		assert.strictEqual(data, component.data());
 	});
@@ -41,14 +41,14 @@ describe('AutocompleteBase', function() {
 		component = new AutocompleteBase({
 			data: data,
 			inputElement: input
-		}).render();
+		});
 		assert.strictEqual(items, component.data());
 		assert.strictEqual(data, component.data);
 	});
 
 	it('should not throw exception if inputElement is not specified', function() {
 		assert.doesNotThrow(function() {
-			component = new AutocompleteBase().render();
+			component = new AutocompleteBase();
 		});
 	});
 
@@ -60,7 +60,7 @@ describe('AutocompleteBase', function() {
 		component = new AutocompleteBase({
 			data: data,
 			inputElement: input
-		}).render();
+		});
 		input.value = 'foo';
 		dom.triggerEvent(input, 'input');
 	});
@@ -73,7 +73,7 @@ describe('AutocompleteBase', function() {
 		component = new AutocompleteBase({
 			data: data,
 			inputElement: input
-		}).render();
+		});
 		component.request('foo');
 	});
 
@@ -81,7 +81,7 @@ describe('AutocompleteBase', function() {
 		component = new AutocompleteBase({
 			data: new CancellablePromise(function() {}),
 			inputElement: input
-		}).render();
+		});
 		component.request().catch(function(reason) {
 			assert.strictEqual('Cancelled by another request', reason.message);
 			done();
@@ -97,7 +97,7 @@ describe('AutocompleteBase', function() {
 			data: [1, 2],
 			inputElement: input,
 			format: formatter
-		}).render();
+		});
 		component.request().then(function(data) {
 			assert.deepEqual([2, 3], data);
 			done();
@@ -112,7 +112,7 @@ describe('AutocompleteBase', function() {
 			data: [1, 2],
 			inputElement: input,
 			format: formatter
-		}).render();
+		});
 		component.request().then(function(data) {
 			assert.deepEqual([], data);
 			done();
@@ -127,7 +127,7 @@ describe('AutocompleteBase', function() {
 			data: [1, 2],
 			inputElement: input,
 			format: formatter
-		}).render();
+		});
 		component.request().then(function(data) {
 			assert.deepEqual([], data);
 			done();
@@ -138,7 +138,7 @@ describe('AutocompleteBase', function() {
 		component = new AutocompleteBase({
 			data: [],
 			inputElement: input
-		}).render();
+		});
 		component.emit('select', {
 			text: 'foo'
 		});

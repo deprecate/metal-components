@@ -34,7 +34,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
-		}).render();
+		});
 
 		component.request('a').then(function() {
 			async.nextTick(function() {
@@ -49,7 +49,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
-		}).render();
+		});
 
 		component.request('asparagus').then(function() {
 			async.nextTick(function() {
@@ -64,7 +64,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: null,
 			inputElement: input
-		}).render();
+		});
 
 		component.request('asparagus').then(function() {
 			async.nextTick(function() {
@@ -79,7 +79,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: [1],
 			inputElement: input
-		}).render();
+		});
 
 		component.request('query').catch(function(reason) {
 			assert.strictEqual('Autocomplete item must be an object', reason.message);
@@ -93,7 +93,7 @@ describe('Autocomplete', function() {
 				foo: 'foo'
 			}],
 			inputElement: input
-		}).render();
+		});
 
 		component.request('query').catch(function(reason) {
 			assert.strictEqual('Autocomplete item must be an object with \'textPrimary\' key', reason.message);
@@ -105,7 +105,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
-		}).render();
+		});
 
 		input.setAttribute('value', 'a');
 		input.focus();
@@ -127,7 +127,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
-		}).render();
+		});
 
 		var otherInput = document.createElement('input');
 		otherInput.type = 'text';
@@ -153,7 +153,7 @@ describe('Autocomplete', function() {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
-		}).render();
+		});
 
 		input.setAttribute('value', 'a');
 		input.focus();
@@ -172,7 +172,7 @@ describe('Autocomplete', function() {
 			data: filterData,
 			inputElement: input,
 			visible: false
-		}).render();
+		});
 
 		input.value = 'Alabama';
 		dom.triggerEvent(input, 'focus');
@@ -198,7 +198,7 @@ describe('Autocomplete', function() {
 				data: filterData,
 				inputElement: input,
 				visible: true
-			}).render();
+			});
 			assert.strictEqual(input.offsetWidth, component.element.offsetWidth);
 		});
 
@@ -208,7 +208,7 @@ describe('Autocomplete', function() {
 				data: filterData,
 				inputElement: input,
 				visible: true
-			}).render();
+			});
 
 			// Simulating use case where resizing the window causes input width to change.
 			input.style.width = '400px';
@@ -222,22 +222,21 @@ describe('Autocomplete', function() {
 		});
 
 		it('should align element when it is created already visible', function() {
+			sinon.spy(Autocomplete.prototype, 'attached');
 			component = new Autocomplete({
 				data: filterData,
 				inputElement: input,
 				visible: true
 			});
-
-			sinon.spy(component, 'attached');
-			component.render();
 			assert.ok(Align.align.calledAfter(component.attached));
+			Autocomplete.prototype.attached.restore();
 		});
 
 		it('should align element when it becomes visible', function(done) {
 			component = new Autocomplete({
 				data: filterData,
 				inputElement: input
-			}).render();
+			});
 			assert.strictEqual(0, Align.align.callCount);
 
 			component.visible = true;
@@ -252,7 +251,7 @@ describe('Autocomplete', function() {
 				data: filterData,
 				inputElement: input,
 				visible: true
-			}).render();
+			});
 
 			Align.align.restore();
 			sinon.spy(Align, 'align');
@@ -269,7 +268,7 @@ describe('Autocomplete', function() {
 			component = new Autocomplete({
 				data: filterData,
 				inputElement: input
-			}).render();
+			});
 
 			dom.triggerEvent(window, 'resize');
 
@@ -286,7 +285,7 @@ describe('Autocomplete', function() {
 				data: filterData,
 				inputElement: input,
 				visible: true
-			}).render();
+			});
 
 			assert.ok(dom.hasClass(component.element, 'autocomplete-bottom'));
 		});
@@ -297,7 +296,7 @@ describe('Autocomplete', function() {
 				data: filterData,
 				inputElement: input,
 				visible: true
-			}).render();
+			});
 
 			assert.ok(dom.hasClass(component.element, 'autocomplete-top'));
 		});

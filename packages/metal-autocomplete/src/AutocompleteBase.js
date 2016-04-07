@@ -13,9 +13,7 @@ class AutocompleteBase extends Component {
 	/**
 	 * @inheritDoc
 	 */
-	constructor(opt_config) {
-		super(opt_config);
-
+	created() {
 		this.eventHandler_ = new EventHandler();
 		this.on('select', this.select);
 	}
