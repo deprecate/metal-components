@@ -10,6 +10,14 @@ import { data_nested_object, data_nested_object_expanded_fn } from './data/data_
 import { data_simple, data_simple_expanded_fn } from './data/data_simple.js';
 
 describe('Datatable', function() {
+	var datatable;
+
+	afterEach(function() {
+		if (datatable) {
+			datatable.dispose();
+		}
+	});
+
 	describe('Expand Data', function() {
 		beforeEach(function() {
 			sinon.stub(Soy, 'toIncDom', function(str) {
@@ -25,28 +33,32 @@ describe('Datatable', function() {
 			var data = {
 				data: data_simple
 			};
-			assert.deepEqual(data_simple_expanded_fn(), new Datatable(data, false).data);
+			datatable = new Datatable(data, false);
+			assert.deepEqual(data_simple_expanded_fn(), datatable.data);
 		});
 
 		it('should expand nested deep data with JSON types', function() {
 			var data = {
 				data: data_nested_deep
 			};
-			assert.deepEqual(data_nested_deep_expanded_fn(), new Datatable(data, false).data);
+			datatable = new Datatable(data, false);
+			assert.deepEqual(data_nested_deep_expanded_fn(), datatable.data);
 		});
 
 		it('should expand nested object data with JSON types', function() {
 			var data = {
 				data: data_nested_object
 			};
-			assert.deepEqual(data_nested_object_expanded_fn(), new Datatable(data, false).data);
+			datatable = new Datatable(data, false);
+			assert.deepEqual(data_nested_object_expanded_fn(), datatable.data);
 		});
 
 		it('should expand nested array data with JSON types', function() {
 			var data = {
 				data: data_nested_array
 			};
-			assert.deepEqual(data_nested_array_expanded_fn(), new Datatable(data, false).data);
+			datatable = new Datatable(data, false);
+			assert.deepEqual(data_nested_array_expanded_fn(), datatable.data);
 		});
 
 		it('should expand null data with JSON type', function() {
@@ -57,7 +69,8 @@ describe('Datatable', function() {
 				type: 'null',
 				value: null
 			};
-			assert.deepEqual(expandedData, new Datatable(data).data);
+			datatable = new Datatable(data);
+			assert.deepEqual(expandedData, datatable.data);
 		});
 
 		it('should expand undefined data with JSON type', function() {
@@ -68,7 +81,8 @@ describe('Datatable', function() {
 				type: 'undefined',
 				value: undefined
 			};
-			assert.deepEqual(expandedData, new Datatable(data).data);
+			datatable = new Datatable(data);
+			assert.deepEqual(expandedData, datatable.data);
 		});
 
 		it('should expand string data with JSON type', function() {
@@ -79,7 +93,8 @@ describe('Datatable', function() {
 				type: 'string',
 				value: 'string'
 			};
-			assert.deepEqual(expandedData, new Datatable(data, false).data);
+			datatable = new Datatable(data, false);
+			assert.deepEqual(expandedData, datatable.data);
 		});
 
 		it('should expand number data with JSON type', function() {
@@ -90,7 +105,8 @@ describe('Datatable', function() {
 				type: 'number',
 				value: 1
 			};
-			assert.deepEqual(expandedData, new Datatable(data).data);
+			datatable = new Datatable(data);
+			assert.deepEqual(expandedData, datatable.data);
 		});
 
 		it('should expand boolean data with JSON type', function() {
@@ -101,7 +117,8 @@ describe('Datatable', function() {
 				type: 'boolean',
 				value: true
 			};
-			assert.deepEqual(expandedData, new Datatable(data).data);
+			datatable = new Datatable(data);
+			assert.deepEqual(expandedData, datatable.data);
 		});
 
 		it('should expand object data with JSON type', function() {
@@ -109,7 +126,8 @@ describe('Datatable', function() {
 			var data = {
 				data: object
 			};
-			var expandedData = new Datatable(data).data;
+			datatable = new Datatable(data);
+			var expandedData = datatable.data;
 			assert.strictEqual('object', expandedData.type);
 			assert.strictEqual(object, expandedData.value);
 			assert.ok(Array.isArray(expandedData.columns));
@@ -118,7 +136,7 @@ describe('Datatable', function() {
 	});
 
 	it('should expand table contents when clicking on labels', function() {
-		var datatable = new Datatable({
+		datatable = new Datatable({
 			data: [1, 2, 3]
 		});
 		var label = datatable.element.querySelector('.datatable-label');
@@ -132,14 +150,14 @@ describe('Datatable', function() {
 
 	it('should throw exception when data contains mixed types inside array', function() {
 		assert.throws(function() {
-			new Datatable({
+			datatable = new Datatable({
 				data: [0, false]
 			});
 		}, Error);
 	});
 
 	it('should display column types', function() {
-		var datatable = new Datatable({
+		datatable = new Datatable({
 			data: [{
 				a: {
 					b: {
@@ -157,7 +175,7 @@ describe('Datatable', function() {
 	});
 
 	it('should not display column types', function() {
-		var datatable = new Datatable({
+		datatable = new Datatable({
 			data: [{
 				a: {
 					b: {
@@ -177,7 +195,7 @@ describe('Datatable', function() {
 			columns: [],
 			type: ''
 		};
-		var datatable = new Datatable({
+		datatable = new Datatable({
 			data: expandedData
 		});
 		assert.strictEqual(expandedData, datatable.data);
@@ -185,7 +203,7 @@ describe('Datatable', function() {
 	});
 
 	it('should detect sanitized html objects as string', function() {
-		var datatable = new Datatable({
+		datatable = new Datatable({
 			data: {
 				content: '',
 				contentKind: 'HTML'
