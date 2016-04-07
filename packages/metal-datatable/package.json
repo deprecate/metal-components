@@ -1,6 +1,6 @@
 {
 	"name": "metal-datatable",
-	"version": "0.0.0",
+	"version": "1.0.0-rc",
 	"description": "Datatable visualization",
 	"license": "BSD",
 	"repository": "metal/metal-datatable",
