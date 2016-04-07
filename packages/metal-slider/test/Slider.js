@@ -19,7 +19,7 @@ describe('Slider', function() {
 		slider = new Slider({
 			inputName: 'sliderInput',
 			value: 50
-		}).render();
+		});
 
 		var sliderInput = slider.element.querySelector('input[name="sliderInput"]');
 
@@ -31,7 +31,7 @@ describe('Slider', function() {
 		slider = new Slider({
 			inputName: 'sliderInput',
 			value: 20
-		}).render();
+		});
 
 		assert.strictEqual('20', slider.element.querySelector('input[name="sliderInput"]').getAttribute('value'));
 
@@ -48,7 +48,7 @@ describe('Slider', function() {
 			min: 0,
 			value: 50,
 			max: 100
-		}).render();
+		});
 
 		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
 			offsetX: 0.9 * Position.getRegion(slider.element).width
@@ -73,7 +73,7 @@ describe('Slider', function() {
 			min: 0,
 			value: 0,
 			max: 100
-		}).render();
+		});
 
 		var handle = slider.element.querySelector('.handle');
 
@@ -90,7 +90,7 @@ describe('Slider', function() {
 		slider = new Slider({
 			min: 30,
 			value: 50
-		}).render();
+		});
 
 		slider.value = 10;
 
@@ -101,7 +101,7 @@ describe('Slider', function() {
 		slider = new Slider({
 			max: 100,
 			value: 50
-		}).render();
+		});
 
 		slider.value = 200;
 
@@ -112,7 +112,7 @@ describe('Slider', function() {
 		slider = new Slider({
 			min: 0,
 			value: 50
-		}).render();
+		});
 
 		slider.min = 80;
 
@@ -126,7 +126,7 @@ describe('Slider', function() {
 		slider = new Slider({
 			max: 100,
 			value: 50
-		}).render();
+		});
 
 		slider.max = 20;
 
