@@ -10,10 +10,10 @@ describe('Popover', function() {
 		popover.dispose();
 	});
 
-	it('should render content', function() {
+	it.only('should render content', function() {
 		popover = new Popover({
 			content: 'content'
-		}).render();
+		});
 		var innerElement = popover.element.querySelector('.popover-content');
 		assert.strictEqual('content', innerElement.textContent);
 	});
@@ -21,7 +21,7 @@ describe('Popover', function() {
 	it('should render html content', function() {
 		popover = new Popover({
 			content: '<b>content</b>'
-		}).render();
+		});
 		var innerElement = popover.element.querySelector('.popover-content p');
 		assert.strictEqual('B', innerElement.childNodes[0].tagName);
 		assert.strictEqual('content', innerElement.textContent);
@@ -30,7 +30,7 @@ describe('Popover', function() {
 	it('should render title', function() {
 		popover = new Popover({
 			title: 'title'
-		}).render();
+		});
 		var innerElement = popover.element.querySelector('.popover-title');
 		assert.strictEqual('title', innerElement.textContent);
 	});
@@ -38,7 +38,7 @@ describe('Popover', function() {
 	it('should render html title', function() {
 		popover = new Popover({
 			title: '<b>title</b>'
-		}).render();
+		});
 		var innerElement = popover.element.querySelector('.popover-title');
 		assert.strictEqual('B', innerElement.childNodes[0].tagName);
 		assert.strictEqual('title', innerElement.textContent);
@@ -47,7 +47,7 @@ describe('Popover', function() {
 	it('should set display to "block" when popover becomes visible', function(done) {
 		popover = new Popover({
 			visible: false
-		}).render();
+		});
 		assert.notStrictEqual('block', popover.element.style.display);
 
 		popover.visible = true;
@@ -65,7 +65,7 @@ describe('Popover', function() {
 			delay: [0, 0],
 			visible: false,
 			selector: '#trigger',
-		}).render();
+		});
 
 		dom.triggerEvent(trigger, 'click');
 		setTimeout(function() {
@@ -84,7 +84,7 @@ describe('Popover', function() {
 			delay: [0, 0],
 			visible: false,
 			selector: '#trigger',
-		}).render();
+		});
 
 		dom.triggerEvent(trigger, 'click');
 		popover.once('contentChanged', function() {
@@ -110,7 +110,7 @@ describe('Popover', function() {
 			content: 'content',
 			title: 'title',
 			visible: false
-		}).render();
+		});
 
 		assert.strictEqual(popover.element.outerHTML, outerHTML);
 	});
