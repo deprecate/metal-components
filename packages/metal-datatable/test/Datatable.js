@@ -9,7 +9,7 @@ import { data_nested_deep, data_nested_deep_expanded_fn } from './data/data_nest
 import { data_nested_object, data_nested_object_expanded_fn } from './data/data_nested_object.js';
 import { data_simple, data_simple_expanded_fn } from './data/data_simple.js';
 
-describe.only('Datatable', function() {
+describe('Datatable', function() {
 	describe('Expand Data', function() {
 		beforeEach(function() {
 			sinon.stub(Soy, 'toIncDom', function(str) {
@@ -25,28 +25,28 @@ describe.only('Datatable', function() {
 			var data = {
 				data: data_simple
 			};
-			assert.deepEqual(data_simple_expanded_fn(), new Datatable(data).data);
+			assert.deepEqual(data_simple_expanded_fn(), new Datatable(data, false).data);
 		});
 
 		it('should expand nested deep data with JSON types', function() {
 			var data = {
 				data: data_nested_deep
 			};
-			assert.deepEqual(data_nested_deep_expanded_fn(), new Datatable(data).data);
+			assert.deepEqual(data_nested_deep_expanded_fn(), new Datatable(data, false).data);
 		});
 
 		it('should expand nested object data with JSON types', function() {
 			var data = {
 				data: data_nested_object
 			};
-			assert.deepEqual(data_nested_object_expanded_fn(), new Datatable(data).data);
+			assert.deepEqual(data_nested_object_expanded_fn(), new Datatable(data, false).data);
 		});
 
 		it('should expand nested array data with JSON types', function() {
 			var data = {
 				data: data_nested_array
 			};
-			assert.deepEqual(data_nested_array_expanded_fn(), new Datatable(data).data);
+			assert.deepEqual(data_nested_array_expanded_fn(), new Datatable(data, false).data);
 		});
 
 		it('should expand null data with JSON type', function() {
@@ -79,7 +79,7 @@ describe.only('Datatable', function() {
 				type: 'string',
 				value: 'string'
 			};
-			assert.deepEqual(expandedData, new Datatable(data).data);
+			assert.deepEqual(expandedData, new Datatable(data, false).data);
 		});
 
 		it('should expand number data with JSON type', function() {
@@ -120,7 +120,7 @@ describe.only('Datatable', function() {
 	it('should expand table contents when clicking on labels', function() {
 		var datatable = new Datatable({
 			data: [1, 2, 3]
-		}).render();
+		});
 		var label = datatable.element.querySelector('.datatable-label');
 		assert.ok(dom.hasClass(label, 'collapsed'));
 		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
@@ -134,7 +134,7 @@ describe.only('Datatable', function() {
 		assert.throws(function() {
 			new Datatable({
 				data: [0, false]
-			}).render();
+			});
 		}, Error);
 	});
 
@@ -147,7 +147,7 @@ describe.only('Datatable', function() {
 					}
 				}
 			}]
-		}).render();
+		});
 		var types = datatable.element.querySelectorAll('.datatable-type');
 		assert.strictEqual(3, types.length);
 		assert.strictEqual('object', types[0].innerText.trim());
@@ -166,7 +166,7 @@ describe.only('Datatable', function() {
 				}
 			}],
 			displayColumnsType: false
-		}).render();
+		});
 		var types = datatable.element.querySelectorAll('.datatable-type');
 		assert.strictEqual(0, types.length);
 		datatable.dispose();
@@ -179,7 +179,7 @@ describe.only('Datatable', function() {
 		};
 		var datatable = new Datatable({
 			data: expandedData
-		}).render();
+		});
 		assert.strictEqual(expandedData, datatable.data);
 		datatable.dispose();
 	});
@@ -190,7 +190,7 @@ describe.only('Datatable', function() {
 				content: '',
 				contentKind: 'HTML'
 			}
-		}).render();
+		});
 		assert.strictEqual('string', datatable.data.type);
 		datatable.dispose();
 	});

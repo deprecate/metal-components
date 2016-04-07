@@ -114,7 +114,7 @@
 				'link': 'http://www.amazon.com/Batman-Killing-Deluxe-Alan-Moore-ebook/dp/B009POHHRG/ref=sr_1_1?s=books&ie=UTF8&qid=1439406383&sr=1-1'
 			}
 		];
-		new metal.Datatable({ data: data_simple }).render('#simple');
+		new metal.Datatable({ data: data_simple }, '#simple');
 
 
 
@@ -125,7 +125,7 @@
 				'foo': true
 			}
 		}];
-		new metal.Datatable({ data: data_nested_object }).render('#nestedObject');
+		new metal.Datatable({ data: data_nested_object }, '#nestedObject');
 
 
 
@@ -138,7 +138,7 @@
 			'email': 'other@domain.com',
 			'addresses': ['La Pigalle, Paris', 'Harley Street, London']
 		}];
-		new metal.Datatable({ data: data_nested_array }).render('#nestedArray');
+		new metal.Datatable({ data: data_nested_array }, '#nestedArray');
 
 
 
@@ -163,7 +163,7 @@
 				'city': 'Paris'
 			}
 		}];
-		new metal.Datatable({ data: data_nested_deep }).render('#nestedDeep');
+		new metal.Datatable({ data: data_nested_deep }, '#nestedDeep');
 
 
 
@@ -172,17 +172,17 @@
 				name: 'La <b>Plage</b>'
 			}
 		];
-		new metal.Datatable({ data: sanitized_html }).render('#html');
+		new metal.Datatable({ data: sanitized_html }, '#html');
 
 
 
-		new metal.Datatable({ data: null }).render('#primitiveTypes');
-		new metal.Datatable({ data: undefined }).render('#primitiveTypes');
-		new metal.Datatable({ data: 1 }).render('#primitiveTypes');
-		new metal.Datatable({ data: true }).render('#primitiveTypes');
-		new metal.Datatable({ data: 'string' }).render('#primitiveTypes');
-		new metal.Datatable({ data: { key: 'value' } }).render('#primitiveTypes');
-		new metal.Datatable({ data: ['value'] }).render('#primitiveTypes');
+		new metal.Datatable({ data: null }, '#primitiveTypes');
+		new metal.Datatable({ data: undefined }, '#primitiveTypes');
+		new metal.Datatable({ data: 1 }, '#primitiveTypes');
+		new metal.Datatable({ data: true }, '#primitiveTypes');
+		new metal.Datatable({ data: 'string' }, '#primitiveTypes');
+		new metal.Datatable({ data: { key: 'value' } }, '#primitiveTypes');
+		new metal.Datatable({ data: ['value'] }, '#primitiveTypes');
 	</script>
 </body>
 </html>
