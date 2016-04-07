@@ -10,7 +10,7 @@ describe('Popover', function() {
 		popover.dispose();
 	});
 
-	it.only('should render content', function() {
+	it('should render content', function() {
 		popover = new Popover({
 			content: 'content'
 		});
