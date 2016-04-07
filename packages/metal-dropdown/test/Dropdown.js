@@ -15,14 +15,14 @@ describe('Dropdown', function() {
 	it('should render html header', function() {
 		component = new Dropdown({
 			header: '<div class="myHeader"></div>'
-		}).render();
+		});
 		assert.ok(component.element.querySelector('.myHeader'));
 	});
 
 	it('should render html body', function() {
 		component = new Dropdown({
 			body: '<div class="myBody"></div>'
-		}).render();
+		});
 		assert.ok(component.element.querySelector('.myBody'));
 	});
 
@@ -34,7 +34,7 @@ describe('Dropdown', function() {
 		);
 		component = new Dropdown({
 			element: element
-		}).render();
+		});
 
 		assert.strictEqual('<div class="myHeader"></div>', component.header);
 	});
@@ -47,13 +47,13 @@ describe('Dropdown', function() {
 		);
 		component = new Dropdown({
 			element: element
-		}).render();
+		});
 
 		assert.strictEqual('<div class="myBody"></div>', component.body);
 	});
 
 	it('should open dropdown', function(done) {
-		component = new Dropdown().render();
+		component = new Dropdown();
 		assert.ok(!component.expanded);
 		assert.ok(!dom.hasClass(component.element, 'open'));
 		component.open();
@@ -68,7 +68,7 @@ describe('Dropdown', function() {
 	it('should close dropdown', function(done) {
 		component = new Dropdown({
 			expanded: true
-		}).render();
+		});
 		assert.ok(dom.hasClass(component.element, 'open'));
 		component.close();
 		component.once('stateChanged', function() {
@@ -80,7 +80,7 @@ describe('Dropdown', function() {
 	});
 
 	it('should toggle dropdown', function(done) {
-		component = new Dropdown().render();
+		component = new Dropdown();
 		assert.ok(!component.expanded);
 		assert.ok(!dom.hasClass(component.element, 'open'));
 		component.toggle();
@@ -100,7 +100,7 @@ describe('Dropdown', function() {
 	it('should change dropdown position', function(done) {
 		component = new Dropdown({
 			position: 'up'
-		}).render();
+		});
 		assert.ok(!dom.hasClass(component.element, 'dropdown'));
 		assert.ok(dom.hasClass(component.element, 'dropup'));
 
@@ -115,7 +115,7 @@ describe('Dropdown', function() {
 	it('should only accept valid positions', function() {
 		component = new Dropdown({
 			position: 'up'
-		}).render();
+		});
 		assert.strictEqual(Align.TopLeft, component.position);
 
 		component.position = 'down';
@@ -132,7 +132,7 @@ describe('Dropdown', function() {
 		component = new Dropdown({
 			position: Align.RightCenter,
 			positionClassOnMenu: true
-		}).render();
+		});
 		var element = component.element;
 		assert.ok(!dom.hasClass(element, 'dropright'));
 		assert.ok(dom.hasClass(element.querySelector('.dropdown-menu'), 'dropright'));
@@ -144,7 +144,7 @@ describe('Dropdown', function() {
 				[Align.RightCenter]: 'my-right-class'
 			},
 			position: Align.RightCenter
-		}).render();
+		});
 		var element = component.element;
 		assert.ok(!dom.hasClass(element, 'dropright'));
 		assert.ok(dom.hasClass(element, 'my-right-class'));
@@ -163,7 +163,7 @@ describe('Dropdown', function() {
 			component = new Dropdown({
 				alignElementSelector: 'button',
 				header: '<button></button>'
-			}).render();
+			});
 
 			assert.strictEqual(0, Align.align.callCount);
 			component.expanded = true;
@@ -177,7 +177,7 @@ describe('Dropdown', function() {
 			component = new Dropdown({
 				alignElementSelector: 'nomatch',
 				header: '<button></button>'
-			}).render();
+			});
 
 			assert.strictEqual(0, Align.align.callCount);
 			component.expanded = true;
@@ -189,7 +189,7 @@ describe('Dropdown', function() {
 	});
 
 	it('should close dropdown when click outside', function(done) {
-		component = new Dropdown().render();
+		component = new Dropdown();
 		component.open();
 
 		assert.ok(component.isOpen());
@@ -216,7 +216,7 @@ describe('Dropdown', function() {
 		IncrementalDOM.patch(element, () => Dropdown.TEMPLATE(config));
 
 		var markupFromDom = element.childNodes[0].outerHTML;
-		component = new Dropdown(config).render();
+		component = new Dropdown(config);
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
 	});

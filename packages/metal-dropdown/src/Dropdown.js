@@ -16,17 +16,16 @@ class Dropdown extends Component {
 	/**
 	 * @inheritDoc
 	 */
-	constructor(opt_config) {
-		super(opt_config);
-		this.eventHandler_ = new EventHandler();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	attached() {
 		super.attached();
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	created() {
+		this.eventHandler_ = new EventHandler();
 	}
 
 	/**
