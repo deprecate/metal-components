@@ -9,19 +9,17 @@ class Rating extends Component {
     /**
      * @inheritDoc
      */
-    constructor(opt_config) {
-        super(opt_config);
-
-        this.ratingClicked_ = this.value;
+    attached() {
+        this.delegate('mouseover', '.rating-item', this.handleMouseOverEvent.bind(this));
+        this.delegate('click', '.rating-item', this.handleClickEvent.bind(this));
+        this.on('mouseleave', this.handleMouseLeaveEvent.bind(this));
     }
 
     /**
      * @inheritDoc
      */
-    attached() {
-        this.delegate('mouseover', '.rating-item', this.handleMouseOverEvent.bind(this));
-        this.delegate('click', '.rating-item', this.handleClickEvent.bind(this));
-        this.on('mouseleave', this.handleMouseLeaveEvent.bind(this));
+    created() {
+        this.ratingClicked_ = this.value;
     }
 
     /**
@@ -60,7 +58,7 @@ class Rating extends Component {
     handleMouseOverEvent(event) {
         if (!this.disabled) {
             let index = Number.parseInt(event.delegateTarget.getAttribute('data-index'), 10);
-                
+
             this.value = index;
         }
     }
@@ -117,7 +115,7 @@ Rating.STATE = {
     },
 
     /**
-     * Name of the hidden input. It can be used to send 
+     * Name of the hidden input. It can be used to send
      * current option value as a form data.
      *
      * @attribute inputHiddenName

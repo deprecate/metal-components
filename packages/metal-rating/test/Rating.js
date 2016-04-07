@@ -12,19 +12,19 @@ describe('Rating', function() {
   });
 
   it('should render with default attributes.', function() {
-    rating = new Rating().render();
+    rating = new Rating();
     assert.strictEqual('', rating.element.style.display);
   });
 
   it('should render specified label.', function() {
     rating = new Rating({
       label: 'This is an awesome Metal Component'
-    }).render();
+    });
     assert.strictEqual('This is an awesome Metal Component', rating.element.textContent);
   });
 
   it('should highlight until item clicked', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
     dom.triggerEvent(elements[2], 'click');
@@ -41,7 +41,7 @@ describe('Rating', function() {
   });
 
   it('should set the rate value by click', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
     dom.triggerEvent(elements[4], 'click');
@@ -53,7 +53,7 @@ describe('Rating', function() {
   });
 
   it('should highlight items until mouseover event target element', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
     dom.triggerEvent(elements[4], 'mouseover');
@@ -70,7 +70,7 @@ describe('Rating', function() {
   });
 
   it('should highlight the element according to current value after mouseleave event', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
 
@@ -90,10 +90,10 @@ describe('Rating', function() {
   });
 
   it('should clear rate if the user click twice in the same element', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
-    
+
     var defaultValue = rating.value;
     dom.triggerEvent(elements[4], 'click');
     dom.triggerEvent(elements[4], 'click');
@@ -110,7 +110,7 @@ describe('Rating', function() {
   });
 
   it('should not reset the rating value if the canReset attribute is false.', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
 
@@ -127,7 +127,7 @@ describe('Rating', function() {
   });
 
   it('should reset startup attributes to its initial values.', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
     dom.triggerEvent(elements[4], 'click');
@@ -141,11 +141,11 @@ describe('Rating', function() {
   });
 
   it('should not change rate attribute if rating is disabled', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
     var defaultValue = rating.value;
-    
+
     rating.disabled = true;
 
     dom.triggerEvent(elements[2], 'click');
@@ -157,7 +157,7 @@ describe('Rating', function() {
   });
 
   it('should options attribute just accept array as value', function() {
-    rating = new Rating().render();
+    rating = new Rating();
 
     var defaultOptions = rating.options;
 
@@ -175,7 +175,7 @@ describe('Rating', function() {
   });
 
   it('should not highlight options when mouse is over if the component is disabled', function(done) {
-    rating = new Rating().render();
+    rating = new Rating();
     rating.disabled = true;
 
     var elements = rating.element.querySelectorAll('.rating-item');
