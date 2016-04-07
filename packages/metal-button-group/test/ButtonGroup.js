@@ -22,7 +22,7 @@ describe('ButtonGroup', function() {
 					label: 'Cancel'
 				}
 			]
-		}).render();
+		});
 
 		var buttonElements = buttonGroup.element.querySelectorAll('button');
 		assert.strictEqual(2, buttonElements.length);
@@ -35,7 +35,7 @@ describe('ButtonGroup', function() {
 	});
 
 	it('should render no buttons by default', function() {
-		buttonGroup = new ButtonGroup().render();
+		buttonGroup = new ButtonGroup();
 
 		var buttonElements = buttonGroup.element.querySelectorAll('button');
 		assert.strictEqual(0, buttonElements.length);
@@ -56,7 +56,7 @@ describe('ButtonGroup', function() {
 				}
 			],
 			selected: ['First', 'Third']
-		}).render();
+		});
 
 		var buttonElements = buttonGroup.element.querySelectorAll('button');
 		assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
@@ -74,7 +74,7 @@ describe('ButtonGroup', function() {
 					label: 'Second'
 				}
 			]
-		}).render();
+		});
 
 		var buttonElements = buttonGroup.element.querySelectorAll('button');
 		assert.ok(!dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
@@ -115,7 +115,7 @@ describe('ButtonGroup', function() {
 			],
 			minSelected: 2,
 			selected: ['First']
-		}).render();
+		});
 
 		assert.deepEqual(['First', 'Second'], buttonGroup.selected);
 	});
@@ -135,7 +135,7 @@ describe('ButtonGroup', function() {
 			],
 			minSelected: 2,
 			selected: ['First']
-		}).render();
+		});
 
 		var buttonElements = buttonGroup.element.querySelectorAll('button');
 		dom.triggerEvent(buttonElements[0], 'click');
