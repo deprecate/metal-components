@@ -12,7 +12,7 @@ describe('Alert', function() {
 	});
 
 	it('should show alert and fire transitionend', function(done) {
-		component = new Alert().render();
+		component = new Alert();
 		assert.ok(!component.visible);
 		dom.once(component.element, 'transitionend', function() {
 			assert.ok(component.visible);
@@ -25,7 +25,7 @@ describe('Alert', function() {
 	it('should hide alert and fire transitionend', function(done) {
 		component = new Alert({
 			visible: true
-		}).render();
+		});
 		assert.ok(component.visible);
 		dom.once(component.element, 'transitionend', function() {
 			assert.ok(!component.visible);
@@ -38,7 +38,7 @@ describe('Alert', function() {
 	it('should toggle alert and fire transitionend', function(done) {
 		component = new Alert({
 			visible: true
-		}).render();
+		});
 		assert.ok(component.visible);
 		dom.once(component.element, 'transitionend', function() {
 			assert.ok(!component.visible);
@@ -54,7 +54,7 @@ describe('Alert', function() {
 	it('should close alert, fire transitionend and dispose itself', function(done) {
 		component = new Alert({
 			visible: true
-		}).render();
+		});
 		component.close();
 		dom.once(component.element, 'transitionend', function() {
 			assert.ok(component.isDisposed());
@@ -65,7 +65,7 @@ describe('Alert', function() {
 	it('should hide alert and fire transitionend from close element', function(done) {
 		component = new Alert({
 			visible: true
-		}).render();
+		});
 		dom.triggerEvent(component.element.querySelector('.close'), 'click');
 		dom.once(component.element, 'transitionend', function() {
 			assert.ok(!component.visible);
@@ -74,7 +74,7 @@ describe('Alert', function() {
 	});
 
 	it('should show alert via `show` method', function() {
-		component = new Alert().render();
+		component = new Alert();
 		component.show();
 		assert.ok(component.visible);
 	});
@@ -83,7 +83,7 @@ describe('Alert', function() {
 		component = new Alert({
 			visible: true,
 			dismissible: false
-		}).render();
+		});
 		assert.ok(!dom.hasClass(component.element, 'alert-dismissible'));
 		assert.ok(!component.element.querySelector('.close'));
 	});
@@ -100,7 +100,7 @@ describe('Alert', function() {
 		IncrementalDOM.patch(element, () => Alert.TEMPLATE(config));
 
 		var markupFromDom = element.childNodes[0].outerHTML;
-		component = new Alert(config).render();
+		component = new Alert(config);
 
 		assert.strictEqual(component.element.outerHTML, markupFromDom);
 	});
@@ -108,7 +108,7 @@ describe('Alert', function() {
 	it('should close alert when click outside', function(done) {
 		component = new Alert({
 			visible: true
-		}).render();
+		});
 
 		assert.ok(component.visible);
 		dom.triggerEvent(component.element, 'click');
@@ -125,7 +125,7 @@ describe('Alert', function() {
 	it('should not close alert when click on the element', function(done) {
 		component = new Alert({
 			visible: true
-		}).render();
+		});
 
 		assert.ok(component.visible);
 		dom.triggerEvent(component.element, 'click');
@@ -140,7 +140,7 @@ describe('Alert', function() {
 	it('should hide alert after delay', function(done) {
 		component = new Alert({
 			hideDelay: 0
-		}).render();
+		});
 
 		assert.ok(!component.visible);
 		component.visible = true;
@@ -158,7 +158,7 @@ describe('Alert', function() {
 		component = new Alert({
 			spinner: true,
 			spinnerDone: false
-		}).render();
+		});
 		assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
 		component.once('stateChanged', () => {
 			assert.ok(dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));

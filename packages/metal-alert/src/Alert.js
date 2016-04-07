@@ -13,8 +13,7 @@ import templates from './Alert.soy';
  * Alert component.
  */
 class Alert extends Component {
-	constructor(opt_config) {
-		super(opt_config);
+	created() {
 		this.eventHandler_ = new EventHandler();
 	}
 
