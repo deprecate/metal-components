@@ -59,7 +59,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
 
     goog.module('Switcher.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');

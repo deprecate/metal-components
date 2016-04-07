@@ -56,19 +56,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
 	var Alert = function (_Component) {
 		_inherits(Alert, _Component);
 
-		function Alert(opt_config) {
+		function Alert() {
 			_classCallCheck(this, Alert);
 
-			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new _events.EventHandler();
-			return _this;
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
 
-		/**
-   * @inheritDoc
-   */
-
+		Alert.prototype.created = function created() {
+			this.eventHandler_ = new _events.EventHandler();
+		};
 
 		Alert.prototype.detached = function detached() {
 			_Component.prototype.detached.call(this);

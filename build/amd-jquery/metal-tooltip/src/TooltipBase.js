@@ -52,27 +52,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 	var TooltipBase = function (_Component) {
 		_inherits(TooltipBase, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function TooltipBase(opt_config) {
+		function TooltipBase() {
 			_classCallCheck(this, TooltipBase);
 
-			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new _events.EventHandler();
-			return _this;
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
-
-		/**
-   * @inheritDoc
-   */
-
 
 		TooltipBase.prototype.attached = function attached() {
 			this.align();
 			this.syncTriggerEvents(this.triggerEvents);
+		};
+
+		TooltipBase.prototype.created = function created() {
+			this.eventHandler_ = new _events.EventHandler();
 		};
 
 		TooltipBase.prototype.detached = function detached() {

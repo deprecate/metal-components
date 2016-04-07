@@ -69,27 +69,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 	var Dropdown = function (_Component) {
 		_inherits(Dropdown, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function Dropdown(opt_config) {
+		function Dropdown() {
 			_classCallCheck(this, Dropdown);
 
-			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new _events.EventHandler();
-			return _this;
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
-
-		/**
-   * @inheritDoc
-   */
-
 
 		Dropdown.prototype.attached = function attached() {
 			_Component.prototype.attached.call(this);
 			this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
+		};
+
+		Dropdown.prototype.created = function created() {
+			this.eventHandler_ = new _events.EventHandler();
 		};
 
 		Dropdown.prototype.detached = function detached() {

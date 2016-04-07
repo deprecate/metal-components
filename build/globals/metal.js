@@ -4599,10 +4599,10 @@ babelHelpers;
   * as Lifecycle, CSS classes management, events encapsulation and support for
   * different types of rendering.
   * Rendering logic can be done by either:
-  *     - Listening to the `render` event and adding the rendering logic to the
-  *       listener.
-  *     - Using an existing implementation of `ComponentRenderer` like
-  *       `SurfaceRenderer` or `SoyRenderer`, and following its patterns.
+  *     - Listening to the `render` event inside the `created` lifecycle function
+  *       and adding the rendering logic to the listener.
+  *     - Using an existing implementation of `ComponentRenderer` like `Soy`,
+  *       and following its patterns.
   *     - Building your own implementation of a `ComponentRenderer`.
   * Specifying the renderer that will be used can be done by setting the RENDERER
   * static variable to the renderer's constructor function.
@@ -4613,6 +4613,9 @@ babelHelpers;
   * class CustomComponent extends Component {
   *   constructor(config) {
   *     super(config);
+  *   }
+  *
+  *   created() {
   *   }
   *
   *   attached() {
@@ -4640,10 +4643,14 @@ babelHelpers;
    * Constructor function for `Component`.
    * @param {Object=} opt_config An object with the initial values for this
    *     component's state.
+   * @param {boolean|string|Element=} opt_parentElement The element where the
+   *     component should be rendered. Can be given as a selector or an element.
+   *     If `false` is passed, the component won't be rendered automatically
+   *     after created.
    * @constructor
    */
 
-		function Component(opt_config) {
+		function Component(opt_config, opt_parentElement) {
 			babelHelpers.classCallCheck(this, Component);
 
 
@@ -4711,7 +4718,16 @@ babelHelpers;
 
 			_this.renderer_ = new _this.constructor.RENDERER_MERGED(_this);
 
-			_this.created_();
+			_this.on('stateChanged', _this.handleStateChanged_);
+			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
+			_this.on('eventsChanged', _this.onEventsChanged_);
+			_this.addListenersFromObj_(_this.events);
+
+			_this.created();
+			if (opt_parentElement !== false) {
+				_this.render_(opt_parentElement);
+			}
+			_this.on('elementChanged', _this.onElementChanged_);
 			return _this;
 		}
 
@@ -4761,8 +4777,7 @@ babelHelpers;
    *     to render the component.
    * @param {(string|Element)=} opt_siblingElement Optional sibling element
    *     to render the component before it. Relevant when the component needs
-   *     to be rendered before an existing element in the DOM, e.g.
-   *     `component.render(null, existingElement)`.
+   *     to be rendered before an existing element in the DOM.
    * @protected
    * @chainable
    */
@@ -4793,19 +4808,6 @@ babelHelpers;
 		Component.prototype.attached = function attached() {};
 
 		/**
-   * Internal implementation for the creation phase of the component.
-   * @protected
-   */
-
-
-		Component.prototype.created_ = function created_() {
-			this.on('stateChanged', this.handleStateChanged_);
-			this.newListenerHandle_ = this.on('newListener', this.handleNewListener_);
-			this.on('eventsChanged', this.onEventsChanged_);
-			this.addListenersFromObj_(this.events);
-		};
-
-		/**
    * Adds a sub component, creating it if it doesn't yet exist.
    * @param {string} key
    * @param {string|!Function} componentNameOrCtor
@@ -4820,10 +4822,18 @@ babelHelpers;
 				if (core.isString(ConstructorFn)) {
 					ConstructorFn = ComponentRegistry.getConstructor(componentNameOrCtor);
 				}
-				this.components[key] = new ConstructorFn(opt_data);
+				this.components[key] = new ConstructorFn(opt_data, false);
 			}
 			return this.components[key];
 		};
+
+		/**
+   * Lifecycle. This is called when the component has just been created, before
+   * it's rendered.
+   */
+
+
+		Component.prototype.created = function created() {};
 
 		/**
    * Listens to a delegate event on the component's element.
@@ -5051,6 +5061,7 @@ babelHelpers;
 				return;
 			}
 
+			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
 			this.addElementClasses_();
 			this.syncVisible(this.visible);
@@ -5080,33 +5091,22 @@ babelHelpers;
    *     to render the component. If set to `false`, the element won't be
    *     attached to any element after rendering. In this case, `attach` should
    *     be called manually later to actually attach it to the dom.
-   * @param {(string|Element)=} opt_siblingElement Optional sibling element
-   *     to render the component before it. Relevant when the component needs
-   *     to be rendered before an existing element in the DOM, e.g.
-   *     `component.render(null, existingElement)`.
    * @param {boolean=} opt_skipRender Optional flag indicating that the actual
    *     rendering should be skipped. Only the other render lifecycle logic will
    *     be run, like syncing state and attaching the element. Should only
    *     be set if the component has already been rendered, like sub components.
-   * @chainable
+   * @protected
    */
 
 
-		Component.prototype.render = function render(opt_parentElement, opt_siblingElement, opt_skipRender) {
-			if (this.wasRendered) {
-				throw new Error(Component.Error.ALREADY_RENDERED);
-			}
-
+		Component.prototype.render_ = function render_(opt_parentElement, opt_skipRender) {
 			if (!opt_skipRender) {
 				this.emit('render');
 			}
 			this.setUpProxy_();
 			this.syncState_();
-			if (opt_parentElement !== false) {
-				this.attach(opt_parentElement, opt_siblingElement);
-			}
+			this.attach(opt_parentElement);
 			this.wasRendered = true;
-			return this;
 		};
 
 		/**
@@ -5118,7 +5118,7 @@ babelHelpers;
 
 
 		Component.prototype.renderAsSubComponent = function renderAsSubComponent() {
-			this.render(null, null, true);
+			this.render_(null, true);
 		};
 
 		/**
@@ -5128,7 +5128,7 @@ babelHelpers;
    * @param {(string|Element)=} opt_siblingElement Optional sibling element
    *     to render the component before it. Relevant when the component needs
    *     to be rendered before an existing element in the DOM, e.g.
-   *     `component.render(null, existingElement)`.
+   *     `component.attach(null, existingElement)`.
    * @protected
    */
 
@@ -5162,6 +5162,10 @@ babelHelpers;
 
 
 		Component.prototype.setUpProxy_ = function setUpProxy_() {
+			if (this.elementEventProxy_) {
+				return;
+			}
+
 			var proxy = new DomEventEmitterProxy(this.element, this);
 			this.elementEventProxy_ = proxy;
 
@@ -5170,8 +5174,6 @@ babelHelpers;
 
 			this.newListenerHandle_.removeListener();
 			this.newListenerHandle_ = null;
-
-			this.on('elementChanged', this.onElementChanged_);
 		};
 
 		/**
@@ -5336,12 +5338,6 @@ babelHelpers;
   * @enum {string}
   */
 	Component.Error = {
-		/**
-   * Error when the component is already rendered and another render attempt
-   * is made.
-   */
-		ALREADY_RENDERED: 'Component already rendered.',
-
 		/**
    * Error when the component is attached but its element hasn't been created yet.
    */
@@ -11410,6 +11406,11 @@ babelHelpers;
         goog.module('soydata');
         return soydata;
       });
+
+      goog.loadModule(function () {
+        goog.module('soy.asserts');
+        return soy;
+      });
     })();
 
     /* jshint ignore:end */
@@ -12164,10 +12165,14 @@ babelHelpers;
 
     goog.module('Alert.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -12260,14 +12265,14 @@ babelHelpers;
 	var Alert = function (_Component) {
 		babelHelpers.inherits(Alert, _Component);
 
-		function Alert(opt_config) {
+		function Alert() {
 			babelHelpers.classCallCheck(this, Alert);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			return _this;
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
+
+		Alert.prototype.created = function created() {
+			this.eventHandler_ = new EventHandler();
+		};
 
 		/**
    * @inheritDoc
@@ -13469,19 +13474,19 @@ babelHelpers;
 	var AutocompleteBase = function (_Component) {
 		babelHelpers.inherits(AutocompleteBase, _Component);
 
+		function AutocompleteBase() {
+			babelHelpers.classCallCheck(this, AutocompleteBase);
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+		}
+
 		/**
    * @inheritDoc
    */
 
-		function AutocompleteBase(opt_config) {
-			babelHelpers.classCallCheck(this, AutocompleteBase);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			_this.on('select', _this.select);
-			return _this;
-		}
+		AutocompleteBase.prototype.created = function created() {
+			this.eventHandler_ = new EventHandler();
+			this.on('select', this.select);
+		};
 
 		/**
    * @inheritDoc
@@ -13651,10 +13656,14 @@ babelHelpers;
 
     goog.module('ListItem.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -13859,10 +13868,14 @@ babelHelpers;
 
     goog.module('List.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -14031,7 +14044,9 @@ babelHelpers;
 
     goog.module('Autocomplete.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
@@ -14328,7 +14343,9 @@ babelHelpers;
 
     goog.module('ButtonGroup.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
@@ -14889,6 +14906,718 @@ babelHelpers;
   var templates;
   goog.loadModule(function (exports) {
 
+    // This file was automatically generated from Datatable.soy.
+    // Please don't edit this file by hand.
+
+    /**
+     * @fileoverview Templates in namespace Datatable.
+     * @public
+     */
+
+    goog.module('Datatable.incrementaldom');
+
+    /** @suppress {extraRequire} */
+    var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
+    var soydata = goog.require('soydata');
+    /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    var IncrementalDom = goog.require('incrementaldom');
+    var ie_open = IncrementalDom.elementOpen;
+    var ie_close = IncrementalDom.elementClose;
+    var ie_void = IncrementalDom.elementVoid;
+    var ie_open_start = IncrementalDom.elementOpenStart;
+    var ie_open_end = IncrementalDom.elementOpenEnd;
+    var itext = IncrementalDom.text;
+    var iattr = IncrementalDom.attr;
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render(opt_data, opt_ignored, opt_ijData) {
+      ie_open('div', null, null, 'class', 'datatable' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      $render_(soy.$$augmentMap(opt_data.data, { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
+      ie_close('div');
+    }
+    exports.render = $render;
+    if (goog.DEBUG) {
+      $render.soyTemplateName = 'Datatable.render';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render_(opt_data, opt_ignored, opt_ijData) {
+      var $$temp;
+      switch (goog.isObject($$temp = opt_data.type) ? $$temp.toString() : $$temp) {
+        case 'array':
+          if (opt_data.columns) {
+            $renderArrayOfObjects_(opt_data, null, opt_ijData);
+          } else {
+            $renderArray_(opt_data, null, opt_ijData);
+          }
+          break;
+        case 'boolean':
+          $renderBoolean_(opt_data, null, opt_ijData);
+          break;
+        case 'null':
+          $renderNull_(opt_data, null, opt_ijData);
+          break;
+        case 'number':
+          $renderNumber_(opt_data, null, opt_ijData);
+          break;
+        case 'object':
+          $renderObject_(opt_data, null, opt_ijData);
+          break;
+        case 'string':
+          $renderString_(opt_data, null, opt_ijData);
+          break;
+        case 'undefined':
+          $renderUndefined_(opt_data, null, opt_ijData);
+          break;
+      }
+    }
+    exports.render_ = $render_;
+    if (goog.DEBUG) {
+      $render_.soyTemplateName = 'Datatable.render_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderArray_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-array');
+      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onclick', 'toggleTableContents');
+      itext('Array, ');
+      itext((goog.asserts.assert(opt_data.value.length != null), opt_data.value.length));
+      itext(' items');
+      ie_close('span');
+      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden');
+      ie_open('tbody');
+      var itemValueList41 = opt_data.value;
+      var itemValueListLen41 = itemValueList41.length;
+      for (var itemValueIndex41 = 0; itemValueIndex41 < itemValueListLen41; itemValueIndex41++) {
+        var itemValueData41 = itemValueList41[itemValueIndex41];
+        ie_open('tr');
+        ie_open('td');
+        $render_(soy.$$augmentMap(itemValueData41, { tableClasses: opt_data.tableClasses, displayColumnsType: opt_data.displayColumnsType }), null, opt_ijData);
+        ie_close('td');
+        ie_close('tr');
+      }
+      ie_close('tbody');
+      ie_close('table');
+      ie_close('span');
+    }
+    exports.renderArray_ = $renderArray_;
+    if (goog.DEBUG) {
+      $renderArray_.soyTemplateName = 'Datatable.renderArray_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderArrayOfObjects_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-array-object');
+      ie_open('table', null, null, 'class', opt_data.tableClasses ? opt_data.tableClasses : '');
+      ie_open('thead');
+      ie_open('tr');
+      var columnList56 = opt_data.columns;
+      var columnListLen56 = columnList56.length;
+      for (var columnIndex56 = 0; columnIndex56 < columnListLen56; columnIndex56++) {
+        var columnData56 = columnList56[columnIndex56];
+        ie_open('th');
+        itext((goog.asserts.assert(columnData56 != null), columnData56));
+        if (opt_data.displayColumnsType && opt_data.columnsType) {
+          ie_open('span', null, null, 'class', 'datatable-type');
+          itext((goog.asserts.assert(opt_data.columnsType[columnData56] != null), opt_data.columnsType[columnData56]));
+          ie_close('span');
+        }
+        ie_close('th');
+      }
+      ie_close('tr');
+      ie_close('thead');
+      ie_open('tbody');
+      var itemValueList68 = opt_data.value;
+      var itemValueListLen68 = itemValueList68.length;
+      for (var itemValueIndex68 = 0; itemValueIndex68 < itemValueListLen68; itemValueIndex68++) {
+        var itemValueData68 = itemValueList68[itemValueIndex68];
+        ie_open('tr');
+        var columnList65 = opt_data.columns;
+        var columnListLen65 = columnList65.length;
+        for (var columnIndex65 = 0; columnIndex65 < columnListLen65; columnIndex65++) {
+          var columnData65 = columnList65[columnIndex65];
+          ie_open('td');
+          $render_(soy.$$augmentMap(itemValueData68.value[columnData65], { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
+          ie_close('td');
+        }
+        ie_close('tr');
+      }
+      ie_close('tbody');
+      ie_close('table');
+      ie_close('span');
+    }
+    exports.renderArrayOfObjects_ = $renderArrayOfObjects_;
+    if (goog.DEBUG) {
+      $renderArrayOfObjects_.soyTemplateName = 'Datatable.renderArrayOfObjects_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderBoolean_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-boolean');
+      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      ie_close('span');
+    }
+    exports.renderBoolean_ = $renderBoolean_;
+    if (goog.DEBUG) {
+      $renderBoolean_.soyTemplateName = 'Datatable.renderBoolean_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderNull_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-null');
+      itext('null');
+      ie_close('span');
+    }
+    exports.renderNull_ = $renderNull_;
+    if (goog.DEBUG) {
+      $renderNull_.soyTemplateName = 'Datatable.renderNull_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderNumber_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-number');
+      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      ie_close('span');
+    }
+    exports.renderNumber_ = $renderNumber_;
+    if (goog.DEBUG) {
+      $renderNumber_.soyTemplateName = 'Datatable.renderNumber_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderObject_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-object');
+      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onclick', 'toggleTableContents');
+      itext('Object, ');
+      itext((goog.asserts.assert(soy.$$getMapKeys(opt_data.value).length != null), soy.$$getMapKeys(opt_data.value).length));
+      itext(' items');
+      ie_close('span');
+      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden');
+      ie_open('thead');
+      ie_open('tr');
+      var columnList95 = opt_data.columns;
+      var columnListLen95 = columnList95.length;
+      for (var columnIndex95 = 0; columnIndex95 < columnListLen95; columnIndex95++) {
+        var columnData95 = columnList95[columnIndex95];
+        ie_open('th');
+        itext((goog.asserts.assert(columnData95 != null), columnData95));
+        if (opt_data.displayColumnsType && opt_data.columnsType) {
+          ie_open('span', null, null, 'class', 'datatable-type');
+          itext((goog.asserts.assert(opt_data.columnsType[columnData95] != null), opt_data.columnsType[columnData95]));
+          ie_close('span');
+        }
+        ie_close('th');
+      }
+      ie_close('tr');
+      ie_close('thead');
+      ie_open('tbody');
+      ie_open('tr');
+      var columnList103 = opt_data.columns;
+      var columnListLen103 = columnList103.length;
+      for (var columnIndex103 = 0; columnIndex103 < columnListLen103; columnIndex103++) {
+        var columnData103 = columnList103[columnIndex103];
+        ie_open('td');
+        $render_(soy.$$augmentMap(opt_data.value[columnData103], { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
+        ie_close('td');
+      }
+      ie_close('tr');
+      ie_close('tbody');
+      ie_close('table');
+      ie_close('span');
+    }
+    exports.renderObject_ = $renderObject_;
+    if (goog.DEBUG) {
+      $renderObject_.soyTemplateName = 'Datatable.renderObject_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderUndefined_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-undefined');
+      itext('undefined');
+      ie_close('span');
+    }
+    exports.renderUndefined_ = $renderUndefined_;
+    if (goog.DEBUG) {
+      $renderUndefined_.soyTemplateName = 'Datatable.renderUndefined_';
+    }
+
+    /**
+     * @param {{
+     *    value: (!soydata.SanitizedHtml|string)
+     * }} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderString_(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.value instanceof Function || opt_data.value instanceof soydata.UnsanitizedText || goog.isString(opt_data.value), 'value', opt_data.value, 'Function');
+      var value = /** @type {Function} */opt_data.value;
+      ie_open('span', null, null, 'class', 'datatable-string');
+      value();
+      ie_close('span');
+    }
+    exports.renderString_ = $renderString_;
+    if (goog.DEBUG) {
+      $renderString_.soyTemplateName = 'Datatable.renderString_';
+    }
+
+    exports.render.params = ["data", "displayColumnsType", "elementClasses", "tableClasses"];
+    exports.render_.params = ["type", "columns"];
+    exports.renderArray_.params = ["value", "displayColumnsType", "tableClasses"];
+    exports.renderArrayOfObjects_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
+    exports.renderBoolean_.params = ["value"];
+    exports.renderNull_.params = [];
+    exports.renderNumber_.params = ["value"];
+    exports.renderObject_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
+    exports.renderUndefined_.params = [];
+    exports.renderString_.params = ["value"];
+    templates = exports;
+    return exports;
+  });
+
+  var Datatable = function (_Component) {
+    babelHelpers.inherits(Datatable, _Component);
+
+    function Datatable() {
+      babelHelpers.classCallCheck(this, Datatable);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Datatable;
+  }(Component);
+
+  Soy.register(Datatable, templates);
+  this.metal.Datatable = templates;
+  this.metalNamed.Datatable = this.metalNamed.Datatable || {};
+  this.metalNamed.Datatable.Datatable = Datatable;
+  this.metalNamed.Datatable.templates = templates;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var dom = this.metal.dom;
+	var templates = this.metal.Datatable;
+	var Component = this.metal.component;
+	var Soy = this.metal.Soy;
+
+	var Datatable = function (_Component) {
+		babelHelpers.inherits(Datatable, _Component);
+
+		function Datatable() {
+			babelHelpers.classCallCheck(this, Datatable);
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+		}
+
+		/**
+   * Visits array items and asserts that it only contains one literal type.
+   * @param {array} value
+   * @protected
+   * @throws {Error} If types are different.
+   */
+
+		Datatable.prototype.assertNoMixedTypesInArrays_ = function assertNoMixedTypesInArrays_(value) {
+			var _this2 = this;
+
+			var lastType;
+			var acceptArray = function acceptArray(v) {
+				var type = _this2.getValueType_(v);
+				_this2.assertSameTypes_(lastType, type);
+				lastType = type;
+				_this2.assertNoMixedTypesInArrays_(v);
+			};
+			var acceptObject = function acceptObject(v) {
+				return _this2.assertNoMixedTypesInArrays_(v);
+			};
+			this.visit_(value, acceptArray, acceptObject);
+		};
+
+		/**
+   * Asserts literal types are not the same.
+   * @param {string} type1
+   * @param {string} type2
+   * @protected
+   * @throws {Error} If types are different.
+   */
+
+
+		Datatable.prototype.assertSameTypes_ = function assertSameTypes_(type1, type2) {
+			if (type1 && type2 && type1 !== type2) {
+				throw new Error('Datatable does not support mixed types in arrays.');
+			}
+		};
+
+		/**
+   * Extract keys from an array of objects. Column values are aggregated from
+   * extracting 1-deep key values. For other array types keys are not
+   * extracted and values are plotted in one column vertically.
+   * @param {object} expandedValue
+   * @protected
+   */
+
+
+		Datatable.prototype.collectColumnsFromArrayValues_ = function collectColumnsFromArrayValues_(expandedValue) {
+			var _this3 = this;
+
+			var value = expandedValue.value;
+			var isFirstArrayItemObject = value[0] && value[0].type === Datatable.TYPES.OBJECT;
+			if (isFirstArrayItemObject) {
+				(function () {
+					var columns = {};
+					var columnsType = {};
+					value.forEach(function (item) {
+						return Object.keys(item.value).forEach(function (key) {
+							columns[key] = true;
+							columnsType[key] = item.value[key].type;
+						});
+					});
+					expandedValue.columns = _this3.formatColumns(Object.keys(columns));
+					expandedValue.columnsType = _this3.formatColumnsType(columnsType);
+				})();
+			}
+		};
+
+		/**
+   * Extract columns from object keys.
+   * @param {object} expandedValue
+   * @protected
+   */
+
+
+		Datatable.prototype.collectColumnsFromObjectKeys_ = function collectColumnsFromObjectKeys_(expandedValue) {
+			var value = expandedValue.value;
+			var columns = {};
+			var columnsType = {};
+			Object.keys(value).forEach(function (key) {
+				columns[key] = true;
+				columnsType[key] = value[key].type;
+			});
+			expandedValue.columns = this.formatColumns(Object.keys(columns));
+			expandedValue.columnsType = this.formatColumnsType(columnsType);
+		};
+
+		/**
+   * Analyzes the expanded object containing type and value and extracts an
+   * array of columns to be used for plotting.
+   * @param {object} expandedValue
+   * @protected
+   */
+
+
+		Datatable.prototype.collectColumnsFromValues_ = function collectColumnsFromValues_(expandedValue) {
+			switch (expandedValue.type) {
+				case Datatable.TYPES.ARRAY:
+					this.collectColumnsFromArrayValues_(expandedValue);
+					break;
+				case Datatable.TYPES.OBJECT:
+					this.collectColumnsFromObjectKeys_(expandedValue);
+					break;
+			}
+		};
+
+		/**
+   * Internal helper to get literal JSON type of a value.
+   * @param {*} value
+   * @return {string} Type inferred from JSON value.
+   */
+
+
+		Datatable.prototype.getValueType_ = function getValueType_(value) {
+			if (value === null) {
+				return Datatable.TYPES.NULL;
+			}
+			if (value === undefined) {
+				return Datatable.TYPES.UNDEFINED;
+			}
+			if (Array.isArray(value)) {
+				return Datatable.TYPES.ARRAY;
+			}
+			if (core.isObject(value) && value.contentKind === 'HTML') {
+				return Datatable.TYPES.STRING;
+			}
+			return typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value);
+		};
+
+		/**
+   * Returns true if data is already expanded, false otherwise.
+   * @param {*} data
+   * @return {boolean}
+   */
+
+
+		Datatable.prototype.isAlreadyExpanded = function isAlreadyExpanded(data) {
+			return core.isObject(data) && 'columns' in data && 'type' in data;
+		};
+
+		Datatable.prototype.setData_ = function setData_(data) {
+			if (!this.isAlreadyExpanded(data)) {
+				this.assertNoMixedTypesInArrays_(data);
+				data = this.visitValuesAndExpandType_(data);
+			}
+			return this.visitValuesAndWrapStringValues_(data);
+		};
+
+		/**
+   * Toggles sibling table content of <code>event.delegateTarget</code>.
+   * @param {Event} event
+   */
+
+
+		Datatable.prototype.toggleTableContents = function toggleTableContents(event) {
+			var label = event.delegateTarget;
+			dom.toggleClasses(label, this.labelClasses);
+			dom.toggleClasses(dom.next(label, 'table'), this.hiddenClasses);
+		};
+
+		/**
+   * Internal non-recursive visitor helper to navigate over JSON values.
+   * @param {*} value The value to start the visit.
+   * @param {!function} acceptArray Accept logic for array items.
+   * @param {!function} acceptObject Accept logic for object keys and values.
+   * @protected
+   */
+
+
+		Datatable.prototype.visit_ = function visit_(value, acceptArray, acceptObject) {
+			switch (this.getValueType_(value)) {
+				case Datatable.TYPES.ARRAY:
+					value.forEach(function (v, k) {
+						return acceptArray(v, k, value);
+					});
+					break;
+				case Datatable.TYPES.OBJECT:
+					Object.keys(value).forEach(function (k) {
+						return acceptObject(value[k], k, value);
+					});
+					break;
+			}
+		};
+
+		/**
+   * Visits all json values and wraps it in object containing its type and
+   * value.
+   * @param {*} value The value to start the visit.
+   * @return {object} Wrapped object containing type and value.
+   * @protected
+   */
+
+
+		Datatable.prototype.visitValuesAndExpandType_ = function visitValuesAndExpandType_(value) {
+			var _this4 = this;
+
+			var acceptArray = function acceptArray(val, key, reference) {
+				return reference[key] = _this4.visitValuesAndExpandType_(val);
+			};
+			var acceptObject = function acceptObject(val, key, reference) {
+				return reference[key] = _this4.visitValuesAndExpandType_(val);
+			};
+			this.visit_(value, acceptArray, acceptObject);
+			var type = this.getValueType_(value);
+			var expanded = {
+				type: type,
+				value: value
+			};
+			this.collectColumnsFromValues_(expanded);
+			return expanded;
+		};
+
+		/**
+   * Visits all json values and wraps it in special `Soy.toIncDom` helper if
+   * it's string.
+   * @param {*} value The value to start the visit.
+   * @return {object} Wrapped string.
+   * @protected
+   */
+
+
+		Datatable.prototype.visitValuesAndWrapStringValues_ = function visitValuesAndWrapStringValues_(value) {
+			var _this5 = this;
+
+			var acceptArray = function acceptArray(val, key, reference) {
+				return reference[key] = _this5.visitValuesAndWrapStringValues_(val);
+			};
+			var acceptObject = function acceptObject(val, key, reference) {
+				return reference[key] = _this5.visitValuesAndWrapStringValues_(val);
+			};
+			this.visit_(value, acceptArray, acceptObject);
+			if (core.isObject(value)) {
+				var type = this.getValueType_(value.value);
+				if (type === Datatable.TYPES.STRING) {
+					value.value = Soy.toIncDom(value.value);
+				}
+			}
+			return value;
+		};
+
+		return Datatable;
+	}(Component);
+
+	Soy.register(Datatable, templates);
+
+	Datatable.STATE = {
+		/**
+   * Data to be plotted on datatable. Any JSON type is supported if it does
+   * not contain mixed types inside an array.
+   * @type {*}
+   */
+		data: {
+			setter: 'setData_'
+		},
+
+		/**
+   * If true displays types in column.
+   * @type {boolean}
+   * @default true
+   */
+		displayColumnsType: {
+			validator: core.isBoolean,
+			value: true
+		},
+
+		/**
+   * Formats array of columns extracted from JSON data. Relevant for operates
+   * over column values, such as sorting and formatting.
+   * @type {function(array.<string>)}
+   */
+		formatColumns: {
+			validator: core.isFunction,
+			value: function value(columns) {
+				return columns.sort();
+			}
+		},
+
+		/**
+   * Formats map of columns type extracted from JSON data. Relevant for
+   * operates over column values, such as sorting and formatting.
+   * @type {function(map.<string,string>)}
+   */
+		formatColumnsType: {
+			validator: core.isFunction,
+			value: function value(columnstype) {
+				return columnstype;
+			}
+		},
+
+		/**
+   * Css classes to be used for hidden state.
+   * @type {string}
+   * @default 'hidden'
+   */
+		hiddenClasses: {
+			validator: core.isString,
+			value: 'hidden'
+		},
+
+		/**
+   * Css classes to be used for labels.
+   * @type {string}
+   * @default 'collapsed expanded'
+   */
+		labelClasses: {
+			validator: core.isString,
+			value: 'collapsed expanded'
+		},
+
+		/**
+   * Css classes to be used for tables.
+   * @type {string}
+   * @default 'table table-condensed table-hover'
+   */
+		tableClasses: {
+			validator: core.isString,
+			value: 'table table-bordered table-condensed table-hover'
+		}
+	};
+
+	/**
+  * Datatable supported types.
+  * @type {object}
+  * @static
+  */
+	Datatable.TYPES = {
+		ARRAY: 'array',
+		BOOLEAN: 'boolean',
+		NULL: 'null',
+		NUMBER: 'number',
+		OBJECT: 'object',
+		STRING: 'string',
+		UNDEFINED: 'undefined'
+	};
+
+	this.metal.Datatable = Datatable;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var Soy = this.metal.Soy;
+
+  var templates;
+  goog.loadModule(function (exports) {
+
     // This file was automatically generated from Dropdown.soy.
     // Please don't edit this file by hand.
 
@@ -14899,10 +15628,14 @@ babelHelpers;
 
     goog.module('Dropdown.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -14997,27 +15730,27 @@ babelHelpers;
 	var Dropdown = function (_Component) {
 		babelHelpers.inherits(Dropdown, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function Dropdown(opt_config) {
+		function Dropdown() {
 			babelHelpers.classCallCheck(this, Dropdown);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			return _this;
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
 
 		/**
    * @inheritDoc
    */
 
-
 		Dropdown.prototype.attached = function attached() {
 			_Component.prototype.attached.call(this);
 			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Dropdown.prototype.created = function created() {
+			this.eventHandler_ = new EventHandler();
 		};
 
 		/**
@@ -15418,18 +16151,18 @@ babelHelpers;
 	var Modal = function (_Component) {
 		babelHelpers.inherits(Modal, _Component);
 
+		function Modal() {
+			babelHelpers.classCallCheck(this, Modal);
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+		}
+
 		/**
    * @inheritDoc
    */
 
-		function Modal(opt_config) {
-			babelHelpers.classCallCheck(this, Modal);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			return _this;
-		}
+		Modal.prototype.created = function created() {
+			this.eventHandler_ = new EventHandler();
+		};
 
 		/**
    * @inheritDoc
@@ -15521,7 +16254,9 @@ babelHelpers;
 
 
 		Modal.prototype.restrictFocus_ = function restrictFocus_() {
-			this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+			if (!this.restrictFocusHandle_) {
+				this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+			}
 		};
 
 		/**
@@ -15582,7 +16317,7 @@ babelHelpers;
 			this.element.style.display = visible ? 'block' : '';
 			this.syncOverlay(this.overlay);
 			if (this.visible) {
-				this.lastFocusedElement_ = document.activeElement;
+				this.lastFocusedElement_ = this.lastFocusedElement_ || document.activeElement;
 				this.autoFocus_(this.autoFocus);
 				this.restrictFocus_();
 			} else {
@@ -15600,6 +16335,7 @@ babelHelpers;
 		Modal.prototype.unrestrictFocus_ = function unrestrictFocus_() {
 			if (this.restrictFocusHandle_) {
 				this.restrictFocusHandle_.removeListener();
+				this.restrictFocusHandle_ = null;
 			}
 		};
 
@@ -15717,27 +16453,27 @@ babelHelpers;
 	var TooltipBase = function (_Component) {
 		babelHelpers.inherits(TooltipBase, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function TooltipBase(opt_config) {
+		function TooltipBase() {
 			babelHelpers.classCallCheck(this, TooltipBase);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new EventHandler();
-			return _this;
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
 
 		/**
    * @inheritDoc
    */
 
-
 		TooltipBase.prototype.attached = function attached() {
 			this.align();
 			this.syncTriggerEvents(this.triggerEvents);
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		TooltipBase.prototype.created = function created() {
+			this.eventHandler_ = new EventHandler();
 		};
 
 		/**
@@ -16045,10 +16781,14 @@ babelHelpers;
 
     goog.module('Tooltip.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -16204,10 +16944,14 @@ babelHelpers;
 
     goog.module('Popover.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -16400,7 +17144,9 @@ babelHelpers;
 
     goog.module('ProgressBar.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
@@ -16586,6 +17332,296 @@ babelHelpers;
 	Soy.register(ProgressBar, templates);
 
 	this.metal.ProgressBar = ProgressBar;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var Soy = this.metal.Soy;
+
+  var templates;
+  goog.loadModule(function (exports) {
+
+    // This file was automatically generated from Rating.soy.
+    // Please don't edit this file by hand.
+
+    /**
+     * @fileoverview Templates in namespace Rating.
+     * @public
+     */
+
+    goog.module('Rating.incrementaldom');
+
+    /** @suppress {extraRequire} */
+    var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
+    var soydata = goog.require('soydata');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    var IncrementalDom = goog.require('incrementaldom');
+    var ie_open = IncrementalDom.elementOpen;
+    var ie_close = IncrementalDom.elementClose;
+    var ie_void = IncrementalDom.elementVoid;
+    var ie_open_start = IncrementalDom.elementOpenStart;
+    var ie_open_end = IncrementalDom.elementOpenEnd;
+    var itext = IncrementalDom.text;
+    var iattr = IncrementalDom.attr;
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render(opt_data, opt_ignored, opt_ijData) {
+      ie_open('div', null, null, 'aria-valuemin', opt_data.options[0].value, 'aria-valuemax', opt_data.options[opt_data.options.length - 1].value, 'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '', 'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '', 'class', 'rating');
+      if (opt_data.label) {
+        ie_open('label', null, null, 'class', 'rate-label');
+        itext((goog.asserts.assert(opt_data.label != null), opt_data.label));
+        ie_close('label');
+      }
+      ie_open('div', null, null, 'class', 'rating-items');
+      var optionLimit18 = opt_data.options.length;
+      for (var option18 = 0; option18 < optionLimit18; option18++) {
+        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'title', opt_data.options[option18].title, 'type', 'button');
+      }
+      ie_close('div');
+      ie_open('input', null, null, 'type', 'hidden', 'aria-hidden', 'true', 'name', opt_data.inputHiddenName, 'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
+      ie_close('input');
+      ie_close('div');
+    }
+    exports.render = $render;
+    if (goog.DEBUG) {
+      $render.soyTemplateName = 'Rating.render';
+    }
+
+    exports.render.params = ["label", "cssClasses", "disabled", "inputHiddenName", "options", "value"];
+    templates = exports;
+    return exports;
+  });
+
+  var Rating = function (_Component) {
+    babelHelpers.inherits(Rating, _Component);
+
+    function Rating() {
+      babelHelpers.classCallCheck(this, Rating);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Rating;
+  }(Component);
+
+  Soy.register(Rating, templates);
+  this.metal.Rating = templates;
+  this.metalNamed.Rating = this.metalNamed.Rating || {};
+  this.metalNamed.Rating.Rating = Rating;
+  this.metalNamed.Rating.templates = templates;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+    var core = this.metal.metal;
+    var Component = this.metal.component;
+    var Soy = this.metal.Soy;
+    var templates = this.metal.Rating;
+
+    var Rating = function (_Component) {
+        babelHelpers.inherits(Rating, _Component);
+
+        function Rating() {
+            babelHelpers.classCallCheck(this, Rating);
+            return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+        }
+
+        /**
+         * @inheritDoc
+         */
+
+        Rating.prototype.attached = function attached() {
+            this.delegate('mouseover', '.rating-item', this.handleMouseOverEvent.bind(this));
+            this.delegate('click', '.rating-item', this.handleClickEvent.bind(this));
+            this.on('mouseleave', this.handleMouseLeaveEvent.bind(this));
+        };
+
+        /**
+         * @inheritDoc
+         */
+
+
+        Rating.prototype.created = function created() {
+            this.ratingClicked_ = this.value;
+        };
+
+        /**
+         * Handles click event
+         * @param {Event} event
+         * @protected
+         */
+
+
+        Rating.prototype.handleClickEvent = function handleClickEvent(event) {
+            if (!this.disabled) {
+                var index = parseInt(event.delegateTarget.getAttribute('data-index'), 10);
+
+                if (index === this.ratingClicked_ && this.canReset) {
+                    this.reset();
+                } else {
+                    this.value = index;
+                }
+
+                this.ratingClicked_ = this.value;
+            }
+        };
+
+        /**
+         * Handles mouseleave event
+         * @protected
+         */
+
+
+        Rating.prototype.handleMouseLeaveEvent = function handleMouseLeaveEvent() {
+            this.setPreviousRate_();
+        };
+
+        /**
+         * Handles mouseover event
+         * @param {event} event
+         * @protected
+         */
+
+
+        Rating.prototype.handleMouseOverEvent = function handleMouseOverEvent(event) {
+            if (!this.disabled) {
+                var index = Number.parseInt(event.delegateTarget.getAttribute('data-index'), 10);
+
+                this.value = index;
+            }
+        };
+
+        /**
+         * Reset rating attributes to its initial value
+         * @protected
+         */
+
+
+        Rating.prototype.reset = function reset() {
+            this.value = -1;
+            this.ratingClicked_ = -1;
+        };
+
+        /**
+         * Set value attribute with the previous rating selected
+         * @protected
+         */
+
+
+        Rating.prototype.setPreviousRate_ = function setPreviousRate_() {
+            this.value = this.ratingClicked_;
+        };
+
+        return Rating;
+    }(Component);
+
+    Rating.STATE = {
+
+        /**
+         * Flag indicating if this component can be reset or not
+         * @type {boolean}
+         * @default true
+         */
+        canReset: {
+            value: true,
+            validator: core.isBoolean
+        },
+
+        /**
+         * Optional CSS classes to be added to the inner rating element.
+         * @type {string}
+         */
+        cssClasses: {
+            value: {
+                off: 'glyphicon glyphicon-star-empty',
+                on: 'glyphicon glyphicon-star'
+            }
+        },
+
+        /**
+         * Block or unblock rating functionality.
+         * @type {?boolean}
+         * @default false
+         */
+        disabled: {
+            value: false,
+            validator: core.isBoolean
+        },
+
+        /**
+         * Name of the hidden input. It can be used to send
+         * current option value as a form data.
+         *
+         * @attribute inputHiddenName
+         * @type {string}
+         * @default 'rate'
+         */
+        inputHiddenName: {
+            value: 'rate',
+            validator: core.isString
+        },
+
+        /**
+         * Label to be displayed with the Rating elements.
+         *
+         * @attribute label
+         * @type {string}
+         * @default ''
+         */
+        label: {
+            value: '',
+            validator: core.isString
+        },
+
+        /**
+         * List of rate options.
+         * @type {array}
+         */
+        options: {
+            validator: Array.isArray,
+            value: [{
+                value: 1,
+                title: ''
+            }, {
+                value: 2,
+                title: ''
+            }, {
+                value: 3,
+                title: ''
+            }, {
+                value: 4,
+                title: ''
+            }, {
+                value: 5,
+                title: ''
+            }]
+        },
+
+        /**
+         * Rating current index value.
+         * @type {?number}
+         * @default null
+         */
+        value: {
+            validator: core.isNumber,
+            value: -1
+        }
+    };
+    Soy.register(Rating, templates);
+
+    this.metal.Rating = Rating;
 }).call(this);
 'use strict';
 
@@ -16936,10 +17972,14 @@ babelHelpers;
 
     goog.module('Select.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     var IncrementalDom = goog.require('incrementaldom');
@@ -18905,7 +19945,9 @@ babelHelpers;
 
     goog.module('Slider.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
@@ -19193,7 +20235,9 @@ babelHelpers;
 
     goog.module('Switcher.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
@@ -19515,7 +20559,9 @@ babelHelpers;
 
     goog.module('Treeview.incrementaldom');
 
+    /** @suppress {extraRequire} */
     var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');

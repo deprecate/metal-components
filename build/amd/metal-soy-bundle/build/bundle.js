@@ -4296,6 +4296,11 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
         goog.module('soydata');
         return soydata;
       });
+
+      goog.loadModule(function () {
+        goog.module('soy.asserts');
+        return soy;
+      });
     })();
 
     /* jshint ignore:end */

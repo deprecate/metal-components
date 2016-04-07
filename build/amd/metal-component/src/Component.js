@@ -54,10 +54,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
    * Constructor function for `Component`.
    * @param {Object=} opt_config An object with the initial values for this
    *     component's state.
+   * @param {boolean|string|Element=} opt_parentElement The element where the
+   *     component should be rendered. Can be given as a selector or an element.
+   *     If `false` is passed, the component won't be rendered automatically
+   *     after created.
    * @constructor
    */
 
-		function Component(opt_config) {
+		function Component(opt_config, opt_parentElement) {
 			_classCallCheck(this, Component);
 
 			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
@@ -123,7 +127,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 			_this.renderer_ = new _this.constructor.RENDERER_MERGED(_this);
 
-			_this.created_();
+			_this.on('stateChanged', _this.handleStateChanged_);
+			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
+			_this.on('eventsChanged', _this.onEventsChanged_);
+			_this.addListenersFromObj_(_this.events);
+
+			_this.created();
+			if (opt_parentElement !== false) {
+				_this.render_(opt_parentElement);
+			}
+			_this.on('elementChanged', _this.onElementChanged_);
 			return _this;
 		}
 
@@ -172,23 +185,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 		Component.prototype.attached = function attached() {};
 
-		Component.prototype.created_ = function created_() {
-			this.on('stateChanged', this.handleStateChanged_);
-			this.newListenerHandle_ = this.on('newListener', this.handleNewListener_);
-			this.on('eventsChanged', this.onEventsChanged_);
-			this.addListenersFromObj_(this.events);
-		};
-
 		Component.prototype.addSubComponent = function addSubComponent(key, componentNameOrCtor, opt_data) {
 			if (!this.components[key]) {
 				var ConstructorFn = componentNameOrCtor;
 				if (_metal.core.isString(ConstructorFn)) {
 					ConstructorFn = _ComponentRegistry2.default.getConstructor(componentNameOrCtor);
 				}
-				this.components[key] = new ConstructorFn(opt_data);
+				this.components[key] = new ConstructorFn(opt_data, false);
 			}
 			return this.components[key];
 		};
+
+		Component.prototype.created = function created() {};
 
 		Component.prototype.delegate = function delegate(eventName, selector, callback) {
 			return this.on('delegate:' + eventName + ':' + selector, callback);
@@ -307,6 +315,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 				return;
 			}
 
+			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
 			this.addElementClasses_();
 			this.syncVisible(this.visible);
@@ -317,25 +326,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			this.addListenersFromObj_(event.newVal);
 		};
 
-		Component.prototype.render = function render(opt_parentElement, opt_siblingElement, opt_skipRender) {
-			if (this.wasRendered) {
-				throw new Error(Component.Error.ALREADY_RENDERED);
-			}
-
+		Component.prototype.render_ = function render_(opt_parentElement, opt_skipRender) {
 			if (!opt_skipRender) {
 				this.emit('render');
 			}
 			this.setUpProxy_();
 			this.syncState_();
-			if (opt_parentElement !== false) {
-				this.attach(opt_parentElement, opt_siblingElement);
-			}
+			this.attach(opt_parentElement);
 			this.wasRendered = true;
-			return this;
 		};
 
 		Component.prototype.renderAsSubComponent = function renderAsSubComponent() {
-			this.render(null, null, true);
+			this.render_(null, true);
 		};
 
 		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
@@ -351,6 +353,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 		};
 
 		Component.prototype.setUpProxy_ = function setUpProxy_() {
+			if (this.elementEventProxy_) {
+				return;
+			}
+
 			var proxy = new _dom.DomEventEmitterProxy(this.element, this);
 			this.elementEventProxy_ = proxy;
 
@@ -359,8 +365,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 			this.newListenerHandle_.removeListener();
 			this.newListenerHandle_ = null;
-
-			this.on('elementChanged', this.onElementChanged_);
 		};
 
 		Component.prototype.syncState_ = function syncState_() {
@@ -471,12 +475,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
   * @enum {string}
   */
 	Component.Error = {
-		/**
-   * Error when the component is already rendered and another render attempt
-   * is made.
-   */
-		ALREADY_RENDERED: 'Component already rendered.',
-
 		/**
    * Error when the component is attached but its element hasn't been created yet.
    */

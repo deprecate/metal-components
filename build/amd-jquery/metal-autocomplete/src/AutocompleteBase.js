@@ -54,24 +54,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 	var AutocompleteBase = function (_Component) {
 		_inherits(AutocompleteBase, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function AutocompleteBase(opt_config) {
+		function AutocompleteBase() {
 			_classCallCheck(this, AutocompleteBase);
 
-			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new _events.EventHandler();
-			_this.on('select', _this.select);
-			return _this;
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
 
-		/**
-   * @inheritDoc
-   */
-
+		AutocompleteBase.prototype.created = function created() {
+			this.eventHandler_ = new _events.EventHandler();
+			this.on('select', this.select);
+		};
 
 		AutocompleteBase.prototype.attached = function attached() {
 			if (this.inputElement) {

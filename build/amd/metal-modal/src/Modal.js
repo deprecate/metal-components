@@ -54,23 +54,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 	var Modal = function (_Component) {
 		_inherits(Modal, _Component);
 
-		/**
-   * @inheritDoc
-   */
-
-		function Modal(opt_config) {
+		function Modal() {
 			_classCallCheck(this, Modal);
 
-			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
-
-			_this.eventHandler_ = new _events.EventHandler();
-			return _this;
+			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
 		}
 
-		/**
-   * @inheritDoc
-   */
-
+		Modal.prototype.created = function created() {
+			this.eventHandler_ = new _events.EventHandler();
+		};
 
 		Modal.prototype.attached = function attached() {
 			this.autoFocus_(this.autoFocus);
@@ -113,7 +105,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		};
 
 		Modal.prototype.restrictFocus_ = function restrictFocus_() {
-			this.restrictFocusHandle_ = _dom2.default.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+			if (!this.restrictFocusHandle_) {
+				this.restrictFocusHandle_ = _dom2.default.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+			}
 		};
 
 		Modal.prototype.shiftFocusBack_ = function shiftFocusBack_() {
@@ -144,7 +138,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 			this.element.style.display = visible ? 'block' : '';
 			this.syncOverlay(this.overlay);
 			if (this.visible) {
-				this.lastFocusedElement_ = document.activeElement;
+				this.lastFocusedElement_ = this.lastFocusedElement_ || document.activeElement;
 				this.autoFocus_(this.autoFocus);
 				this.restrictFocus_();
 			} else {
@@ -156,6 +150,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		Modal.prototype.unrestrictFocus_ = function unrestrictFocus_() {
 			if (this.restrictFocusHandle_) {
 				this.restrictFocusHandle_.removeListener();
+				this.restrictFocusHandle_ = null;
 			}
 		};
 
