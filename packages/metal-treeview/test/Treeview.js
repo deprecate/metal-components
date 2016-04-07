@@ -14,7 +14,7 @@ describe('Treeview', function() {
 	});
 
 	it('should render no nodes by default', function() {
-		treeview = new Treeview().render();
+		treeview = new Treeview();
 
 		var nodesElement = treeview.element.querySelector('.treeview-nodes');
 		assert.strictEqual(0, nodesElement.childNodes.length);
@@ -30,7 +30,7 @@ describe('Treeview', function() {
 					name: 'Node 2'
 				}
 			]
-		}).render();
+		});
 
 		var nodesElement = treeview.element.querySelector('.treeview-nodes');
 		assert.strictEqual(2, nodesElement.childNodes.length);
@@ -56,7 +56,7 @@ describe('Treeview', function() {
 					name: 'Node 2'
 				}
 			]
-		}).render();
+		});
 
 		var nodesElement = treeview.element.querySelector('.treeview-nodes');
 		var childrenNodes = nodesElement.childNodes;
@@ -96,7 +96,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodesElement = treeview.element.querySelector('.treeview-nodes');
 		assert.ok(dom.hasClass(nodesElement.childNodes[0].childNodes[0], 'expanded'));
@@ -115,7 +115,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
 		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
@@ -146,7 +146,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
 		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
@@ -179,7 +179,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
 		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
@@ -212,7 +212,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
 		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
@@ -240,7 +240,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeElement = treeview.element.querySelectorAll('.treeview-node')[1];
 		var nodeMainElement = nodeElement.querySelector('.treeview-node-main');
@@ -264,7 +264,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeElement = treeview.element.querySelector('.treeview-node');
 		var nodeMainElement = nodeElement.querySelector('.treeview-node-main');
@@ -288,7 +288,7 @@ describe('Treeview', function() {
 					]
 				}
 			]
-		}).render();
+		});
 
 		var nodeElement = treeview.element.querySelector('.treeview-node');
 		treeview.nodes = [];
@@ -321,7 +321,7 @@ describe('Treeview', function() {
 
 		treeview = new Treeview(object.mixin({
 			element: element
-		}, data)).render();
+		}, data));
 		assert.strictEqual(soyRenderedContent, treeview.element.innerHTML);
 	});
 });
