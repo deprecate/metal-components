@@ -16,7 +16,6 @@ describe('Select', function() {
 
 	it('should set "items" to an empty array by default', function() {
 		select = new Select();
-		select.render();
 		assert.deepEqual([], select.items);
 		assert.strictEqual(-1, select.selectedIndex);
 	});
@@ -24,7 +23,7 @@ describe('Select', function() {
 	it('should render items inside dropdown', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		var items = select.element.querySelectorAll('.dropdown-menu li');
 		assert.strictEqual(3, items.length);
@@ -37,7 +36,7 @@ describe('Select', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third'],
 			label: 'Foo'
-		}).render();
+		});
 
 		assert.ok(dom.hasClass(select.element.querySelector('button'), 'btn'));
 		assert.ok(dom.hasClass(select.element.querySelector('button'), 'btn-default'));
@@ -48,7 +47,7 @@ describe('Select', function() {
 			buttonClass: 'myClass',
 			items: ['First', 'Second', 'Third'],
 			label: 'Foo'
-		}).render();
+		});
 
 		assert.ok(dom.hasClass(select.element.querySelector('button'), 'myClass'));
 	});
@@ -57,7 +56,7 @@ describe('Select', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third'],
 			label: 'Foo'
-		}).render();
+		});
 
 		assert.strictEqual('Foo ', select.element.querySelector('button').textContent);
 	});
@@ -65,7 +64,7 @@ describe('Select', function() {
 	it('should render first item inside button if no label is given', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		assert.strictEqual('First ', select.element.querySelector('button').textContent);
 	});
@@ -73,7 +72,7 @@ describe('Select', function() {
 	it('should automatically select first item if no label is given', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		assert.strictEqual(0, select.selectedIndex);
 	});
@@ -83,7 +82,7 @@ describe('Select', function() {
 			items: ['First', 'Second', 'Third'],
 			label: 'Foo',
 			selectedIndex: 1
-		}).render();
+		});
 
 		assert.strictEqual('Second ', select.element.querySelector('button').textContent);
 	});
@@ -94,7 +93,7 @@ describe('Select', function() {
 			values: ['first', 'second'],
 			label: 'Foo',
 			selectedIndex: 1
-		}).render();
+		});
 
 		assert.strictEqual('second', select.element.querySelector('input[type="hidden"]').value);
 	});
@@ -103,7 +102,7 @@ describe('Select', function() {
 		select = new Select({
 			hiddenInputName: 'order',
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		assert.strictEqual('order', select.element.querySelector('input[type="hidden"]').getAttribute('name'));
 	});
@@ -111,7 +110,7 @@ describe('Select', function() {
 	it('should create dropdown instance', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		assert.ok(select.components.dropdown instanceof Dropdown);
 		assert.ok(select.components.dropdown, select.getDropdown());
@@ -120,7 +119,7 @@ describe('Select', function() {
 	it('should open/close dropdown when button is clicked', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		var dropdown = select.getDropdown();
 		assert.ok(!dropdown.expanded);
@@ -135,7 +134,7 @@ describe('Select', function() {
 	it('should update button text when item is selected', function(done) {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
 		select.components.dropdown.once('stateChanged', function() {
@@ -148,7 +147,7 @@ describe('Select', function() {
 		select = new Select({
 			items: ['first', 'second'],
 			values: ['first', 'second']
-		}).render();
+		});
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
 		select.components.dropdown.once('stateChanged', function() {
@@ -160,7 +159,7 @@ describe('Select', function() {
 	it('should update `selectedIndex` state when item is selected', function(done) {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
-		}).render();
+		});
 
 		dom.triggerEvent(select.element.querySelectorAll('li')[1], 'click');
 		select.components.dropdown.once('stateChanged', function() {
@@ -173,7 +172,7 @@ describe('Select', function() {
 		it('should close the dropdown when ESC key is pressed', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
 			dom.triggerEvent(select.element, 'keydown', {
@@ -185,7 +184,7 @@ describe('Select', function() {
 		it('should automatically open dropdown and focus first option if "ENTER" key is pressed on button', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
@@ -200,7 +199,7 @@ describe('Select', function() {
 		it('should automatically open dropdown and focus first option if "SPACE" key is pressed on button', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 32
@@ -215,7 +214,7 @@ describe('Select', function() {
 		it('should not automatically open dropdown if "ENTER" key is pressed on non button element', function() {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 
 			dom.triggerEvent(select.element, 'keydown', {
 				keyCode: 13
@@ -224,7 +223,7 @@ describe('Select', function() {
 		});
 
 		it('should not throw error when trying to automatically focus first option when there are no items', function(done) {
-			select = new Select().render();
+			select = new Select();
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 13
@@ -238,7 +237,7 @@ describe('Select', function() {
 		it('should focus next items when the down arrow key is pressed after dropdown is open via keyboard', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
@@ -266,7 +265,7 @@ describe('Select', function() {
 		it('should focus next items when the down arrow key is pressed after dropdown is not open via keyboard', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
@@ -287,7 +286,7 @@ describe('Select', function() {
 		it('should focus previous items when the up arrow key is pressed after dropdown is open via keyboard', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
@@ -315,7 +314,7 @@ describe('Select', function() {
 		it('should focus previous items when the up arrow key is pressed after dropdown is not open via keyboard', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
-			}).render();
+			});
 			var options = select.element.querySelectorAll('.select-option a');
 
 			dom.triggerEvent(select.element.querySelector('button'), 'click');
