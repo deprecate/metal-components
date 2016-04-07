@@ -14,7 +14,7 @@ describe('List', function() {
 	});
 
 	it('should render with empty items by default', function() {
-		list = new List().render();
+		list = new List();
 		assert.strictEqual(0, list.element.querySelectorAll('li').length);
 	});
 
@@ -39,7 +39,7 @@ describe('List', function() {
 					class: 'myImageClass'
 				}
 			}]
-		}).render();
+		});
 
 		var imgNode = list.element.querySelector('li img');
 		assert.ok(imgNode);
@@ -50,7 +50,7 @@ describe('List', function() {
 	it('should not render image tag if image was not specified', function() {
 		list = new List({
 			items: [{}]
-		}).render();
+		});
 
 		var imgNode = list.element.querySelector('li img');
 		assert.ok(!imgNode);
@@ -63,7 +63,7 @@ describe('List', function() {
 			}, {
 				textPrimary: '<a href="#">Item 2</a>'
 			}]
-		}).render();
+		});
 
 		var contents = list.element.querySelectorAll('li .list-text-primary');
 		assert.strictEqual('Item 1', contents[0].textContent);
@@ -78,7 +78,7 @@ describe('List', function() {
 			}, {
 				textSecondary: '<span>Help 2</span>'
 			}]
-		}).render();
+		});
 
 		var helpNodes = list.element.querySelectorAll('li .list-text-secondary');
 		assert.strictEqual('Help 1', helpNodes[0].textContent);
@@ -93,7 +93,7 @@ describe('List', function() {
 			}, {
 				icons: ['icon2', 'icon3']
 			}]
-		}).render();
+		});
 
 		var iconNodes = list.element.querySelectorAll('li');
 		assert.ok(iconNodes[0].querySelector('.icon1'));
@@ -109,7 +109,7 @@ describe('List', function() {
 			}, {
 				textPrimary: 'Item 2'
 			}]
-		}).render();
+		});
 
 		list.items = [{
 			textPrimary: 'New Item 1'
@@ -135,7 +135,7 @@ describe('List', function() {
 			}, {
 				textPrimary: 'Item 3'
 			}]
-		}).render();
+		});
 
 		var elements = list.element.querySelectorAll('li');
 
