@@ -14,7 +14,7 @@ describe('Modal', function() {
 	});
 
 	it('should render with default state', function() {
-		modal = new Modal().render();
+		modal = new Modal();
 		var header = modal.element.querySelector('.modal-header');
 		var body = modal.element.querySelector('.modal-body');
 		var footer = modal.element.querySelector('.modal-footer');
@@ -27,7 +27,7 @@ describe('Modal', function() {
 	it('should render with header only', function() {
 		modal = new Modal({
 			header: 'header'
-		}).render();
+		});
 		var headerElement = modal.element.querySelector('.modal-header');
 		var body = modal.element.querySelector('.modal-body').innerHTML;
 		var footer = modal.element.querySelector('.modal-footer').innerHTML;
@@ -40,7 +40,7 @@ describe('Modal', function() {
 	it('should render with body only', function() {
 		modal = new Modal({
 			body: 'body'
-		}).render();
+		});
 		var header = modal.element.querySelector('.modal-header').innerHTML;
 		var body = modal.element.querySelector('.modal-body').innerHTML;
 		var footer = modal.element.querySelector('.modal-footer').innerHTML;
@@ -52,7 +52,7 @@ describe('Modal', function() {
 	it('should render with footer only', function() {
 		modal = new Modal({
 			footer: 'footer'
-		}).render();
+		});
 		var header = modal.element.querySelector('.modal-header').innerHTML;
 		var body = modal.element.querySelector('.modal-body').innerHTML;
 		var footer = modal.element.querySelector('.modal-footer').innerHTML;
@@ -62,7 +62,7 @@ describe('Modal', function() {
 	});
 
 	it('should cause dom repaint when body state changes', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.body = 'body';
 		async.nextTick(function() {
 			var body = modal.element.querySelector('.modal-body').innerHTML;
@@ -72,7 +72,7 @@ describe('Modal', function() {
 	});
 
 	it('should cause dom repaint when header state changes', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.header = 'header';
 		async.nextTick(function() {
 			var header = modal.element.querySelector('.modal-header');
@@ -83,7 +83,7 @@ describe('Modal', function() {
 	});
 
 	it('should cause dom repaint when footer state changes', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.footer = 'footer';
 		async.nextTick(function() {
 			var footer = modal.element.querySelector('.modal-footer').innerHTML;
@@ -93,7 +93,7 @@ describe('Modal', function() {
 	});
 
 	it('should cause dom repaint when visible state changes', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.visible = false;
 		async.nextTick(function() {
 			assert.strictEqual('', modal.element.style.display);
@@ -107,7 +107,7 @@ describe('Modal', function() {
 	});
 
 	it('should show and hide overlay when overlay state changes', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.overlay = false;
 		async.nextTick(function() {
 			assert.ok(!modal.overlayElement.parentNode);
@@ -122,7 +122,7 @@ describe('Modal', function() {
 	it('should close on clicking close icon', function(done) {
 		modal = new Modal({
 			header: 'header'
-		}).render();
+		});
 		dom.triggerEvent(modal.element.querySelector('.close'), 'click');
 		async.nextTick(function() {
 			assert.ok(!modal.visible);
@@ -131,7 +131,7 @@ describe('Modal', function() {
 	});
 
 	it('should close modal when press the escape key', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		dom.triggerEvent(document, 'keyup');
 		async.nextTick(function() {
 			assert.ok(modal.visible);
@@ -148,7 +148,7 @@ describe('Modal', function() {
 	it('should not close modal when press escape key and the hideOnEscape state is not true', function(done) {
 		modal = new Modal({
 			hideOnEscape: false
-		}).render();
+		});
 		dom.triggerEvent(document, 'keyup', {
 			keyCode: 27
 		});
@@ -159,7 +159,7 @@ describe('Modal', function() {
 	});
 
 	it('should close modal overlay when modal closes', function(done) {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.hide();
 		async.nextTick(function() {
 			assert.ok(!modal.overlayElement.parentNode);
@@ -170,7 +170,7 @@ describe('Modal', function() {
 	it('should only show modal overlay when modal is visible', function(done) {
 		modal = new Modal({
 			visible: false
-		}).render();
+		});
 		assert.ok(!modal.overlayElement.parentNode);
 		modal.visible = true;
 		async.nextTick(function() {
@@ -180,14 +180,14 @@ describe('Modal', function() {
 	});
 
 	it('should set the "role" HTML attribute to "dialog" by default', function() {
-		modal = new Modal().render();
+		modal = new Modal();
 		assert.strictEqual('dialog', modal.element.getAttribute('role'));
 	});
 
 	it('should set the "role" HTML attribute to value specified by the "role" state', function() {
 		modal = new Modal({
 			role: 'alertdialog'
-		}).render();
+		});
 		assert.strictEqual('alertdialog', modal.element.getAttribute('role'));
 	});
 
@@ -195,7 +195,7 @@ describe('Modal', function() {
 		it('should automatically focus close button', function() {
 			modal = new Modal({
 				header: 'My Header'
-			}).render();
+			});
 			assert.strictEqual(modal.element.querySelector('.close'), document.activeElement);
 		});
 
@@ -204,7 +204,7 @@ describe('Modal', function() {
 			modal = new Modal({
 				autoFocus: false,
 				header: 'My Header'
-			}).render();
+			});
 			assert.strictEqual(prevActiveElement, document.activeElement);
 		});
 
@@ -212,7 +212,7 @@ describe('Modal', function() {
 			modal = new Modal({
 				autoFocus: '.body-btn',
 				body: '<button class="body-btn">Body Button</button>'
-			}).render();
+			});
 			assert.strictEqual(modal.element.querySelector('.body-btn'), document.activeElement);
 		});
 
@@ -222,7 +222,7 @@ describe('Modal', function() {
 				autoFocus: '.body-btn',
 				body: '<button class="body-btn">Body Button</button>',
 				visible: false
-			}).render();
+			});
 			assert.strictEqual(prevActiveElement, document.activeElement);
 		});
 
@@ -233,7 +233,7 @@ describe('Modal', function() {
 				autoFocus: '.body-btn',
 				body: '<button class="body-btn">Body Button</button>',
 				visible: false
-			}).render();
+			});
 
 			modal.visible = true;
 			modal.once('stateChanged', function() {
@@ -253,7 +253,7 @@ describe('Modal', function() {
 			modal = new Modal({
 				header: 'My Header',
 				visible: false
-			}).render();
+			});
 
 			modal.visible = true;
 			modal.once('stateChanged', function() {
@@ -281,7 +281,7 @@ describe('Modal', function() {
 		});
 
 		it('should not allow focusing elements outside the modal while it\'s visible', function() {
-			modal = new Modal().render();
+			modal = new Modal();
 
 			// Focus and call the `focus` event manually, since the test browser's window may not have
 			// focus at the moment, and it's not guaranteed that the event will fire autimatically.
@@ -294,7 +294,7 @@ describe('Modal', function() {
 		it('should not restrict focusing outside modal if not visible', function() {
 			modal = new Modal({
 				visible: false
-			}).render();
+			});
 
 			outsideElement.focus();
 			dom.triggerEvent(outsideElement, 'focus');
@@ -302,7 +302,7 @@ describe('Modal', function() {
 		});
 
 		it('should restrict/unrestrict focusing outside modal as visibility changes', function(done) {
-			modal = new Modal().render();
+			modal = new Modal();
 
 			modal.visible = false;
 			modal.once('stateChanged', function() {
@@ -324,7 +324,7 @@ describe('Modal', function() {
 		it('should not restrict focusing outside modal if "overlay" is false', function() {
 			modal = new Modal({
 				overlay: false
-			}).render();
+			});
 
 			outsideElement.focus();
 			dom.triggerEvent(outsideElement, 'focus');
@@ -334,7 +334,7 @@ describe('Modal', function() {
 		it('should not restrict focusing inside modal', function() {
 			modal = new Modal({
 				body: '<button class="body-btn">Body Button</button>',
-			}).render();
+			});
 
 			var element = modal.element.querySelector('.body-btn');
 			element.focus();
@@ -364,7 +364,7 @@ describe('Modal', function() {
 			body: 'body',
 			footer: 'footer',
 			visible: false
-		}).render();
+		});
 
 		assert.strictEqual(modal.element.outerHTML, outerHTML);
 	});
@@ -387,7 +387,7 @@ describe('Modal', function() {
 			body: 'body',
 			footer: 'footer',
 			visible: true
-		}).render();
+		});
 
 		assert.ok(!dom.hasClass(modal.element, 'hidden'));
 	});
@@ -407,7 +407,7 @@ describe('Modal', function() {
 	});
 
 	it('should set "visible" state to false when "hide" method is called', function() {
-		modal = new Modal().render();
+		modal = new Modal();
 		modal.hide();
 		assert.ok(!modal.visible);
 	});
@@ -415,7 +415,7 @@ describe('Modal', function() {
 	it('should set "visible" state to true when "show" method is called', function() {
 		modal = new Modal({
 			visible: false
-		}).render();
+		});
 		modal.show();
 		assert.ok(modal.visible);
 	});

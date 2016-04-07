@@ -14,8 +14,7 @@ class Modal extends Component {
 	/**
 	 * @inheritDoc
 	 */
-	constructor(opt_config) {
-		super(opt_config);
+	created() {
 		this.eventHandler_ = new EventHandler();
 	}
 
@@ -93,7 +92,9 @@ class Modal extends Component {
 	 * @protected
 	 */
 	restrictFocus_() {
-		this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+		if (!this.restrictFocusHandle_) {
+			this.restrictFocusHandle_ = dom.on(document, 'focus', this.handleDocumentFocus_.bind(this), true);
+		}
 	}
 
 	/**
@@ -160,6 +161,7 @@ class Modal extends Component {
 	unrestrictFocus_() {
 		if (this.restrictFocusHandle_) {
 			this.restrictFocusHandle_.removeListener();
+			this.restrictFocusHandle_ = null;
 		}
 	}
 

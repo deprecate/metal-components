@@ -11,14 +11,15 @@
 </head>
 <body>
 	<h1>Modal</h1>
-	<div class="container"></div>
+	<div class="modal"></div>
 	<button type="button" class="btn btn-primary openModal">Open Modal</button>
 	<script type="text/javascript">
 		window.modal = new metal.Modal({
+			element: '.modal',
 			header: '<h4 class="modal-title">Modal header</h4>',
 			body: 'One fine body...',
 			footer: '<button type="button" class="btn btn-primary">OK</button>'
-		}).render('.container');
+		});
 
 		document.querySelector('.openModal').addEventListener('click', function() {
 			modal.show();
