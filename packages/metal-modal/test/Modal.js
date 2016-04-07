@@ -280,7 +280,9 @@ describe('Modal', function() {
 			modal.visible = true;
 			modal.once('stateChanged', function() {
 				assert.notStrictEqual(element, document.activeElement);
+				var oldElement = modal.element;
 				modal.element = document.createElement('div');
+				dom.exitDocument(oldElement);
 				modal.once('stateChanged', function() {
 					assert.notStrictEqual(element, document.activeElement);
 					modal.visible = false;
