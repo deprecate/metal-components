@@ -266,6 +266,32 @@ describe('Modal', function() {
 				});
 			});
 		});
+
+		it('should refocus the previously active element when modal is hidden and element changes', function(done) {
+			var element = document.createElement('button');
+			dom.enterDocument(element);
+			element.focus();
+
+			modal = new Modal({
+				header: 'My Header',
+				visible: false
+			});
+
+			modal.visible = true;
+			modal.once('stateChanged', function() {
+				assert.notStrictEqual(element, document.activeElement);
+				modal.element = document.createElement('div');
+				modal.once('stateChanged', function() {
+					assert.notStrictEqual(element, document.activeElement);
+					modal.visible = false;
+					modal.once('stateChanged', function() {
+						assert.strictEqual(element, document.activeElement);
+						dom.exitDocument(element);
+						done();
+					});
+				});
+			});
+		});
 	});
 
 	describe('Restrict Focus', function() {

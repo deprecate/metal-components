@@ -145,7 +145,7 @@ class Modal extends Component {
 		this.element.style.display = visible ? 'block' : '';
 		this.syncOverlay(this.overlay);
 		if (this.visible) {
-			this.lastFocusedElement_ = document.activeElement;
+			this.lastFocusedElement_ = this.lastFocusedElement_ || document.activeElement;
 			this.autoFocus_(this.autoFocus);
 			this.restrictFocus_();
 		} else {
