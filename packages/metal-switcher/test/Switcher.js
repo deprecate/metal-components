@@ -16,19 +16,19 @@ describe('Switcher', function() {
 	it('should switcher turn on when checked state is true', function() {
 		switcher = new Switcher({
 			checked: true
-		}).render();
+		});
 		assert.ok(dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
 	it('should switcher turn off when checked state is false', function() {
 		switcher = new Switcher({
 			checked: false
-		}).render();
+		});
 		assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
 	it('should switcher toggle on click', function(done) {
-		switcher = new Switcher().render();
+		switcher = new Switcher();
 		dom.triggerEvent(switcher.element, 'click');
 		async.nextTick(function() {
 			assert.ok(dom.hasClass(switcher.element, 'switcher-on'));
@@ -53,7 +53,7 @@ describe('Switcher', function() {
 		switcher = new Switcher({
 			checked: true,
 			element: element.childNodes[0]
-		}).render();
+		});
 
 		assert.strictEqual(switcher.element.outerHTML, outerHTML);
 	});
