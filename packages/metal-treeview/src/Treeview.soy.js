@@ -41,8 +41,7 @@ var iattr = IncrementalDom.attr;
  */
 function $render(opt_data, opt_ignored, opt_ijData) {
   ie_open('div', null, null,
-      'id', opt_data.id,
-      'class', 'treeview component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
+      'class', 'treeview' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
       'role', 'tree');
     $nodes(opt_data, null, opt_ijData);
   ie_close('div');
@@ -64,12 +63,12 @@ function $nodes(opt_data, opt_ignored, opt_ijData) {
   if (opt_data.nodes) {
     ie_open('ul', null, null,
         'class', 'treeview-nodes');
-      var nodeList19 = opt_data.nodes;
-      var nodeListLen19 = nodeList19.length;
-      for (var nodeIndex19 = 0; nodeIndex19 < nodeListLen19; nodeIndex19++) {
-        var nodeData19 = nodeList19[nodeIndex19];
-        var index__soy15 = nodeIndex19;
-        $node({node: nodeData19, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy15 : index__soy15}, null, opt_ijData);
+      var nodeList17 = opt_data.nodes;
+      var nodeListLen17 = nodeList17.length;
+      for (var nodeIndex17 = 0; nodeIndex17 < nodeListLen17; nodeIndex17++) {
+        var nodeData17 = nodeList17[nodeIndex17];
+        var index__soy13 = nodeIndex17;
+        $node({node: nodeData17, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy13 : index__soy13}, null, opt_ijData);
       }
     ie_close('ul');
   }
@@ -120,7 +119,7 @@ if (goog.DEBUG) {
   $node.soyTemplateName = 'Treeview.node';
 }
 
-exports.render.params = ["id","elementClasses","nodes"];
+exports.render.params = ["elementClasses","nodes"];
 exports.nodes.params = ["nodes","parentPath"];
 exports.node.params = ["node","path"];
 templates = exports;

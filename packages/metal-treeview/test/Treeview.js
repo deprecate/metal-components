@@ -300,7 +300,6 @@ describe('Treeview', function() {
 
 	it('should decorate content rendered via soy without repainting', function() {
 		var data = {
-			id: 'decorated',
 			nodes: [
 				{
 					name: 'Node 1',
@@ -315,7 +314,7 @@ describe('Treeview', function() {
 		var element = document.createElement('div');
 		IncrementalDOM.patch(element, () => Treeview.TEMPLATE(data));
 
-		element = element.querySelector('#decorated');
+		element = element.childNodes[0];
 		dom.enterDocument(element);
 		var soyRenderedContent = element.innerHTML;
 
