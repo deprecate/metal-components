@@ -168,13 +168,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		/**
    * Defines the currently selected value on the slider.
    * @type {number}
-   * @default 50
+   * @default 0
    */
 		value: {
 			validator: function validator(val) {
 				return _metal2.default.isNumber(val) && this.min <= val && val <= this.max;
 			},
-			value: 80
+			value: 0
 		}
 	};
 

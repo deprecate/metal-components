@@ -84,15 +84,20 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'slider component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      ie_open('input', null, null, 'name', opt_data.inputName ? opt_data.inputName : opt_data.id, 'type', 'hidden', 'value', opt_data.value);
+      var $$temp;
+      opt_data = opt_data || {};
+      var maxNumber__soy3 = ($$temp = opt_data.max) == null ? 100 : $$temp;
+      var minNumber__soy4 = ($$temp = opt_data.min) == null ? 0 : $$temp;
+      var valueNumber__soy5 = ($$temp = opt_data.value) == null ? 0 : $$temp;
+      ie_open('div', null, null, 'class', 'slider ' + (($$temp = opt_data.elementClasses) == null ? '' : $$temp));
+      ie_open('input', null, null, 'name', ($$temp = opt_data.inputName) == null ? '' : $$temp, 'type', 'hidden', 'value', valueNumber__soy5);
       ie_close('input');
       ie_open('span');
-      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      itext((goog.asserts.assert(valueNumber__soy5 != null), valueNumber__soy5));
       ie_close('span');
-      var percentage__soy14 = 100 * (opt_data.value - opt_data.min) / (opt_data.max - opt_data.min) + '%';
+      var percentage__soy15 = 100 * (valueNumber__soy5 - minNumber__soy4) / (maxNumber__soy3 - minNumber__soy4) + '%';
       ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
-      ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy14);
+      ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy15);
       ie_open('div', null, null, 'class', 'rail-handle');
       ie_void('div', null, null, 'class', 'handle', 'tabindex', '0');
       ie_close('div');
@@ -104,7 +109,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'Slider.render';
     }
 
-    exports.render.params = ["elementClasses", "id", "inputName", "max", "min", "value"];
+    exports.render.params = ["elementClasses", "inputName", "max", "min", "value"];
     exports.templates = templates = exports;
     return exports;
   });
