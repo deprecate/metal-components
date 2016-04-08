@@ -158,13 +158,13 @@ Slider.STATE = {
 	/**
 	 * Defines the currently selected value on the slider.
 	 * @type {number}
-	 * @default 50
+	 * @default 0
 	 */
 	value: {
 		validator: function(val) {
 			return core.isNumber(val) && this.min <= val && val <= this.max;
 		},
-		value: 80
+		value: 0
 	}
 };
 

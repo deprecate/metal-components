@@ -14,7 +14,12 @@
 	<div id="sliderWrapper" style="width: 600px;"></div>
 
 	<script type="text/javascript">
-		window.slider = new metal.Slider({}, '#sliderWrapper');
+		window.slider = new metal.Slider(
+			{
+				value: 80
+			},
+			'#sliderWrapper'
+		);
 	</script>
 </body>
 </html>

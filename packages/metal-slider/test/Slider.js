@@ -135,4 +135,11 @@ describe('Slider', function() {
 			done();
 		});
 	});
+
+	it('should allow calling the soy template without params', function() {
+		var element = document.createElement('div');
+		IncrementalDOM.patch(element, Slider.TEMPLATE);
+		assert.strictEqual('0%', element.querySelector('.rail-active').style.width);
+		assert.strictEqual('0', element.textContent);
+	});
 });
