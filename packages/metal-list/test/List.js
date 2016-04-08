@@ -126,6 +126,23 @@ describe('List', function() {
 		});
 	});
 
+	it('should render the specified icons html', function() {
+		list = new List({
+			items: [
+				{
+					iconsHtml: [
+						'<span class="icon1"></span>',
+						'<span class="icon2"></span>'
+					]
+				}
+			]
+		});
+		var icons = list.element.querySelectorAll('li span');
+		assert.strictEqual(2, icons.length);
+		assert.ok(dom.hasClass(icons[0], 'icon1'));
+		assert.ok(dom.hasClass(icons[1], 'icon2'));
+	});
+
 	it('should fire an "itemSelected" event when item is selected', function() {
 		list = new List({
 			items: [{
