@@ -187,27 +187,27 @@ Modal.STATE = {
 	},
 
 	/**
-	 * Content to be placed inside modal body.
-	 * @type {string|SanitizedHtml}
+	 * Content to be placed inside modal body. Can be either an html string or
+	 * a function that calls incremental dom for rendeirng the body.
+	 * @type {string|function()}
 	 */
 	body: {
-		isHtml: true
 	},
 
 	/**
-	 * Content to be placed inside modal footer.
-	 * @type {string|SanitizedHtml}
+	 * Content to be placed inside modal footer. Can be either an html string or
+	 * a function that calls incremental dom for rendeirng the footer.
+	 * @type {string|function()}
 	 */
 	footer: {
-		isHtml: true
 	},
 
 	/**
-	 * Content to be placed inside modal header.
-	 * @type {string|SanitizedHtml}
+	 * Content to be placed inside modal header. Can be either an html string or
+	 * a function that calls incremental dom for rendeirng the header.
+	 * @type {string|function()}
 	 */
 	header: {
-		isHtml: true
 	},
 
 	/**

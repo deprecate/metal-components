@@ -14,10 +14,14 @@ goog.loadModule(function(exports) {
 
 goog.module('Modal.incrementaldom');
 
+/** @suppress {extraRequire} */
 var soy = goog.require('soy');
+/** @suppress {extraRequire} */
 var soydata = goog.require('soydata');
 /** @suppress {extraRequire} */
 goog.require('goog.asserts');
+/** @suppress {extraRequire} */
+goog.require('soy.asserts');
 /** @suppress {extraRequire} */
 goog.require('goog.i18n.bidi');
 var IncrementalDom = goog.require('incrementaldom');
@@ -101,6 +105,7 @@ if (goog.DEBUG) {
 }
 
 exports.render.params = ["body","elementClasses","footer","header","role"];
+exports.render.types = {"body":"html","elementClasses":"string","footer":"html","header":"html","role":"string"};
 templates = exports;
 return exports;
 
