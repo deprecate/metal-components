@@ -24,9 +24,11 @@ class Slider extends Component {
 		 */
 		this.drag_ = new Drag({
 			constrain: this.element.querySelector('.rail'),
-			handles: this.element.querySelector('.handle'),
-			sources: this.element.querySelector('.rail-handle')
+			container: this.element,
+			handles: '.handle',
+			sources: '.rail-handle'
 		});
+		this.on('elementChanged', this.handleElementChanged_);
 
 		this.attachDragEvents_();
 	}
@@ -46,6 +48,25 @@ class Slider extends Component {
 	disposeInternal() {
 		super.disposeInternal();
 		this.drag_.dispose();
+	}
+
+	/**
+	 * Returns the `Drag` instance being used.
+	 * @return {!Drag}
+	 */
+	getDrag() {
+		return this.drag_;
+	}
+
+	/**
+	 * Handles the `elementChanged` event. Updates the drag container to the new
+	 * element, and also updates the constrain element.
+	 * @param {!Object} data
+	 * @protected
+	 */
+	handleElementChanged_(data) {
+		this.drag_.container = data.newVal;
+		this.drag_.constrain = data.newVal.querySelector('.rail');
 	}
 
 	/**

@@ -24,7 +24,7 @@
     "metal": "^1.0.0-rc.1",
     "metal-component": "^1.0.0-rc.3",
     "metal-dom": "^1.0.0-rc.2",
-    "metal-drag-drop": "^1.0.0-rc.1",
+    "metal-drag-drop": "^1.0.0-rc.2",
     "metal-position": "^1.0.0-rc.1",
     "metal-soy": "^1.0.0-rc.4"
   },

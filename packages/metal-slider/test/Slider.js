@@ -86,6 +86,24 @@ describe('Slider', function() {
 		});
 	});
 
+	it('should update the drag container when element changes', function() {
+		slider = new Slider();
+		assert.strictEqual(slider.element, slider.getDrag().container);
+
+		slider.element = document.createElement('div');
+		assert.strictEqual(slider.element, slider.getDrag().container);
+	});
+
+	it('should update the drag constrain element when element changes', function() {
+		slider = new Slider();
+		assert.strictEqual(slider.element, slider.getDrag().container);
+
+		var element = document.createElement('div');
+		dom.append(element, '<div class="rail"></div>');
+		slider.element = element;
+		assert.strictEqual(element.querySelector('.rail'), slider.getDrag().constrain);
+	});
+
 	it('shouldnt update value if its smaller than min', function() {
 		slider = new Slider({
 			min: 30,
