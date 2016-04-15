@@ -4336,6 +4336,12 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
       };
 
       /**
+       * A pattern that vets values produced by the named directives.
+       * @private {!RegExp}
+       */
+      soy.esc.$$FILTER_FOR_FILTER_IMAGE_DATA_URI_ = /^data:image\/(?:bmp|gif|jpe?g|png|tiff|webp);base64,[a-z0-9+\/]+=*$/i;
+
+      /**
        * A helper for the Soy directive |filterImageDataUri
        * @param {*} value Can be of any type but will be coerced to a string.
        * @return {string} The escaped text.
