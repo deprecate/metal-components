@@ -1,6 +1,6 @@
 {
   "name": "metal-components",
-  "version": "1.0.0-rc.17",
+  "version": "1.0.0-rc.18",
   "description": "A collection of UI components built on top of Metal.js (JavaScript) and Bootstrap 3 (HTML/CSS)",
   "license": "BSD",
   "repository": "metal/metal-components",
