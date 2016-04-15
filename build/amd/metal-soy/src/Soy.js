@@ -77,7 +77,11 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			if (!_metal.core.isFunction(elementTemplate)) {
 				return;
 			}
-			var keys = _SoyAop2.default.getOriginalFn(elementTemplate).params;
+
+			elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
+			this.soyParamTypes_ = elementTemplate.types || {};
+
+			var keys = elementTemplate.params || [];
 			var component = this.component_;
 			for (var i = 0; i < keys.length; i++) {
 				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
@@ -87,6 +91,8 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		};
 
 		Soy.prototype.buildTemplateData_ = function buildTemplateData_(data, params) {
+			var _this2 = this;
+
 			var component = this.component_;
 			data = _metal.object.mixin({}, data);
 			component.getStateKeys().forEach(function (key) {
@@ -97,7 +103,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 				}
 
 				var value = component[key];
-				if (component.getStateKeyConfig(key).isHtml) {
+				if (component.getStateKeyConfig(key).isHtml || _this2.soyParamTypes_[key] === 'html') {
 					value = Soy.toIncDom(value);
 				}
 				data[key] = value;
@@ -140,7 +146,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			if (_metal.core.isFunction(elementTemplate)) {
 				elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
 				_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(data, elementTemplate.params), null, ijData);
+				elementTemplate(this.buildTemplateData_(data, elementTemplate.params || []), null, ijData);
 				_SoyAop2.default.stopInterception();
 			} else {
 				_IncrementalDomRender.prototype.renderIncDom.call(this);

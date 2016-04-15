@@ -10970,6 +10970,26 @@ babelHelpers;
       };
 
       /**
+       * Content of type {@link soydata.SanitizedContentKind.URI}.
+       *
+       * The content is a URI chunk that the caller knows is safe to emit in a
+       * template. The content direction is LTR.
+       *
+       * @constructor
+       * @extends {goog.soy.data.SanitizedContent}
+       */
+      soydata.SanitizedUri = function () {
+        goog.soy.data.SanitizedContent.call(this); // Throws an exception.
+      };
+      goog.inherits(soydata.SanitizedUri, goog.soy.data.SanitizedContent);
+
+      /** @override */
+      soydata.SanitizedUri.prototype.contentKind = soydata.SanitizedContentKind.URI;
+
+      /** @override */
+      soydata.SanitizedUri.prototype.contentDir = goog.i18n.bidi.Dir.LTR;
+
+      /**
        * Unsanitized plain text string.
        *
        * While all strings are effectively safe to use as a plain text, there are no
@@ -11112,6 +11132,24 @@ babelHelpers;
       soydata.markUnsanitizedText = function (content, opt_contentDir) {
         return new soydata.UnsanitizedText(content, opt_contentDir);
       };
+
+      soydata.VERY_UNSAFE = {};
+
+      /**
+      * Takes a leap of faith that the provided content is "safe" to use as a URI
+      * in a Soy template.
+      *
+      * This creates a Soy SanitizedContent object which indicates to Soy there is
+      * no need to escape it when printed as a URI (e.g. in an href or src
+      * attribute), such as if it's already been encoded or  if it's a Javascript:
+      * URI.
+      *
+      * @param {*} content A chunk of URI that the caller knows is safe to
+      *     emit in a template.
+      * @return {!soydata.SanitizedUri} Sanitized content wrapper that indicates to
+      *     Soy not to escape or filter when printed in URI context.
+      */
+      soydata.VERY_UNSAFE.ordainSanitizedUri = soydata.$$makeSanitizedContentFactoryWithDefaultDirOnly_(soydata.SanitizedUri);
 
       // -----------------------------------------------------------------------------
       // Below are private utilities to be used by Soy-generated code only.
@@ -11393,6 +11431,32 @@ babelHelpers;
        */
       soy.esc.$$escapeHtmlHelper = function (v) {
         return goog.string.htmlEscape(String(v));
+      };
+
+      /**
+       * Allows only data-protocol image URI's.
+       *
+       * @param {*} value The value to process. May not be a string, but the value
+       *     will be coerced to a string.
+       * @return {!soydata.SanitizedUri} An escaped version of value.
+       */
+      soy.$$filterImageDataUri = function (value) {
+        // NOTE: Even if it's a SanitizedUri, we will still filter it.
+        return soydata.VERY_UNSAFE.ordainSanitizedUri(soy.esc.$$filterImageDataUriHelper(value));
+      };
+
+      /**
+       * A helper for the Soy directive |filterImageDataUri
+       * @param {*} value Can be of any type but will be coerced to a string.
+       * @return {string} The escaped text.
+       */
+      soy.esc.$$filterImageDataUriHelper = function (value) {
+        var str = String(value);
+        if (!soy.esc.$$FILTER_FOR_FILTER_IMAGE_DATA_URI_.test(str)) {
+          goog.asserts.fail('Bad value `%s` for |filterImageDataUri', [str]);
+          return 'data:image/gif;base64,zSoyz';
+        }
+        return str;
       };
 
       // END GENERATED CODE
@@ -11956,7 +12020,11 @@ babelHelpers;
 			if (!core.isFunction(elementTemplate)) {
 				return;
 			}
-			var keys = SoyAop.getOriginalFn(elementTemplate).params;
+
+			elementTemplate = SoyAop.getOriginalFn(elementTemplate);
+			this.soyParamTypes_ = elementTemplate.types || {};
+
+			var keys = elementTemplate.params || [];
 			var component = this.component_;
 			for (var i = 0; i < keys.length; i++) {
 				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
@@ -11978,6 +12046,8 @@ babelHelpers;
 
 
 		Soy.prototype.buildTemplateData_ = function buildTemplateData_(data, params) {
+			var _this2 = this;
+
 			var component = this.component_;
 			data = object.mixin({}, data);
 			component.getStateKeys().forEach(function (key) {
@@ -11988,7 +12058,7 @@ babelHelpers;
 				}
 
 				var value = component[key];
-				if (component.getStateKeyConfig(key).isHtml) {
+				if (component.getStateKeyConfig(key).isHtml || _this2.soyParamTypes_[key] === 'html') {
 					value = Soy.toIncDom(value);
 				}
 				data[key] = value;
@@ -12071,7 +12141,7 @@ babelHelpers;
 			if (core.isFunction(elementTemplate)) {
 				elementTemplate = SoyAop.getOriginalFn(elementTemplate);
 				SoyAop.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(data, elementTemplate.params), null, ijData);
+				elementTemplate(this.buildTemplateData_(data, elementTemplate.params || []), null, ijData);
 				SoyAop.stopInterception();
 			} else {
 				_IncrementalDomRender.prototype.renderIncDom.call(this);
@@ -14368,19 +14438,19 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'btn-group component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      var buttonList28 = opt_data.buttons;
-      var buttonListLen28 = buttonList28.length;
-      for (var buttonIndex28 = 0; buttonIndex28 < buttonListLen28; buttonIndex28++) {
-        var buttonData28 = buttonList28[buttonIndex28];
-        var type__soy8 = buttonData28.type ? buttonData28.type : 'button';
-        var cssClass__soy9 = buttonData28.cssClass ? buttonData28.cssClass : 'btn btn-default';
-        ie_open('button', null, null, 'type', type__soy8, 'class', cssClass__soy9 + $selectedClass({ label: buttonData28.label, selected: opt_data.selected }, null, opt_ijData), 'data-index', buttonIndex28, 'data-onclick', 'handleClick_');
+      ie_open('div', null, null, 'class', 'btn-group component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      var buttonList26 = opt_data.buttons;
+      var buttonListLen26 = buttonList26.length;
+      for (var buttonIndex26 = 0; buttonIndex26 < buttonListLen26; buttonIndex26++) {
+        var buttonData26 = buttonList26[buttonIndex26];
+        var type__soy6 = buttonData26.type ? buttonData26.type : 'button';
+        var cssClass__soy7 = buttonData26.cssClass ? buttonData26.cssClass : 'btn btn-default';
+        ie_open('button', null, null, 'type', type__soy6, 'class', cssClass__soy7 + $selectedClass({ label: buttonData26.label, selected: opt_data.selected }, null, opt_ijData), 'data-index', buttonIndex26, 'data-onclick', 'handleClick_');
         ie_open('span', null, null, 'class', 'btn-group-label');
-        itext((goog.asserts.assert((buttonData28.label ? buttonData28.label : '') != null), buttonData28.label ? buttonData28.label : ''));
+        itext((goog.asserts.assert((buttonData26.label ? buttonData26.label : '') != null), buttonData26.label ? buttonData26.label : ''));
         ie_close('span');
-        if (buttonData28.icon) {
-          ie_void('span', null, null, 'class', buttonData28.icon);
+        if (buttonData26.icon) {
+          ie_void('span', null, null, 'class', buttonData26.icon);
         }
         ie_close('button');
       }
@@ -14401,11 +14471,11 @@ babelHelpers;
     function $selectedClass(opt_data, opt_ignored, opt_ijData) {
       var output = '';
       if (opt_data.selected) {
-        var selectedValueList37 = opt_data.selected;
-        var selectedValueListLen37 = selectedValueList37.length;
-        for (var selectedValueIndex37 = 0; selectedValueIndex37 < selectedValueListLen37; selectedValueIndex37++) {
-          var selectedValueData37 = selectedValueList37[selectedValueIndex37];
-          output += selectedValueData37 == opt_data.label ? ' btn-group-selected' : '';
+        var selectedValueList35 = opt_data.selected;
+        var selectedValueListLen35 = selectedValueList35.length;
+        for (var selectedValueIndex35 = 0; selectedValueIndex35 < selectedValueListLen35; selectedValueIndex35++) {
+          var selectedValueData35 = selectedValueList35[selectedValueIndex35];
+          output += selectedValueData35 == opt_data.label ? ' btn-group-selected' : '';
         }
       }
       return output;
@@ -14415,7 +14485,7 @@ babelHelpers;
       $selectedClass.soyTemplateName = 'ButtonGroup.selectedClass';
     }
 
-    exports.render.params = ["buttons", "elementClasses", "id", "selected"];
+    exports.render.params = ["buttons", "elementClasses", "selected"];
     exports.selectedClass.params = ["label", "selected"];
     templates = exports;
     return exports;
@@ -17169,12 +17239,13 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      opt_data = opt_data || {};
       var curMax__soy3 = opt_data.max ? opt_data.max : 100;
       var curMin__soy4 = opt_data.min ? opt_data.min : 0;
       var curValue__soy5 = opt_data.value ? opt_data.value : 0;
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'progress ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'progressbar', 'aria-valuemax', curMax__soy3, 'aria-valuemin', curMin__soy4, 'aria-valuenow', curValue__soy5, 'tabindex', '0');
-      var percentage__soy17 = Math.floor((curValue__soy5 - curMin__soy4) * 100 / (curMax__soy3 - curMin__soy4));
-      ie_open('div', null, null, 'class', 'progress-bar' + (opt_data.barClass ? ' ' + opt_data.barClass : ''), 'style', 'width: ' + percentage__soy17 + '%');
+      ie_open('div', null, null, 'class', 'progress ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'progressbar', 'aria-valuemax', curMax__soy3, 'aria-valuemin', curMin__soy4, 'aria-valuenow', curValue__soy5, 'tabindex', '0');
+      var percentage__soy15 = Math.floor((curValue__soy5 - curMin__soy4) * 100 / (curMax__soy3 - curMin__soy4));
+      ie_open('div', null, null, 'class', 'progress-bar' + (opt_data.barClass ? ' ' + opt_data.barClass : ''), 'style', 'width: ' + percentage__soy15 + '%');
       itext((goog.asserts.assert((opt_data.label ? opt_data.label : '') != null), opt_data.label ? opt_data.label : ''));
       ie_close('div');
       ie_close('div');
@@ -17184,7 +17255,7 @@ babelHelpers;
       $render.soyTemplateName = 'ProgressBar.render';
     }
 
-    exports.render.params = ["barClass", "elementClasses", "id", "label", "max", "min", "value"];
+    exports.render.params = ["barClass", "elementClasses", "label", "max", "min", "value"];
     templates = exports;
     return exports;
   });
@@ -18857,6 +18928,7 @@ babelHelpers;
 			_this.on(Drag.Events.DRAG, _this.defaultDragFn_, true);
 			_this.on(Drag.Events.END, _this.defaultEndFn_, true);
 			_this.on('sourcesChanged', _this.handleSourcesChanged_.bind(_this));
+			_this.on('containerChanged', _this.handleContainerChanged_.bind(_this));
 			_this.dragScrollDelta_.on('scrollDelta', _this.handleScrollDelta_.bind(_this));
 			dom.on(document, 'keydown', _this.handleKeyDown_.bind(_this));
 			return _this;
@@ -19019,7 +19091,13 @@ babelHelpers;
 
 		Drag.prototype.constrainToRegion_ = function constrainToRegion_(region) {
 			var constrain = this.constrain;
-			if (constrain) {
+			if (!constrain) {
+				return;
+			}
+
+			if (core.isFunction(constrain)) {
+				object.mixin(region, constrain(region));
+			} else {
 				if (core.isElement(constrain)) {
 					constrain = Position.getRegion(constrain, true);
 				}
@@ -19263,6 +19341,23 @@ babelHelpers;
 		};
 
 		/**
+   * Triggers when the `container` state changes. Detaches events attached to the
+   * previous container and attaches them to the new value instead.
+   * @protected
+   */
+
+
+		Drag.prototype.handleContainerChanged_ = function handleContainerChanged_() {
+			if (core.isString(this.sources)) {
+				this.sourceHandler_.removeAllListeners();
+				this.attachSourceEvents_();
+			}
+			if (this.prevScrollContainersSelector_) {
+				this.scrollContainers = this.prevScrollContainersSelector_;
+			}
+		};
+
+		/**
    * Triggers when the `sources` state changes. Detaches events attached to the
    * previous sources and attaches them to the new value instead.
    * @protected
@@ -19359,14 +19454,15 @@ babelHelpers;
 
 		/**
    * Sets the `scrollContainers` state key.
-   * @param {Element|string} scrollContainers
+   * @param {Element|string} val
    * @return {!Array<!Element>}
    * @protected
    */
 
 
-		Drag.prototype.setterScrollContainersFn_ = function setterScrollContainersFn_(scrollContainers) {
-			var elements = this.toElements_(scrollContainers);
+		Drag.prototype.setterScrollContainersFn_ = function setterScrollContainersFn_(val) {
+			this.prevScrollContainersSelector_ = core.isString(val) ? val : null;
+			var elements = this.toElements_(val);
 			elements.push(document);
 			return elements;
 		};
@@ -19519,7 +19615,7 @@ babelHelpers;
    * to anywhere on the page. Can be either already an object with the
    * boundaries relative to the document, or an element to use the boundaries
    * from, or even a selector for finding that element.
-   * @type {!Element|Object|string}
+   * @type {!Element|Object|function()|string}
    */
 		constrain: {
 			setter: 'setterConstrainFn',
@@ -19805,6 +19901,22 @@ babelHelpers;
 		};
 
 		/**
+   * Triggers when the `container` state changes. Overrides default method so
+   * it will also update `targets` when container changes.
+   * @param {!Object} data
+   * @param {!Object} event
+   * @protected
+   */
+
+
+		DragDrop.prototype.handleContainerChanged_ = function handleContainerChanged_(data, event) {
+			_Drag.prototype.handleContainerChanged_.call(this, data, event);
+			if (this.prevTargetsSelector_) {
+				this.targets = this.prevTargetsSelector_;
+			}
+		};
+
+		/**
    * Removes a target from this `DragDrop` instance.
    * @param {!Element} target
    */
@@ -19813,6 +19925,19 @@ babelHelpers;
 		DragDrop.prototype.removeTarget = function removeTarget(target) {
 			array.remove(this.targets, target);
 			this.targets = this.targets;
+		};
+
+		/**
+   * Sets the `targets` state property.
+   * @param {Element|string} val
+   * @return {!Array<!Element>}
+   * @protected
+   */
+
+
+		DragDrop.prototype.setterTargetsFn_ = function setterTargetsFn_(val) {
+			this.prevTargetsSelector_ = core.isString(val) ? val : null;
+			return this.toElements_(val);
 		};
 
 		/**
@@ -19897,7 +20022,7 @@ babelHelpers;
    * @type {!Element|string}
    */
 		targets: {
-			setter: 'toElements_',
+			setter: 'setterTargetsFn_',
 			validator: 'validateElementOrString_'
 		}
 	};
@@ -20053,9 +20178,11 @@ babelHelpers;
     */
 			this.drag_ = new Drag({
 				constrain: this.element.querySelector('.rail'),
-				handles: this.element.querySelector('.handle'),
-				sources: this.element.querySelector('.rail-handle')
+				container: this.element,
+				handles: '.handle',
+				sources: '.rail-handle'
 			});
+			this.on('elementChanged', this.handleElementChanged_);
 
 			this.attachDragEvents_();
 		};
@@ -20079,6 +20206,29 @@ babelHelpers;
 		Slider.prototype.disposeInternal = function disposeInternal() {
 			_Component.prototype.disposeInternal.call(this);
 			this.drag_.dispose();
+		};
+
+		/**
+   * Returns the `Drag` instance being used.
+   * @return {!Drag}
+   */
+
+
+		Slider.prototype.getDrag = function getDrag() {
+			return this.drag_;
+		};
+
+		/**
+   * Handles the `elementChanged` event. Updates the drag container to the new
+   * element, and also updates the constrain element.
+   * @param {!Object} data
+   * @protected
+   */
+
+
+		Slider.prototype.handleElementChanged_ = function handleElementChanged_(data) {
+			this.drag_.container = data.newVal;
+			this.drag_.constrain = data.newVal.querySelector('.rail');
 		};
 
 		/**
@@ -20589,7 +20739,7 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'id', opt_data.id, 'class', 'treeview component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tree');
+      ie_open('div', null, null, 'class', 'treeview' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tree');
       $nodes(opt_data, null, opt_ijData);
       ie_close('div');
     }
@@ -20608,12 +20758,12 @@ babelHelpers;
     function $nodes(opt_data, opt_ignored, opt_ijData) {
       if (opt_data.nodes) {
         ie_open('ul', null, null, 'class', 'treeview-nodes');
-        var nodeList19 = opt_data.nodes;
-        var nodeListLen19 = nodeList19.length;
-        for (var nodeIndex19 = 0; nodeIndex19 < nodeListLen19; nodeIndex19++) {
-          var nodeData19 = nodeList19[nodeIndex19];
-          var index__soy15 = nodeIndex19;
-          $node({ node: nodeData19, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy15 : index__soy15 }, null, opt_ijData);
+        var nodeList17 = opt_data.nodes;
+        var nodeListLen17 = nodeList17.length;
+        for (var nodeIndex17 = 0; nodeIndex17 < nodeListLen17; nodeIndex17++) {
+          var nodeData17 = nodeList17[nodeIndex17];
+          var index__soy13 = nodeIndex17;
+          $node({ node: nodeData17, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy13 : index__soy13 }, null, opt_ijData);
         }
         ie_close('ul');
       }
@@ -20652,7 +20802,7 @@ babelHelpers;
       $node.soyTemplateName = 'Treeview.node';
     }
 
-    exports.render.params = ["id", "elementClasses", "nodes"];
+    exports.render.params = ["elementClasses", "nodes"];
     exports.nodes.params = ["nodes", "parentPath"];
     exports.node.params = ["node", "path"];
     templates = exports;
