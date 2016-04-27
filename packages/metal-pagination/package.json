@@ -1,0 +1,31 @@
+{
+	"name": "metal-pagination",
+	"version": "0.0.0",
+	"description": "Pagination",
+	"license": "BSD",
+	"repository": "metal/metal-pagination",
+	"engines": {
+		"node": ">=0.12.0",
+		"npm": ">=3.0.0"
+	},
+	"main": "src/Pagination.js",
+	"files": [
+		"src",
+		"test"
+	],
+	"scripts": {
+		"test": "gulp test"
+	},
+	"keywords": [
+		"metal"
+	],
+	"dependencies": {
+    "bootstrap": "^3.3.6",
+		"metal-component": "metal/metal-component#master",
+		"metal-soy": "metal/metal-soy#master"
+	},
+	"devDependencies": {
+		"gulp": "^3.8.11",
+		"gulp-metal": "^1.0.0"
+	}
+}
