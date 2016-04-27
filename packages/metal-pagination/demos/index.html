@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demo: Pagination</title>
+
+	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
+	<link rel="stylesheet" href="../build/pagination.css">
+
+	<script src="../build/globals/pagination.js"></script>
+</head>
+<body>
+	<h1>Pagination 1</h1>
+	<script type="text/javascript">
+		var pagination1 = new metal.Pagination({
+			circular: false,
+			total: 5
+		});
+
+		pagination1.on(
+			metal.Pagination.Events.CHANGE_REQUEST,
+			function(event) {
+				console.log(
+					'lastPage:', event.lastState.page,
+					'page:', event.state.page,
+					'offset:', event.offset,
+					'total:', event.total
+				);
+			}
+		);
+	</script>
+	<h1>Pagination 2</h1>
+	<script type="text/javascript">
+		new metal.Pagination({
+			offset: 100,
+			page: 5,
+			showControls: false,
+			total: 10
+		});
+	</script>
+	<h1>Pagination 3</h1>
+	<script type="text/javascript">
+		new metal.Pagination({
+			page: 3,
+			strings: {
+				next: '>>',
+				prev: '<<'
+			},
+			total: 10
+		});
+	</script>
+</body>
+</html>
