@@ -2907,6 +2907,13 @@ babelHelpers;
     */
 			_this.stateInfo_ = {};
 
+			/**
+    * Object with the most recent values that state properties were set to
+    * through either the constructor or setState calls.
+    * @type {!Object<string, *>}
+    */
+			_this.config = object.mixin({}, opt_config || {});
+
 			_this.setShouldUseFacade(true);
 			_this.mergeInvalidKeys_();
 			_this.addToStateFromStaticHint_(opt_config);
@@ -3408,8 +3415,9 @@ babelHelpers;
 
 
 		State.prototype.setState = function setState(values) {
-			var names = Object.keys(values);
+			object.mixin(this.config, values);
 
+			var names = Object.keys(values);
 			for (var i = 0; i < names.length; i++) {
 				this[names[i]] = values[names[i]];
 			}
@@ -3487,7 +3495,7 @@ babelHelpers;
   */
 
 
-	State.INVALID_KEYS = ['state', 'stateKey'];
+	State.INVALID_KEYS = ['config', 'state', 'stateKey'];
 
 	/**
   * Constants that represent the states that an a state key can be in.
@@ -4618,6 +4626,9 @@ babelHelpers;
   *   created() {
   *   }
   *
+  *   rendered() {
+  *   }
+  *
   *   attached() {
   *   }
   *
@@ -4706,6 +4717,13 @@ babelHelpers;
 			_this.wasRendered = false;
 
 			/**
+    * This holds information passed down from ancestors through
+    * `getChildContext`.
+    * @type {!Object}
+    */
+			_this.context = {};
+
+			/**
     * The component's element will be appended to the element this variable is
     * set to, unless the user specifies another parent when calling `render` or
     * `attach`.
@@ -4714,9 +4732,9 @@ babelHelpers;
 			_this.DEFAULT_ELEMENT_PARENT = document.body;
 
 			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
-			core.mergeSuperClassesProperty(_this.constructor, 'RENDERER', array.firstDefinedValue);
 
-			_this.renderer_ = new _this.constructor.RENDERER_MERGED(_this);
+			_this.renderer_ = _this.createRenderer();
+			_this.renderer_.on('rendered', _this.rendered.bind(_this));
 
 			_this.on('stateChanged', _this.handleStateChanged_);
 			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
@@ -4824,7 +4842,9 @@ babelHelpers;
 				}
 				this.components[key] = new ConstructorFn(opt_data, false);
 			}
-			return this.components[key];
+			var comp = this.components[key];
+			comp.context = object.mixin({}, this.context, this.getChildContext());
+			return comp;
 		};
 
 		/**
@@ -4834,6 +4854,18 @@ babelHelpers;
 
 
 		Component.prototype.created = function created() {};
+
+		/**
+   * Creates the renderer for this component. Sub classes can override this to
+   * return a custom renderer as needed.
+   * @return {!ComponentRenderer}
+   */
+
+
+		Component.prototype.createRenderer = function createRenderer() {
+			core.mergeSuperClassesProperty(this.constructor, 'RENDERER', array.firstDefinedValue);
+			return new this.constructor.RENDERER_MERGED(this);
+		};
 
 		/**
    * Listens to a delegate event on the component's element.
@@ -4989,6 +5021,17 @@ babelHelpers;
 				}
 				fn.call(this, opt_change.newVal, opt_change.prevVal);
 			}
+		};
+
+		/**
+   * Returns an object with context data to be added to all descendant
+   * components. Subclasses can override this to have any data they wish.
+   * @return {!Object}
+   */
+
+
+		Component.prototype.getChildContext = function getChildContext() {
+			return {};
 		};
 
 		/**
@@ -5231,6 +5274,15 @@ babelHelpers;
 		};
 
 		/**
+   * Lifecycle. Called whenever the component has just been rendered.
+   * @param {boolean} firstRender Flag indicating if this was the component's
+   *     first render.
+   */
+
+
+		Component.prototype.rendered = function rendered() {};
+
+		/**
    * Validator logic for elementClasses state key.
    * @param {string} val
    * @return {boolean} True if val is a valid element classes.
@@ -5348,7 +5400,7 @@ babelHelpers;
   * A list with state key names that will automatically be rejected as invalid.
   * @type {!Array<string>}
   */
-	Component.INVALID_KEYS = ['components'];
+	Component.INVALID_KEYS = ['components', 'context', 'wasRendered'];
 
 	this.metal.Component = Component;
 }).call(this);
@@ -5707,6 +5759,20 @@ babelHelpers;
     };
 
     /**
+     * @param {string} name
+     * @return {string|undefined} The namespace to use for the attribute.
+     */
+    var getNamespace = function getNamespace(name) {
+      if (name.lastIndexOf('xml:', 0) === 0) {
+        return 'http://www.w3.org/XML/1998/namespace';
+      }
+
+      if (name.lastIndexOf('xlink:', 0) === 0) {
+        return 'http://www.w3.org/1999/xlink';
+      }
+    };
+
+    /**
      * Applies an attribute or property to a given Element. If the value is null
      * or undefined, it is removed from the Element. Otherwise, the value is set
      * as an attribute.
@@ -5718,7 +5784,12 @@ babelHelpers;
       if (value == null) {
         el.removeAttribute(name);
       } else {
-        el.setAttribute(name, value);
+        var attrNS = getNamespace(name);
+        if (attrNS) {
+          el.setAttributeNS(attrNS, name, value);
+        } else {
+          el.setAttribute(name, value);
+        }
       }
     };
 
@@ -5876,16 +5947,16 @@ babelHelpers;
      */
     var createKeyMap = function createKeyMap(el) {
       var map = createMap();
-      var children = el.children;
-      var count = children.length;
+      var child = el.firstElementChild;
 
-      for (var i = 0; i < count; i += 1) {
-        var child = children[i];
+      while (child) {
         var key = getData(child).key;
 
         if (key) {
           map[key] = child;
         }
+
+        child = child.nextElementSibling;
       }
 
       return map;
@@ -6026,55 +6097,63 @@ babelHelpers;
     var context = null;
 
     /** @type {?Node} */
-    var currentNode = undefined;
+    var currentNode = null;
 
     /** @type {?Node} */
-    var currentParent = undefined;
+    var currentParent = null;
 
     /** @type {?Element|?DocumentFragment} */
-    var root = undefined;
+    var root = null;
 
     /** @type {?Document} */
-    var doc = undefined;
-
-    /** @type {?function()} */
-    var findNode = undefined;
+    var doc = null;
 
     /**
-     * Sets up and restores a patch context, running the patch function with the
-     * provided data.
-     * @param {!Element|!DocumentFragment} node The Element or Document
-     *     where the patch should start.
-     * @param {!function(T)} fn The patching function.
-     * @param {T=} data An argument passed to fn.
+     * Returns a patcher function that sets up and restores a patch context,
+     * running the run function with the provided data.
+     * @param {function((!Element|!DocumentFragment),!function(T),T=)} run
+     * @return {function((!Element|!DocumentFragment),!function(T),T=)}
      * @template T
      */
-    var runPatch = function runPatch(node, fn, data) {
-      var prevContext = context;
-      var prevRoot = root;
-      var prevDoc = doc;
-      var prevCurrentNode = currentNode;
-      var prevCurrentParent = currentParent;
-      var previousInAttributes = false;
-      var previousInSkip = false;
+    var patchFactory = function patchFactory(run) {
+      /**
+       * TODO(moz): These annotations won't be necessary once we switch to Closure
+       * Compiler's new type inference. Remove these once the switch is done.
+       *
+       * @param {(!Element|!DocumentFragment)} node
+       * @param {!function(T)} fn
+       * @param {T=} data
+       * @template T
+       */
+      var f = function f(node, fn, data) {
+        var prevContext = context;
+        var prevRoot = root;
+        var prevDoc = doc;
+        var prevCurrentNode = currentNode;
+        var prevCurrentParent = currentParent;
+        var previousInAttributes = false;
+        var previousInSkip = false;
 
-      context = new Context();
-      root = node;
-      doc = node.ownerDocument;
+        context = new Context();
+        root = node;
+        doc = node.ownerDocument;
+        currentParent = node.parentNode;
 
-      if ('production' !== 'production') {}
+        if ('production' !== 'production') {}
 
-      fn(data);
+        run(node, fn, data);
 
-      if ('production' !== 'production') {}
+        if ('production' !== 'production') {}
 
-      context.notifyChanges();
+        context.notifyChanges();
 
-      context = prevContext;
-      root = prevRoot;
-      doc = prevDoc;
-      currentNode = prevCurrentNode;
-      currentParent = prevCurrentParent;
+        context = prevContext;
+        root = prevRoot;
+        doc = prevDoc;
+        currentNode = prevCurrentNode;
+        currentParent = prevCurrentParent;
+      };
+      return f;
     };
 
     /**
@@ -6087,18 +6166,15 @@ babelHelpers;
      * @param {T=} data An argument passed to fn to represent DOM state.
      * @template T
      */
-    var patchInner = function patchInner(node, fn, data) {
-      runPatch(node, function (data) {
-        currentNode = node;
-        currentParent = node.parentNode;
+    var patchInner = patchFactory(function (node, fn, data) {
+      currentNode = node;
 
-        enterNode();
-        fn(data);
-        exitNode();
+      enterNode();
+      fn(data);
+      exitNode();
 
-        if ('production' !== 'production') {}
-      }, data);
-    };
+      if ('production' !== 'production') {}
+    });
 
     /**
      * Patches an Element with the the provided function. Exactly one top level
@@ -6110,16 +6186,13 @@ babelHelpers;
      * @param {T=} data An argument passed to fn to represent DOM state.
      * @template T
      */
-    var patchOuter = function patchOuter(node, fn, data) {
-      runPatch(node, function (data) {
-        currentNode = /** @type {!Element} */{ nextSibling: node };
-        currentParent = node.parentNode;
+    var patchOuter = patchFactory(function (node, fn, data) {
+      currentNode = /** @type {!Element} */{ nextSibling: node };
 
-        fn(data);
+      fn(data);
 
-        if ('production' !== 'production') {}
-      }, data);
-    };
+      if ('production' !== 'production') {}
+    });
 
     /**
      * Checks whether or not the current node matches the specified nodeName and
@@ -6159,15 +6232,6 @@ babelHelpers;
         node = getChild(currentParent, key);
         if (node && 'production' !== 'production') {
           assertKeyedTagMatches(getData(node).nodeName, nodeName, key);
-        }
-      }
-
-      // Check to see if the `findNode` function (registered through
-      // `registerFindNode`) returns a matching node.
-      if (!node && findNode) {
-        node = findNode.apply(null, arguments);
-        if (node === currentNode) {
-          return;
         }
       }
 
@@ -6290,7 +6354,7 @@ babelHelpers;
      */
     var coreElementOpen = function coreElementOpen(tag, key, statics) {
       nextNode();
-      alignWithDOM.apply(null, arguments);
+      alignWithDOM(tag, key, statics);
       enterNode();
       return (/** @type {!Element} */currentParent
       );
@@ -6331,10 +6395,6 @@ babelHelpers;
       if ('production' !== 'production') {}
       return (/** @type {!Element} */currentParent
       );
-    };
-
-    var registerFindNode = function registerFindNode(findNodeFn) {
-      findNode = findNodeFn;
     };
 
     /**
@@ -6501,9 +6561,8 @@ babelHelpers;
      * @return {!Element} The corresponding Element.
      */
     var elementVoid = function elementVoid(tag, key, statics, const_args) {
-      var node = elementOpen.apply(null, arguments);
-      elementClose.apply(null, arguments);
-      return node;
+      elementOpen.apply(null, arguments);
+      return elementClose(tag);
     };
 
     /**
@@ -6528,7 +6587,7 @@ babelHelpers;
 
       elementOpen.apply(null, arguments);
       skip();
-      return elementClose.apply(null, arguments);
+      return elementClose(tag);
     };
 
     /**
@@ -6569,7 +6628,6 @@ babelHelpers;
     exports.patchInner = patchInner;
     exports.patchOuter = patchOuter;
     exports.currentElement = currentElement;
-    exports.registerFindNode = registerFindNode;
     exports.skip = skip;
     exports.elementVoid = elementVoid;
     exports.elementOpenStart = elementOpenStart;
@@ -6585,12 +6643,12 @@ babelHelpers;
     exports.applyProp = applyProp;
     exports.notifications = notifications;
   });
-  /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
 	var array = this.metalNamed.metal.array;
+	var object = this.metalNamed.metal.object;
 
 	/**
   * Class responsible for intercepting incremental dom functions through AOP.
@@ -6611,35 +6669,30 @@ babelHelpers;
 		};
 
 		/**
-   * Starts intercepting calls to the `elementOpen` and `elementClose` functions
-   * from incremental dom with the given functions.
-   * @param {!function()} openFn Function to be called instead of the original
-   *     `elementOpen` one.
-   * @param {!function()} closeFn Function to be called instead of the original
-   *     `elementClose` one.
-   * @param {!function()} attributesFn Function to be called instead of the
-   *     original `attributes` default handler.
+   * Starts intercepting calls to incremental dom, replacing them with the given
+   * functions. Note that `elementVoid`, `elementOpenStart`, `elementOpenEnd`
+   * and `attr` are the only ones that can't be intercepted, since they'll
+   * automatically be converted into equivalent calls to `elementOpen` and
+   * `elementClose`.
+   * @param {!Object} fns Functions to be called instead of the original ones
+   *     from incremental DOM. Should be given as a map from the function name
+   *     to the function that should intercept it. All interceptors will receive
+   *     the original function as the first argument, the actual arguments from
+   *     from the original call following it.
    */
 
 
-		IncrementalDomAop.startInterception = function startInterception(openFn, closeFn, attributesFn) {
-			openFn = openFn.bind(null, fnStack[0].elementOpen);
-			closeFn = closeFn.bind(null, fnStack[0].elementClose);
-			fnStack.push({
-				attr: fnAttr,
-				attributes: attributesFn.bind(null, fnStack[0].attributes),
-				elementClose: closeFn,
-				elementOpen: openFn,
-				elementOpenEnd: function elementOpenEnd() {
-					return openFn.apply(null, collectedArgs);
-				},
-				elementOpenStart: fnOpenStart,
-				elementVoid: function elementVoid(tag) {
-					var node = openFn.apply(null, arguments);
-					closeFn(tag);
-					return node;
-				}
+		IncrementalDomAop.startInterception = function startInterception(fns) {
+			var originals = IncrementalDomAop.getOriginalFns();
+			fns = object.map(fns, function (name, value) {
+				return value.bind(null, originals[name]);
 			});
+			fnStack.push(object.mixin({}, originals, fns, {
+				attr: fnAttr,
+				elementOpenEnd: fnOpenEnd,
+				elementOpenStart: fnOpenStart,
+				elementVoid: fnVoid
+			}));
 		};
 
 		/**
@@ -6664,7 +6717,8 @@ babelHelpers;
 		elementOpen: IncrementalDOM.elementOpen,
 		elementOpenEnd: IncrementalDOM.elementOpenEnd,
 		elementOpenStart: IncrementalDOM.elementOpenStart,
-		elementVoid: IncrementalDOM.elementVoid
+		elementVoid: IncrementalDOM.elementVoid,
+		text: IncrementalDOM.text
 	}];
 
 	var collectedArgs = [];
@@ -6677,9 +6731,21 @@ babelHelpers;
 		collectedArgs = [tag, key, statics];
 	}
 
+	function fnOpenEnd() {
+		return getFn('elementOpen').apply(null, collectedArgs);
+	}
+
+	function fnVoid(tag) {
+		getFn('elementOpen').apply(null, arguments);
+		return getFn('elementClose')(tag);
+	}
+
+	function getFn(name) {
+		return fnStack[fnStack.length - 1][name];
+	}
+
 	function handleCall(name) {
-		var fn = fnStack[fnStack.length - 1][name];
-		fn.apply(null, array.slice(arguments, 1));
+		return getFn(name).apply(null, array.slice(arguments, 1));
 	}
 
 	IncrementalDOM.attr = handleCall.bind(null, 'attr');
@@ -6688,6 +6754,7 @@ babelHelpers;
 	IncrementalDOM.elementOpenEnd = handleCall.bind(null, 'elementOpenEnd');
 	IncrementalDOM.elementOpenStart = handleCall.bind(null, 'elementOpenStart');
 	IncrementalDOM.elementVoid = handleCall.bind(null, 'elementVoid');
+	IncrementalDOM.text = handleCall.bind(null, 'text');
 
 	IncrementalDOM.attributes[IncrementalDOM.symbols.default] = handleCall.bind(null, 'attributes');
 
@@ -6698,7 +6765,6 @@ babelHelpers;
 (function () {
 	var array = this.metalNamed.metal.array;
 	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
 	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
 	var EventsCollector = this.metalNamed.component.EventsCollector;
@@ -6724,6 +6790,15 @@ babelHelpers;
 			_this.eventsCollector_ = new EventsCollector(comp);
 			comp.on('stateKeyChanged', _this.handleStateKeyChanged_.bind(_this));
 			comp.on('detached', _this.handleDetached_.bind(_this));
+
+			// Binds functions that will be used many times, to avoid creating new
+			// functions each time.
+			_this.handleInterceptedAttributesCall_ = _this.handleInterceptedAttributesCall_.bind(_this);
+			_this.handleInterceptedOpenCall_ = _this.handleInterceptedOpenCall_.bind(_this);
+			_this.handleInterceptedChildrenCloseCall_ = _this.handleInterceptedChildrenCloseCall_.bind(_this);
+			_this.handleInterceptedChildrenOpenCall_ = _this.handleInterceptedChildrenOpenCall_.bind(_this);
+			_this.handleInterceptedChildrenTextCall_ = _this.handleInterceptedChildrenTextCall_.bind(_this);
+			_this.renderInsidePatchDontSkip_ = _this.renderInsidePatchDontSkip_.bind(_this);
 			return _this;
 		}
 
@@ -6763,6 +6838,27 @@ babelHelpers;
 		};
 
 		/**
+   * Builds the "children" config property to be passed to the current
+   * component.
+   * @param {!Array<!{name: string, args: !Array}>} calls
+   * @return {!function()}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.buildChildrenFn_ = function buildChildrenFn_(calls) {
+			var _this2 = this;
+
+			return function () {
+				_this2.intercept_();
+				for (var i = 0; i < calls.length; i++) {
+					IncrementalDOM[calls[i].name].apply(null, array.slice(calls[i].args, 1));
+				}
+				IncrementalDomAop.stopInterception();
+			};
+		};
+
+		/**
    * Disposes all sub components that were not found after an update anymore.
    * @protected
    */
@@ -6777,20 +6873,6 @@ babelHelpers;
 				}
 			}
 			this.component_.disposeSubComponents(unused);
-		};
-
-		/**
-   * Gets the current rendering data for this component.
-   * @return {!Object}
-   * @protected
-   */
-
-
-		IncrementalDomRenderer.prototype.getRenderingData = function getRenderingData() {
-			if (!this.renderingData_) {
-				this.renderingData_ = object.mixin({}, this.component_.getInitialConfig());
-			}
-			return this.renderingData_;
 		};
 
 		/**
@@ -6809,7 +6891,6 @@ babelHelpers;
 			if (comp.wasRendered) {
 				comp.setState(config);
 			}
-			comp.componentIncrementalDomKey_ = key;
 			return comp;
 		};
 
@@ -6875,17 +6956,62 @@ babelHelpers;
 
 		/**
    * Handles an intercepted call to the `elementClose` function from incremental
-   * dom.
+   * dom, while collecting a component's children.
+   * @param {!function()} originalFn The original function before interception.
+   * @param {string} callTag
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleInterceptedChildrenCloseCall_ = function handleInterceptedChildrenCloseCall_(originalFn, callTag) {
+			if (this.isCurrentComponentTag_(callTag) && --this.componentToRender_.tagsCount === 0) {
+				var _componentToRender_ = this.componentToRender_;
+				var calls = _componentToRender_.calls;
+				var config = _componentToRender_.config;
+				var tag = _componentToRender_.tag;
+
+				config.children = this.buildChildrenFn_(calls);
+				this.componentToRender_ = null;
+				IncrementalDomAop.stopInterception();
+				return this.renderSubComponent_(tag, config).element;
+			}
+			this.componentToRender_.calls.push({
+				name: 'elementClose',
+				args: arguments
+			});
+		};
+
+		/**
+   * Handles an intercepted call to the `elementOpen` function from incremental
+   * dom, while collecting a component's children.
    * @param {!function()} originalFn The original function before interception.
    * @param {string} tag
    * @protected
    */
 
 
-		IncrementalDomRenderer.prototype.handleInterceptedCloseCall_ = function handleInterceptedCloseCall_(originalFn, tag) {
-			if (!this.isComponentTag_(tag)) {
-				originalFn(tag);
+		IncrementalDomRenderer.prototype.handleInterceptedChildrenOpenCall_ = function handleInterceptedChildrenOpenCall_(originalFn, tag) {
+			if (this.isCurrentComponentTag_(tag)) {
+				this.componentToRender_.tagsCount++;
 			}
+			this.componentToRender_.calls.push({
+				name: 'elementOpen',
+				args: arguments
+			});
+		};
+
+		/**
+   * Handles an intercepted call to the `text` function from incremental dom,
+   * while collecting a component's children.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleInterceptedChildrenTextCall_ = function handleInterceptedChildrenTextCall_() {
+			this.componentToRender_.calls.push({
+				name: 'text',
+				args: arguments
+			});
 		};
 
 		/**
@@ -6898,13 +7024,11 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.handleInterceptedOpenCall_ = function handleInterceptedOpenCall_(originalFn, tag) {
-			var node;
 			if (this.isComponentTag_(tag)) {
-				node = this.handleSubComponentCall_.apply(this, arguments);
+				return this.handleSubComponentCall_.apply(this, arguments);
 			} else {
-				node = this.handleRegularCall_.apply(this, arguments);
+				return this.handleRegularCall_.apply(this, arguments);
 			}
-			return node;
 		};
 
 		/**
@@ -6923,8 +7047,8 @@ babelHelpers;
 			var attrsArr = array.slice(arguments, 4);
 			this.addInlineListeners_((statics || []).concat(attrsArr));
 			var args = array.slice(arguments, 1);
-			if (!this.rootElementReached_ && this.component_.componentIncrementalDomKey_) {
-				args[1] = this.component_.componentIncrementalDomKey_;
+			if (!this.rootElementReached_ && this.component_.config.key) {
+				args[1] = this.component_.config.key;
 			}
 			var node = originalFn.apply(null, args);
 			if (!this.rootElementReached_) {
@@ -6932,23 +7056,21 @@ babelHelpers;
 				if (this.component_.element !== node) {
 					this.component_.element = node;
 				}
+				this.lastElementCreationCall_ = args;
 			}
 			return node;
 		};
 
 		/**
-   * Handles the `stateKeyChanged` event. Makes sure that, when `stateChanged`
-   * is fired, the component's contents will only be updated if the changed
-   * state key wasn't `element`, since that wouldn't cause a rerender.
+   * Handles the `stateKeyChanged` event. Stores state properties that have
+   * changed since the last render.
    * @param {!Object} data
    * @protected
    */
 
 
 		IncrementalDomRenderer.prototype.handleStateKeyChanged_ = function handleStateKeyChanged_(data) {
-			if (data.key !== 'element') {
-				this.changes_[data.key] = data;
-			}
+			this.changes_[data.key] = data;
 		};
 
 		/**
@@ -6964,19 +7086,51 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.handleSubComponentCall_ = function handleSubComponentCall_(originalFn, tag, key, statics) {
-			var config = {};
+			var config = { key: key };
 			var attrsArr = (statics || []).concat(array.slice(arguments, 4));
 			for (var i = 0; i < attrsArr.length; i += 2) {
 				config[attrsArr[i]] = attrsArr[i + 1];
 			}
 
-			var tagOrCtor = tag;
-			if (tag === 'Component' && config.ctor) {
-				tagOrCtor = config.ctor;
-				config = config.data || {};
+			this.componentToRender_ = {
+				calls: [],
+				config: config,
+				tag: tag,
+				tagsCount: 1
+			};
+			IncrementalDomAop.startInterception({
+				elementClose: this.handleInterceptedChildrenCloseCall_,
+				elementOpen: this.handleInterceptedChildrenOpenCall_,
+				text: this.handleInterceptedChildrenTextCall_
+			});
+		};
+
+		/**
+   * Checks if any other state property besides "element" has changed since the
+   * last render.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_() {
+			var count = Object.keys(this.changes_).length;
+			if (this.changes_.hasOwnProperty('element')) {
+				count--;
 			}
-			var comp = this.renderSubComponent_(tagOrCtor, config);
-			return comp.element;
+			return count > 0;
+		};
+
+		/**
+   * Intercepts incremental dom calls from this component.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.intercept_ = function intercept_() {
+			IncrementalDomAop.startInterception({
+				attributes: this.handleInterceptedAttributesCall_,
+				elementOpen: this.handleInterceptedOpenCall_
+			});
 		};
 
 		/**
@@ -6987,7 +7141,19 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.isComponentTag_ = function isComponentTag_(tag) {
-			return tag[0] === tag[0].toUpperCase();
+			return !core.isString(tag) || tag[0] === tag[0].toUpperCase();
+		};
+
+		/**
+   * Checks if the given tag represents the metal component currently being
+   * rendered.
+   * @param {string} tag
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.isCurrentComponentTag_ = function isCurrentComponentTag_(tag) {
+			return this.isComponentTag_(tag) && this.componentToRender_.tag === tag;
 		};
 
 		/**
@@ -7004,7 +7170,6 @@ babelHelpers;
    * Calls functions from `IncrementalDOM` to build the component element's
    * content. Can be overriden by subclasses (for integration with template
    * engines for example).
-   * @param {!Object} data Data passed to the component when rendering it.
    */
 
 
@@ -7016,68 +7181,35 @@ babelHelpers;
    * Runs the incremental dom functions for rendering this component, but
    * doesn't call `patch` yet. Rather, this will be the function that should be
    * called by `patch`.
-   * @param {Object=} opt_data Data passed to the component when rendering it.
    */
 
 
-		IncrementalDomRenderer.prototype.renderWithoutPatch = function renderWithoutPatch(opt_data) {
-			// Mark that there shouldn't be an update for state changes so far, since
-			// render has already been called.
-			this.changes_ = {};
+		IncrementalDomRenderer.prototype.renderInsidePatch = function renderInsidePatch() {
+			if (this.component_.wasRendered && !this.shouldUpdate(this.changes_)) {
+				this.skipRerender_();
+				return;
+			}
+			this.renderInsidePatchDontSkip_();
+		};
 
+		/**
+   * The same as `renderInsidePatch`, but without the check that may skip the
+   * render action.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.renderInsidePatchDontSkip_ = function renderInsidePatchDontSkip_() {
+			this.changes_ = {};
 			this.rootElementReached_ = false;
 			this.subComponentsFound_ = {};
 			this.generatedKeyCount_ = 0;
 			this.listenersToAttach_ = [];
-			IncrementalDomAop.startInterception(this.handleInterceptedOpenCall_.bind(this), this.handleInterceptedCloseCall_.bind(this), this.handleInterceptedAttributesCall_.bind(this));
-			object.mixin(this.getRenderingData(), opt_data);
-			this.renderIncDom(this.getRenderingData());
+			this.intercept_();
+			this.renderIncDom();
 			IncrementalDomAop.stopInterception();
 			this.attachInlineListeners_();
-		};
-
-		/**
-   * Checks if the component should be updated with the current state changes.
-   * Can be overridden by subclasses to provide customized behavior (only
-   * updating when a state key used by the template is changed for example).
-   * @param {!Object} changes
-   * @return {boolean}
-   */
-
-
-		IncrementalDomRenderer.prototype.shouldUpdate = function shouldUpdate() {
-			return true;
-		};
-
-		/**
-   * Patches the component's element with the incremental dom function calls
-   * done by `renderIncDom`.
-   */
-
-
-		IncrementalDomRenderer.prototype.patch = function patch() {
-			var tempParent = this.guaranteeParent_();
-			if (tempParent) {
-				IncrementalDOM.patch(tempParent, this.renderWithoutPatch.bind(this));
-				dom.exitDocument(this.component_.element);
-			} else {
-				IncrementalDOM.patchOuter(this.component_.element, this.renderWithoutPatch.bind(this));
-			}
-		};
-
-		/**
-   * Updates the renderer's component when state changes, patching its element
-   * through the incremental dom function calls done by `renderIncDom`.
-   */
-
-
-		IncrementalDomRenderer.prototype.update = function update() {
-			var changedKeys = Object.keys(this.changes_);
-			if (changedKeys.length > 0 && this.shouldUpdate(this.changes_)) {
-				this.patch();
-				this.eventsCollector_.detachUnusedListeners();
-				this.disposeUnusedSubComponents_();
-			}
+			this.emit('rendered', !this.component_.wasRendered);
 		};
 
 		/**
@@ -7097,7 +7229,7 @@ babelHelpers;
 			var comp = this.getSubComponent_(key, tagOrCtor, config);
 			var renderer = comp.getRenderer();
 			if (renderer instanceof IncrementalDomRenderer) {
-				renderer.renderWithoutPatch(config);
+				renderer.renderInsidePatch();
 			} else {
 				console.warn('IncrementalDomRenderer doesn\'t support rendering sub components ' + 'that don\'t use IncrementalDomRenderer as well, like:', comp);
 			}
@@ -7106,6 +7238,68 @@ babelHelpers;
 			}
 			this.subComponentsFound_[key] = true;
 			return comp;
+		};
+
+		/**
+   * Checks if the component should be updated with the current state changes.
+   * Can be overridden by subclasses or implemented by components to provide
+   * customized behavior (only updating when a state property used by the
+   * template changes, for example).
+   * @param {!Object} changes
+   * @return {boolean}
+   */
+
+
+		IncrementalDomRenderer.prototype.shouldUpdate = function shouldUpdate(changes) {
+			if (this.component_.shouldUpdate) {
+				return this.component_.shouldUpdate(changes);
+			}
+			return true;
+		};
+
+		/**
+   * Skips rerendering the component by repeating the last incremental dom call
+   * for creating its main element and then calling `IncrementalDOM.skip`.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.skipRerender_ = function skipRerender_() {
+			IncrementalDOM.elementOpen.apply(null, this.lastElementCreationCall_);
+			IncrementalDOM.skip();
+			IncrementalDOM.elementClose(this.lastElementCreationCall_[0]);
+		};
+
+		/**
+   * Patches the component's element with the incremental dom function calls
+   * done by `renderIncDom`.
+   */
+
+
+		IncrementalDomRenderer.prototype.patch = function patch() {
+			var tempParent = this.guaranteeParent_();
+			if (tempParent) {
+				IncrementalDOM.patch(tempParent, this.renderInsidePatchDontSkip_);
+				dom.exitDocument(this.component_.element);
+			} else {
+				IncrementalDOM.patchOuter(this.component_.element, this.renderInsidePatchDontSkip_);
+			}
+		};
+
+		/**
+   * Updates the renderer's component when state changes, patching its element
+   * through the incremental dom function calls done by `renderIncDom`. Makes
+   * sure that it won't cause a rerender if the only change was for the
+   * "element" property.
+   */
+
+
+		IncrementalDomRenderer.prototype.update = function update() {
+			if (this.hasChangedBesidesElement_() && this.shouldUpdate(this.changes_)) {
+				this.patch();
+				this.eventsCollector_.detachUnusedListeners();
+				this.disposeUnusedSubComponents_();
+			}
 		};
 
 		return IncrementalDomRenderer;
@@ -12044,18 +12238,17 @@ babelHelpers;
    * template call's data. The copying needs to be done because, if the component
    * itself is passed directly, some problems occur when soy tries to merge it
    * with other data, due to property getters and setters. This is safer.
-   * @param {!Object} data Data passed to the component when rendering it.
    * @param {!Array<string>} params The params used by this template.
    * @return {!Object}
    * @protected
    */
 
 
-		Soy.prototype.buildTemplateData_ = function buildTemplateData_(data, params) {
+		Soy.prototype.buildTemplateData_ = function buildTemplateData_(params) {
 			var _this2 = this;
 
 			var component = this.component_;
-			data = object.mixin({}, data);
+			var data = object.mixin({}, component.config);
 			component.getStateKeys().forEach(function (key) {
 				// Get all state values except "element", since it helps performance
 				// and the element shouldn't be referenced inside a soy template anyway.
@@ -12064,7 +12257,7 @@ babelHelpers;
 				}
 
 				var value = component[key];
-				if (component.getStateKeyConfig(key).isHtml || _this2.soyParamTypes_[key] === 'html') {
+				if (_this2.isHtmlParam_(key)) {
 					value = Soy.toIncDom(value);
 				}
 				data[key] = value;
@@ -12108,9 +12301,27 @@ babelHelpers;
 
 
 		Soy.handleInterceptedCall_ = function handleInterceptedCall_(originalFn, opt_data) {
-			var ctor = originalFn.componentCtor;
-			var data = opt_data;
-			IncrementalDOM.elementVoid('Component', null, [], 'ctor', ctor, 'data', data);
+			var args = [originalFn.componentCtor, null, []];
+			var names = Object.keys(opt_data || {});
+			for (var i = 0; i < names.length; i++) {
+				args.push(names[i], opt_data[names[i]]);
+			}
+			IncrementalDOM.elementVoid.apply(null, args);
+		};
+
+		/**
+   * Checks if the given param type is html.
+   * @param {string} name
+   * @protected
+   */
+
+
+		Soy.prototype.isHtmlParam_ = function isHtmlParam_(name) {
+			if (this.component_.getStateKeyConfig(name).isHtml) {
+				return true;
+			}
+			var type = this.soyParamTypes_[name] || '';
+			return type.split('|').indexOf('html') !== -1;
 		};
 
 		/**
@@ -12142,12 +12353,12 @@ babelHelpers;
    */
 
 
-		Soy.prototype.renderIncDom = function renderIncDom(data) {
+		Soy.prototype.renderIncDom = function renderIncDom() {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
 			if (core.isFunction(elementTemplate)) {
 				elementTemplate = SoyAop.getOriginalFn(elementTemplate);
 				SoyAop.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(data, elementTemplate.params || []), null, ijData);
+				elementTemplate(this.buildTemplateData_(elementTemplate.params || []), null, ijData);
 				SoyAop.stopInterception();
 			} else {
 				_IncrementalDomRender.prototype.renderIncDom.call(this);
@@ -12173,6 +12384,10 @@ babelHelpers;
 
 
 		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
+			if (!_IncrementalDomRender.prototype.shouldUpdate.call(this, changes)) {
+				return false;
+			}
+
 			var fn = this.component_.constructor.TEMPLATE;
 			var params = fn ? SoyAop.getOriginalFn(fn).params : [];
 			for (var i = 0; i < params.length; i++) {

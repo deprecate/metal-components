@@ -90,11 +90,11 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			}
 		};
 
-		Soy.prototype.buildTemplateData_ = function buildTemplateData_(data, params) {
+		Soy.prototype.buildTemplateData_ = function buildTemplateData_(params) {
 			var _this2 = this;
 
 			var component = this.component_;
-			data = _metal.object.mixin({}, data);
+			var data = _metal.object.mixin({}, component.config);
 			component.getStateKeys().forEach(function (key) {
 				// Get all state values except "element", since it helps performance
 				// and the element shouldn't be referenced inside a soy template anyway.
@@ -103,7 +103,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 				}
 
 				var value = component[key];
-				if (component.getStateKeyConfig(key).isHtml || _this2.soyParamTypes_[key] === 'html') {
+				if (_this2.isHtmlParam_(key)) {
 					value = Soy.toIncDom(value);
 				}
 				data[key] = value;
@@ -126,9 +126,20 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		};
 
 		Soy.handleInterceptedCall_ = function handleInterceptedCall_(originalFn, opt_data) {
-			var ctor = originalFn.componentCtor;
-			var data = opt_data;
-			IncrementalDOM.elementVoid('Component', null, [], 'ctor', ctor, 'data', data);
+			var args = [originalFn.componentCtor, null, []];
+			var names = Object.keys(opt_data || {});
+			for (var i = 0; i < names.length; i++) {
+				args.push(names[i], opt_data[names[i]]);
+			}
+			IncrementalDOM.elementVoid.apply(null, args);
+		};
+
+		Soy.prototype.isHtmlParam_ = function isHtmlParam_(name) {
+			if (this.component_.getStateKeyConfig(name).isHtml) {
+				return true;
+			}
+			var type = this.soyParamTypes_[name] || '';
+			return type.split('|').indexOf('html') !== -1;
 		};
 
 		Soy.register = function register(componentCtor, templates) {
@@ -141,12 +152,12 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			_component.ComponentRegistry.register(componentCtor);
 		};
 
-		Soy.prototype.renderIncDom = function renderIncDom(data) {
+		Soy.prototype.renderIncDom = function renderIncDom() {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
 			if (_metal.core.isFunction(elementTemplate)) {
 				elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
 				_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
-				elementTemplate(this.buildTemplateData_(data, elementTemplate.params || []), null, ijData);
+				elementTemplate(this.buildTemplateData_(elementTemplate.params || []), null, ijData);
 				_SoyAop2.default.stopInterception();
 			} else {
 				_IncrementalDomRender.prototype.renderIncDom.call(this);
@@ -158,6 +169,10 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		};
 
 		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
+			if (!_IncrementalDomRender.prototype.shouldUpdate.call(this, changes)) {
+				return false;
+			}
+
 			var fn = this.component_.constructor.TEMPLATE;
 			var params = fn ? _SoyAop2.default.getOriginalFn(fn).params : [];
 			for (var i = 0; i < params.length; i++) {

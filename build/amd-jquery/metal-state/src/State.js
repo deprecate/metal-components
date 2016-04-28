@@ -58,6 +58,13 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
     */
 			_this.stateInfo_ = {};
 
+			/**
+    * Object with the most recent values that state properties were set to
+    * through either the constructor or setState calls.
+    * @type {!Object<string, *>}
+    */
+			_this.config = _metal.object.mixin({}, opt_config || {});
+
 			_this.setShouldUseFacade(true);
 			_this.mergeInvalidKeys_();
 			_this.addToStateFromStaticHint_(opt_config);
@@ -306,8 +313,9 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.setState = function setState(values) {
-			var names = Object.keys(values);
+			_metal.object.mixin(this.config, values);
 
+			var names = Object.keys(values);
 			for (var i = 0; i < names.length; i++) {
 				this[names[i]] = values[names[i]];
 			}
@@ -349,7 +357,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
   * constructors, which will be merged together and handled automatically.
   * @type {!Array<string>}
   */
-	State.INVALID_KEYS = ['state', 'stateKey'];
+	State.INVALID_KEYS = ['config', 'state', 'stateKey'];
 
 	/**
   * Constants that represent the states that an a state key can be in.
