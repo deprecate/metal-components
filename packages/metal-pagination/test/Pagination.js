@@ -90,7 +90,7 @@ describe('Pagination', function() {
 
 	it('should fire a "changeRequest" event with correct values if you click on a none active item', function() {
 		pagination = new Pagination({
-			total:5
+			total: 5
 		});
 
 		var itemNodes = pagination.element.querySelectorAll('li.pagination-item');
@@ -136,7 +136,7 @@ describe('Pagination', function() {
 			total: 5
 		});
 
-		assert.strictEqual(102, pagination.getOffsetPageNumber());		
+		assert.strictEqual(102, pagination.getOffsetPageNumber());
 	});
 
 	it('should calculate offsetTotalPages value correctly', function() {
@@ -146,7 +146,7 @@ describe('Pagination', function() {
 			total: 5
 		});
 
-		assert.strictEqual(105, pagination.getOffsetTotalPages());		
+		assert.strictEqual(105, pagination.getOffsetTotalPages());
 	});
 
 	it('should circulate pages by default', function() {
@@ -191,7 +191,7 @@ describe('Pagination', function() {
 
 		var controlNodes = pagination.element.querySelectorAll('li.pagination-control');
 		var prevControl = controlNodes[0];
-		
+
 		assert.ok(dom.hasClass(prevControl, 'disabled'));
 	});
 });

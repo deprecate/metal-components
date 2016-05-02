@@ -8,7 +8,7 @@ import Soy from 'metal-soy';
 /**
  * UI Component that navigate through paged data.
  */
-class Pagination extends Component  {
+class Pagination extends Component {
 	/**
 	 * @inheritDoc
 	 */
