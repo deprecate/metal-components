@@ -36,7 +36,6 @@ class Pagination extends Component  {
 
 	/**
 	 * Fires `changeRequest` event.
-	 * @method _dispatchRequest
 	 * @param {Object} state
 	 * @protected
 	 */
