@@ -83,6 +83,7 @@ if (goog.DEBUG) {
 }
 
 exports.render.params = ["content","title","alignedPosition","elementClasses","position"];
+exports.render.types = {"content":"html","title":"html","alignedPosition":"any","elementClasses":"any","position":"any"};
 templates = exports;
 return exports;
 
@@ -90,6 +91,6 @@ return exports;
 
 class Popover extends Component {}
 Soy.register(Popover, templates);
-export default templates;
 export { Popover, templates };
+export default templates;
 /* jshint ignore:end */

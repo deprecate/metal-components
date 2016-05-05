@@ -55,7 +55,7 @@ Popover.STATE = {
 	 */
 	content: {
 		isHtml: true,
-		validator: core.isString
+		validator: val => core.isString(val) || core.isFunction(val)
 	},
 
 	/**

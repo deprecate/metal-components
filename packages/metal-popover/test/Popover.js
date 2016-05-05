@@ -18,6 +18,14 @@ describe('Popover', function() {
 		assert.strictEqual('content', innerElement.textContent);
 	});
 
+	it('should render incremental dom content', function() {
+		popover = new Popover({
+			content: () => IncrementalDOM.text('content')
+		});
+		var innerElement = popover.element.querySelector('.popover-content');
+		assert.strictEqual('content', innerElement.textContent);
+	});
+
 	it('should render html content', function() {
 		popover = new Popover({
 			content: '<b>content</b>'
