@@ -154,7 +154,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 
 		Soy.prototype.renderIncDom = function renderIncDom() {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
-			if (_metal.core.isFunction(elementTemplate)) {
+			if (_metal.core.isFunction(elementTemplate) && !this.component_.render) {
 				elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
 				_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
 				elementTemplate(this.buildTemplateData_(elementTemplate.params || []), null, ijData);
@@ -169,8 +169,9 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		};
 
 		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
-			if (!_IncrementalDomRender.prototype.shouldUpdate.call(this, changes)) {
-				return false;
+			var should = _IncrementalDomRender.prototype.shouldUpdate.call(this, changes);
+			if (!should || this.component_.shouldUpdate) {
+				return should;
 			}
 
 			var fn = this.component_.constructor.TEMPLATE;

@@ -63,8 +63,9 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
     * through either the constructor or setState calls.
     * @type {!Object<string, *>}
     */
-			_this.config = _metal.object.mixin({}, opt_config || {});
+			_this.config = {};
 
+			_this.updateConfig_(opt_config || {});
 			_this.setShouldUseFacade(true);
 			_this.mergeInvalidKeys_();
 			_this.addToStateFromStaticHint_(opt_config);
@@ -313,8 +314,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.setState = function setState(values) {
-			_metal.object.mixin(this.config, values);
-
+			this.updateConfig_(values);
 			var names = Object.keys(values);
 			for (var i = 0; i < names.length; i++) {
 				this[names[i]] = values[names[i]];
@@ -340,6 +340,15 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
 			var info = this.stateInfo_[name];
 			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this[name]);
+		};
+
+		State.prototype.updateConfig_ = function updateConfig_(values) {
+			var prevConfig = this.config;
+			this.config = _metal.object.mixin({}, this.config, values);
+			this.emit('configChanged', {
+				newVal: this.config,
+				prevVal: prevConfig
+			});
 		};
 
 		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {

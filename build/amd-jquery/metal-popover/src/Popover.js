@@ -91,7 +91,9 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
    */
 		content: {
 			isHtml: true,
-			validator: _metal2.default.isString
+			validator: function validator(val) {
+				return _metal2.default.isString(val) || _metal2.default.isFunction(val);
+			}
 		},
 
 		/**
@@ -102,6 +104,15 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 		triggerEvents: {
 			validator: Array.isArray,
 			value: ['click', 'click']
+		},
+
+		/**
+   * Flag indicating if an arrow should be rendered for the popover.
+   * @type {boolean}
+   * @default true
+   */
+		withArrow: {
+			value: true
 		}
 	};
 

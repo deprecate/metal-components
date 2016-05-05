@@ -816,6 +816,32 @@ babelHelpers;
 			return mappedObj;
 		};
 
+		/**
+   * Checks if the two given objects are equal. This is done via a shallow
+   * check, including only the keys directly contained by the 2 objects.
+   * @return {boolean}
+   */
+
+
+		object.shallowEqual = function shallowEqual(obj1, obj2) {
+			if (obj1 === obj2) {
+				return true;
+			}
+
+			var keys1 = Object.keys(obj1);
+			var keys2 = Object.keys(obj2);
+			if (keys1.length !== keys2.length) {
+				return false;
+			}
+
+			for (var i = 0; i < keys1.length; i++) {
+				if (obj1[keys1[i]] !== obj2[keys1[i]]) {
+					return false;
+				}
+			}
+			return true;
+		};
+
 		return object;
 	}();
 
@@ -839,6 +865,18 @@ babelHelpers;
 
 		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
 			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
+		};
+
+		/**
+  * Escapes characters in the string that are not safe to use in a RegExp.
+  * @param {*} str The string to escape. If not a string, it will be casted
+  *     to one.
+  * @return {string} A RegExp safe, escaped copy of {@code s}.
+  */
+
+
+		string.escapeRegex = function escapeRegex(str) {
+			return String(str).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
 		};
 
 		/**
@@ -1441,6 +1479,15 @@ babelHelpers;
 			_this.originEmitter_ = originEmitter;
 
 			/**
+    * A list of events that are pending to be listened by an actual origin
+    * emitter. Events are stored here when the origin doesn't exist, so they
+    * can be set on a new origin when one is set.
+    * @type {!Array}
+    * @protected
+    */
+			_this.pendingEvents_ = [];
+
+			/**
     * Holds a map of events from the origin emitter that are already being proxied.
     * @type {Object<string, !EventHandle>}
     * @protected
@@ -1523,7 +1570,7 @@ babelHelpers;
 
 		EventEmitterProxy.prototype.proxyEvent = function proxyEvent(event) {
 			if (this.shouldProxyEvent_(event)) {
-				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+				this.tryToAddListener_(event);
 			}
 		};
 
@@ -1539,24 +1586,26 @@ babelHelpers;
 				this.proxiedEvents_[events[i]].removeListener();
 			}
 			this.proxiedEvents_ = {};
+			this.pendingEvents_ = [];
 		};
 
 		/**
    * Changes the origin emitter. This automatically detaches any events that
    * were already being proxied from the previous emitter, and starts proxying
    * them on the new emitter instead.
+   * @param {!EventEmitter} originEmitter
    */
 
 
 		EventEmitterProxy.prototype.setOriginEmitter = function setOriginEmitter(originEmitter) {
-			var handles = this.proxiedEvents_;
+			var _this2 = this;
+
+			var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
 			this.removeListeners_();
 			this.originEmitter_ = originEmitter;
-
-			var events = Object.keys(handles);
-			for (var i = 0; i < events.length; i++) {
-				this.proxiedEvents_[events[i]] = this.addListenerForEvent_(events[i]);
-			}
+			events.forEach(function (event) {
+				return _this2.proxyEvent(event);
+			});
 		};
 
 		/**
@@ -1585,6 +1634,22 @@ babelHelpers;
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
 			this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
+		};
+
+		/**
+   * Adds a listener to the origin emitter, if it exists. Otherwise, stores
+   * the pending listener so it can be used on a future origin emitter.
+   * @param {string} event
+   * @protected
+   */
+
+
+		EventEmitterProxy.prototype.tryToAddListener_ = function tryToAddListener_(event) {
+			if (this.originEmitter_) {
+				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+			} else {
+				this.pendingEvents_.push(event);
+			}
 		};
 
 		return EventEmitterProxy;
@@ -1906,7 +1971,7 @@ babelHelpers;
 
 
 		dom.enterDocument = function enterDocument(node) {
-			dom.append(document.body, node);
+			node && dom.append(document.body, node);
 		};
 
 		/**
@@ -1916,7 +1981,7 @@ babelHelpers;
 
 
 		dom.exitDocument = function exitDocument(node) {
-			if (node.parentNode) {
+			if (node && node.parentNode) {
 				node.parentNode.removeChild(node);
 			}
 		};
@@ -2441,6 +2506,9 @@ babelHelpers;
 
 
 		DomEventEmitterProxy.prototype.isSupportedDomEvent_ = function isSupportedDomEvent_(event) {
+			if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
+				return true;
+			}
 			return event.startsWith('delegate:') && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
 		};
 
@@ -2454,7 +2522,7 @@ babelHelpers;
 
 
 		DomEventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
-			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || this.isSupportedDomEvent_(event));
+			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && this.isSupportedDomEvent_(event);
 		};
 
 		return DomEventEmitterProxy;
@@ -2912,8 +2980,9 @@ babelHelpers;
     * through either the constructor or setState calls.
     * @type {!Object<string, *>}
     */
-			_this.config = object.mixin({}, opt_config || {});
+			_this.config = {};
 
+			_this.updateConfig_(opt_config || {});
 			_this.setShouldUseFacade(true);
 			_this.mergeInvalidKeys_();
 			_this.addToStateFromStaticHint_(opt_config);
@@ -3415,8 +3484,7 @@ babelHelpers;
 
 
 		State.prototype.setState = function setState(values) {
-			object.mixin(this.config, values);
-
+			this.updateConfig_(values);
 			var names = Object.keys(values);
 			for (var i = 0; i < names.length; i++) {
 				this[names[i]] = values[names[i]];
@@ -3466,6 +3534,22 @@ babelHelpers;
 		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
 			var info = this.stateInfo_[name];
 			return info.state === State.KeyStates.INITIALIZED && (core.isObject(prevVal) || prevVal !== this[name]);
+		};
+
+		/**
+   * Updates the config data object with the given values.
+   * @param {!Object} values
+   * @protected
+   */
+
+
+		State.prototype.updateConfig_ = function updateConfig_(values) {
+			var prevConfig = this.config;
+			this.config = object.mixin({}, this.config, values);
+			this.emit('configChanged', {
+				newVal: this.config,
+				prevVal: prevConfig
+			});
 		};
 
 		/**
@@ -4717,13 +4801,6 @@ babelHelpers;
 			_this.wasRendered = false;
 
 			/**
-    * This holds information passed down from ancestors through
-    * `getChildContext`.
-    * @type {!Object}
-    */
-			_this.context = {};
-
-			/**
     * The component's element will be appended to the element this variable is
     * set to, unless the user specifies another parent when calling `render` or
     * `attach`.
@@ -4802,13 +4879,13 @@ babelHelpers;
 
 
 		Component.prototype.attach = function attach(opt_parentElement, opt_siblingElement) {
-			if (!this.element) {
-				throw new Error(Component.Error.ELEMENT_NOT_CREATED);
-			}
 			if (!this.inDocument) {
 				this.renderElement_(opt_parentElement, opt_siblingElement);
 				this.inDocument = true;
-				this.emit('attached');
+				this.emit('attached', {
+					parent: opt_parentElement,
+					sibling: opt_siblingElement
+				});
 				this.attached();
 			}
 			return this;
@@ -4842,9 +4919,7 @@ babelHelpers;
 				}
 				this.components[key] = new ConstructorFn(opt_data, false);
 			}
-			var comp = this.components[key];
-			comp.context = object.mixin({}, this.context, this.getChildContext());
-			return comp;
+			return this.components[key];
 		};
 
 		/**
@@ -4893,7 +4968,7 @@ babelHelpers;
 
 		Component.prototype.detach = function detach() {
 			if (this.inDocument) {
-				if (this.element.parentNode) {
+				if (this.element && this.element.parentNode) {
 					this.element.parentNode.removeChild(this.element);
 				}
 				this.inDocument = false;
@@ -5021,17 +5096,6 @@ babelHelpers;
 				}
 				fn.call(this, opt_change.newVal, opt_change.prevVal);
 			}
-		};
-
-		/**
-   * Returns an object with context data to be added to all descendant
-   * components. Subclasses can override this to have any data they wish.
-   * @return {!Object}
-   */
-
-
-		Component.prototype.getChildContext = function getChildContext() {
-			return {};
 		};
 
 		/**
@@ -5178,7 +5242,7 @@ babelHelpers;
 
 		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
 			var element = this.element;
-			if (opt_siblingElement || !element.parentNode) {
+			if (element && (opt_siblingElement || !element.parentNode)) {
 				var parent = dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
 				parent.insertBefore(element, dom.toElement(opt_siblingElement));
 			}
@@ -5194,7 +5258,11 @@ babelHelpers;
 
 
 		Component.prototype.setterElementFn_ = function setterElementFn_(newVal, currentVal) {
-			return dom.toElement(newVal) || currentVal;
+			var element = newVal;
+			if (element) {
+				element = dom.toElement(newVal) || currentVal;
+			}
+			return element;
 		};
 
 		/**
@@ -5296,14 +5364,14 @@ babelHelpers;
 
 		/**
    * Validator logic for element state key.
-   * @param {string|Element} val
+   * @param {?string|Element} val
    * @return {boolean} True if val is a valid element.
    * @protected
    */
 
 
 		Component.prototype.validatorElementFn_ = function validatorElementFn_(val) {
-			return core.isElement(val) || core.isString(val);
+			return core.isElement(val) || core.isString(val) || !core.isDefAndNotNull(val);
 		};
 
 		/**
@@ -5386,21 +5454,10 @@ babelHelpers;
 	Component.RENDERER = ComponentRenderer;
 
 	/**
-  * Errors thrown by the component.
-  * @enum {string}
-  */
-	Component.Error = {
-		/**
-   * Error when the component is attached but its element hasn't been created yet.
-   */
-		ELEMENT_NOT_CREATED: 'Can\'t attach component element. It hasn\'t been created yet.'
-	};
-
-	/**
   * A list with state key names that will automatically be rejected as invalid.
   * @type {!Array<string>}
   */
-	Component.INVALID_KEYS = ['components', 'context', 'wasRendered'];
+	Component.INVALID_KEYS = ['components', 'wasRendered'];
 
 	this.metal.Component = Component;
 }).call(this);
@@ -6765,7 +6822,9 @@ babelHelpers;
 (function () {
 	var array = this.metalNamed.metal.array;
 	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
+	var Component = this.metalNamed.component.Component;
 	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
 	var EventsCollector = this.metalNamed.component.EventsCollector;
 	var IncrementalDomAop = this.metal.IncrementalDomAop;
@@ -6786,9 +6845,12 @@ babelHelpers;
 
 			var _this = babelHelpers.possibleConstructorReturn(this, _ComponentRenderer.call(this, comp));
 
+			comp.context = {};
 			_this.changes_ = {};
 			_this.eventsCollector_ = new EventsCollector(comp);
+			_this.lastElementCreationCall_ = [];
 			comp.on('stateKeyChanged', _this.handleStateKeyChanged_.bind(_this));
+			comp.on('attached', _this.handleAttached_.bind(_this));
 			comp.on('detached', _this.handleDetached_.bind(_this));
 
 			// Binds functions that will be used many times, to avoid creating new
@@ -6849,13 +6911,36 @@ babelHelpers;
 		IncrementalDomRenderer.prototype.buildChildrenFn_ = function buildChildrenFn_(calls) {
 			var _this2 = this;
 
-			return function () {
+			if (calls.length === 0) {
+				return emptyChildrenFn_;
+			}
+			var prefix = this.buildKey_();
+			var fn = function fn() {
+				var prevPrefix = _this2.currentPrefix_;
+				_this2.generatedKeyCount_[prefix] = 0;
+				_this2.currentPrefix_ = prefix;
 				_this2.intercept_();
 				for (var i = 0; i < calls.length; i++) {
 					IncrementalDOM[calls[i].name].apply(null, array.slice(calls[i].args, 1));
 				}
 				IncrementalDomAop.stopInterception();
+				_this2.currentPrefix_ = prevPrefix;
 			};
+			fn.iDomCalls = calls;
+			return fn;
+		};
+
+		/**
+   * Builds the key for the next component that is found.
+   * @return {string}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.buildKey_ = function buildKey_() {
+			var count = this.generatedKeyCount_[this.currentPrefix_] || 0;
+			this.generatedKeyCount_[this.currentPrefix_] = count + 1;
+			return this.currentPrefix_ + 'sub' + count;
 		};
 
 		/**
@@ -6873,6 +6958,16 @@ babelHelpers;
 				}
 			}
 			this.component_.disposeSubComponents(unused);
+		};
+
+		/**
+   * Gets the component being currently rendered via `IncrementalDomRenderer`.
+   * @return {Component}
+   */
+
+
+		IncrementalDomRenderer.getComponentBeingRendered = function getComponentBeingRendered() {
+			return renderingComponents_[renderingComponents_.length - 1];
 		};
 
 		/**
@@ -6912,6 +7007,26 @@ babelHelpers;
 				}
 				return parent;
 			}
+		};
+
+		/**
+   * Removes the most recent component from the queue of rendering components.
+   */
+
+
+		IncrementalDomRenderer.finishedRenderingComponent = function finishedRenderingComponent() {
+			renderingComponents_.pop();
+		};
+
+		/**
+   * Handles the `attached` listener. Stores attach data.
+   * @param {!Object} data
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleAttached_ = function handleAttached_(data) {
+			this.attachData_ = data;
 		};
 
 		/**
@@ -6973,7 +7088,9 @@ babelHelpers;
 				config.children = this.buildChildrenFn_(calls);
 				this.componentToRender_ = null;
 				IncrementalDomAop.stopInterception();
-				return this.renderSubComponent_(tag, config).element;
+				var comp = this.renderSubComponent_(tag, config);
+				this.updateElementIfNotReached_(comp);
+				return comp.element;
 			}
 			this.componentToRender_.calls.push({
 				name: 'elementClose',
@@ -7047,17 +7164,15 @@ babelHelpers;
 			var attrsArr = array.slice(arguments, 4);
 			this.addInlineListeners_((statics || []).concat(attrsArr));
 			var args = array.slice(arguments, 1);
-			if (!this.rootElementReached_ && this.component_.config.key) {
-				args[1] = this.component_.config.key;
+
+			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
+			var currRenderer = currComp.getRenderer();
+			if (!currRenderer.rootElementReached_ && currComp.config.key) {
+				args[1] = currComp.config.key;
 			}
+
 			var node = originalFn.apply(null, args);
-			if (!this.rootElementReached_) {
-				this.rootElementReached_ = true;
-				if (this.component_.element !== node) {
-					this.component_.element = node;
-				}
-				this.lastElementCreationCall_ = args;
-			}
+			this.updateElementIfNotReached_(node, args);
 			return node;
 		};
 
@@ -7174,7 +7289,11 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.renderIncDom = function renderIncDom() {
-			IncrementalDOM.elementVoid('div');
+			if (this.component_.render) {
+				this.component_.render();
+			} else {
+				IncrementalDOM.elementVoid('div');
+			}
 		};
 
 		/**
@@ -7200,15 +7319,21 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.renderInsidePatchDontSkip_ = function renderInsidePatchDontSkip_() {
+			IncrementalDomRenderer.startedRenderingComponent(this.component_);
 			this.changes_ = {};
 			this.rootElementReached_ = false;
 			this.subComponentsFound_ = {};
-			this.generatedKeyCount_ = 0;
+			this.generatedKeyCount_ = {};
 			this.listenersToAttach_ = [];
+			this.currentPrefix_ = '';
 			this.intercept_();
 			this.renderIncDom();
 			IncrementalDomAop.stopInterception();
 			this.attachInlineListeners_();
+			IncrementalDomRenderer.finishedRenderingComponent();
+			if (!this.rootElementReached_) {
+				this.component_.element = null;
+			}
 			this.emit('rendered', !this.component_.wasRendered);
 		};
 
@@ -7225,10 +7350,12 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tagOrCtor, config) {
-			var key = config.key || 'sub' + this.generatedKeyCount_++;
+			var key = config.key || this.buildKey_();
 			var comp = this.getSubComponent_(key, tagOrCtor, config);
+			this.updateContext_(comp);
 			var renderer = comp.getRenderer();
 			if (renderer instanceof IncrementalDomRenderer) {
+				renderer.lastParentComponent_ = IncrementalDomRenderer.getComponentBeingRendered();
 				renderer.renderInsidePatch();
 			} else {
 				console.warn('IncrementalDomRenderer doesn\'t support rendering sub components ' + 'that don\'t use IncrementalDomRenderer as well, like:', comp);
@@ -7265,9 +7392,21 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.skipRerender_ = function skipRerender_() {
-			IncrementalDOM.elementOpen.apply(null, this.lastElementCreationCall_);
-			IncrementalDOM.skip();
-			IncrementalDOM.elementClose(this.lastElementCreationCall_[0]);
+			if (this.lastElementCreationCall_.length > 0) {
+				IncrementalDOM.elementOpen.apply(null, this.lastElementCreationCall_);
+				IncrementalDOM.skip();
+				IncrementalDOM.elementClose(this.lastElementCreationCall_[0]);
+			}
+		};
+
+		/**
+   * Stores the component that has just started being rendered.
+   * @param {!Component} comp
+   */
+
+
+		IncrementalDomRenderer.startedRenderingComponent = function startedRenderingComponent(comp) {
+			renderingComponents_.push(comp);
 		};
 
 		/**
@@ -7277,12 +7416,27 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.patch = function patch() {
+			if (!this.component_.element && this.lastParentComponent_) {
+				// If the component has no content but was rendered from another component,
+				// we'll need to patch this parent to make sure that any new content will
+				// be added in the right place.
+				this.lastParentComponent_.getRenderer().patch();
+				return;
+			}
+
 			var tempParent = this.guaranteeParent_();
 			if (tempParent) {
 				IncrementalDOM.patch(tempParent, this.renderInsidePatchDontSkip_);
 				dom.exitDocument(this.component_.element);
+				if (this.component_.element && this.component_.inDocument) {
+					this.component_.renderElement_(this.attachData_.parent, this.attachData_.sibling);
+				}
 			} else {
-				IncrementalDOM.patchOuter(this.component_.element, this.renderInsidePatchDontSkip_);
+				var element = this.component_.element;
+				IncrementalDOM.patchOuter(element, this.renderInsidePatchDontSkip_);
+				if (!this.component_.element) {
+					dom.exitDocument(element);
+				}
 			}
 		};
 
@@ -7302,8 +7456,60 @@ babelHelpers;
 			}
 		};
 
+		/**
+   * Updates this renderer's component's element with the given values, unless
+   * it has already been reached by an earlier call.
+   * @param {!Element|Component} nodeOrComponent
+   * @param {Array=} opt_args The arguments that were used to create this
+   *     element via incremental dom.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.updateElementIfNotReached_ = function updateElementIfNotReached_(nodeOrComponent, opt_args) {
+			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
+			var currRenderer = currComp.getRenderer();
+			if (!currRenderer.rootElementReached_) {
+				currRenderer.rootElementReached_ = true;
+
+				var node = nodeOrComponent;
+				var args = opt_args;
+
+				if (nodeOrComponent instanceof Component) {
+					var renderer = nodeOrComponent.getRenderer();
+					args = renderer instanceof IncrementalDomRenderer ? renderer.lastElementCreationCall_ : [];
+					node = nodeOrComponent.element;
+				}
+
+				if (currComp.element !== node) {
+					currComp.element = node;
+				}
+				currRenderer.lastElementCreationCall_ = args;
+			}
+		};
+
+		/**
+   * Updates the given component's context according to the data from the
+   * component that is currently being rendered.
+   * @param {!Component} comp
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.updateContext_ = function updateContext_(comp) {
+			var context = comp.context;
+			var parent = IncrementalDomRenderer.getComponentBeingRendered();
+			var childContext = parent.getChildContext ? parent.getChildContext() : {};
+			object.mixin(context, parent.context, childContext);
+			comp.context = context;
+		};
+
 		return IncrementalDomRenderer;
 	}(ComponentRenderer);
+
+	var renderingComponents_ = [];
+	function emptyChildrenFn_() {}
+	emptyChildrenFn_.calls = [];
 
 	this.metal.IncrementalDomRenderer = IncrementalDomRenderer;
 }).call(this);
@@ -12355,7 +12561,7 @@ babelHelpers;
 
 		Soy.prototype.renderIncDom = function renderIncDom() {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
-			if (core.isFunction(elementTemplate)) {
+			if (core.isFunction(elementTemplate) && !this.component_.render) {
 				elementTemplate = SoyAop.getOriginalFn(elementTemplate);
 				SoyAop.startInterception(Soy.handleInterceptedCall_);
 				elementTemplate(this.buildTemplateData_(elementTemplate.params || []), null, ijData);
@@ -12384,8 +12590,9 @@ babelHelpers;
 
 
 		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
-			if (!_IncrementalDomRender.prototype.shouldUpdate.call(this, changes)) {
-				return false;
+			var should = _IncrementalDomRender.prototype.shouldUpdate.call(this, changes);
+			if (!should || this.component_.shouldUpdate) {
+				return should;
 			}
 
 			var fn = this.component_.constructor.TEMPLATE;
@@ -17259,6 +17466,7 @@ babelHelpers;
      *    alignedPosition: (?),
      *    elementClasses: (?),
      *    position: (?),
+     *    withArrow: (?),
      *    content: (?soydata.SanitizedHtml|string|undefined),
      *    title: (?soydata.SanitizedHtml|string|undefined)
      * }} opt_data
@@ -17277,7 +17485,9 @@ babelHelpers;
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
       var positionClass__soy5 = currentPosition__soy4 != null ? positionClasses__soy3[currentPosition__soy4] : 'bottom';
       ie_open('div', null, null, 'class', 'popover ' + positionClass__soy5 + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tooltip');
-      ie_void('div', null, null, 'class', 'arrow');
+      if (opt_data.withArrow || !(opt_data.withArrow != null)) {
+        ie_void('div', null, null, 'class', 'arrow');
+      }
       ie_open('h3', null, null, 'class', 'popover-title' + (title ? '' : ' hidden'));
       if (title) {
         title();
@@ -17297,7 +17507,8 @@ babelHelpers;
       $render.soyTemplateName = 'Popover.render';
     }
 
-    exports.render.params = ["content", "title", "alignedPosition", "elementClasses", "position"];
+    exports.render.params = ["content", "title", "alignedPosition", "elementClasses", "position", "withArrow"];
+    exports.render.types = { "content": "html", "title": "html", "alignedPosition": "any", "elementClasses": "any", "position": "any", "withArrow": "any" };
     templates = exports;
     return exports;
   });
@@ -17314,10 +17525,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(Popover, templates);
-  this.metal.Popover = templates;
   this.metalNamed.Popover = this.metalNamed.Popover || {};
   this.metalNamed.Popover.Popover = Popover;
   this.metalNamed.Popover.templates = templates;
+  this.metal.Popover = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
@@ -17392,7 +17603,9 @@ babelHelpers;
    */
 		content: {
 			isHtml: true,
-			validator: core.isString
+			validator: function validator(val) {
+				return core.isString(val) || core.isFunction(val);
+			}
 		},
 
 		/**
@@ -17403,6 +17616,15 @@ babelHelpers;
 		triggerEvents: {
 			validator: Array.isArray,
 			value: ['click', 'click']
+		},
+
+		/**
+   * Flag indicating if an arrow should be rendered for the popover.
+   * @type {boolean}
+   * @default true
+   */
+		withArrow: {
+			value: true
 		}
 	};
 

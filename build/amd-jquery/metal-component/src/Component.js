@@ -115,13 +115,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			_this.wasRendered = false;
 
 			/**
-    * This holds information passed down from ancestors through
-    * `getChildContext`.
-    * @type {!Object}
-    */
-			_this.context = {};
-
-			/**
     * The component's element will be appended to the element this variable is
     * set to, unless the user specifies another parent when calling `render` or
     * `attach`.
@@ -178,13 +171,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 		};
 
 		Component.prototype.attach = function attach(opt_parentElement, opt_siblingElement) {
-			if (!this.element) {
-				throw new Error(Component.Error.ELEMENT_NOT_CREATED);
-			}
 			if (!this.inDocument) {
 				this.renderElement_(opt_parentElement, opt_siblingElement);
 				this.inDocument = true;
-				this.emit('attached');
+				this.emit('attached', {
+					parent: opt_parentElement,
+					sibling: opt_siblingElement
+				});
 				this.attached();
 			}
 			return this;
@@ -200,9 +193,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 				}
 				this.components[key] = new ConstructorFn(opt_data, false);
 			}
-			var comp = this.components[key];
-			comp.context = _metal.object.mixin({}, this.context, this.getChildContext());
-			return comp;
+			return this.components[key];
 		};
 
 		Component.prototype.created = function created() {};
@@ -218,7 +209,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 		Component.prototype.detach = function detach() {
 			if (this.inDocument) {
-				if (this.element.parentNode) {
+				if (this.element && this.element.parentNode) {
 					this.element.parentNode.removeChild(this.element);
 				}
 				this.inDocument = false;
@@ -296,10 +287,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			}
 		};
 
-		Component.prototype.getChildContext = function getChildContext() {
-			return {};
-		};
-
 		Component.prototype.getRenderer = function getRenderer() {
 			return this.renderer_;
 		};
@@ -360,14 +347,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 		Component.prototype.renderElement_ = function renderElement_(opt_parentElement, opt_siblingElement) {
 			var element = this.element;
-			if (opt_siblingElement || !element.parentNode) {
+			if (element && (opt_siblingElement || !element.parentNode)) {
 				var parent = _dom.dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
 				parent.insertBefore(element, _dom.dom.toElement(opt_siblingElement));
 			}
 		};
 
 		Component.prototype.setterElementFn_ = function setterElementFn_(newVal, currentVal) {
-			return _dom.dom.toElement(newVal) || currentVal;
+			var element = newVal;
+			if (element) {
+				element = _dom.dom.toElement(newVal) || currentVal;
+			}
+			return element;
 		};
 
 		Component.prototype.setUpProxy_ = function setUpProxy_() {
@@ -418,7 +409,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 		};
 
 		Component.prototype.validatorElementFn_ = function validatorElementFn_(val) {
-			return _metal.core.isElement(val) || _metal.core.isString(val);
+			return _metal.core.isElement(val) || _metal.core.isString(val) || !_metal.core.isDefAndNotNull(val);
 		};
 
 		Component.prototype.validatorEventsFn_ = function validatorEventsFn_(val) {
@@ -491,21 +482,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 	Component.RENDERER = _ComponentRenderer2.default;
 
 	/**
-  * Errors thrown by the component.
-  * @enum {string}
-  */
-	Component.Error = {
-		/**
-   * Error when the component is attached but its element hasn't been created yet.
-   */
-		ELEMENT_NOT_CREATED: 'Can\'t attach component element. It hasn\'t been created yet.'
-	};
-
-	/**
   * A list with state key names that will automatically be rejected as invalid.
   * @type {!Array<string>}
   */
-	Component.INVALID_KEYS = ['components', 'context', 'wasRendered'];
+	Component.INVALID_KEYS = ['components', 'wasRendered'];
 
 	exports.default = Component;
 });
