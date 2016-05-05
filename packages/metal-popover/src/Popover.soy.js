@@ -39,6 +39,7 @@ var iattr = IncrementalDom.attr;
  *    alignedPosition: (?),
  *    elementClasses: (?),
  *    position: (?),
+ *    withArrow: (?),
  *    content: (?soydata.SanitizedHtml|string|undefined),
  *    title: (?soydata.SanitizedHtml|string|undefined)
  * }} opt_data
@@ -59,8 +60,10 @@ function $render(opt_data, opt_ignored, opt_ijData) {
   ie_open('div', null, null,
       'class', 'popover ' + positionClass__soy5 + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
       'role', 'tooltip');
-    ie_void('div', null, null,
-        'class', 'arrow');
+    if (opt_data.withArrow || ! (opt_data.withArrow != null)) {
+      ie_void('div', null, null,
+          'class', 'arrow');
+    }
     ie_open('h3', null, null,
         'class', 'popover-title' + (title ? '' : ' hidden'));
       if (title) {
@@ -82,8 +85,8 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Popover.render';
 }
 
-exports.render.params = ["content","title","alignedPosition","elementClasses","position"];
-exports.render.types = {"content":"html","title":"html","alignedPosition":"any","elementClasses":"any","position":"any"};
+exports.render.params = ["content","title","alignedPosition","elementClasses","position","withArrow"];
+exports.render.types = {"content":"html","title":"html","alignedPosition":"any","elementClasses":"any","position":"any","withArrow":"any"};
 templates = exports;
 return exports;
 

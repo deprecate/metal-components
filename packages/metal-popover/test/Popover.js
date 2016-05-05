@@ -52,6 +52,18 @@ describe('Popover', function() {
 		assert.strictEqual('title', innerElement.textContent);
 	});
 
+	it('should render arrow', function() {
+		popover = new Popover();
+		assert.ok(popover.element.querySelector('.arrow'));
+	});
+
+	it('should render arrow if "withArrow" is set to false', function() {
+		popover = new Popover({
+			withArrow: false
+		});
+		assert.ok(!popover.element.querySelector('.arrow'));
+	});
+
 	it('should set display to "block" when popover becomes visible', function(done) {
 		popover = new Popover({
 			visible: false

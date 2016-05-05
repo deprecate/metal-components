@@ -66,6 +66,15 @@ Popover.STATE = {
 	triggerEvents: {
 		validator: Array.isArray,
 		value: ['click', 'click']
+	},
+
+	/**
+	 * Flag indicating if an arrow should be rendered for the popover.
+	 * @type {boolean}
+	 * @default true
+	 */
+	withArrow: {
+		value: true
 	}
 };
 
