@@ -4912,11 +4912,18 @@ babelHelpers;
 
 
 		Component.prototype.addSubComponent = function addSubComponent(key, componentNameOrCtor, opt_data) {
-			if (!this.components[key]) {
-				var ConstructorFn = componentNameOrCtor;
-				if (core.isString(ConstructorFn)) {
-					ConstructorFn = ComponentRegistry.getConstructor(componentNameOrCtor);
-				}
+			var ConstructorFn = componentNameOrCtor;
+			if (core.isString(ConstructorFn)) {
+				ConstructorFn = ComponentRegistry.getConstructor(componentNameOrCtor);
+			}
+
+			var component = this.components[key];
+			if (component && component.constructor !== ConstructorFn) {
+				component.dispose();
+				component = null;
+			}
+
+			if (!component) {
 				this.components[key] = new ConstructorFn(opt_data, false);
 			}
 			return this.components[key];
@@ -7059,14 +7066,29 @@ babelHelpers;
 				if (core.isFunction(value)) {
 					dom.on(element, eventName, value);
 				}
-			} else if (name === 'checked') {
+			}
+
+			if (name === 'checked') {
 				// This is a temporary fix to account for incremental dom setting
 				// "checked" as an attribute only, which can cause bugs since that won't
 				// necessarily check/uncheck the element it's set on. See
 				// https://github.com/google/incremental-dom/issues/198 for more details.
-				element.checked = core.isDefAndNotNull(value) && value !== false;
+				value = core.isDefAndNotNull(value) && value !== false;
 			}
-			originalFn(element, name, value);
+
+			if (core.isBoolean(value)) {
+				// Incremental dom sets boolean values as string data attributes, which
+				// is counter intuitive. This changes the behavior to use the actual
+				// boolean value.
+				element[name] = value;
+				if (value) {
+					element.setAttribute(name, '');
+				} else {
+					element.removeAttribute(name);
+				}
+			} else {
+				originalFn(element, name, value);
+			}
 		};
 
 		/**
@@ -7088,9 +7110,7 @@ babelHelpers;
 				config.children = this.buildChildrenFn_(calls);
 				this.componentToRender_ = null;
 				IncrementalDomAop.stopInterception();
-				var comp = this.renderSubComponent_(tag, config);
-				this.updateElementIfNotReached_(comp);
-				return comp.element;
+				return this.renderFromTag_(tag, config);
 			}
 			this.componentToRender_.calls.push({
 				name: 'elementClose',
@@ -7279,6 +7299,24 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.render = function render() {
 			this.patch();
+		};
+
+		/**
+   * Renders the contents for the given tag.
+   * @param {!function()|string} tag
+   * @param {!Object} config
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.renderFromTag_ = function renderFromTag_(tag, config) {
+			if (core.isString(tag) || tag.prototype.getRenderer) {
+				var comp = this.renderSubComponent_(tag, config);
+				this.updateElementIfNotReached_(comp);
+				return comp.element;
+			} else {
+				return tag(config);
+			}
 		};
 
 		/**
@@ -7548,7 +7586,7 @@ babelHelpers;
      */
 
     /**
-     * @define {boolean} Overridden to true by the compiler when
+     * @type {boolean} Overridden to true by the compiler when
      *     --process_closure_primitives is specified.
      */
     var COMPILED = false;
@@ -7682,7 +7720,7 @@ babelHelpers;
     };
 
     /**
-     * @define {boolean} DEBUG is provided as a convenience so that debugging code
+     * @type {boolean} DEBUG is provided as a convenience so that debugging code
      * that should not be included in a production js_binary can be easily stripped
      * by specifying --define goog.DEBUG=false to the JSCompiler. For example, most
      * toString() methods should be declared inside an "if (goog.DEBUG)" conditional
@@ -7692,7 +7730,7 @@ babelHelpers;
     goog.define('goog.DEBUG', true);
 
     /**
-     * @define {string} LOCALE defines the locale being used for compilation. It is
+     * @type {string} LOCALE defines the locale being used for compilation. It is
      * used to select locale specific data to be compiled in js binary. BUILD rule
      * can specify this value by "--define goog.LOCALE=<locale_name>" as JSCompiler
      * option.
@@ -7713,7 +7751,7 @@ babelHelpers;
     goog.define('goog.LOCALE', 'en'); // default to en
 
     /**
-     * @define {boolean} Whether this code is running on trusted sites.
+     * @type {boolean} Whether this code is running on trusted sites.
      *
      * On untrusted sites, several native functions can be defined or overridden by
      * external libraries like Prototype, Datejs, and JQuery and setting this flag
@@ -7726,7 +7764,7 @@ babelHelpers;
     goog.define('goog.TRUSTED_SITE', true);
 
     /**
-     * @define {boolean} Whether a project is expected to be running in strict mode.
+     * @type {boolean} Whether a project is expected to be running in strict mode.
      *
      * This define can be used to trigger alternate implementations compatible with
      * running in EcmaScript Strict mode or warn about unavailable functionality.
@@ -7736,13 +7774,13 @@ babelHelpers;
     goog.define('goog.STRICT_MODE_COMPATIBLE', false);
 
     /**
-     * @define {boolean} Whether code that calls {@link goog.setTestOnly} should
+     * @type {boolean} Whether code that calls {@link goog.setTestOnly} should
      *     be disallowed in the compilation unit.
      */
     goog.define('goog.DISALLOW_TEST_ONLY_CODE', COMPILED && !goog.DEBUG);
 
     /**
-     * @define {boolean} Whether to use a Chrome app CSP-compliant method for
+     * @type {boolean} Whether to use a Chrome app CSP-compliant method for
      *     loading scripts via goog.require. @see appendScriptSrcNode_.
      */
     goog.define('goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING', false);
@@ -8062,7 +8100,7 @@ babelHelpers;
     // for example). See bootstrap/ for more information.
 
     /**
-     * @define {boolean} Whether to enable the debug loader.
+     * @type {boolean} Whether to enable the debug loader.
      *
      * If enabled, a call to goog.require() will attempt to load the namespace by
      * appending a script tag to the DOM (if the namespace has been registered).
@@ -8206,7 +8244,7 @@ babelHelpers;
     goog.instantiatedSingletons_ = [];
 
     /**
-     * @define {boolean} Whether to load goog.modules using {@code eval} when using
+     * @type {boolean} Whether to load goog.modules using {@code eval} when using
      * the debug loader.  This provides a better debugging experience as the
      * source is unmodified and can be edited using Chrome Workspaces or similar.
      * However in some environments the use of {@code eval} is banned
@@ -8215,7 +8253,7 @@ babelHelpers;
     goog.define('goog.LOAD_MODULE_USING_EVAL', true);
 
     /**
-     * @define {boolean} Whether the exports of goog.modules should be sealed when
+     * @type {boolean} Whether the exports of goog.modules should be sealed when
      * possible.
      */
     goog.define('goog.SEAL_MODULE_EXPORTS', goog.DEBUG);
@@ -10001,7 +10039,7 @@ babelHelpers;
     goog.provide('goog.i18n.bidi.Format');
 
     /**
-     * @define {boolean} FORCE_RTL forces the {@link goog.i18n.bidi.IS_RTL} constant
+     * @type {boolean} FORCE_RTL forces the {@link goog.i18n.bidi.IS_RTL} constant
      * to say that the current locale is a RTL locale.  This should only be used
      * if you want to override the default behavior for deciding whether the
      * current locale is RTL or not.
@@ -10773,7 +10811,7 @@ babelHelpers;
     goog.provide('goog.asserts');
 
     /**
-     * @define {boolean} Whether to strip out asserts or to leave them in.
+     * @type {boolean} Whether to strip out asserts or to leave them in.
      */
     goog.define('goog.asserts.ENABLE_ASSERTS', goog.DEBUG);
 
@@ -12697,6 +12735,7 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      opt_data = opt_data || {};
       soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       ie_open('div', null, null, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
