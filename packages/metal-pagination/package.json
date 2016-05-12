@@ -1,7 +1,7 @@
 {
 	"name": "metal-pagination",
 	"version": "0.0.0",
-	"description": "Pagination",
+	"description": "Metal.js's pagination component",
 	"license": "BSD",
 	"repository": "metal/metal-pagination",
 	"engines": {

@@ -1,6 +1,6 @@
 # metal-pagination
 
-Pagination
+Metal.js's pagination component.
 
 ## Setup
 
