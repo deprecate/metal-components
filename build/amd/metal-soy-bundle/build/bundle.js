@@ -38,7 +38,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
      */
 
     /**
-     * @type {boolean} Overridden to true by the compiler when
+     * @define {boolean} Overridden to true by the compiler when
      *     --process_closure_primitives is specified.
      */
     var COMPILED = false;
@@ -172,7 +172,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     };
 
     /**
-     * @type {boolean} DEBUG is provided as a convenience so that debugging code
+     * @define {boolean} DEBUG is provided as a convenience so that debugging code
      * that should not be included in a production js_binary can be easily stripped
      * by specifying --define goog.DEBUG=false to the JSCompiler. For example, most
      * toString() methods should be declared inside an "if (goog.DEBUG)" conditional
@@ -182,7 +182,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.define('goog.DEBUG', true);
 
     /**
-     * @type {string} LOCALE defines the locale being used for compilation. It is
+     * @define {string} LOCALE defines the locale being used for compilation. It is
      * used to select locale specific data to be compiled in js binary. BUILD rule
      * can specify this value by "--define goog.LOCALE=<locale_name>" as JSCompiler
      * option.
@@ -203,7 +203,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.define('goog.LOCALE', 'en'); // default to en
 
     /**
-     * @type {boolean} Whether this code is running on trusted sites.
+     * @define {boolean} Whether this code is running on trusted sites.
      *
      * On untrusted sites, several native functions can be defined or overridden by
      * external libraries like Prototype, Datejs, and JQuery and setting this flag
@@ -216,7 +216,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.define('goog.TRUSTED_SITE', true);
 
     /**
-     * @type {boolean} Whether a project is expected to be running in strict mode.
+     * @define {boolean} Whether a project is expected to be running in strict mode.
      *
      * This define can be used to trigger alternate implementations compatible with
      * running in EcmaScript Strict mode or warn about unavailable functionality.
@@ -226,13 +226,13 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.define('goog.STRICT_MODE_COMPATIBLE', false);
 
     /**
-     * @type {boolean} Whether code that calls {@link goog.setTestOnly} should
+     * @define {boolean} Whether code that calls {@link goog.setTestOnly} should
      *     be disallowed in the compilation unit.
      */
     goog.define('goog.DISALLOW_TEST_ONLY_CODE', COMPILED && !goog.DEBUG);
 
     /**
-     * @type {boolean} Whether to use a Chrome app CSP-compliant method for
+     * @define {boolean} Whether to use a Chrome app CSP-compliant method for
      *     loading scripts via goog.require. @see appendScriptSrcNode_.
      */
     goog.define('goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING', false);
@@ -552,7 +552,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     // for example). See bootstrap/ for more information.
 
     /**
-     * @type {boolean} Whether to enable the debug loader.
+     * @define {boolean} Whether to enable the debug loader.
      *
      * If enabled, a call to goog.require() will attempt to load the namespace by
      * appending a script tag to the DOM (if the namespace has been registered).
@@ -696,7 +696,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.instantiatedSingletons_ = [];
 
     /**
-     * @type {boolean} Whether to load goog.modules using {@code eval} when using
+     * @define {boolean} Whether to load goog.modules using {@code eval} when using
      * the debug loader.  This provides a better debugging experience as the
      * source is unmodified and can be edited using Chrome Workspaces or similar.
      * However in some environments the use of {@code eval} is banned
@@ -705,7 +705,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.define('goog.LOAD_MODULE_USING_EVAL', true);
 
     /**
-     * @type {boolean} Whether the exports of goog.modules should be sealed when
+     * @define {boolean} Whether the exports of goog.modules should be sealed when
      * possible.
      */
     goog.define('goog.SEAL_MODULE_EXPORTS', goog.DEBUG);
@@ -2491,7 +2491,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.provide('goog.i18n.bidi.Format');
 
     /**
-     * @type {boolean} FORCE_RTL forces the {@link goog.i18n.bidi.IS_RTL} constant
+     * @define {boolean} FORCE_RTL forces the {@link goog.i18n.bidi.IS_RTL} constant
      * to say that the current locale is a RTL locale.  This should only be used
      * if you want to override the default behavior for deciding whether the
      * current locale is RTL or not.
@@ -3263,7 +3263,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.provide('goog.asserts');
 
     /**
-     * @type {boolean} Whether to strip out asserts or to leave them in.
+     * @define {boolean} Whether to strip out asserts or to leave them in.
      */
     goog.define('goog.asserts.ENABLE_ASSERTS', goog.DEBUG);
 

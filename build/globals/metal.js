@@ -4997,11 +4997,21 @@ babelHelpers;
 		Component.prototype.detached = function detached() {};
 
 		/**
+   * Lifecycle. Called when the component is disposed. Should be overridden by
+   * sub classes to dispose of any internal data or events.
+   */
+
+
+		Component.prototype.disposed = function disposed() {};
+
+		/**
    * @inheritDoc
    */
 
 
 		Component.prototype.disposeInternal = function disposeInternal() {
+			this.disposed();
+
 			this.detach();
 
 			if (this.elementEventProxy_) {
@@ -7586,7 +7596,7 @@ babelHelpers;
      */
 
     /**
-     * @type {boolean} Overridden to true by the compiler when
+     * @define {boolean} Overridden to true by the compiler when
      *     --process_closure_primitives is specified.
      */
     var COMPILED = false;
@@ -7720,7 +7730,7 @@ babelHelpers;
     };
 
     /**
-     * @type {boolean} DEBUG is provided as a convenience so that debugging code
+     * @define {boolean} DEBUG is provided as a convenience so that debugging code
      * that should not be included in a production js_binary can be easily stripped
      * by specifying --define goog.DEBUG=false to the JSCompiler. For example, most
      * toString() methods should be declared inside an "if (goog.DEBUG)" conditional
@@ -7730,7 +7740,7 @@ babelHelpers;
     goog.define('goog.DEBUG', true);
 
     /**
-     * @type {string} LOCALE defines the locale being used for compilation. It is
+     * @define {string} LOCALE defines the locale being used for compilation. It is
      * used to select locale specific data to be compiled in js binary. BUILD rule
      * can specify this value by "--define goog.LOCALE=<locale_name>" as JSCompiler
      * option.
@@ -7751,7 +7761,7 @@ babelHelpers;
     goog.define('goog.LOCALE', 'en'); // default to en
 
     /**
-     * @type {boolean} Whether this code is running on trusted sites.
+     * @define {boolean} Whether this code is running on trusted sites.
      *
      * On untrusted sites, several native functions can be defined or overridden by
      * external libraries like Prototype, Datejs, and JQuery and setting this flag
@@ -7764,7 +7774,7 @@ babelHelpers;
     goog.define('goog.TRUSTED_SITE', true);
 
     /**
-     * @type {boolean} Whether a project is expected to be running in strict mode.
+     * @define {boolean} Whether a project is expected to be running in strict mode.
      *
      * This define can be used to trigger alternate implementations compatible with
      * running in EcmaScript Strict mode or warn about unavailable functionality.
@@ -7774,13 +7784,13 @@ babelHelpers;
     goog.define('goog.STRICT_MODE_COMPATIBLE', false);
 
     /**
-     * @type {boolean} Whether code that calls {@link goog.setTestOnly} should
+     * @define {boolean} Whether code that calls {@link goog.setTestOnly} should
      *     be disallowed in the compilation unit.
      */
     goog.define('goog.DISALLOW_TEST_ONLY_CODE', COMPILED && !goog.DEBUG);
 
     /**
-     * @type {boolean} Whether to use a Chrome app CSP-compliant method for
+     * @define {boolean} Whether to use a Chrome app CSP-compliant method for
      *     loading scripts via goog.require. @see appendScriptSrcNode_.
      */
     goog.define('goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING', false);
@@ -8100,7 +8110,7 @@ babelHelpers;
     // for example). See bootstrap/ for more information.
 
     /**
-     * @type {boolean} Whether to enable the debug loader.
+     * @define {boolean} Whether to enable the debug loader.
      *
      * If enabled, a call to goog.require() will attempt to load the namespace by
      * appending a script tag to the DOM (if the namespace has been registered).
@@ -8244,7 +8254,7 @@ babelHelpers;
     goog.instantiatedSingletons_ = [];
 
     /**
-     * @type {boolean} Whether to load goog.modules using {@code eval} when using
+     * @define {boolean} Whether to load goog.modules using {@code eval} when using
      * the debug loader.  This provides a better debugging experience as the
      * source is unmodified and can be edited using Chrome Workspaces or similar.
      * However in some environments the use of {@code eval} is banned
@@ -8253,7 +8263,7 @@ babelHelpers;
     goog.define('goog.LOAD_MODULE_USING_EVAL', true);
 
     /**
-     * @type {boolean} Whether the exports of goog.modules should be sealed when
+     * @define {boolean} Whether the exports of goog.modules should be sealed when
      * possible.
      */
     goog.define('goog.SEAL_MODULE_EXPORTS', goog.DEBUG);
@@ -10039,7 +10049,7 @@ babelHelpers;
     goog.provide('goog.i18n.bidi.Format');
 
     /**
-     * @type {boolean} FORCE_RTL forces the {@link goog.i18n.bidi.IS_RTL} constant
+     * @define {boolean} FORCE_RTL forces the {@link goog.i18n.bidi.IS_RTL} constant
      * to say that the current locale is a RTL locale.  This should only be used
      * if you want to override the default behavior for deciding whether the
      * current locale is RTL or not.
@@ -10811,7 +10821,7 @@ babelHelpers;
     goog.provide('goog.asserts');
 
     /**
-     * @type {boolean} Whether to strip out asserts or to leave them in.
+     * @define {boolean} Whether to strip out asserts or to leave them in.
      */
     goog.define('goog.asserts.ENABLE_ASSERTS', goog.DEBUG);
 
@@ -16970,6 +16980,407 @@ babelHelpers;
 	Soy.register(Modal, templates);
 
 	this.metal.Modal = Modal;
+}).call(this);
+'use strict';
+
+(function () {
+  /* jshint ignore:start */
+  var Component = this.metal.Component;
+  var Soy = this.metal.Soy;
+
+  var templates;
+  goog.loadModule(function (exports) {
+
+    // This file was automatically generated from Pagination.soy.
+    // Please don't edit this file by hand.
+
+    /**
+     * @fileoverview Templates in namespace Pagination.
+     * @public
+     */
+
+    goog.module('Pagination.incrementaldom');
+
+    /** @suppress {extraRequire} */
+    var soy = goog.require('soy');
+    /** @suppress {extraRequire} */
+    var soydata = goog.require('soydata');
+    /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    var IncrementalDom = goog.require('incrementaldom');
+    var ie_open = IncrementalDom.elementOpen;
+    var ie_close = IncrementalDom.elementClose;
+    var ie_void = IncrementalDom.elementVoid;
+    var ie_open_start = IncrementalDom.elementOpenStart;
+    var ie_open_end = IncrementalDom.elementOpenEnd;
+    var itext = IncrementalDom.text;
+    var iattr = IncrementalDom.attr;
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $render(opt_data, opt_ignored, opt_ijData) {
+      ie_open('ul', null, null, 'class', 'pagination' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      if (opt_data.showControls == true) {
+        var disabled__soy8 = !opt_data.circular && opt_data.page == 0 ? true : false;
+        $renderControlElement_({ content: opt_data.strings.prev, disabled: disabled__soy8, index: 0 }, null, opt_ijData);
+      }
+      var iLimit13 = opt_data.total;
+      for (var i13 = 0; i13 < iLimit13; i13++) {
+        var active__soy14 = opt_data.page == i13 ? true : false;
+        $renderElement_({ active: active__soy14, content: opt_data.offset + i13, index: i13 }, null, opt_ijData);
+      }
+      if (opt_data.showControls == true) {
+        var disabled__soy21 = !opt_data.circular && opt_data.page == opt_data.total - 1 ? true : false;
+        $renderControlElement_({ content: opt_data.strings.next, disabled: disabled__soy21, index: 1 }, null, opt_ijData);
+      }
+      ie_close('ul');
+    }
+    exports.render = $render;
+    if (goog.DEBUG) {
+      $render.soyTemplateName = 'Pagination.render';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderElement_(opt_data, opt_ignored, opt_ijData) {
+      ie_open_start('li');
+      iattr('class', 'pagination-item' + (opt_data.active ? ' active' : ''));
+      if (!opt_data.active) {
+        iattr('data-onclick', 'onClickItem');
+      }
+      iattr('data-index', opt_data.index);
+      ie_open_end();
+      ie_open('a', null, null, 'href', '#');
+      itext((goog.asserts.assert(opt_data.content != null), opt_data.content));
+      ie_close('a');
+      ie_close('li');
+    }
+    exports.renderElement_ = $renderElement_;
+    if (goog.DEBUG) {
+      $renderElement_.soyTemplateName = 'Pagination.renderElement_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderControlElement_(opt_data, opt_ignored, opt_ijData) {
+      ie_open_start('li');
+      iattr('class', 'pagination-control' + (opt_data.disabled ? ' disabled' : ''));
+      if (!opt_data.disabled) {
+        iattr('data-onclick', 'onClickControls');
+      }
+      iattr('data-control-index', opt_data.index);
+      ie_open_end();
+      ie_open('a', null, null, 'href', '#');
+      itext((goog.asserts.assert(opt_data.content != null), opt_data.content));
+      ie_close('a');
+      ie_close('li');
+    }
+    exports.renderControlElement_ = $renderControlElement_;
+    if (goog.DEBUG) {
+      $renderControlElement_.soyTemplateName = 'Pagination.renderControlElement_';
+    }
+
+    exports.render.params = ["circular", "elementClasses", "offset", "page", "strings", "showControls", "total"];
+    exports.render.types = { "circular": "any", "elementClasses": "any", "offset": "any", "page": "any", "strings": "any", "showControls": "any", "total": "any" };
+    exports.renderElement_.params = ["active", "content", "index"];
+    exports.renderElement_.types = { "active": "any", "content": "any", "index": "any" };
+    exports.renderControlElement_.params = ["content", "disabled", "index"];
+    exports.renderControlElement_.types = { "content": "any", "disabled": "any", "index": "any" };
+    templates = exports;
+    return exports;
+  });
+
+  var Pagination = function (_Component) {
+    babelHelpers.inherits(Pagination, _Component);
+
+    function Pagination() {
+      babelHelpers.classCallCheck(this, Pagination);
+      return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+    }
+
+    return Pagination;
+  }(Component);
+
+  Soy.register(Pagination, templates);
+  this.metalNamed.Pagination = this.metalNamed.Pagination || {};
+  this.metalNamed.Pagination.Pagination = Pagination;
+  this.metalNamed.Pagination.templates = templates;
+  this.metal.Pagination = templates;
+  /* jshint ignore:end */
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
+	var templates = this.metal.Pagination;
+	var Component = this.metal.component;
+	var Soy = this.metal.Soy;
+
+	/**
+  * UI Component that navigate through paged data.
+  */
+
+	var Pagination = function (_Component) {
+		babelHelpers.inherits(Pagination, _Component);
+
+		function Pagination() {
+			babelHelpers.classCallCheck(this, Pagination);
+			return babelHelpers.possibleConstructorReturn(this, _Component.apply(this, arguments));
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		Pagination.prototype.created = function created() {
+			/**
+    * Contains the previous page value
+    * @type {Object}
+    * @default {page: this.page}
+    */
+			this.lastState_ = {
+				page: this.page
+			};
+
+			this.on(Pagination.Events.CHANGE_REQUEST, this.defaultChangeRequestFn_, true);
+		};
+
+		/**
+   * Default `changeRequest` function, sets new state of pagination.
+   * @param {EventFacade} event
+   * @protected
+   */
+
+
+		Pagination.prototype.defaultChangeRequestFn_ = function defaultChangeRequestFn_(event) {
+			this.setState_(event.state);
+		};
+
+		/**
+   * Fires `changeRequest` event.
+   * @param {Object} state
+   * @protected
+   */
+
+
+		Pagination.prototype.dispatchRequest_ = function dispatchRequest_(state) {
+			this.emit(Pagination.Events.CHANGE_REQUEST, {
+				lastState: this.lastState_,
+				offset: this.offset,
+				state: state,
+				total: this.total
+			});
+		};
+
+		/**
+   * Retrieve page number including offset e.g., if offset is 100 and
+   * active page is 5, this method returns 105.
+   * @return {number} current page number plus offset
+   */
+
+
+		Pagination.prototype.getOffsetPageNumber = function getOffsetPageNumber() {
+			return this.offset + this.page;
+		};
+
+		/**
+   * Retrieve total number of pages including offset e.g., if offset is
+   * 100 and total 10, this method returns 110.
+   * @return {number} total page number plus offset
+   */
+
+
+		Pagination.prototype.getOffsetTotalPages = function getOffsetTotalPages() {
+			return this.offset + this.total;
+		};
+
+		/**
+  * Navigate to the next page.
+  */
+
+
+		Pagination.prototype.next = function next() {
+			var page = this.page,
+			    total = this.total;
+
+			this.dispatchRequest_({
+				page: this.circular && page === total - 1 ? 0 : Math.min(total, ++page)
+			});
+		};
+
+		/**
+   * `onClick` handler for pagination items.
+   * @param {EventFacade} event
+   */
+
+
+		Pagination.prototype.onClickItem = function onClickItem(event) {
+			var item = event.delegateTarget;
+
+			event.preventDefault();
+
+			var index = parseInt(item.getAttribute('data-index'));
+
+			this.dispatchRequest_({
+				page: index
+			});
+		};
+
+		/**
+   * `onClick` handler for pagination items.
+   * @param {EventFacade} event
+   */
+
+
+		Pagination.prototype.onClickControls = function onClickControls(event) {
+			var control = event.delegateTarget;
+
+			event.preventDefault();
+
+			var index = parseInt(control.getAttribute('data-control-index'));
+
+			switch (index) {
+				case 0:
+					this.prev();
+					break;
+				case 1:
+					this.next();
+					break;
+			}
+		};
+
+		/**
+   * Navigate to the previous page.
+   */
+
+
+		Pagination.prototype.prev = function prev() {
+			var page = this.page,
+			    total = this.total;
+
+			this.dispatchRequest_({
+				page: this.circular && page === 0 ? total - 1 : Math.max(0, --page)
+			});
+		};
+
+		/**
+   * Set the new pagination state. The state is a payload object
+   * containing the page number, e.g. `{page:1}`.
+   * @param {Object} state
+   * @return {Object}
+   * @protected
+   */
+
+
+		Pagination.prototype.setState_ = function setState_(state) {
+			this.page = state.page;
+
+			this.lastState_ = state;
+		};
+
+		return Pagination;
+	}(Component);
+
+	Soy.register(Pagination, templates);
+
+	/**
+  * State definition.
+  * @type {!Object}
+  * @static
+  */
+	Pagination.STATE = {
+		/**
+   * When enabled this property allows the navigation to go back to
+   * the beggining when it reaches the last page, the opposite behavior
+   * is also true. Incremental page navigation could happen clicking the
+   * control arrows or invoking <code>.next()</code> and
+   * <code>.prev()</code> methods.
+   * @type {boolean}
+   * @default true
+   */
+		circular: {
+			validator: core.isBoolean,
+			value: true
+		},
+
+		/**
+   * Initial page offset.
+   * @type {number}
+   * @default 1
+   */
+		offset: {
+			validator: core.isNumber,
+			value: 1
+		},
+
+		/**
+   * Page to display on initial paint.
+   * @type {number}
+   * @default 0
+   */
+		page: {
+			validator: core.isNumber,
+			value: 0
+		},
+
+		/**
+   * Determines if pagination controls (Next and Prev) are rendered.
+   * @type {boolean}
+   * @default true
+   */
+		showControls: {
+			validator: core.isBoolean,
+			value: true
+		},
+
+		/**
+   * Collection of strings used to label elements of the UI.
+   * @type {Object}
+   * @default {next: 'Next', prev: 'Prev'}
+   */
+		strings: {
+			validator: core.isObject,
+			value: {
+				next: 'Next',
+				prev: 'Prev'
+			}
+		},
+
+		/**
+   * Total number of page links available. If set, the new
+   * <a href="Pagination.html#config_items">items</a> node list will
+   * be rendered.
+   * @type {number}
+   * @default 0
+   */
+		total: {
+			validator: core.isNumber,
+			value: 0
+		}
+	};
+
+	Pagination.Events = {
+		CHANGE_REQUEST: 'changeRequest'
+	};
+
+	this.metal.Pagination = Pagination;
 }).call(this);
 'use strict';
 
