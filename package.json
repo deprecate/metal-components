@@ -30,6 +30,7 @@
     "metal-dropdown": "^1.0.0-rc.2",
     "metal-list": "^1.0.0-rc.2",
     "metal-modal": "^1.0.0-rc.3",
+    "metal-pagination": "^1.0.0-rc.1",
     "metal-popover": "^1.0.0-rc.3",
     "metal-progressbar": "^1.0.0-rc.2",
     "metal-rating": "^1.0.0-rc.1",
