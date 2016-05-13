@@ -6904,7 +6904,7 @@ babelHelpers;
 			for (var i = 0; i < listeners.length; i += 2) {
 				var name = listeners[i];
 				var fn = listeners[i + 1];
-				if (name.startsWith('data-on') && core.isString(fn)) {
+				if (this.isListenerAttr_(name) && core.isString(fn)) {
 					this.listenersToAttach_.push({
 						eventName: name.substr(7),
 						fn: fn
@@ -7080,7 +7080,7 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.handleInterceptedAttributesCall_ = function handleInterceptedAttributesCall_(originalFn, element, name, value) {
-			if (name.startsWith('data-on')) {
+			if (this.isListenerAttr_(name)) {
 				var eventName = name.substr(7);
 				if (core.isFunction(element[name])) {
 					element.removeEventListener(eventName, element[name]);
@@ -7311,6 +7311,18 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.isCurrentComponentTag_ = function isCurrentComponentTag_(tag) {
 			return this.isComponentTag_(tag) && this.componentToRender_.tag === tag;
+		};
+
+		/**
+   * Checks if the given attribute name is for a dom event listener.
+   * @param {string} attr
+   * @return {boolean}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.isListenerAttr_ = function isListenerAttr_(attr) {
+			return attr.startsWith('data-on');
 		};
 
 		/**
