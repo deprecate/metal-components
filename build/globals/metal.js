@@ -2485,7 +2485,7 @@ babelHelpers;
 
 		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
 			if (this.originEmitter_.addEventListener) {
-				if (event.startsWith('delegate:')) {
+				if (this.isDelegateEvent_(event)) {
 					var index = event.indexOf(':', 9);
 					var eventName = event.substring(9, index);
 					var selector = event.substring(index + 1);
@@ -2499,6 +2499,18 @@ babelHelpers;
 		};
 
 		/**
+   * Checks if the given event is of the delegate type.
+   * @param {string} event
+   * @return {boolean}
+   * @protected
+   */
+
+
+		DomEventEmitterProxy.prototype.isDelegateEvent_ = function isDelegateEvent_(event) {
+			return event.substr(0, 9) === 'delegate:';
+		};
+
+		/**
    * Checks if the given event is supported by the origin element.
    * @param {string} event
    * @protected
@@ -2509,7 +2521,7 @@ babelHelpers;
 			if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
 				return true;
 			}
-			return event.startsWith('delegate:') && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
+			return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
 		};
 
 		/**
@@ -12554,11 +12566,12 @@ babelHelpers;
    */
 
 
-		Soy.handleInterceptedCall_ = function handleInterceptedCall_(originalFn, opt_data) {
+		Soy.handleInterceptedCall_ = function handleInterceptedCall_(originalFn) {
+			var opt_data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
 			var args = [originalFn.componentCtor, null, []];
-			var names = Object.keys(opt_data || {});
-			for (var i = 0; i < names.length; i++) {
-				args.push(names[i], opt_data[names[i]]);
+			for (var key in opt_data) {
+				args.push(key, opt_data[key]);
 			}
 			IncrementalDOM.elementVoid.apply(null, args);
 		};
