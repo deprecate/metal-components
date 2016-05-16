@@ -221,6 +221,16 @@ Modal.STATE = {
 	},
 
 	/**
+	 * Flag indicating if the default "x" button for closing the modal should be
+	 * added or not.
+	 * @type {boolean}
+	 * @default false
+	 */
+	noCloseButton: {
+		value: false
+	},
+
+	/**
 	 * Whether overlay should be visible when modal is visible.
 	 * @type {boolean}
 	 * @default true

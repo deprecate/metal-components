@@ -40,6 +40,7 @@ var iattr = IncrementalDom.attr;
  *    elementClasses: (null|string|undefined),
  *    footer: (?soydata.SanitizedHtml|string|undefined),
  *    header: (?soydata.SanitizedHtml|string|undefined),
+ *    noCloseButton: (boolean|null|undefined),
  *    role: (null|string|undefined)
  * }} opt_data
  * @param {(null|undefined)=} opt_ignored
@@ -57,6 +58,8 @@ function $render(opt_data, opt_ignored, opt_ijData) {
   var footer = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.footer);
   soy.asserts.assertType(opt_data.header == null || (opt_data.header instanceof Function) || (opt_data.header instanceof soydata.UnsanitizedText) || goog.isString(opt_data.header), 'header', opt_data.header, '?soydata.SanitizedHtml|string|undefined');
   var header = /** @type {?soydata.SanitizedHtml|string|undefined} */ (opt_data.header);
+  soy.asserts.assertType(opt_data.noCloseButton == null || goog.isBoolean(opt_data.noCloseButton) || opt_data.noCloseButton === 1 || opt_data.noCloseButton === 0, 'noCloseButton', opt_data.noCloseButton, 'boolean|null|undefined');
+  var noCloseButton = /** @type {boolean|null|undefined} */ (opt_data.noCloseButton);
   soy.asserts.assertType(opt_data.role == null || (opt_data.role instanceof goog.soy.data.SanitizedContent) || goog.isString(opt_data.role), 'role', opt_data.role, 'null|string|undefined');
   var role = /** @type {null|string|undefined} */ (opt_data.role);
   ie_open('div', null, null,
@@ -70,16 +73,18 @@ function $render(opt_data, opt_ignored, opt_ijData) {
         ie_open('header', null, null,
             'class', 'modal-header');
           if (header) {
-            ie_open('button', null, null,
-                'type', 'button',
-                'class', 'close',
-                'data-onclick', 'hide',
-                'aria-label', 'Close');
-              ie_open('span', null, null,
-                  'aria-hidden', 'true');
-                itext('\u00D7');
-              ie_close('span');
-            ie_close('button');
+            if (! noCloseButton) {
+              ie_open('button', null, null,
+                  'type', 'button',
+                  'class', 'close',
+                  'data-onclick', 'hide',
+                  'aria-label', 'Close');
+                ie_open('span', null, null,
+                    'aria-hidden', 'true');
+                  itext('\u00D7');
+                ie_close('span');
+              ie_close('button');
+            }
             header();
           }
         ie_close('header');
@@ -104,8 +109,8 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Modal.render';
 }
 
-exports.render.params = ["body","elementClasses","footer","header","role"];
-exports.render.types = {"body":"html","elementClasses":"string","footer":"html","header":"html","role":"string"};
+exports.render.params = ["body","elementClasses","footer","header","noCloseButton","role"];
+exports.render.types = {"body":"html","elementClasses":"string","footer":"html","header":"html","noCloseButton":"bool","role":"string"};
 templates = exports;
 return exports;
 
