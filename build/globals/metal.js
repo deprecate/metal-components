@@ -3492,14 +3492,19 @@ babelHelpers;
    * Sets the value of all the specified state keys.
    * @param {!Object.<string,*>} values A map of state keys to the values they
    *   should be set to.
+   * @param {function()=} opt_callback An optional function that will be run
+   *   after the next batched update is triggered.
    */
 
 
-		State.prototype.setState = function setState(values) {
+		State.prototype.setState = function setState(values, opt_callback) {
 			this.updateConfig_(values);
 			var names = Object.keys(values);
 			for (var i = 0; i < names.length; i++) {
 				this[names[i]] = values[names[i]];
+			}
+			if (opt_callback && this.scheduledBatchData_) {
+				this.once('stateChanged', opt_callback);
 			}
 		};
 
@@ -7213,6 +7218,19 @@ babelHelpers;
 				args[1] = currComp.config.key;
 			}
 
+			// Don't allow using statics for now. This is because incremental dom
+			// won't update reused elements with new statics, but the compiler we're
+			// using for jsx is setting statics even when no key is set, which is not
+			// advisable (see http://google.github.io/incremental-dom/#rendering-dom/statics-array).
+			// Once that's fixed in the compiler we'll be able to remove this. Until
+			// then we'll go without this statics optimization.
+			if (statics) {
+				args[2] = null;
+				for (var i = 0; i < statics.length; i++) {
+					args.push(statics[i]);
+				}
+			}
+
 			var node = originalFn.apply(null, args);
 			this.updateElementIfNotReached_(node, args);
 			return node;
@@ -7322,7 +7340,7 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.isListenerAttr_ = function isListenerAttr_(attr) {
-			return attr.startsWith('data-on');
+			return attr.substr(0, 7) === 'data-on';
 		};
 
 		/**
