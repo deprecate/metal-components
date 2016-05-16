@@ -176,28 +176,25 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		},
 
 		/**
-   * Content to be placed inside modal body.
-   * @type {string|SanitizedHtml}
+   * Content to be placed inside modal body. Can be either an html string or
+   * a function that calls incremental dom for rendeirng the body.
+   * @type {string|function()}
    */
-		body: {
-			isHtml: true
-		},
+		body: {},
 
 		/**
-   * Content to be placed inside modal footer.
-   * @type {string|SanitizedHtml}
+   * Content to be placed inside modal footer. Can be either an html string or
+   * a function that calls incremental dom for rendeirng the footer.
+   * @type {string|function()}
    */
-		footer: {
-			isHtml: true
-		},
+		footer: {},
 
 		/**
-   * Content to be placed inside modal header.
-   * @type {string|SanitizedHtml}
+   * Content to be placed inside modal header. Can be either an html string or
+   * a function that calls incremental dom for rendeirng the header.
+   * @type {string|function()}
    */
-		header: {
-			isHtml: true
-		},
+		header: {},
 
 		/**
    * Whether modal should hide on esc.
@@ -207,6 +204,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		hideOnEscape: {
 			validator: _metal2.default.isBoolean,
 			value: true
+		},
+
+		/**
+   * Flag indicating if the default "x" button for closing the modal should be
+   * added or not.
+   * @type {boolean}
+   * @default false
+   */
+		noCloseButton: {
+			value: false
 		},
 
 		/**
