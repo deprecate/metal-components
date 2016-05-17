@@ -2,10 +2,23 @@
 
 /**
  * This renders the main element.
+ * @param disabled
  * @param? elementClasses
+ * @param tab
+ * @param tabs
+ * @param? type
  */
 {template .render}
-	<div class="{$elementClasses ?: ''}">
-		Hello World
-	</div>
+	{if length($tabs) > 0}
+		<ul class="nav {$type != 'none' ? 'nav-' + $type : ''} {$elementClasses ?: ''}" role="tablist">
+			{foreach $current_tab in $tabs}
+				{let $isDisabled: $disabled or $current_tab.disabled /}
+				{let $isCurrentTab: $tab == index($current_tab) /}
+
+				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($current_tab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
+					<a {if not $isDisabled}href="#"{/if} role="tab" data-toggle="tab">{$current_tab.label}</a>
+				</li>
+			{/foreach}
+		</ul>
+	{/if}
 {/template}
