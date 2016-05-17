@@ -1,0 +1,32 @@
+{
+	"name": "metal-tabs",
+	"version": "0.0.0",
+	"description": "Tabs",
+	"license": "BSD",
+	"repository": "metal/metal-tabs",
+	"engines": {
+		"node": ">=0.12.0",
+		"npm": ">=3.0.0"
+	},
+	"main": "src/Tabs.js",
+	"files": [
+		"src",
+		"test"
+	],
+	"scripts": {
+		"build": "gulp build",
+		"test": "gulp test",
+		"watch": "gulp build:watch"
+	},
+	"keywords": [
+		"metal"
+	],
+	"dependencies": {
+		"metal-component": "^1.0.0-rc.11",
+		"metal-soy": "^1.0.0-rc.11"
+	},
+	"devDependencies": {
+		"gulp": "^3.8.11",
+		"gulp-metal": "^1.0.0"
+	}
+}
