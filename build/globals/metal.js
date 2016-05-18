@@ -2674,8 +2674,8 @@ babelHelpers;
 				dom.exitDocument(script);
 				opt_callback && opt_callback();
 			};
-			dom.on(script, 'load', callback);
-			dom.on(script, 'error', callback);
+			dom.once(script, 'load', callback);
+			dom.once(script, 'error', callback);
 
 			if (opt_appendFn) {
 				opt_appendFn(script);
@@ -2835,8 +2835,8 @@ babelHelpers;
 			if (style.tagName === 'STYLE') {
 				async.nextTick(callback);
 			} else {
-				dom.on(style, 'load', callback);
-				dom.on(style, 'error', callback);
+				dom.once(style, 'load', callback);
+				dom.once(style, 'error', callback);
 			}
 
 			if (opt_appendFn) {
@@ -3193,7 +3193,7 @@ babelHelpers;
 			var info = this.stateInfo_[name];
 			var config = info.config;
 			if (config.validator) {
-				return this.callFunction_(config.validator, [value]);
+				return this.callFunction_(config.validator, [value, name]);
 			}
 			return true;
 		};
@@ -7216,19 +7216,6 @@ babelHelpers;
 			var currRenderer = currComp.getRenderer();
 			if (!currRenderer.rootElementReached_ && currComp.config.key) {
 				args[1] = currComp.config.key;
-			}
-
-			// Don't allow using statics for now. This is because incremental dom
-			// won't update reused elements with new statics, but the compiler we're
-			// using for jsx is setting statics even when no key is set, which is not
-			// advisable (see http://google.github.io/incremental-dom/#rendering-dom/statics-array).
-			// Once that's fixed in the compiler we'll be able to remove this. Until
-			// then we'll go without this statics optimization.
-			if (statics) {
-				args[2] = null;
-				for (var i = 0; i < statics.length; i++) {
-					args.push(statics[i]);
-				}
 			}
 
 			var node = originalFn.apply(null, args);
