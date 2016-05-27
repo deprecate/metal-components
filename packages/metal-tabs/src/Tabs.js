@@ -108,7 +108,7 @@ class Tabs extends Component {
 
 		event.preventDefault();
 
-		var index = parseInt(item.getAttribute('data-index'));
+		let index = parseInt(item.getAttribute('data-index'));
 
 		this.dispatchRequest_({
 			tab: index
