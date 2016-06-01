@@ -99,7 +99,7 @@ function $render(opt_data, opt_ignored, opt_ijData) {
             'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
       ie_close('button');
     };
-    $templateAlias1({body: param12, events: {stateSynced: opt_data.handleDropdownStateSynced_}, header: param24, key: 'dropdown'}, null, opt_ijData);
+    $templateAlias1({body: param12, events: {stateSynced: opt_data.handleDropdownStateSynced_}, header: param24, ref: 'dropdown'}, null, opt_ijData);
   ie_close('div');
 }
 exports.render = $render;
@@ -128,7 +128,9 @@ if (goog.DEBUG) {
 }
 
 exports.render.params = ["label","arrowClass","buttonClass","elementClasses","handleDropdownStateSynced_","handleItemClick_","hiddenInputName","items","values","selectedIndex"];
+exports.render.types = {"label":"html","arrowClass":"any","buttonClass":"any","elementClasses":"any","handleDropdownStateSynced_":"any","handleItemClick_":"any","hiddenInputName":"any","items":"any","values":"any","selectedIndex":"any"};
 exports.renderAsHtml_.params = ["value"];
+exports.renderAsHtml_.types = {"value":"html"};
 templates = exports;
 return exports;
 
@@ -136,6 +138,6 @@ return exports;
 
 class Select extends Component {}
 Soy.register(Select, templates);
-export default templates;
 export { Select, templates };
+export default templates;
 /* jshint ignore:end */
