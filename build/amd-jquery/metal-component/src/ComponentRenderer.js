@@ -5,6 +5,21 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		value: true
 	});
 
+	function _defineProperty(obj, key, value) {
+		if (key in obj) {
+			Object.defineProperty(obj, key, {
+				value: value,
+				enumerable: true,
+				configurable: true,
+				writable: true
+			});
+		} else {
+			obj[key] = value;
+		}
+
+		return obj;
+	}
+
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -50,8 +65,15 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.component_ = component;
+
 			_this.componentRendererEvents_ = new _events.EventHandler();
-			_this.componentRendererEvents_.add(_this.component_.on('stateChanged', _this.handleComponentRendererStateChanged_.bind(_this)), _this.component_.once('render', _this.render.bind(_this)));
+			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
+
+			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
+				_this.componentRendererEvents_.add(_this.component_.on('stateKeyChanged', _this.handleComponentRendererStateKeyChanged_.bind(_this)));
+			} else {
+				_this.componentRendererEvents_.add(_this.component_.on('stateChanged', _this.handleComponentRendererStateChanged_.bind(_this)));
+			}
 			return _this;
 		}
 
@@ -68,6 +90,14 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		ComponentRenderer.prototype.handleComponentRendererStateChanged_ = function handleComponentRendererStateChanged_(changes) {
 			if (this.component_.wasRendered) {
 				this.update(changes);
+			}
+		};
+
+		ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
+			if (this.component_.wasRendered) {
+				this.update({
+					changes: _defineProperty({}, data.key, data)
+				});
 			}
 		};
 

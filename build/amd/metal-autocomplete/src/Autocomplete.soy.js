@@ -88,7 +88,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
       ie_open('div', null, null, 'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      $templateAlias1({ events: { itemSelected: opt_data.onListItemSelected_ }, key: 'list' }, null, opt_ijData);
+      $templateAlias1({ events: { itemSelected: opt_data.onListItemSelected_ }, ref: 'list' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -97,6 +97,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["elementClasses", "onListItemSelected_"];
+    exports.render.types = { "elementClasses": "any", "onListItemSelected_": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -114,8 +115,8 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   }(_Component3.default);
 
   _Soy2.default.register(Autocomplete, templates);
-  exports.default = templates;
   exports.Autocomplete = Autocomplete;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Autocomplete.soy.js.map

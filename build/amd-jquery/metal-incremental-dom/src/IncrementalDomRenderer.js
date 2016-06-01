@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', './IncrementalDomAop', './incremental-dom'], function (exports, _metal, _dom, _component, _IncrementalDomAop) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', './IncrementalDomAop', './children/IncrementalDomChildren', './cleanup/IncrementalDomUnusedComponents', './utils/IncrementalDomUtils', './incremental-dom'], function (exports, _metal, _dom, _component, _IncrementalDomAop, _IncrementalDomChildren, _IncrementalDomUnusedComponents, _IncrementalDomUtils) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -8,6 +8,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 	var _dom2 = _interopRequireDefault(_dom);
 
 	var _IncrementalDomAop2 = _interopRequireDefault(_IncrementalDomAop);
+
+	var _IncrementalDomChildren2 = _interopRequireDefault(_IncrementalDomChildren);
+
+	var _IncrementalDomUnusedComponents2 = _interopRequireDefault(_IncrementalDomUnusedComponents);
+
+	var _IncrementalDomUtils2 = _interopRequireDefault(_IncrementalDomUtils);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -60,18 +66,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			comp.context = {};
 			_this.changes_ = {};
 			_this.eventsCollector_ = new _component.EventsCollector(comp);
-			_this.lastElementCreationCall_ = [];
-			comp.on('stateKeyChanged', _this.handleStateKeyChanged_.bind(_this));
 			comp.on('attached', _this.handleAttached_.bind(_this));
 			comp.on('detached', _this.handleDetached_.bind(_this));
+
+			if (!_this.component_.constructor.SYNC_UPDATES_MERGED) {
+				// If the component is being updated synchronously we'll just reuse the
+				// `handleComponentRendererStateKeyChanged_` function from
+				// `ComponentRenderer`.
+				comp.on('stateKeyChanged', _this.handleStateKeyChanged_.bind(_this));
+			}
 
 			// Binds functions that will be used many times, to avoid creating new
 			// functions each time.
 			_this.handleInterceptedAttributesCall_ = _this.handleInterceptedAttributesCall_.bind(_this);
 			_this.handleInterceptedOpenCall_ = _this.handleInterceptedOpenCall_.bind(_this);
-			_this.handleInterceptedChildrenCloseCall_ = _this.handleInterceptedChildrenCloseCall_.bind(_this);
-			_this.handleInterceptedChildrenOpenCall_ = _this.handleInterceptedChildrenOpenCall_.bind(_this);
-			_this.handleInterceptedChildrenTextCall_ = _this.handleInterceptedChildrenTextCall_.bind(_this);
+			_this.handleChildrenCaptured_ = _this.handleChildrenCaptured_.bind(_this);
+			_this.handleChildRender_ = _this.handleChildRender_.bind(_this);
 			_this.renderInsidePatchDontSkip_ = _this.renderInsidePatchDontSkip_.bind(_this);
 			return _this;
 		}
@@ -102,53 +112,33 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				var listener = this.listenersToAttach_[i];
 				this.eventsCollector_.attachListener(listener.eventName, listener.fn);
 			}
+			this.eventsCollector_.detachUnusedListeners();
 		};
 
-		IncrementalDomRenderer.prototype.buildChildrenFn_ = function buildChildrenFn_(calls) {
-			var _this2 = this;
-
-			if (calls.length === 0) {
-				return emptyChildrenFn_;
-			}
-			var prefix = this.buildKey_();
-			var fn = function fn() {
-				var prevPrefix = _this2.currentPrefix_;
-				_this2.generatedKeyCount_[prefix] = 0;
-				_this2.currentPrefix_ = prefix;
-				_this2.intercept_();
-				for (var i = 0; i < calls.length; i++) {
-					IncrementalDOM[calls[i].name].apply(null, _metal.array.slice(calls[i].args, 1));
-				}
-				_IncrementalDomAop2.default.stopInterception();
-				_this2.currentPrefix_ = prevPrefix;
-			};
-			fn.iDomCalls = calls;
-			return fn;
+		IncrementalDomRenderer.prototype.buildChildren_ = function buildChildren_(children) {
+			return children.length === 0 ? emptyChildren_ : children;
 		};
 
-		IncrementalDomRenderer.prototype.buildKey_ = function buildKey_() {
-			var count = this.generatedKeyCount_[this.currentPrefix_] || 0;
-			this.generatedKeyCount_[this.currentPrefix_] = count + 1;
+		IncrementalDomRenderer.prototype.buildRef = function buildRef() {
+			var count = this.generatedRefCount_[this.currentPrefix_] || 0;
+			this.generatedRefCount_[this.currentPrefix_] = count + 1;
 			return this.currentPrefix_ + 'sub' + count;
-		};
-
-		IncrementalDomRenderer.prototype.disposeUnusedSubComponents_ = function disposeUnusedSubComponents_() {
-			var keys = Object.keys(this.component_.components);
-			var unused = [];
-			for (var i = 0; i < keys.length; i++) {
-				if (!this.subComponentsFound_[keys[i]]) {
-					unused.push(keys[i]);
-				}
-			}
-			this.component_.disposeSubComponents(unused);
 		};
 
 		IncrementalDomRenderer.getComponentBeingRendered = function getComponentBeingRendered() {
 			return renderingComponents_[renderingComponents_.length - 1];
 		};
 
-		IncrementalDomRenderer.prototype.getSubComponent_ = function getSubComponent_(key, tagOrCtor, config) {
-			var comp = this.component_.addSubComponent(key, tagOrCtor, config);
+		IncrementalDomRenderer.prototype.getSubComponent_ = function getSubComponent_(tagOrCtor, config) {
+			var prevComp = this.component_.components[config.ref];
+			var comp = this.component_.addSubComponent(config.ref, tagOrCtor, config, true);
+			if (prevComp && prevComp !== comp) {
+				// If a previous component was replaced, dispose it, but only after making
+				// sure that its element won't be removed (otherwise incremental dom may
+				// throw an error when trying to remove it later).
+				prevComp.element = null;
+				prevComp.dispose();
+			}
 			if (comp.wasRendered) {
 				comp.setState(config);
 			}
@@ -212,43 +202,33 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		};
 
-		IncrementalDomRenderer.prototype.handleInterceptedChildrenCloseCall_ = function handleInterceptedChildrenCloseCall_(originalFn, callTag) {
-			if (this.isCurrentComponentTag_(callTag) && --this.componentToRender_.tagsCount === 0) {
-				var _componentToRender_ = this.componentToRender_;
-				var calls = _componentToRender_.calls;
-				var config = _componentToRender_.config;
-				var tag = _componentToRender_.tag;
+		IncrementalDomRenderer.prototype.handleChildrenCaptured_ = function handleChildrenCaptured_(tree) {
+			var _componentToRender_ = this.componentToRender_;
+			var config = _componentToRender_.config;
+			var tag = _componentToRender_.tag;
 
-				config.children = this.buildChildrenFn_(calls);
-				this.componentToRender_ = null;
-				_IncrementalDomAop2.default.stopInterception();
-				return this.renderFromTag_(tag, config);
-			}
-			this.componentToRender_.calls.push({
-				name: 'elementClose',
-				args: arguments
-			});
+			config.children = this.buildChildren_(tree.config.children);
+			this.componentToRender_ = null;
+			this.currentPrefix_ = this.prevPrefix_;
+			this.prevPrefix_ = null;
+			this.renderFromTag_(tag, config);
 		};
 
-		IncrementalDomRenderer.prototype.handleInterceptedChildrenOpenCall_ = function handleInterceptedChildrenOpenCall_(originalFn, tag) {
-			if (this.isCurrentComponentTag_(tag)) {
-				this.componentToRender_.tagsCount++;
+		IncrementalDomRenderer.prototype.handleChildRender_ = function handleChildRender_(node) {
+			if (node.tag && _IncrementalDomUtils2.default.isComponentTag(node.tag)) {
+				node.config.children = this.buildChildren_(node.config.children);
+				this.renderFromTag_(node.tag, node.config);
+				return true;
 			}
-			this.componentToRender_.calls.push({
-				name: 'elementOpen',
-				args: arguments
-			});
 		};
 
-		IncrementalDomRenderer.prototype.handleInterceptedChildrenTextCall_ = function handleInterceptedChildrenTextCall_() {
-			this.componentToRender_.calls.push({
-				name: 'text',
-				args: arguments
-			});
+		IncrementalDomRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
+			this.handleStateKeyChanged_(data);
+			_ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_.call(this, data);
 		};
 
 		IncrementalDomRenderer.prototype.handleInterceptedOpenCall_ = function handleInterceptedOpenCall_(originalFn, tag) {
-			if (this.isComponentTag_(tag)) {
+			if (_IncrementalDomUtils2.default.isComponentTag(tag)) {
 				return this.handleSubComponentCall_.apply(this, arguments);
 			} else {
 				return this.handleRegularCall_.apply(this, arguments);
@@ -267,7 +247,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 
 			var node = originalFn.apply(null, args);
-			this.updateElementIfNotReached_(node, args);
+			this.updateElementIfNotReached_(node);
 			return node;
 		};
 
@@ -275,24 +255,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			this.changes_[data.key] = data;
 		};
 
-		IncrementalDomRenderer.prototype.handleSubComponentCall_ = function handleSubComponentCall_(originalFn, tag, key, statics) {
-			var config = { key: key };
-			var attrsArr = (statics || []).concat(_metal.array.slice(arguments, 4));
-			for (var i = 0; i < attrsArr.length; i += 2) {
-				config[attrsArr[i]] = attrsArr[i + 1];
+		IncrementalDomRenderer.prototype.handleSubComponentCall_ = function handleSubComponentCall_(originalFn) {
+			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				args[_key - 1] = arguments[_key];
 			}
 
+			var config = _IncrementalDomUtils2.default.buildConfigFromCall(args);
+			config.ref = config.ref || this.buildRef();
 			this.componentToRender_ = {
-				calls: [],
 				config: config,
-				tag: tag,
-				tagsCount: 1
+				tag: args[0]
 			};
-			_IncrementalDomAop2.default.startInterception({
-				elementClose: this.handleInterceptedChildrenCloseCall_,
-				elementOpen: this.handleInterceptedChildrenOpenCall_,
-				text: this.handleInterceptedChildrenTextCall_
-			});
+
+			this.prevPrefix_ = this.currentPrefix_;
+			this.currentPrefix_ = config.ref;
+			this.generatedRefCount_[this.currentPrefix_] = 0;
+			_IncrementalDomChildren2.default.capture(this, this.handleChildrenCaptured_);
 		};
 
 		IncrementalDomRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_() {
@@ -310,26 +288,66 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			});
 		};
 
-		IncrementalDomRenderer.prototype.isComponentTag_ = function isComponentTag_(tag) {
-			return !_metal.core.isString(tag) || tag[0] === tag[0].toUpperCase();
-		};
-
-		IncrementalDomRenderer.prototype.isCurrentComponentTag_ = function isCurrentComponentTag_(tag) {
-			return this.isComponentTag_(tag) && this.componentToRender_.tag === tag;
+		IncrementalDomRenderer.isIncDomNode = function isIncDomNode(node) {
+			return !!node[_IncrementalDomChildren2.default.CHILD_OWNER];
 		};
 
 		IncrementalDomRenderer.prototype.isListenerAttr_ = function isListenerAttr_(attr) {
 			return attr.substr(0, 7) === 'data-on';
 		};
 
+		IncrementalDomRenderer.prototype.getParent = function getParent() {
+			return this.parent_;
+		};
+
+		IncrementalDomRenderer.prototype.getOwner = function getOwner() {
+			return this.owner_;
+		};
+
+		IncrementalDomRenderer.render = function render(fnOrCtor, opt_data, opt_parent) {
+			if (!_component.Component.isComponentCtor(fnOrCtor)) {
+				var fn = fnOrCtor;
+
+				var TempComponent = function (_Component) {
+					_inherits(TempComponent, _Component);
+
+					function TempComponent() {
+						_classCallCheck(this, TempComponent);
+
+						return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+					}
+
+					TempComponent.prototype.render = function render() {
+						fn(this.config);
+					};
+
+					return TempComponent;
+				}(_component.Component);
+
+				TempComponent.RENDERER = IncrementalDomRenderer;
+				fnOrCtor = TempComponent;
+			}
+			return _component.Component.render(fnOrCtor, opt_data, opt_parent);
+		};
+
 		IncrementalDomRenderer.prototype.render = function render() {
 			this.patch();
+		};
+
+		IncrementalDomRenderer.renderChild = function renderChild(child) {
+			child[_IncrementalDomChildren2.default.CHILD_OWNER].renderChild(child);
+		};
+
+		IncrementalDomRenderer.prototype.renderChild = function renderChild(child) {
+			this.intercept_();
+			_IncrementalDomChildren2.default.render(child, this.handleChildRender_);
+			_IncrementalDomAop2.default.stopInterception();
 		};
 
 		IncrementalDomRenderer.prototype.renderFromTag_ = function renderFromTag_(tag, config) {
 			if (_metal.core.isString(tag) || tag.prototype.getRenderer) {
 				var comp = this.renderSubComponent_(tag, config);
-				this.updateElementIfNotReached_(comp);
+				this.updateElementIfNotReached_(comp.element);
 				return comp.element;
 			} else {
 				return tag(config);
@@ -345,8 +363,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		};
 
 		IncrementalDomRenderer.prototype.renderInsidePatch = function renderInsidePatch() {
-			if (this.component_.wasRendered && !this.shouldUpdate(this.changes_)) {
-				this.skipRerender_();
+			if (this.component_.wasRendered && !this.shouldUpdate(this.changes_) && IncrementalDOM.currentPointer() === this.component_.element) {
+				if (this.component_.element) {
+					IncrementalDOM.skipNode();
+				}
 				return;
 			}
 			this.renderInsidePatchDontSkip_();
@@ -356,8 +376,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			IncrementalDomRenderer.startedRenderingComponent(this.component_);
 			this.changes_ = {};
 			this.rootElementReached_ = false;
-			this.subComponentsFound_ = {};
-			this.generatedKeyCount_ = {};
+			_IncrementalDomUnusedComponents2.default.schedule(this.childComponents_ || []);
+			this.childComponents_ = [];
+			this.generatedRefCount_ = {};
 			this.listenersToAttach_ = [];
 			this.currentPrefix_ = '';
 			this.intercept_();
@@ -367,17 +388,21 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			IncrementalDomRenderer.finishedRenderingComponent();
 			if (!this.rootElementReached_) {
 				this.component_.element = null;
+			} else {
+				this.component_.addElementClasses();
 			}
 			this.emit('rendered', !this.component_.wasRendered);
 		};
 
 		IncrementalDomRenderer.prototype.renderSubComponent_ = function renderSubComponent_(tagOrCtor, config) {
-			var key = config.key || this.buildKey_();
-			var comp = this.getSubComponent_(key, tagOrCtor, config);
+			var comp = this.getSubComponent_(tagOrCtor, config);
 			this.updateContext_(comp);
 			var renderer = comp.getRenderer();
 			if (renderer instanceof IncrementalDomRenderer) {
-				renderer.lastParentComponent_ = IncrementalDomRenderer.getComponentBeingRendered();
+				var parentComp = IncrementalDomRenderer.getComponentBeingRendered();
+				parentComp.getRenderer().childComponents_.push(comp);
+				renderer.parent_ = parentComp;
+				renderer.owner_ = this.component_;
 				renderer.renderInsidePatch();
 			} else {
 				console.warn('IncrementalDomRenderer doesn\'t support rendering sub components ' + 'that don\'t use IncrementalDomRenderer as well, like:', comp);
@@ -385,7 +410,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			if (!comp.wasRendered) {
 				comp.renderAsSubComponent();
 			}
-			this.subComponentsFound_[key] = true;
 			return comp;
 		};
 
@@ -396,24 +420,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			return true;
 		};
 
-		IncrementalDomRenderer.prototype.skipRerender_ = function skipRerender_() {
-			if (this.lastElementCreationCall_.length > 0) {
-				IncrementalDOM.elementOpen.apply(null, this.lastElementCreationCall_);
-				IncrementalDOM.skip();
-				IncrementalDOM.elementClose(this.lastElementCreationCall_[0]);
-			}
-		};
-
 		IncrementalDomRenderer.startedRenderingComponent = function startedRenderingComponent(comp) {
 			renderingComponents_.push(comp);
 		};
 
 		IncrementalDomRenderer.prototype.patch = function patch() {
-			if (!this.component_.element && this.lastParentComponent_) {
+			if (!this.component_.element && this.parent_) {
 				// If the component has no content but was rendered from another component,
 				// we'll need to patch this parent to make sure that any new content will
 				// be added in the right place.
-				this.lastParentComponent_.getRenderer().patch();
+				this.parent_.getRenderer().patch();
 				return;
 			}
 
@@ -436,30 +452,17 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		IncrementalDomRenderer.prototype.update = function update() {
 			if (this.hasChangedBesidesElement_() && this.shouldUpdate(this.changes_)) {
 				this.patch();
-				this.eventsCollector_.detachUnusedListeners();
-				this.disposeUnusedSubComponents_();
 			}
 		};
 
-		IncrementalDomRenderer.prototype.updateElementIfNotReached_ = function updateElementIfNotReached_(nodeOrComponent, opt_args) {
+		IncrementalDomRenderer.prototype.updateElementIfNotReached_ = function updateElementIfNotReached_(node) {
 			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
 			var currRenderer = currComp.getRenderer();
 			if (!currRenderer.rootElementReached_) {
 				currRenderer.rootElementReached_ = true;
-
-				var node = nodeOrComponent;
-				var args = opt_args;
-
-				if (nodeOrComponent instanceof _component.Component) {
-					var renderer = nodeOrComponent.getRenderer();
-					args = renderer instanceof IncrementalDomRenderer ? renderer.lastElementCreationCall_ : [];
-					node = nodeOrComponent.element;
-				}
-
 				if (currComp.element !== node) {
 					currComp.element = node;
 				}
-				currRenderer.lastElementCreationCall_ = args;
 			}
 		};
 
@@ -475,8 +478,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 	}(_component.ComponentRenderer);
 
 	var renderingComponents_ = [];
-	function emptyChildrenFn_() {}
-	emptyChildrenFn_.calls = [];
+	var emptyChildren_ = [];
 
 	exports.default = IncrementalDomRenderer;
 });

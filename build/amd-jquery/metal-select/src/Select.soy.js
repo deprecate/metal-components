@@ -131,7 +131,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
         ie_void('span', null, null, 'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
         ie_close('button');
       };
-      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, header: param24, key: 'dropdown' }, null, opt_ijData);
+      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, header: param24, ref: 'dropdown' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -159,7 +159,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "handleDropdownStateSynced_", "handleItemClick_", "hiddenInputName", "items", "values", "selectedIndex"];
+    exports.render.types = { "label": "html", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
     exports.renderAsHtml_.params = ["value"];
+    exports.renderAsHtml_.types = { "value": "html" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -177,8 +179,8 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   }(_Component3.default);
 
   _Soy2.default.register(Select, templates);
-  exports.default = templates;
   exports.Select = Select;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Select.soy.js.map

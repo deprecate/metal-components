@@ -123,6 +123,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			_this.DEFAULT_ELEMENT_PARENT = document.body;
 
 			_metal.core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
+			_metal.core.mergeSuperClassesProperty(_this.constructor, 'SYNC_UPDATES', _metal.array.firstDefinedValue);
 
 			_this.renderer_ = _this.createRenderer();
 			_this.renderer_.on('rendered', _this.rendered.bind(_this));
@@ -142,11 +143,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 		/**
    * Adds the necessary classes to the component's element.
-   * @protected
    */
 
 
-		Component.prototype.addElementClasses_ = function addElementClasses_() {
+		Component.prototype.addElementClasses = function addElementClasses() {
 			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
 			if (this.elementClasses) {
 				classesToAdd = classesToAdd + ' ' + this.elementClasses;
@@ -185,7 +185,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 		Component.prototype.attached = function attached() {};
 
-		Component.prototype.addSubComponent = function addSubComponent(key, componentNameOrCtor, opt_data) {
+		Component.prototype.addSubComponent = function addSubComponent(key, componentNameOrCtor, opt_data, opt_dontDispose) {
 			var ConstructorFn = componentNameOrCtor;
 			if (_metal.core.isString(ConstructorFn)) {
 				ConstructorFn = _ComponentRegistry2.default.getConstructor(componentNameOrCtor);
@@ -193,7 +193,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 			var component = this.components[key];
 			if (component && component.constructor !== ConstructorFn) {
-				component.dispose();
+				if (!opt_dontDispose) {
+					component.dispose();
+				}
 				component = null;
 			}
 
@@ -252,7 +254,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 		Component.prototype.disposeSubComponents = function disposeSubComponents(keys) {
 			for (var i = 0; i < keys.length; i++) {
 				var component = this.components[keys[i]];
-				if (!component.isDisposed()) {
+				if (component && !component.isDisposed()) {
 					component.dispose();
 					delete this.components[keys[i]];
 				}
@@ -311,6 +313,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			this.attachedListeners_[event] = true;
 		};
 
+		Component.isComponentCtor = function isComponentCtor(fn) {
+			return !!fn.prototype[Component.COMPONENT_FLAG];
+		};
+
 		Component.prototype.mergeElementClasses_ = function mergeElementClasses_(values) {
 			var marked = {};
 			return values.filter(function (val) {
@@ -333,13 +339,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
-			this.addElementClasses_();
+			this.addElementClasses();
 			this.syncVisible(this.visible);
 		};
 
 		Component.prototype.onEventsChanged_ = function onEventsChanged_(event) {
 			this.eventsStateKeyHandler_.removeAllListeners();
 			this.addListenersFromObj_(event.newVal);
+		};
+
+		Component.render = function render(Ctor, opt_config, opt_element) {
+			var instance = new Ctor(opt_config, false);
+			instance.render_(opt_element);
+			return instance;
 		};
 
 		Component.prototype.render_ = function render_(opt_parentElement, opt_skipRender) {
@@ -404,7 +416,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 			if (this.element && prevVal) {
 				_dom.dom.removeClasses(this.element, prevVal);
 			}
-			this.addElementClasses_();
+			this.addElementClasses();
 		};
 
 		Component.prototype.syncVisible = function syncVisible(newVal) {
@@ -448,7 +460,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 
 		/**
    * CSS classes to be applied to the element.
-   * @type {Array.<string>}
+   * @type {string}
    */
 		elementClasses: {
 			validator: 'validatorElementClassesFn_'
@@ -475,6 +487,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 		}
 	};
 
+	Component.COMPONENT_FLAG = '__metal_component__';
+
 	/**
   * CSS classes to be applied to the element.
   * @type {string}
@@ -493,10 +507,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRegis
 	Component.RENDERER = _ComponentRenderer2.default;
 
 	/**
+  * Flag indicating if component updates will happen synchronously. Updates are
+  * done asynchronously by default, which allows changes to be batched and
+  * applied together.
+  * @type {boolean}
+  */
+	Component.SYNC_UPDATES = false;
+
+	/**
   * A list with state key names that will automatically be rejected as invalid.
   * @type {!Array<string>}
   */
 	Component.INVALID_KEYS = ['components', 'wasRendered'];
+
+	/**
+  * Sets a prototype flag to easily determine if a given constructor is for
+  * a component or not.
+  */
+	Component.prototype[Component.COMPONENT_FLAG] = true;
 
 	exports.default = Component;
 });

@@ -9,7 +9,7 @@
 	<div class="autocomplete autocomplete-list component {$elementClasses ? ' ' + $elementClasses : ''}">
 		{call List.render}
 			{param events: ['itemSelected': $onListItemSelected_] /}
-			{param key: 'list' /}
+			{param ref: 'list' /}
 		{/call}
 	</div>
 {/template}
