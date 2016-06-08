@@ -198,31 +198,6 @@ Alert.STATE = {
 	},
 
 	/**
-	 * Spinner indicating.
-	 * @type {boolean}
-	 * @default false
-	 */
-	spinner: {
-		value: false
-	},
-
-	/**
-	 * The CSS classes that should be added to the spinner.
-	 * @type {string}
-	 */
-	spinnerClasses: {
-	},
-
-	/**
-	 * Spinner is marked as done.
-	 * @type {boolean}
-	 * @default false
-	 */
-	spinnerDone: {
-		value: false
-	},
-
-	/**
 	 * Flag indicating if the alert is visible or not.
 	 * @type {boolean}
 	 * @default false

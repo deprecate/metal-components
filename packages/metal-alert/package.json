@@ -20,7 +20,6 @@
     "metal"
   ],
   "dependencies": {
-    "bootstrap": "^3.3.6",
     "metal": "^1.0.0-rc.1",
     "metal-anim": "^1.0.0-rc.1",
     "metal-component": "^1.0.0-rc.3",
@@ -29,6 +28,7 @@
     "metal-soy": "^1.0.0-rc.4"
   },
   "devDependencies": {
+    "bootstrap": "^3.3.6",
     "gulp": "^3.8.11",
     "gulp-metal": "^1.0.0"
   }

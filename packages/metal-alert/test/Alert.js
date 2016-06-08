@@ -92,8 +92,6 @@ describe('Alert', function() {
 		var config = {
 			elementClasses: 'alert-success fade',
 			body: Soy.toIncDom('<b>body</b>'),
-			spinner: true,
-			spinnerClasses: 'my-spinner',
 			dismissible: true
 		};
 		var element = document.createElement('div');
@@ -152,22 +150,5 @@ describe('Alert', function() {
 				}, 100);
 			});
 		});
-	});
-
-	it('should update spinner as done', function(done) {
-		component = new Alert({
-			spinner: true,
-			spinnerDone: false
-		});
-		assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
-		component.once('stateChanged', () => {
-			assert.ok(dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
-			component.once('stateChanged', () => {
-				assert.ok(!dom.hasClass(component.element.querySelector('.alert-spinner'), 'alert-spinner-done'));
-				done();
-			});
-			component.spinnerDone = false;
-		});
-		component.spinnerDone = true;
 	});
 });

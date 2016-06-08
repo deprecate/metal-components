@@ -37,10 +37,7 @@ var iattr = IncrementalDom.attr;
 /**
  * @param {{
  *    dismissible: (?),
- *    spinner: (?),
- *    spinnerDone: (?),
  *    elementClasses: (?),
- *    spinnerClasses: (?),
  *    body: (?soydata.SanitizedHtml|string|undefined)
  * }} opt_data
  * @param {(null|undefined)=} opt_ignored
@@ -55,16 +52,9 @@ function $render(opt_data, opt_ignored, opt_ijData) {
   ie_open('div', null, null,
       'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
       'role', 'alert');
-    if (opt_data.spinner) {
-      ie_void('span', null, null,
-          'class', 'alert-spinner' + (opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + (opt_data.spinnerDone ? ' alert-spinner-done' : ''));
+    if (body) {
+      body();
     }
-    ie_open('span', null, null,
-        'class', 'alert-body');
-      if (body) {
-        body();
-      }
-    ie_close('span');
     if (opt_data.dismissible) {
       ie_open('button', null, null,
           'type', 'button',
@@ -84,7 +74,7 @@ if (goog.DEBUG) {
   $render.soyTemplateName = 'Alert.render';
 }
 
-exports.render.params = ["body","dismissible","spinner","spinnerDone","elementClasses","spinnerClasses"];
+exports.render.params = ["body","dismissible","elementClasses"];
 templates = exports;
 return exports;
 
