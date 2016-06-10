@@ -77,7 +77,7 @@ function $render(opt_data, opt_ignored, opt_ijData) {
               ie_open('button', null, null,
                   'type', 'button',
                   'class', 'close',
-                  'data-onclick', 'hide',
+                  'onClick', 'hide',
                   'aria-label', 'Close');
                 ie_open('span', null, null,
                     'aria-hidden', 'true');
@@ -118,6 +118,6 @@ return exports;
 
 class Modal extends Component {}
 Soy.register(Modal, templates);
-export default templates;
 export { Modal, templates };
+export default templates;
 /* jshint ignore:end */
