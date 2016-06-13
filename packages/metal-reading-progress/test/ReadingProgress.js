@@ -39,23 +39,23 @@ describe('ReadingProgress', function() {
 					title: 'Chosen Title 2'
 				}
 			]
-		}).render();
+		});
 
 		var items = readingProgress.element.querySelectorAll('a');
 		assert.strictEqual('#content1', items.item(0).hash);
-		assert.strictEqual('Chosen Title 1', items.item(0).querySelector('em').textContent);
-		assert.strictEqual('3 min read', items.item(0).querySelector('b').textContent);
+		assert.strictEqual('Chosen Title 1', items.item(0).querySelector('.reading-title').textContent);
+		assert.strictEqual('3 min read', items.item(0).querySelector('.reading-subtitle').textContent);
 		assert.strictEqual('#content2', items.item(1).hash);
-		assert.strictEqual('Chosen Title 2', items.item(1).querySelector('em').textContent);
-		assert.strictEqual('2 min read', items.item(1).querySelector('b').textContent);
+		assert.strictEqual('Chosen Title 2', items.item(1).querySelector('.reading-title').textContent);
+		assert.strictEqual('2 min read', items.item(1).querySelector('.reading-subtitle').textContent);
 	});
 
 	it('should generate title from the referenced content when none is given', function() {
 		readingProgress = new ReadingProgress({
 			items: ['#content1', '#content2', '#content3']
-		}).render();
+		});
 
-		var titles = readingProgress.element.querySelectorAll('em');
+		var titles = readingProgress.element.querySelectorAll('.reading-title');
 		assert.strictEqual('Title 1', readingProgress.items[0].title);
 		assert.strictEqual('Title 1', titles.item(0).textContent);
 		assert.strictEqual('Title 2', readingProgress.items[1].title);
@@ -71,9 +71,9 @@ describe('ReadingProgress', function() {
 
 		readingProgress = new ReadingProgress({
 			items: ['#content1', '#content2', '#content3']
-		}).render();
+		});
 
-		var times = readingProgress.element.querySelectorAll('b');
+		var times = readingProgress.element.querySelectorAll('.reading-subtitle');
 		assert.strictEqual(64, readingProgress.items[0].time);
 		assert.strictEqual('1 min read', times.item(0).textContent);
 		assert.strictEqual(30, readingProgress.items[1].time);
@@ -85,27 +85,32 @@ describe('ReadingProgress', function() {
 	it('should only generate missing item info when href is hash link', function() {
 		readingProgress = new ReadingProgress({
 			items: ['#content1', 'noHash', '#content3']
-		}).render();
+		});
 
 		assert.strictEqual('Title 1', readingProgress.items[0].title);
 		assert.ok(!readingProgress.items[1].title);
 		assert.strictEqual('Title 3', readingProgress.items[2].title);
 	});
 
-	it('should only create ReadingProgressTracker instance after render', function() {
+	it('should not create new ReadingProgressTracker after each render', function(done) {
 		readingProgress = new ReadingProgress({
 			items: ['#content1', '#content2', '#content3']
 		});
-		assert.ok(!readingProgress.getTracker());
 
-		readingProgress.render();
-		assert.ok(readingProgress.getTracker());
+		var tracker = readingProgress.getTracker();
+		assert.ok(tracker);
+
+		readingProgress.items = ['#content1', '#content2'];
+		readingProgress.once('stateSynced', function() {
+			assert.strictEqual(tracker, readingProgress.getTracker());
+			done();
+		});
 	});
 
 	it('should update progress bar when the tracker\'s progress attr changes', function() {
 		readingProgress = new ReadingProgress({
 			items: ['#content1', '#content2', '#content3']
-		}).render();
+		});
 		var tracker = readingProgress.getTracker();
 
 		tracker.activeIndex = 1;
