@@ -1,19 +1,16 @@
-{namespace Templates.ReadingProgress}
+{namespace ReadingProgress}
 
 /**
  * This renders the main element.
- * @param id
  * @param? elementClasses
  * @param items
- * @skipUpdates elementClasses
  */
 {template .render}
-	<div id="{$id}" class="reading-progress component{$elementClasses ? ' ' + $elementClasses : ''}">
+	<div class="reading-progress{$elementClasses ? ' ' + $elementClasses : ''}">
 		<ul>
 			{foreach $item in $items}
 				{call .item}
 					{param item: $item /}
-					{param surfaceId: $id + '-item' + index($item) /}
 				{/call}
 			{/foreach}
 		</ul>
@@ -22,10 +19,9 @@
 
 /**
  * @param item
- * @param surfaceId
  */
 {template .item}
-	<li id="{$surfaceId}">
+	<li>
 		<a href="{$item.href}">
 			{if $item.title}
 				<span class="reading-title">{$item.title}</span>

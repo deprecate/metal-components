@@ -98,10 +98,10 @@ class ReadingProgressTracker extends Scrollspy {
 }
 
 /**
- * ReadingProgressTracker' attributes config.
+ * ReadingProgressTracker' state config.
  * @type {!Object}
  */
-ReadingProgressTracker.ATTRS = {
+ReadingProgressTracker.STATE = {
 	/**
 	 * The CSS class that will be added to links that reach 100% percentage.
 	 * @type {string}

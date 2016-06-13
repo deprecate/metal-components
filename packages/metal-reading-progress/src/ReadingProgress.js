@@ -1,29 +1,22 @@
 'use strict';
 
 import { core, object } from 'metal';
+import templates from './ReadingProgress.soy';
+import Component from 'metal-component';
 import ReadingProgressTracker from './ReadingProgressTracker';
-import ReadingProgressBase from './ReadingProgress.soy';
+import Soy from 'metal-soy';
 
 /**
  * This components renders a list of links to contents on the page. These links
  * show the reading progress for these contents, as well as the expected time
  * for reading them.
  */
-class ReadingProgress extends ReadingProgressBase {
+class ReadingProgress extends Component {
 	/**
 	 * @inheritDoc
 	 */
-	constructor(opt_config) {
-		super(opt_config);
-		this.once('attached', this.handleAttached_);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	disposeInternal() {
+	disposed() {
 		this.tracker_ && this.tracker_.dispose();
-		super.disposeInternal();
 	}
 
 	/**
@@ -56,16 +49,19 @@ class ReadingProgress extends ReadingProgressBase {
 	}
 
 	/**
-	 * Handles the `render` event. Creates the `ReadingProgressTracker` instance
-	 * that will be used to calculate reading progress value used by the ui.
+	 * Handles the `rendered` lifecycle. Creates the `ReadingProgressTracker`
+	 * instance that will be used to calculate reading progress value used by the
+	 * ui.
 	 * @protected
 	 */
-	handleAttached_() {
-		this.tracker_ = new ReadingProgressTracker(object.mixin({
-			element: this.element
-		}, this.trackerConfig));
-		this.tracker_.on('progressChanged', this.updateProgress.bind(this));
-		this.updateProgress();
+	rendered(firstRender) {
+		if (firstRender) {
+			this.tracker_ = new ReadingProgressTracker(object.mixin({
+				element: this.element
+			}, this.trackerConfig));
+			this.tracker_.on('progressChanged', this.updateProgress.bind(this));
+			this.updateProgress();
+		}
 	}
 
 	/**
@@ -102,10 +98,12 @@ class ReadingProgress extends ReadingProgressBase {
 	}
 }
 
+Soy.register(ReadingProgress, templates);
+
 /**
- * `ReadingProgress`'s attributes configuration.
+ * `ReadingProgress`'s state configuration.
  */
-ReadingProgress.ATTRS = {
+ReadingProgress.STATE = {
 	/**
 	 * An array of items representing links to the elements in the page that this
 	 * component should track reading progress for. This can either be an array of
