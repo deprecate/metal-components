@@ -77,7 +77,7 @@ function $render(opt_data, opt_ignored, opt_ijData) {
               ie_open('button', null, null,
                   'type', 'button',
                   'class', 'close',
-                  'onClick', 'hide',
+                  'data-onclick', 'hide',
                   'aria-label', 'Close');
                 ie_open('span', null, null,
                     'aria-hidden', 'true');
