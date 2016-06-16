@@ -13,6 +13,7 @@
     "test"
   ],
   "scripts": {
+    "prepublish": "gulp soy",
     "test": "gulp test"
   },
   "keywords": [
