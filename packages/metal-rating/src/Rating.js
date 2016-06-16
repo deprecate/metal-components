@@ -9,15 +9,6 @@ class Rating extends Component {
     /**
      * @inheritDoc
      */
-    attached() {
-        this.delegate('mouseover', '.rating-item', this.handleMouseOverEvent.bind(this));
-        this.delegate('click', '.rating-item', this.handleClickEvent.bind(this));
-        this.on('mouseleave', this.handleMouseLeaveEvent.bind(this));
-    }
-
-    /**
-     * @inheritDoc
-     */
     created() {
         this.ratingClicked_ = this.value;
     }
