@@ -72,7 +72,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemClick_(event) {
-		this.selectedIndex = this.findItemIndex_(event.currentTarget);
+		this.selectedIndex = this.findItemIndex_(event.delegateTarget);
 		this.getDropdown().close();
 		event.preventDefault();
 	}
