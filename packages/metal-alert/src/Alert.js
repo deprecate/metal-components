@@ -7,7 +7,7 @@ import Component from 'metal-component';
 import { EventHandler } from 'metal-events';
 import Soy from 'metal-soy';
 
-import templates from './Alert.soy';
+import templates from './Alert.soy.js';
 
 /**
  * Alert component.
