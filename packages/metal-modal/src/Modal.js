@@ -3,7 +3,7 @@
 import core from 'metal';
 import dom from 'metal-dom';
 import { EventHandler } from 'metal-events';
-import templates from './Modal.soy';
+import templates from './Modal.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 
