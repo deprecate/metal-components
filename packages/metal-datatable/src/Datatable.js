@@ -2,7 +2,7 @@
 
 import core from 'metal';
 import dom from 'metal-dom';
-import templates from './Datatable.soy';
+import templates from './Datatable.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 
