@@ -7,7 +7,7 @@ import Component from 'metal-component';
 import { EventHandler } from 'metal-events';
 import Soy from 'metal-soy';
 
-import templates from './Dropdown.soy';
+import templates from './Dropdown.soy.js';
 
 /**
  * Dropdown component.
@@ -20,7 +20,7 @@ class Dropdown extends Component {
 		super.attached();
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 	}
-	
+
 	/**
 	 * @inheritDoc
 	 */
