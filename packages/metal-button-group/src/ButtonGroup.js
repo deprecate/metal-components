@@ -4,7 +4,7 @@ import core from 'metal';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 
-import templates from './ButtonGroup.soy';
+import templates from './ButtonGroup.soy.js';
 
 /**
  * Responsible for handling groups of buttons.
