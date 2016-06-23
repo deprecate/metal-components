@@ -149,10 +149,12 @@ describe('Datatable', function() {
 	});
 
 	it('should throw exception when data contains mixed types inside array', function() {
+		datatable = new Datatable({
+			data: [0, false]
+		}, false);
 		assert.throws(function() {
-			datatable = new Datatable({
-				data: [0, false]
-			});
+			// Access data to trigger its setter.
+			datatable.data; // jshint ignore:line
 		}, Error);
 	});
 
