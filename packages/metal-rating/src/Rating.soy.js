@@ -1,6 +1,6 @@
 /* jshint ignore:start */
-import Component from 'metal-component/src/Component';
-import Soy from 'metal-soy/src/Soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
 var templates;
 goog.loadModule(function(exports) {
 
@@ -45,7 +45,8 @@ function $render(opt_data, opt_ignored, opt_ijData) {
       'aria-valuemax', opt_data.options[opt_data.options.length - 1].value,
       'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '',
       'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '',
-      'class', 'rating');
+      'class', 'rating',
+      'data-onmouseleave', 'handleMouseLeaveEvent');
     if (opt_data.label) {
       ie_open('label', null, null,
           'class', 'rate-label');
@@ -62,6 +63,8 @@ function $render(opt_data, opt_ignored, opt_ijData) {
             'aria-label', opt_data.options[option18].title,
             'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off),
             'data-index', option18,
+            'data-onclick', 'handleClickEvent',
+            'data-onmouseover', 'handleMouseOverEvent',
             'title', opt_data.options[option18].title,
             'type', 'button');
       }
@@ -80,6 +83,7 @@ if (goog.DEBUG) {
 }
 
 exports.render.params = ["label","cssClasses","disabled","inputHiddenName","options","value"];
+exports.render.types = {"label":"any","cssClasses":"any","disabled":"any","inputHiddenName":"any","options":"any","value":"any"};
 templates = exports;
 return exports;
 
@@ -87,6 +91,6 @@ return exports;
 
 class Rating extends Component {}
 Soy.register(Rating, templates);
-export default templates;
 export { Rating, templates };
+export default templates;
 /* jshint ignore:end */
