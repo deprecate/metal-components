@@ -20,7 +20,6 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	attached() {
 		super.attached();
-		this.on('click', event => event.stopPropagation());
 		this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
@@ -61,6 +60,15 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	getList() {
 		return this.components.list;
+	}
+
+	/**
+	 * Handles `click` events, stopping their propagation.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleClick_(event) {
+		event.stopPropagation();
 	}
 
 	/**

@@ -1,6 +1,6 @@
 /* jshint ignore:start */
-import Component from 'metal-component/src/Component';
-import Soy from 'metal-soy/src/Soy';
+import Component from 'metal-component';
+import Soy from 'metal-soy';
 var templates;
 goog.loadModule(function(exports) {
 
@@ -44,7 +44,8 @@ var $templateAlias1 = Soy.getTemplate('List.incrementaldom', 'render');
 function $render(opt_data, opt_ignored, opt_ijData) {
   opt_data = opt_data || {};
   ie_open('div', null, null,
-      'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''),
+      'data-onclick', 'handleClick_');
     $templateAlias1({events: {itemSelected: opt_data.onListItemSelected_}, ref: 'list'}, null, opt_ijData);
   ie_close('div');
 }
