@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Alert = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -81,10 +81,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     /**
      * @param {{
      *    dismissible: (?),
-     *    spinner: (?),
-     *    spinnerDone: (?),
      *    elementClasses: (?),
-     *    spinnerClasses: (?),
      *    body: (?soydata.SanitizedHtml|string|undefined)
      * }} opt_data
      * @param {(null|undefined)=} opt_ignored
@@ -97,14 +94,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       ie_open('div', null, null, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
-      if (opt_data.spinner) {
-        ie_void('span', null, null, 'class', 'alert-spinner' + (opt_data.spinnerClasses ? ' ' + opt_data.spinnerClasses : '') + (opt_data.spinnerDone ? ' alert-spinner-done' : ''));
-      }
-      ie_open('span', null, null, 'class', 'alert-body');
       if (body) {
         body();
       }
-      ie_close('span');
       if (opt_data.dismissible) {
         ie_open('button', null, null, 'type', 'button', 'class', 'close', 'aria-label', 'Close', 'data-onclick', 'toggle');
         ie_open('span', null, null, 'aria-hidden', 'true');
@@ -119,7 +111,8 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       $render.soyTemplateName = 'Alert.render';
     }
 
-    exports.render.params = ["body", "dismissible", "spinner", "spinnerDone", "elementClasses", "spinnerClasses"];
+    exports.render.params = ["body", "dismissible", "elementClasses"];
+    exports.render.types = { "body": "html", "dismissible": "any", "elementClasses": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -134,11 +127,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Alert;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Alert, templates);
-  exports.default = templates;
   exports.Alert = Alert;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Alert.soy.js.map

@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Autocomplete = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -87,7 +87,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      ie_open('div', null, null, 'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
+      ie_open('div', null, null, 'class', 'autocomplete autocomplete-list component ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onclick', 'handleClick_');
       $templateAlias1({ events: { itemSelected: opt_data.onListItemSelected_ }, ref: 'list' }, null, opt_ijData);
       ie_close('div');
     }
@@ -112,7 +112,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Autocomplete;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Autocomplete, templates);
   exports.Autocomplete = Autocomplete;

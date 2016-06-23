@@ -93,7 +93,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		};
 
 		Select.prototype.handleItemClick_ = function handleItemClick_(event) {
-			this.selectedIndex = this.findItemIndex_(event.currentTarget);
+			this.selectedIndex = this.findItemIndex_(event.delegateTarget);
 			this.getDropdown().close();
 			event.preventDefault();
 		};

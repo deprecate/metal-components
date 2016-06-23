@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Rating = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -84,7 +84,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'aria-valuemin', opt_data.options[0].value, 'aria-valuemax', opt_data.options[opt_data.options.length - 1].value, 'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '', 'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '', 'class', 'rating');
+      ie_open('div', null, null, 'aria-valuemin', opt_data.options[0].value, 'aria-valuemax', opt_data.options[opt_data.options.length - 1].value, 'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '', 'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '', 'class', 'rating', 'data-onmouseleave', 'handleMouseLeaveEvent');
       if (opt_data.label) {
         ie_open('label', null, null, 'class', 'rate-label');
         itext((goog.asserts.assert(opt_data.label != null), opt_data.label));
@@ -93,7 +93,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
       ie_open('div', null, null, 'class', 'rating-items');
       var optionLimit18 = opt_data.options.length;
       for (var option18 = 0; option18 < optionLimit18; option18++) {
-        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'title', opt_data.options[option18].title, 'type', 'button');
+        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'title', opt_data.options[option18].title, 'type', 'button');
       }
       ie_close('div');
       ie_open('input', null, null, 'type', 'hidden', 'aria-hidden', 'true', 'name', opt_data.inputHiddenName, 'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
@@ -106,6 +106,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["label", "cssClasses", "disabled", "inputHiddenName", "options", "value"];
+    exports.render.types = { "label": "any", "cssClasses": "any", "disabled": "any", "inputHiddenName": "any", "options": "any", "value": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -120,11 +121,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Rating;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Rating, templates);
-  exports.default = templates;
   exports.Rating = Rating;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Rating.soy.js.map

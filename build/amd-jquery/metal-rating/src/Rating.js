@@ -60,12 +60,6 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
             return _possibleConstructorReturn(this, _Component.apply(this, arguments));
         }
 
-        Rating.prototype.attached = function attached() {
-            this.delegate('mouseover', '.rating-item', this.handleMouseOverEvent.bind(this));
-            this.delegate('click', '.rating-item', this.handleClickEvent.bind(this));
-            this.on('mouseleave', this.handleMouseLeaveEvent.bind(this));
-        };
-
         Rating.prototype.created = function created() {
             this.ratingClicked_ = this.value;
         };

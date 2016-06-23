@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Dropdown = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -120,6 +120,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["body", "header", "alignedPosition", "classMap", "elementClasses", "expanded", "position", "positionClassOnMenu"];
+    exports.render.types = { "body": "html", "header": "html", "alignedPosition": "any", "classMap": "any", "elementClasses": "any", "expanded": "any", "position": "any", "positionClassOnMenu": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -134,11 +135,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Dropdown;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Dropdown, templates);
-  exports.default = templates;
   exports.Dropdown = Dropdown;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Dropdown.soy.js.map

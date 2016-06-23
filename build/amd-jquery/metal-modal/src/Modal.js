@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src/events', './Modal.soy', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _events, _Modal, _component, _Soy, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src/events', './Modal.soy.js', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _events, _ModalSoy, _component, _Soy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,7 +9,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Modal2 = _interopRequireDefault(_Modal);
+	var _ModalSoy2 = _interopRequireDefault(_ModalSoy);
 
 	var _component2 = _interopRequireDefault(_component);
 
@@ -248,7 +248,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		}
 	};
 
-	_Soy2.default.register(Modal, _Modal2.default);
+	_Soy2.default.register(Modal, _ModalSoy2.default);
 
 	exports.default = Modal;
 	_JQueryAdapter2.default.register('modal', Modal);

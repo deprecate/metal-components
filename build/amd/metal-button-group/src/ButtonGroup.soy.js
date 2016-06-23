@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.ButtonGroup = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -132,7 +132,9 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["buttons", "elementClasses", "selected"];
+    exports.render.types = { "buttons": "any", "elementClasses": "any", "selected": "any" };
     exports.selectedClass.params = ["label", "selected"];
+    exports.selectedClass.types = { "label": "any", "selected": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -147,11 +149,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return ButtonGroup;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(ButtonGroup, templates);
-  exports.default = templates;
   exports.ButtonGroup = ButtonGroup;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=ButtonGroup.soy.js.map

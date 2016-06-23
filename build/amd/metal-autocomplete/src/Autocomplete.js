@@ -64,9 +64,6 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		Autocomplete.prototype.attached = function attached() {
 			_AutocompleteBase.prototype.attached.call(this);
-			this.on('click', function (event) {
-				return event.stopPropagation();
-			});
 			this.eventHandler_.add(_dom2.default.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 			this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
 			this.eventHandler_.add(_dom2.default.on(window, 'resize', (0, _debounce2.default)(this.handleWindowResize_.bind(this), 100)));
@@ -100,6 +97,10 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		Autocomplete.prototype.getList = function getList() {
 			return this.components.list;
+		};
+
+		Autocomplete.prototype.handleClick_ = function handleClick_(event) {
+			event.stopPropagation();
 		};
 
 		Autocomplete.prototype.handleDocClick_ = function handleDocClick_() {

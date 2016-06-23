@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/Anim', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-soy/src/Soy', './Alert.soy'], function (exports, _metal, _dom, _Anim, _component, _events, _Soy, _Alert) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/Anim', 'metal-component/src/all/component', 'metal-events/src/events', 'metal-soy/src/Soy', './Alert.soy.js'], function (exports, _metal, _dom, _Anim, _component, _events, _Soy, _AlertSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -13,7 +13,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _Alert2 = _interopRequireDefault(_Alert);
+	var _AlertSoy2 = _interopRequireDefault(_AlertSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -158,7 +158,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
 		return Alert;
 	}(_component2.default);
 
-	_Soy2.default.register(Alert, _Alert2.default);
+	_Soy2.default.register(Alert, _AlertSoy2.default);
 
 	/**
   * Alert state definition.
@@ -210,30 +210,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
    * @type {?number}
    */
 		hideDelay: {},
-
-		/**
-   * Spinner indicating.
-   * @type {boolean}
-   * @default false
-   */
-		spinner: {
-			value: false
-		},
-
-		/**
-   * The CSS classes that should be added to the spinner.
-   * @type {string}
-   */
-		spinnerClasses: {},
-
-		/**
-   * Spinner is marked as done.
-   * @type {boolean}
-   * @default false
-   */
-		spinnerDone: {
-			value: false
-		},
 
 		/**
    * Flag indicating if the alert is visible or not.

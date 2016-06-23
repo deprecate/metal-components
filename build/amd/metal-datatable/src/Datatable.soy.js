@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Datatable = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -366,15 +366,25 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["data", "displayColumnsType", "elementClasses", "tableClasses"];
+    exports.render.types = { "data": "any", "displayColumnsType": "any", "elementClasses": "any", "tableClasses": "any" };
     exports.render_.params = ["type", "columns"];
+    exports.render_.types = { "type": "any", "columns": "any" };
     exports.renderArray_.params = ["value", "displayColumnsType", "tableClasses"];
+    exports.renderArray_.types = { "value": "any", "displayColumnsType": "any", "tableClasses": "any" };
     exports.renderArrayOfObjects_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
+    exports.renderArrayOfObjects_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "tableClasses": "any" };
     exports.renderBoolean_.params = ["value"];
+    exports.renderBoolean_.types = { "value": "any" };
     exports.renderNull_.params = [];
+    exports.renderNull_.types = {};
     exports.renderNumber_.params = ["value"];
+    exports.renderNumber_.types = { "value": "any" };
     exports.renderObject_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
+    exports.renderObject_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "tableClasses": "any" };
     exports.renderUndefined_.params = [];
+    exports.renderUndefined_.types = {};
     exports.renderString_.params = ["value"];
+    exports.renderString_.types = { "value": "html" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -389,11 +399,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Datatable;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Datatable, templates);
-  exports.default = templates;
   exports.Datatable = Datatable;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Datatable.soy.js.map

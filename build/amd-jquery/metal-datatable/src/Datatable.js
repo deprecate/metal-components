@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _Datatable, _component, _Soy, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.js', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _DatatableSoy, _component, _Soy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,7 +9,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy'
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _Datatable2 = _interopRequireDefault(_Datatable);
+	var _DatatableSoy2 = _interopRequireDefault(_DatatableSoy);
 
 	var _component2 = _interopRequireDefault(_component);
 
@@ -224,7 +224,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy'
 		return Datatable;
 	}(_component2.default);
 
-	_Soy2.default.register(Datatable, _Datatable2.default);
+	_Soy2.default.register(Datatable, _DatatableSoy2.default);
 
 	Datatable.STATE = {
 		/**

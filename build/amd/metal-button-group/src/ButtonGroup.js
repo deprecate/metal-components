@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ButtonGroup.soy'], function (exports, _metal, _component, _Soy, _ButtonGroup) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ButtonGroup.soy.js'], function (exports, _metal, _component, _Soy, _ButtonGroupSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _ButtonGroup2 = _interopRequireDefault(_ButtonGroup);
+	var _ButtonGroupSoy2 = _interopRequireDefault(_ButtonGroupSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -86,7 +86,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		return ButtonGroup;
 	}(_component2.default);
 
-	_Soy2.default.register(ButtonGroup, _ButtonGroup2.default);
+	_Soy2.default.register(ButtonGroup, _ButtonGroupSoy2.default);
 
 	/**
   * State definition.

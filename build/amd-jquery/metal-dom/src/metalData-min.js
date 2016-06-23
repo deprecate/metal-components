@@ -1,0 +1,1 @@
+define(["exports"],function(e){"use strict";function n(e,n){if(!(e instanceof n))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(e,"__esModule",{value:!0});var t="__metal_data__",a=function(){function e(){n(this,e)}return e.get=function(e){return e[t]||(e[t]={delegating:{},listeners:{}}),e[t]},e}();e["default"]=a});
