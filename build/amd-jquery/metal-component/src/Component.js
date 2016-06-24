@@ -322,8 +322,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
-			this.addElementClasses();
-			this.syncVisible(this.visible);
+			if (event.newVal) {
+				this.addElementClasses();
+				this.syncVisible(this.visible);
+			}
 		};
 
 		Component.prototype.onEventsChanged_ = function onEventsChanged_(event) {

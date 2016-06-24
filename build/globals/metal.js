@@ -5401,8 +5401,10 @@ babelHelpers;
 
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
-			this.addElementClasses();
-			this.syncVisible(this.visible);
+			if (event.newVal) {
+				this.addElementClasses();
+				this.syncVisible(this.visible);
+			}
 		};
 
 		/**
@@ -12783,24 +12785,24 @@ babelHelpers;
 
 						// end tag
 					} else if (html.indexOf("</") == 0) {
-							match = html.match(endTag);
+						match = html.match(endTag);
 
-							if (match) {
-								html = html.substring(match[0].length);
-								match[0].replace(endTag, parseEndTag);
-								chars = false;
-							}
+						if (match) {
+							html = html.substring(match[0].length);
+							match[0].replace(endTag, parseEndTag);
+							chars = false;
+						}
 
-							// start tag
-						} else if (html.indexOf("<") == 0) {
-								match = html.match(startTag);
+						// start tag
+					} else if (html.indexOf("<") == 0) {
+						match = html.match(startTag);
 
-								if (match) {
-									html = html.substring(match[0].length);
-									match[0].replace(startTag, parseStartTag);
-									chars = false;
-								}
-							}
+						if (match) {
+							html = html.substring(match[0].length);
+							match[0].replace(startTag, parseStartTag);
+							chars = false;
+						}
+					}
 
 					if (chars) {
 						index = html.indexOf("<");
@@ -18432,7 +18434,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -18501,6 +18503,7 @@ babelHelpers;
     }
 
     exports.render.params = ["title", "alignedPosition", "elementClasses", "position"];
+    exports.render.types = { "title": "html", "alignedPosition": "any", "elementClasses": "any", "position": "any" };
     templates = exports;
     return exports;
   });
@@ -18517,10 +18520,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(Tooltip, templates);
-  this.metal.Tooltip = templates;
   this.metalNamed.Tooltip = this.metalNamed.Tooltip || {};
   this.metalNamed.Tooltip.Tooltip = Tooltip;
   this.metalNamed.Tooltip.templates = templates;
+  this.metal.Tooltip = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';

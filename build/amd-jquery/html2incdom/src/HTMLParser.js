@@ -141,24 +141,24 @@ define([], function () {
 
 						// end tag
 					} else if (html.indexOf("</") == 0) {
-							match = html.match(endTag);
+						match = html.match(endTag);
 
-							if (match) {
-								html = html.substring(match[0].length);
-								match[0].replace(endTag, parseEndTag);
-								chars = false;
-							}
+						if (match) {
+							html = html.substring(match[0].length);
+							match[0].replace(endTag, parseEndTag);
+							chars = false;
+						}
 
-							// start tag
-						} else if (html.indexOf("<") == 0) {
-								match = html.match(startTag);
+						// start tag
+					} else if (html.indexOf("<") == 0) {
+						match = html.match(startTag);
 
-								if (match) {
-									html = html.substring(match[0].length);
-									match[0].replace(startTag, parseStartTag);
-									chars = false;
-								}
-							}
+						if (match) {
+							html = html.substring(match[0].length);
+							match[0].replace(startTag, parseStartTag);
+							chars = false;
+						}
+					}
 
 					if (chars) {
 						index = html.indexOf("<");
