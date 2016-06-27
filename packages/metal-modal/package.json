@@ -12,7 +12,8 @@
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
   },
-  "main": "src/Modal.js",
+  "jsnext:main": "src/Modal.js",
+  "main": "lib/Modal.js",
   "files": [
     "lib",
     "src",
