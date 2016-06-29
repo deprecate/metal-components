@@ -3,7 +3,7 @@
 import core from 'metal';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
-import templates from './ProgressBar.soy';
+import templates from './ProgressBar.soy.js';
 
 /**
  * UI Component that renders a progress bar.
