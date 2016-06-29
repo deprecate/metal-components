@@ -3,7 +3,7 @@
 import core from 'metal';
 import Soy from 'metal-soy';
 import { TooltipBase } from 'metal-tooltip';
-import templates from './Popover.soy';
+import templates from './Popover.soy.js';
 
 /**
  * Popover component. Extends the behavior from `TooltipBase`, adding
