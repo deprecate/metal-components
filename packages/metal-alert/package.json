@@ -7,7 +7,8 @@
   "engines": {
     "node": ">=0.12.0"
   },
-  "main": "src/Alert.js",
+  "jsnext:main": "src/Alert.js",
+  "main": "lib/Alert.js",
   "files": [
     "lib",
     "src",
