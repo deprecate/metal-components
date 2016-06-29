@@ -1,7 +1,7 @@
 'use strict';
 
 import core from 'metal';
-import templates from './Tabs.soy';
+import templates from './Tabs.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 
