@@ -7,7 +7,7 @@ import { Drag } from 'metal-drag-drop';
 import Position from 'metal-position';
 import Soy from 'metal-soy';
 
-import templates from './Slider.soy';
+import templates from './Slider.soy.js';
 
 /**
  * Slider component.
