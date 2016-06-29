@@ -1,6 +1,6 @@
 {
 	"name": "metal-progressbar",
-	"version": "1.0.0-rc.3",
+	"version": "1.0.0-rc.4",
 	"description": "Metal's progress bar component",
 	"license": "BSD",
 	"repository": "metal/metal-progressbar",
