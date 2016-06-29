@@ -8,7 +8,8 @@
 		"node": ">=0.12.0",
 		"npm": ">=3.0.0"
 	},
-	"main": "src/Datatable.js",
+	"jsnext:main": "src/Datatable.js",
+	"main": "lib/Datatable.js",
 	"files": [
 		"lib",
 		"src",
