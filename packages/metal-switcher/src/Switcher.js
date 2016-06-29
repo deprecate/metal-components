@@ -1,7 +1,7 @@
 'use strict';
 
 import core from 'metal';
-import templates from './Switcher.soy';
+import templates from './Switcher.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 
