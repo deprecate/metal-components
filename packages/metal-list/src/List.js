@@ -5,7 +5,7 @@ import Component from 'metal-component';
 import Soy from 'metal-soy';
 
 import './ListItem';
-import templates from './List.soy';
+import templates from './List.soy.js';
 
 /**
  * List component.

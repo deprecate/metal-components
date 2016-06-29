@@ -3,7 +3,7 @@
 import core from 'metal';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
-import templates from './ListItem.soy';
+import templates from './ListItem.soy.js';
 
 /**
  * List component.
