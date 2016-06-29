@@ -9,7 +9,7 @@ import AutocompleteBase from './AutocompleteBase';
 import Soy from 'metal-soy';
 
 import 'metal-list';
-import templates from './Autocomplete.soy';
+import templates from './Autocomplete.soy.js';
 
 /*
  * Autocomplete component.
