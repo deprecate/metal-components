@@ -74,17 +74,20 @@ describe('Rating', function() {
 
     var elements = rating.element.querySelectorAll('.rating-item');
 
-    dom.triggerEvent(elements[4], 'click');
+    dom.triggerEvent(elements[3], 'click');
     async.nextTick(function(){
-      dom.triggerEvent(rating.element, 'mouseleave');
+      dom.triggerEvent(elements[4], 'mouseover');
       async.nextTick(function(){
-        elements = rating.element.querySelectorAll('.rating-item');
-        assert.isTrue(elements[0].classList.contains('glyphicon-star'));
-        assert.isTrue(elements[1].classList.contains('glyphicon-star'));
-        assert.isTrue(elements[2].classList.contains('glyphicon-star'));
-        assert.isTrue(elements[3].classList.contains('glyphicon-star'));
-        assert.isTrue(elements[4].classList.contains('glyphicon-star'));
-        done();
+        dom.triggerEvent(rating.element, 'mouseout');
+        async.nextTick(function(){
+          elements = rating.element.querySelectorAll('.rating-item');
+          assert.isTrue(elements[0].classList.contains('glyphicon-star'));
+          assert.isTrue(elements[1].classList.contains('glyphicon-star'));
+          assert.isTrue(elements[2].classList.contains('glyphicon-star'));
+          assert.isTrue(elements[3].classList.contains('glyphicon-star'));
+          assert.isTrue(!elements[4].classList.contains('glyphicon-star'));
+          done();
+        });
       });
     });
   });
