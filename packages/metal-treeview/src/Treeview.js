@@ -1,9 +1,8 @@
 'use strict';
 
+import templates from './Treeview.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
-
-import templates from './Treeview.soy';
 
 /**
  * Treeview component.
