@@ -3,7 +3,7 @@
 import core from 'metal';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
-import templates from './Rating.soy';
+import templates from './Rating.soy.js';
 
 class Rating extends Component {
     /**
