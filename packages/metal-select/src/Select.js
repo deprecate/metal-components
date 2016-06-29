@@ -6,7 +6,7 @@ import Component from 'metal-component';
 import Soy from 'metal-soy';
 
 import 'metal-dropdown';
-import templates from './Select.soy';
+import templates from './Select.soy.js';
 
 /**
  * Responsible for rendering and handling a custom select component, based
