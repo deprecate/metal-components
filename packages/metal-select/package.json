@@ -1,41 +1,41 @@
 {
-	"name": "metal-select",
-	"version": "1.0.0-rc.5",
-	"description": "Steel's select component",
-	"license": "BSD",
-	"repository": "metal/metal-select",
+  "name": "metal-select",
+  "version": "1.0.0",
+  "description": "Steel's select component",
+  "license": "BSD",
+  "repository": "metal/metal-select",
   "engines": {
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
   },
-	"jsnext:main": "src/Select.js",
-	"main": "lib/Select.js",
+  "jsnext:main": "src/Select.js",
+  "main": "lib/Select.js",
   "files": [
-		"lib",
+    "lib",
     "src",
     "test"
   ],
-	"scripts": {
-		"compile": "babel --presets metal -d lib/ src/",
-		"prepublish": "gulp soy && npm run compile",
-		"test": "gulp test"
-	},
-	"keywords": [
-		"metal",
-		"select"
-	],
+  "scripts": {
+    "compile": "babel --presets metal -d lib/ src/",
+    "prepublish": "gulp soy && npm run compile",
+    "test": "gulp test"
+  },
+  "keywords": [
+    "metal",
+    "select"
+  ],
   "dependencies": {
     "bootstrap": "^3.3.6",
     "metal": "^1.0.0",
-		"metal-component": "^1.0.0",
-		"metal-dom": "^1.0.0",
-		"metal-dropdown": "^1.0.0",
-		"metal-soy": "^1.0.0"
+    "metal-component": "^1.0.0",
+    "metal-dom": "^1.0.0",
+    "metal-dropdown": "^1.0.0",
+    "metal-soy": "^1.0.0"
   },
   "devDependencies": {
-		"babel-cli": "^6.4.5",
-		"babel-preset-metal": "^4.0.0",
+    "babel-cli": "^6.4.5",
+    "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",
-		"gulp-metal": "^1.0.0"
+    "gulp-metal": "^1.0.0"
   }
 }
