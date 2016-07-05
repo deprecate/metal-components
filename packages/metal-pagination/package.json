@@ -1,37 +1,37 @@
 {
-	"name": "metal-pagination",
-	"version": "1.0.0-rc.2",
-	"description": "Metal.js's pagination component",
-	"license": "BSD",
-	"repository": "metal/metal-pagination",
-	"engines": {
-		"node": ">=0.12.0",
-		"npm": ">=3.0.0"
-	},
-	"jsnext:main": "src/Pagination.js",
-	"main": "lib/Pagination.js",
-	"files": [
-		"lib",
-		"src",
-		"test"
-	],
-	"scripts": {
-		"compile": "babel --presets metal -d lib/ src/",
-		"prepublish": "gulp soy && npm run compile",
-		"test": "gulp test"
-	},
-	"keywords": [
-		"metal"
-	],
-	"dependencies": {
+  "name": "metal-pagination",
+  "version": "1.0.0",
+  "description": "Metal.js's pagination component",
+  "license": "BSD",
+  "repository": "metal/metal-pagination",
+  "engines": {
+    "node": ">=0.12.0",
+    "npm": ">=3.0.0"
+  },
+  "jsnext:main": "src/Pagination.js",
+  "main": "lib/Pagination.js",
+  "files": [
+    "lib",
+    "src",
+    "test"
+  ],
+  "scripts": {
+    "compile": "babel --presets metal -d lib/ src/",
+    "prepublish": "gulp soy && npm run compile",
+    "test": "gulp test"
+  },
+  "keywords": [
+    "metal"
+  ],
+  "dependencies": {
     "bootstrap": "^3.3.6",
-		"metal-component": "^1.0.0",
-		"metal-soy": "^1.0.0"
-	},
-	"devDependencies": {
-		"babel-cli": "^6.4.5",
-		"babel-preset-metal": "^4.0.0",
-		"gulp": "^3.8.11",
-		"gulp-metal": "^1.0.0"
-	}
+    "metal-component": "^1.0.0",
+    "metal-soy": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-preset-metal": "^4.0.0",
+    "gulp": "^3.8.11",
+    "gulp-metal": "^1.0.0"
+  }
 }
