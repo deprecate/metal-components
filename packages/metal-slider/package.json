@@ -1,6 +1,6 @@
 {
   "name": "metal-slider",
-  "version": "1.0.0-rc.5",
+  "version": "1.0.0",
   "description": "Crystal's slider component",
   "license": "BSD",
   "repository": "metal/metal-slider",
