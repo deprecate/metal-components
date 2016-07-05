@@ -36,6 +36,7 @@
     "metal-soy": "^1.0.0"
   },
   "devDependencies": {
+    "bootstrap": "^3.3.6",
     "babel-cli": "^6.4.5",
     "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",
