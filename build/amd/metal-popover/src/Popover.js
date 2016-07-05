@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/Tooltip', './Popover.soy'], function (exports, _metal, _Soy, _Tooltip, _Popover) {
+define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/Tooltip', './Popover.soy.js'], function (exports, _metal, _Soy, _Tooltip, _PopoverSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,7 +9,7 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _Popover2 = _interopRequireDefault(_Popover);
+	var _PopoverSoy2 = _interopRequireDefault(_PopoverSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -75,7 +75,7 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 		return Popover;
 	}(_Tooltip.TooltipBase);
 
-	_Soy2.default.register(Popover, _Popover2.default);
+	_Soy2.default.register(Popover, _PopoverSoy2.default);
 
 	/**
   * State definition.

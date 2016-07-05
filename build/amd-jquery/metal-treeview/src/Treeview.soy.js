@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Treeview = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -148,8 +148,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["elementClasses", "nodes"];
+    exports.render.types = { "elementClasses": "any", "nodes": "any" };
     exports.nodes.params = ["nodes", "parentPath"];
+    exports.nodes.types = { "nodes": "any", "parentPath": "any" };
     exports.node.params = ["node", "path"];
+    exports.node.types = { "node": "any", "path": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -164,11 +167,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Treeview;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Treeview, templates);
-  exports.default = templates;
   exports.Treeview = Treeview;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Treeview.soy.js.map

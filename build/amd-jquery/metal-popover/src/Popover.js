@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/Tooltip', './Popover.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _Soy, _Tooltip, _Popover, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/Tooltip', './Popover.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _Soy, _Tooltip, _PopoverSoy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,7 +9,7 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _Popover2 = _interopRequireDefault(_Popover);
+	var _PopoverSoy2 = _interopRequireDefault(_PopoverSoy);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -77,7 +77,7 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 		return Popover;
 	}(_Tooltip.TooltipBase);
 
-	_Soy2.default.register(Popover, _Popover2.default);
+	_Soy2.default.register(Popover, _PopoverSoy2.default);
 
 	/**
   * State definition.

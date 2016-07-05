@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ProgressBar.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _component, _Soy, _ProgressBar, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ProgressBar.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _component, _Soy, _ProgressBarSoy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _ProgressBar2 = _interopRequireDefault(_ProgressBar);
+	var _ProgressBarSoy2 = _interopRequireDefault(_ProgressBarSoy);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -140,7 +140,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 			value: 0
 		}
 	};
-	_Soy2.default.register(ProgressBar, _ProgressBar2.default);
+	_Soy2.default.register(ProgressBar, _ProgressBarSoy2.default);
 
 	exports.default = ProgressBar;
 	_JQueryAdapter2.default.register('progressBar', ProgressBar);

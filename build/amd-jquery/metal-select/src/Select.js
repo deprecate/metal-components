@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-soy/src/Soy', './Select.soy', 'metal-jquery-adapter/src/JQueryAdapter', 'metal-dropdown/src/Dropdown'], function (exports, _metal, _dom, _component, _Soy, _Select, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-soy/src/Soy', './Select.soy.js', 'metal-jquery-adapter/src/JQueryAdapter', 'metal-dropdown/src/Dropdown'], function (exports, _metal, _dom, _component, _Soy, _SelectSoy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -13,7 +13,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _Select2 = _interopRequireDefault(_Select);
+	var _SelectSoy2 = _interopRequireDefault(_SelectSoy);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -134,7 +134,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		return Select;
 	}(_component2.default);
 
-	_Soy2.default.register(Select, _Select2.default);
+	_Soy2.default.register(Select, _SelectSoy2.default);
 
 	/**
   * State definition.

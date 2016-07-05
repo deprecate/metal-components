@@ -1,15 +1,15 @@
-define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy', './Treeview.soy'], function (exports, _component, _Soy, _Treeview) {
+define(['exports', './Treeview.soy.js', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _TreeviewSoy, _component, _Soy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
+	var _TreeviewSoy2 = _interopRequireDefault(_TreeviewSoy);
+
 	var _component2 = _interopRequireDefault(_component);
 
 	var _Soy2 = _interopRequireDefault(_Soy);
-
-	var _Treeview2 = _interopRequireDefault(_Treeview);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -84,7 +84,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy', './
 		return Treeview;
 	}(_component2.default);
 
-	_Soy2.default.register(Treeview, _Treeview2.default);
+	_Soy2.default.register(Treeview, _TreeviewSoy2.default);
 
 	/**
   * Treeview state definition.

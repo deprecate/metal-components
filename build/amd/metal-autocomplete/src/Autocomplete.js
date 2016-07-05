@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/Soy', './Autocomplete.soy', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _Soy, _Autocomplete) {
+define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-position/src/all/position', './AutocompleteBase', 'metal-soy/src/Soy', './Autocomplete.soy.js', 'metal-list/src/List'], function (exports, _metal, _debounce, _dom, _Promise, _position, _AutocompleteBase2, _Soy, _AutocompleteSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -15,7 +15,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _Autocomplete2 = _interopRequireDefault(_Autocomplete);
+	var _AutocompleteSoy2 = _interopRequireDefault(_AutocompleteSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -157,7 +157,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		return Autocomplete;
 	}(_AutocompleteBase3.default);
 
-	_Soy2.default.register(Autocomplete, _Autocomplete2.default);
+	_Soy2.default.register(Autocomplete, _AutocompleteSoy2.default);
 
 	/**
   * State definition.

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './Rating.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _component, _Soy, _Rating, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './Rating.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _component, _Soy, _RatingSoy, _JQueryAdapter) {
     'use strict';
 
     Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 
     var _Soy2 = _interopRequireDefault(_Soy);
 
-    var _Rating2 = _interopRequireDefault(_Rating);
+    var _RatingSoy2 = _interopRequireDefault(_RatingSoy);
 
     var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -194,7 +194,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
             value: -1
         }
     };
-    _Soy2.default.register(Rating, _Rating2.default);
+    _Soy2.default.register(Rating, _RatingSoy2.default);
 
     exports.default = Rating;
     _JQueryAdapter2.default.register('rating', Rating);

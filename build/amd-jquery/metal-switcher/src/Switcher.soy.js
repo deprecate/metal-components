@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.Switcher = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -97,6 +97,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["checked", "elementClasses"];
+    exports.render.types = { "checked": "any", "elementClasses": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -111,11 +112,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return Switcher;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(Switcher, templates);
-  exports.default = templates;
   exports.Switcher = Switcher;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=Switcher.soy.js.map

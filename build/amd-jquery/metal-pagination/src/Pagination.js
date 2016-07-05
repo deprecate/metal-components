@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', './Pagination.soy', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _Pagination, _component, _Soy, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _PaginationSoy, _component, _Soy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy', 'metal-component/src/a
 
 	var _metal2 = _interopRequireDefault(_metal);
 
-	var _Pagination2 = _interopRequireDefault(_Pagination);
+	var _PaginationSoy2 = _interopRequireDefault(_PaginationSoy);
 
 	var _component2 = _interopRequireDefault(_component);
 
@@ -150,7 +150,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy', 'metal-component/src/a
 		return Pagination;
 	}(_component2.default);
 
-	_Soy2.default.register(Pagination, _Pagination2.default);
+	_Soy2.default.register(Pagination, _PaginationSoy2.default);
 
 	/**
   * State definition.

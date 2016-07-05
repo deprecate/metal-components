@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ListItem.soy'], function (exports, _metal, _component, _Soy, _ListItem) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ListItem.soy.js'], function (exports, _metal, _component, _Soy, _ListItemSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _ListItem2 = _interopRequireDefault(_ListItem);
+	var _ListItemSoy2 = _interopRequireDefault(_ListItemSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -77,7 +77,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		return ListItem;
 	}(_component2.default);
 
-	_Soy2.default.register(ListItem, _ListItem2.default);
+	_Soy2.default.register(ListItem, _ListItemSoy2.default);
 
 	/**
   * List state definition.

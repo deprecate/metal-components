@@ -1,4 +1,4 @@
-define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-soy/src/Soy', './List.soy', 'metal-jquery-adapter/src/JQueryAdapter', './ListItem'], function (exports, _dom, _component, _Soy, _List, _JQueryAdapter) {
+define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-soy/src/Soy', './List.soy.js', 'metal-jquery-adapter/src/JQueryAdapter', './ListItem'], function (exports, _dom, _component, _Soy, _ListSoy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component',
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _List2 = _interopRequireDefault(_List);
+	var _ListSoy2 = _interopRequireDefault(_ListSoy);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -74,7 +74,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component',
 		return List;
 	}(_component2.default);
 
-	_Soy2.default.register(List, _List2.default);
+	_Soy2.default.register(List, _ListSoy2.default);
 
 	/**
   * List state definition.

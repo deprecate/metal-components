@@ -959,9 +959,9 @@ babelHelpers;
 (function () {
 	var METAL_DATA = '__metal_data__';
 
-	this.metal.metalData = function () {
-		function thisMetalMetalData() {
-			babelHelpers.classCallCheck(this, thisMetalMetalData);
+	var domData = function () {
+		function domData() {
+			babelHelpers.classCallCheck(this, domData);
 		}
 
 		/**
@@ -970,7 +970,7 @@ babelHelpers;
    * @return {!Object}
    */
 
-		thisMetalMetalData.get = function get(element) {
+		domData.get = function get(element) {
 			if (!element[METAL_DATA]) {
 				element[METAL_DATA] = {
 					delegating: {},
@@ -980,8 +980,10 @@ babelHelpers;
 			return element[METAL_DATA];
 		};
 
-		return thisMetalMetalData;
+		return domData;
 	}();
+
+	this.metal.domData = domData;
 }).call(this);
 'use strict';
 
@@ -1784,7 +1786,7 @@ babelHelpers;
 (function () {
 	var array = this.metalNamed.metal.array;
 	var core = this.metalNamed.metal.core;
-	var metalData = this.metal.metalData;
+	var domData = this.metal.domData;
 	var EventHandle = this.metalNamed.events.EventHandle;
 
 	/**
@@ -1821,7 +1823,7 @@ babelHelpers;
 
 
 		DomDelegatedEventHandle.prototype.removeListener = function removeListener() {
-			var data = metalData.get(this.emitter_);
+			var data = domData.get(this.emitter_);
 			var selector = this.selector_;
 			var arr = core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
 			var key = core.isString(selector) ? selector : this.event_;
@@ -1889,7 +1891,7 @@ babelHelpers;
 (function () {
 	var core = this.metalNamed.metal.core;
 	var object = this.metalNamed.metal.object;
-	var metalData = this.metal.metalData;
+	var domData = this.metal.domData;
 	var DomDelegatedEventHandle = this.metal.DomDelegatedEventHandle;
 	var DomEventHandle = this.metal.DomEventHandle;
 
@@ -1980,7 +1982,7 @@ babelHelpers;
 
 
 		dom.addElementListener_ = function addElementListener_(element, eventName, listener) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			dom.addToArr_(data.listeners, eventName, listener);
 		};
 
@@ -1996,7 +1998,7 @@ babelHelpers;
 
 
 		dom.addSelectorListener_ = function addSelectorListener_(element, eventName, selector, listener) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			dom.addToArr_(data.delegating[eventName].selectors, selector, listener);
 		};
 
@@ -2026,7 +2028,7 @@ babelHelpers;
 
 
 		dom.attachDelegateEvent_ = function attachDelegateEvent_(element, eventName) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			if (!data.delegating[eventName]) {
 				data.delegating[eventName] = {
 					handle: dom.on(element, eventName, dom.handleDelegateEvent_, !!USE_CAPTURE[eventName]),
@@ -2681,11 +2683,11 @@ babelHelpers;
 
 
 		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			var listeners = data.listeners[event.type];
 			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
 
-			var selectorsMap = metalData.get(container).delegating[event.type].selectors;
+			var selectorsMap = domData.get(container).delegating[event.type].selectors;
 			var selectors = Object.keys(selectorsMap);
 			for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
 				if (dom.match(element, selectors[i])) {
@@ -3181,6 +3183,7 @@ babelHelpers;
 
 (function () {
   var dom = this.metal.dom;
+  var domData = this.metal.domData;
   var DomEventEmitterProxy = this.metal.DomEventEmitterProxy;
   var DomEventHandle = this.metal.DomEventHandle;
   var features = this.metal.features;
@@ -3189,6 +3192,7 @@ babelHelpers;
   this.metal.dom = dom;
   this.metalNamed.dom = this.metalNamed.dom || {};
   this.metalNamed.dom.dom = dom;
+  this.metalNamed.dom.domData = domData;
   this.metalNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
   this.metalNamed.dom.DomEventHandle = DomEventHandle;
   this.metalNamed.dom.features = features;
@@ -5807,14 +5811,14 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Component = this.metal.Component;
-	var ComponentRegistry = this.metal.ComponentRegistry;
-	var ComponentRenderer = this.metal.ComponentRenderer;
-	this.metal.component = Component;
-	this.metalNamed.component = this.metalNamed.component || {};
-	this.metalNamed.component.Component = Component;
-	this.metalNamed.component.ComponentRegistry = ComponentRegistry;
-	this.metalNamed.component.ComponentRenderer = ComponentRenderer;
+  var Component = this.metal.Component;
+  var ComponentRegistry = this.metal.ComponentRegistry;
+  var ComponentRenderer = this.metal.ComponentRenderer;
+  this.metal.component = Component;
+  this.metalNamed.component = this.metalNamed.component || {};
+  this.metalNamed.component.Component = Component;
+  this.metalNamed.component.ComponentRegistry = ComponentRegistry;
+  this.metalNamed.component.ComponentRenderer = ComponentRenderer;
 }).call(this);
 'use strict';
 
@@ -14869,7 +14873,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -14981,7 +14985,9 @@ babelHelpers;
     }
 
     exports.render.params = ["index", "item", "elementClasses"];
+    exports.render.types = { "index": "any", "item": "any", "elementClasses": "any" };
     exports.htmlContent.params = ["content"];
+    exports.htmlContent.types = { "content": "html" };
     templates = exports;
     return exports;
   });
@@ -14998,10 +15004,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(ListItem, templates);
-  this.metal.ListItem = templates;
   this.metalNamed.ListItem = this.metalNamed.ListItem || {};
   this.metalNamed.ListItem.ListItem = ListItem;
   this.metalNamed.ListItem.templates = templates;
+  this.metal.ListItem = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
@@ -15081,7 +15087,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -15154,6 +15160,7 @@ babelHelpers;
     }
 
     exports.render.params = ["itemsHtml", "elementClasses", "items"];
+    exports.render.types = { "itemsHtml": "html", "elementClasses": "any", "items": "any" };
     templates = exports;
     return exports;
   });
@@ -15170,10 +15177,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(List, templates);
-  this.metal.List = templates;
   this.metalNamed.List = this.metalNamed.List || {};
   this.metalNamed.List.List = List;
   this.metalNamed.List.templates = templates;
+  this.metal.List = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
@@ -17706,7 +17713,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -18598,7 +18605,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -18813,7 +18820,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -18871,6 +18878,7 @@ babelHelpers;
     }
 
     exports.render.params = ["barClass", "elementClasses", "label", "max", "min", "value"];
+    exports.render.types = { "barClass": "any", "elementClasses": "any", "label": "any", "max": "any", "min": "any", "value": "any" };
     templates = exports;
     return exports;
   });
@@ -18887,10 +18895,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(ProgressBar, templates);
-  this.metal.ProgressBar = templates;
   this.metalNamed.ProgressBar = this.metalNamed.ProgressBar || {};
   this.metalNamed.ProgressBar.ProgressBar = ProgressBar;
   this.metalNamed.ProgressBar.templates = templates;
+  this.metal.ProgressBar = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
@@ -19632,7 +19640,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -21664,7 +21672,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -21731,6 +21739,7 @@ babelHelpers;
     }
 
     exports.render.params = ["elementClasses", "inputName", "max", "min", "value"];
+    exports.render.types = { "elementClasses": "any", "inputName": "any", "max": "any", "min": "any", "value": "any" };
     templates = exports;
     return exports;
   });
@@ -21747,10 +21756,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(Slider, templates);
-  this.metal.Slider = templates;
   this.metalNamed.Slider = this.metalNamed.Slider || {};
   this.metalNamed.Slider.Slider = Slider;
   this.metalNamed.Slider.templates = templates;
+  this.metal.Slider = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
@@ -21984,7 +21993,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -22038,6 +22047,7 @@ babelHelpers;
     }
 
     exports.render.params = ["checked", "elementClasses"];
+    exports.render.types = { "checked": "any", "elementClasses": "any" };
     templates = exports;
     return exports;
   });
@@ -22054,10 +22064,10 @@ babelHelpers;
   }(Component);
 
   Soy.register(Switcher, templates);
-  this.metal.Switcher = templates;
   this.metalNamed.Switcher = this.metalNamed.Switcher || {};
   this.metalNamed.Switcher.Switcher = Switcher;
   this.metalNamed.Switcher.templates = templates;
+  this.metal.Switcher = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
@@ -22308,7 +22318,7 @@ babelHelpers;
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.Component;
+  var Component = this.metal.component;
   var Soy = this.metal.Soy;
 
   var templates;
@@ -22413,8 +22423,11 @@ babelHelpers;
     }
 
     exports.render.params = ["elementClasses", "nodes"];
+    exports.render.types = { "elementClasses": "any", "nodes": "any" };
     exports.nodes.params = ["nodes", "parentPath"];
+    exports.nodes.types = { "nodes": "any", "parentPath": "any" };
     exports.node.params = ["node", "path"];
+    exports.node.types = { "node": "any", "path": "any" };
     templates = exports;
     return exports;
   });
@@ -22431,18 +22444,18 @@ babelHelpers;
   }(Component);
 
   Soy.register(Treeview, templates);
-  this.metal.Treeview = templates;
   this.metalNamed.Treeview = this.metalNamed.Treeview || {};
   this.metalNamed.Treeview.Treeview = Treeview;
   this.metalNamed.Treeview.templates = templates;
+  this.metal.Treeview = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
+	var templates = this.metal.Treeview;
 	var Component = this.metal.component;
 	var Soy = this.metal.Soy;
-	var templates = this.metal.Treeview;
 
 	/**
   * Treeview component.

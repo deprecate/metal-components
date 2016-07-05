@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', './Switcher.soy', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _Switcher, _component, _Soy, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', './Switcher.soy.js', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _SwitcherSoy, _component, _Soy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/src/metal', './Switcher.soy', 'metal-component/src/all
 
 	var _metal2 = _interopRequireDefault(_metal);
 
-	var _Switcher2 = _interopRequireDefault(_Switcher);
+	var _SwitcherSoy2 = _interopRequireDefault(_SwitcherSoy);
 
 	var _component2 = _interopRequireDefault(_component);
 
@@ -83,7 +83,7 @@ define(['exports', 'metal/src/metal', './Switcher.soy', 'metal-component/src/all
 			value: false
 		}
 	};
-	_Soy2.default.register(Switcher, _Switcher2.default);
+	_Soy2.default.register(Switcher, _SwitcherSoy2.default);
 
 	exports.default = Switcher;
 	_JQueryAdapter2.default.register('switcher', Switcher);

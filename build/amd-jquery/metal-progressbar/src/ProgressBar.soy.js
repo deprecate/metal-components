@@ -1,4 +1,4 @@
-define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], function (exports, _Component2, _Soy) {
+define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], function (exports, _component, _Soy) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -6,7 +6,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
   });
   exports.templates = exports.ProgressBar = undefined;
 
-  var _Component3 = _interopRequireDefault(_Component2);
+  var _component2 = _interopRequireDefault(_component);
 
   var _Soy2 = _interopRequireDefault(_Soy);
 
@@ -101,6 +101,7 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     exports.render.params = ["barClass", "elementClasses", "label", "max", "min", "value"];
+    exports.render.types = { "barClass": "any", "elementClasses": "any", "label": "any", "max": "any", "min": "any", "value": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -115,11 +116,11 @@ define(['exports', 'metal-component/src/Component', 'metal-soy/src/Soy'], functi
     }
 
     return ProgressBar;
-  }(_Component3.default);
+  }(_component2.default);
 
   _Soy2.default.register(ProgressBar, templates);
-  exports.default = templates;
   exports.ProgressBar = ProgressBar;
   exports.templates = templates;
+  exports.default = templates;
 });
 //# sourceMappingURL=ProgressBar.soy.js.map

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-drag-drop/src/all/drag', 'metal-position/src/all/position', 'metal-soy/src/Soy', './Slider.soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _component, _drag, _position, _Soy, _Slider, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/src/all/component', 'metal-drag-drop/src/all/drag', 'metal-position/src/all/position', 'metal-soy/src/Soy', './Slider.soy.js', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _component, _drag, _position, _Soy, _SliderSoy, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -15,7 +15,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _Slider2 = _interopRequireDefault(_Slider);
+	var _SliderSoy2 = _interopRequireDefault(_SliderSoy);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -145,7 +145,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		return Slider;
 	}(_component2.default);
 
-	_Soy2.default.register(Slider, _Slider2.default);
+	_Soy2.default.register(Slider, _SliderSoy2.default);
 
 	/**
   * `Slider`'s state definition.

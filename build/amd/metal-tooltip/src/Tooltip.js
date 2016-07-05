@@ -1,4 +1,4 @@
-define(['exports', 'metal-dom/src/all/dom', 'metal-soy/src/Soy', './TooltipBase', './Tooltip.soy'], function (exports, _dom, _Soy, _TooltipBase2, _Tooltip) {
+define(['exports', 'metal-dom/src/all/dom', 'metal-soy/src/Soy', './TooltipBase', './Tooltip.soy.js'], function (exports, _dom, _Soy, _TooltipBase2, _TooltipSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -12,7 +12,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-soy/src/Soy', './TooltipBase'
 
 	var _TooltipBase3 = _interopRequireDefault(_TooltipBase2);
 
-	var _Tooltip2 = _interopRequireDefault(_Tooltip);
+	var _TooltipSoy2 = _interopRequireDefault(_TooltipSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -80,7 +80,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-soy/src/Soy', './TooltipBase'
 		return Tooltip;
 	}(_TooltipBase3.default);
 
-	_Soy2.default.register(Tooltip, _Tooltip2.default);
+	_Soy2.default.register(Tooltip, _TooltipSoy2.default);
 
 	/**
   * @inheritDoc

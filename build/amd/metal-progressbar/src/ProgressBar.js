@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ProgressBar.soy'], function (exports, _metal, _component, _Soy, _ProgressBar) {
+define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'metal-soy/src/Soy', './ProgressBar.soy.js'], function (exports, _metal, _component, _Soy, _ProgressBarSoy) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 
 	var _Soy2 = _interopRequireDefault(_Soy);
 
-	var _ProgressBar2 = _interopRequireDefault(_ProgressBar);
+	var _ProgressBarSoy2 = _interopRequireDefault(_ProgressBarSoy);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -138,7 +138,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 			value: 0
 		}
 	};
-	_Soy2.default.register(ProgressBar, _ProgressBar2.default);
+	_Soy2.default.register(ProgressBar, _ProgressBarSoy2.default);
 
 	exports.default = ProgressBar;
 });
