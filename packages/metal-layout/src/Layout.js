@@ -19,7 +19,7 @@ class Layout extends Component {
  */
 Layout.STATE = {
 	/**
-	 * data contains an array of rows/columns which define contents and sizes
+	 * An array of rows/columns which defines contents and sizes.
 	 * @type {!Array}
 	 */
 	data: {
