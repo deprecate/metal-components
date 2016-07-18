@@ -2,15 +2,23 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Demo: Layout</title>
+	<title>Demo: Layout Builder</title>
 	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
 	<link rel="stylesheet" href="../build/layout.css">
 	<script src="../build/globals/layout.js"></script>
+
+	<style>
+		.layout-builder-row {
+			border: 1px solid black;
+			min-height: 300px;
+			margin-bottom: 40px;
+		}
+	</style>
 </head>
-<body>
-	<h1>Layout</h1>
+<body class="container">
+	<h1>Layout Builder</h1>
 	<script type="text/javascript">
-		 new metal.Layout({
+		 new metal.LayoutBuilder({
 		  data: [
 		    {
 		      columns: [

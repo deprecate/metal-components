@@ -1,0 +1,11 @@
+.layout-builder .layout-builder-row {
+	position: relative;
+}
+
+.layout-builder .layout-builder-remove-row {
+	border-radius: 50%;
+	position: absolute;
+	right: -20px;
+	top: -20px;
+	z-index: 3;
+}
