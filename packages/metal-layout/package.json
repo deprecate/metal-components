@@ -8,8 +8,8 @@
 		"node": ">=0.12.0",
 		"npm": ">=3.0.0"
 	},
-	"main": "lib/Layout.js",
-	"jsnext:main": "src/Layout.js",
+	"main": "lib/all/layout.js",
+	"jsnext:main": "src/all/layout.js",
 	"files": [
 		"lib",
 		"src",

@@ -4,6 +4,7 @@ import core from 'metal';
 import templates from './Layout.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
+import './columns/LayoutCol';
 
 /**
  * UI Component that can receive data about rows/columns and render them

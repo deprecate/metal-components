@@ -1,7 +1,6 @@
 {namespace Layout}
 
 /**
-* This renders the component's whole content.
 * @param data
 */
 {template .render}
@@ -9,7 +8,7 @@
 			{foreach $value in ($data)}
 				<div class="row">
 					{foreach $column in ($value.columns)}
-						<div class="col-md-{$column.size}">{$column.content}</div>
+						{call LayoutCol.render data="$column" /}
 					{/foreach}
 				</div>
 			{/foreach}
