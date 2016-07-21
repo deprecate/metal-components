@@ -5,19 +5,19 @@
 */
 {template .render}
 	<div class="layout-builder">
-			{foreach $row in ($rows)}
-				<div class="row layout-builder-row">
-					<button
-						type="button"
-						class="btn btn-default layout-builder-remove-row"
-						data-index="{index($row)}"
-						data-onclick="handleClickRemove_">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
-					{foreach $column in ($row.columns)}
-						{call LayoutCol.render data="$column" /}
-					{/foreach}
-				</div>
-			{/foreach}
+		{foreach $row in ($rows)}
+			<div class="row layout-builder-row">
+				<button
+					type="button"
+					class="btn btn-default layout-builder-remove-row"
+					data-index="{index($row)}"
+					data-onclick="handleClickRemove_">
+					<span class="glyphicon glyphicon-trash"></span>
+				</button>
+				{foreach $column in ($row.columns)}
+					{call LayoutCol.render data="$column" /}
+				{/foreach}
+			</div>
+		{/foreach}
 	</div>
 {/template}
