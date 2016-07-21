@@ -23,7 +23,7 @@ Layout.STATE = {
 	 * An array of rows/columns which defines contents and sizes.
 	 * @type {!Array}
 	 */
-	data: {
+	rows: {
 		validator: core.isArray,
 		valueFn: () => []
 	}

@@ -19,8 +19,8 @@ class LayoutBuilder extends Component {
 	handleClickRemove_(event) {
 		var element = event.delegateTarget;
 		var index = parseInt(element.getAttribute('data-index'), 10);
-		this.data.splice(index, 1);
-		this.data = this.data;
+		this.rows.splice(index, 1);
+		this.rows = this.rows;
 	}
 }
 
@@ -34,7 +34,7 @@ LayoutBuilder.STATE = {
 	 * An array of rows/columns which defines contents and sizes.
 	 * @type {!Array}
 	 */
-	data: {
+	rows: {
 		validator: core.isArray,
 		valueFn: () => []
 	}

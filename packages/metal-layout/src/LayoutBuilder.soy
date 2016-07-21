@@ -1,20 +1,20 @@
 {namespace LayoutBuilder}
 
 /**
-* @param data
+* @param rows
 */
 {template .render}
 	<div class="layout-builder">
-			{foreach $value in ($data)}
+			{foreach $row in ($rows)}
 				<div class="row layout-builder-row">
 					<button
 						type="button"
 						class="btn btn-default layout-builder-remove-row"
-						data-index="{index($value)}"
+						data-index="{index($row)}"
 						data-onclick="handleClickRemove_">
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
-					{foreach $column in ($value.columns)}
+					{foreach $column in ($row.columns)}
 						{call LayoutCol.render data="$column" /}
 					{/foreach}
 				</div>
