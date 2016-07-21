@@ -12,14 +12,14 @@ describe('LayoutBuilder', function() {
 		}
 	});
 
-	it('should start with an empty layout data by default', function() {
+	it('should start with an empty layout rows by default', function() {
 		builder = new LayoutBuilder();
-		assert.deepEqual([], builder.data);
+		assert.deepEqual([], builder.rows);
 	});
 
 	it('should remove row when button is clicked', function(done) {
 		builder = new LayoutBuilder({
-			data: [
+			rows: [
 				{
 					columns: [
 						{
@@ -50,7 +50,7 @@ describe('LayoutBuilder', function() {
 			rows = builder.element.childNodes;
 			assert.strictEqual(1, rows.length);
 			assert.strictEqual('Row 2', rows[0].textContent);
-			assert.strictEqual(1, builder.data.length);
+			assert.strictEqual(1, builder.rows.length);
 			done();
 		});
 	});

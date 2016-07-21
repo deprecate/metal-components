@@ -12,14 +12,14 @@ describe('Layout', function() {
 		}
 	});
 
-	it('should start with an empty layout data by default', function() {
+	it('should start with an empty layout rows by default', function() {
 		layout = new Layout();
-		assert.deepEqual([], layout.data);
+		assert.deepEqual([], layout.rows);
 	});
 
 	it('should render simple layout', function() {
 		layout = new Layout({
-			data: [
+			rows: [
 				{
 					columns: [
 						{
