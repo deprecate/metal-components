@@ -283,14 +283,13 @@ describe('Modal', function() {
 				var oldElement = modal.element;
 				modal.element = document.createElement('div');
 				dom.exitDocument(oldElement);
+				assert.notStrictEqual(element, document.activeElement);
+
+				modal.visible = false;
 				modal.once('stateChanged', function() {
-					assert.notStrictEqual(element, document.activeElement);
-					modal.visible = false;
-					modal.once('stateChanged', function() {
-						assert.strictEqual(element, document.activeElement);
-						dom.exitDocument(element);
-						done();
-					});
+					assert.strictEqual(element, document.activeElement);
+					dom.exitDocument(element);
+					done();
 				});
 			});
 		});
