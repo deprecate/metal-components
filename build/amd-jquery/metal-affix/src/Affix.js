@@ -57,7 +57,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		/**
    * @inheritDoc
    */
-
 		function Affix(opt_config) {
 			_classCallCheck(this, Affix);
 

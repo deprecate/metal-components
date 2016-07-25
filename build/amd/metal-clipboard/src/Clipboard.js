@@ -53,7 +53,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		/**
    * Delegates a click event to the passed selector.
    */
-
 		function Clipboard(opt_config) {
 			_classCallCheck(this, Clipboard);
 
@@ -157,7 +156,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		/**
    * Initializes selection either from a `text` or `target` state.
    */
-
 		function ClipboardAction(opt_config) {
 			_classCallCheck(this, ClipboardAction);
 

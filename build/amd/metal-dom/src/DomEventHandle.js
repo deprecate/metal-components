@@ -47,7 +47,6 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
    *   during capture phase, instead of during the bubbling phase. Defaults to false.
    * @constructor
    */
-
 		function DomEventHandle(emitter, event, listener, opt_capture) {
 			_classCallCheck(this, DomEventHandle);
 

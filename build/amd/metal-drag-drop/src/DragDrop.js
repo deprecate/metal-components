@@ -53,7 +53,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
 		/**
    * @inheritDoc
    */
-
 		function DragDrop(opt_config) {
 			_classCallCheck(this, DragDrop);
 

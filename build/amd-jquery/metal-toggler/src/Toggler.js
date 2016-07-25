@@ -55,7 +55,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		/**
    * @inheritDoc
    */
-
 		function Toggler(opt_config) {
 			_classCallCheck(this, Toggler);
 

@@ -55,7 +55,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		/**
    * @inheritDoc
    */
-
 		function Scrollspy(opt_config) {
 			_classCallCheck(this, Scrollspy);
 

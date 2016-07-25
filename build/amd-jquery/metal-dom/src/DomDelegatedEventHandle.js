@@ -55,7 +55,6 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
    *     the event.
    * @constructor
    */
-
 		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
 			_classCallCheck(this, DomDelegatedEventHandle);
 

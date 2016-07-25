@@ -57,7 +57,6 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		/**
    * @inheritDoc
    */
-
 		function Soy(comp) {
 			_classCallCheck(this, Soy);
 

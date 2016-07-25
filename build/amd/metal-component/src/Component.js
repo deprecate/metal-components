@@ -58,7 +58,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
    *     after created.
    * @constructor
    */
-
 		function Component(opt_config, opt_parentElement) {
 			_classCallCheck(this, Component);
 

@@ -202,6 +202,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
      */
     goog.define('goog.LOCALE', 'en'); // default to en
 
+
     /**
      * @define {boolean} Whether this code is running on trusted sites.
      *
@@ -550,6 +551,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     // base.js.  Work is being done to make it disableable or replaceable for
     // different environments (DOM-less JavaScript interpreters like Rhino or V8,
     // for example). See bootstrap/ for more information.
+
 
     /**
      * @define {boolean} Whether to enable the debug loader.
@@ -1319,6 +1321,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     //==============================================================================
     // Language Enhancements
     //==============================================================================
+
 
     /**
      * This is a "fixed" version of the typeof operator.  It differs from the typeof
@@ -4006,6 +4009,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
       // of these to just a handful of files in your source tree where usages can be
       // carefully audited.
 
+
       /**
        * Protects a string from being used in an noAutoescaped context.
        *
@@ -4225,6 +4229,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
       // -----------------------------------------------------------------------------
       // Basic directives/functions.
 
+
       /**
        * Truncates a string to a given max length (if it's currently longer),
        * optionally adding ellipsis at the end.
@@ -4313,6 +4318,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
 
       // -----------------------------------------------------------------------------
       // Generated code.
+
 
       // START GENERATED CODE FOR ESCAPERS.
 

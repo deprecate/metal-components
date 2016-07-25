@@ -77,7 +77,6 @@ babelHelpers;
    * @type {!Function}
    * @throws {Error} when invoked to indicate the method should be overridden.
    */
-
 		core.abstractMethod = function abstractMethod() {
 			throw Error('Unimplemented abstract method');
 		};
@@ -361,7 +360,6 @@ babelHelpers;
    * @param {!Array<*>} arr2
    * @return {boolean}
    */
-
 		array.equal = function equal(arr1, arr2) {
 			if (arr1.length !== arr2.length) {
 				return false;
@@ -775,7 +773,6 @@ babelHelpers;
    * @param {...Object} var_args The objects from which values will be copied.
    * @return {Object} Returns the target object reference.
    */
-
 		object.mixin = function mixin(target) {
 			var key, source;
 			for (var i = 1; i < arguments.length; i++) {
@@ -868,7 +865,6 @@ babelHelpers;
    * @param {string} str A string in which to collapse spaces.
    * @return {string} Copy of the string with normalized breaking spaces.
    */
-
 		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
 			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
 		};
@@ -969,7 +965,6 @@ babelHelpers;
    * @param {!Element} element
    * @return {!Object}
    */
-
 		domData.get = function get(element) {
 			if (!element[METAL_DATA]) {
 				element[METAL_DATA] = {
@@ -1009,13 +1004,11 @@ babelHelpers;
 		function EventHandle(emitter, event, listener) {
 			babelHelpers.classCallCheck(this, EventHandle);
 
-
 			/**
     * The EventEmitter instance that the event was subscribed to.
     * @type {EventEmitter}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
 			_this.emitter_ = emitter;
@@ -1084,13 +1077,11 @@ babelHelpers;
 		function EventEmitter() {
 			babelHelpers.classCallCheck(this, EventEmitter);
 
-
 			/**
     * Holds event listeners scoped by event type.
     * @type {!Object<string, !Array<!function()>>}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
 			_this.events_ = [];
@@ -1496,13 +1487,11 @@ babelHelpers;
 		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
 			babelHelpers.classCallCheck(this, EventEmitterProxy);
 
-
 			/**
     * Map of events that should not be proxied.
     * @type {Object}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
 			_this.blacklist_ = opt_blacklist || {};
@@ -1712,14 +1701,12 @@ babelHelpers;
 		function EventHandler() {
 			babelHelpers.classCallCheck(this, EventHandler);
 
-
 			/**
     * An array that holds the added event handles, so the listeners can be
     * removed later.
     * @type {Array.<EventHandle>}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
 			_this.eventHandles_ = [];
@@ -1807,7 +1794,6 @@ babelHelpers;
    *     the event.
    * @constructor
    */
-
 		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
 			babelHelpers.classCallCheck(this, DomDelegatedEventHandle);
 
@@ -1862,7 +1848,6 @@ babelHelpers;
    *   during capture phase, instead of during the bubbling phase. Defaults to false.
    * @constructor
    */
-
 		function DomEventHandle(emitter, event, listener, opt_capture) {
 			babelHelpers.classCallCheck(this, DomEventHandle);
 
@@ -1916,7 +1901,6 @@ babelHelpers;
    * @param {!Element} element The element to add CSS classes to.
    * @param {string} classes CSS classes to add.
    */
-
 		dom.addClasses = function addClasses(element, classes) {
 			if (!core.isObject(element) || !core.isString(classes)) {
 				return;
@@ -2735,7 +2719,6 @@ babelHelpers;
    * @protected
    * @override
    */
-
 		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
 			if (this.originEmitter_.addEventListener) {
 				if (this.isDelegateEvent_(event)) {
@@ -2816,7 +2799,6 @@ babelHelpers;
    * and transition.
    * @return {object}
    */
-
 		features.checkAnimationEventName = function checkAnimationEventName() {
 			if (features.animationEventName_ === undefined) {
 				features.animationEventName_ = {
@@ -2895,7 +2877,6 @@ babelHelpers;
    *   into document.
    * @return {Element} script
    */
-
 		globalEval.run = function run(text, opt_appendFn) {
 			var script = document.createElement('script');
 			script.text = text;
@@ -3034,7 +3015,6 @@ babelHelpers;
    *   into document.
    * @return {Element} style
    */
-
 		globalEvalStyles.run = function run(text, opt_appendFn) {
 			var style = document.createElement('style');
 			style.innerHTML = text;
@@ -3223,14 +3203,12 @@ babelHelpers;
 		function State(opt_config) {
 			babelHelpers.classCallCheck(this, State);
 
-
 			/**
     * Object with information about the batch event that is currently
     * scheduled, or null if none is.
     * @type {Object}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.scheduledBatchData_ = null;
@@ -3898,7 +3876,6 @@ babelHelpers;
      * @param {number} y3 Vertical coordinate of P3.
      * @return {boolean}
      */
-
 		Geometry.intersectRect = function intersectRect(x0, y0, x1, y1, x2, y2, x3, y3) {
 			return !(x2 > x1 || x3 < x0 || y2 > y1 || y3 < y0);
 		};
@@ -3929,7 +3906,6 @@ babelHelpers;
    * @param {Element|Document|Window=} node
    * @return {number}
    */
-
 		Position.getClientHeight = function getClientHeight(node) {
 			return this.getClientSize_(node, 'Height');
 		};
@@ -4301,7 +4277,6 @@ babelHelpers;
    * @return {string} The final chosen position for the aligned element.
    * @static
    */
-
 		Align.align = function align(element, alignElement, position) {
 			var suggestion = this.suggestAlignBestRegion(element, alignElement, position);
 			var bestRegion = suggestion.region;
@@ -4526,7 +4501,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function Affix(opt_config) {
 			babelHelpers.classCallCheck(this, Affix);
 
@@ -4704,7 +4678,6 @@ babelHelpers;
    * @param {number=} opt_durationMs
    * @return {!Object} Object containing `abort` function.
    */
-
 		Anim.emulateEnd = function emulateEnd(element, opt_durationMs) {
 			if (this.getComputedDurationMs(element, 'animation') > this.getComputedDurationMs(element, 'transition')) {
 				return this.emulateEnd_(element, 'animation', opt_durationMs);
@@ -4806,7 +4779,6 @@ babelHelpers;
    * @param {!Component} component The component that this renderer is
    *     responsible for.
    */
-
 		function ComponentRenderer(component) {
 			babelHelpers.classCallCheck(this, ComponentRenderer);
 
@@ -4816,6 +4788,7 @@ babelHelpers;
 
 			_this.componentRendererEvents_ = new EventHandler();
 			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
+			_this.on('rendered', _this.handleRendered_);
 
 			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
 				_this.componentRendererEvents_.add(_this.component_.on('stateKeyChanged', _this.handleComponentRendererStateKeyChanged_.bind(_this)));
@@ -4847,7 +4820,7 @@ babelHelpers;
 
 
 		ComponentRenderer.prototype.handleComponentRendererStateChanged_ = function handleComponentRendererStateChanged_(changes) {
-			if (this.component_.wasRendered) {
+			if (this.shouldRerender_(changes)) {
 				this.update(changes);
 			}
 		};
@@ -4862,11 +4835,38 @@ babelHelpers;
 
 
 		ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
-			if (this.component_.wasRendered) {
-				this.update({
-					changes: babelHelpers.defineProperty({}, data.key, data)
-				});
+			var changes = {
+				changes: babelHelpers.defineProperty({}, data.key, data)
+			};
+			if (this.shouldRerender_(changes)) {
+				this.update(changes);
 			}
+		};
+
+		/**
+   * Handles the "rendered" event.
+   * @protected
+   */
+
+
+		ComponentRenderer.prototype.handleRendered_ = function handleRendered_() {
+			this.isRendered_ = true;
+		};
+
+		/**
+   * Checks if any other state property besides "element" has changed.
+   * @param {!Object} changes
+   * @return {boolean}
+   * @protected
+   */
+
+
+		ComponentRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_(changes) {
+			var count = Object.keys(changes).length;
+			if (changes.hasOwnProperty('element')) {
+				count--;
+			}
+			return count > 0;
 		};
 
 		/**
@@ -4878,11 +4878,42 @@ babelHelpers;
 			if (!this.component_.element) {
 				this.component_.element = document.createElement('div');
 			}
+			this.emit('rendered', !this.isRendered_);
 		};
 
 		/**
-   * Updates the component's element html. This is automatically called by
-   * the component when the value of at least one of its state keys has changed.
+   * Checks if the given changes object should cause a rerender.
+   * @param {!Object} changes
+   * @return {boolean}
+   * @protected
+   */
+
+
+		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_(changes) {
+			return this.isRendered_ && !this.skipUpdates_ && this.hasChangedBesidesElement_(changes.changes);
+		};
+
+		/**
+   * Skips updates until `stopSkipUpdates` is called.
+   */
+
+
+		ComponentRenderer.prototype.startSkipUpdates = function startSkipUpdates() {
+			this.skipUpdates_ = true;
+		};
+
+		/**
+   * Stops skipping updates.
+   */
+
+
+		ComponentRenderer.prototype.stopSkipUpdates = function stopSkipUpdates() {
+			this.skipUpdates_ = false;
+		};
+
+		/**
+   * Updates the component's element html. This is automatically called when
+   * the value of at least one of the component's state keys has changed.
    * @param {Object.<string, Object>} changes Object containing the names
    *     of all changed state keys, each mapped to an object with its new
    *     (newVal) and previous (prevVal) values.
@@ -4966,10 +4997,8 @@ babelHelpers;
    *     after created.
    * @constructor
    */
-
 		function Component(opt_config, opt_parentElement) {
 			babelHelpers.classCallCheck(this, Component);
-
 
 			/**
     * All listeners that were attached until the `DomEventEmitterProxy` instance
@@ -4977,7 +5006,6 @@ babelHelpers;
     * @type {!Object<string, bool>}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			_this.attachedListeners_ = {};
@@ -5761,7 +5789,6 @@ babelHelpers;
    * @return {?function}
    * @static
    */
-
 		ComponentRegistry.getConstructor = function getConstructor(name) {
 			var constructorFn = ComponentRegistry.components_[name];
 			if (!constructorFn) {
@@ -7065,7 +7092,6 @@ babelHelpers;
    * Gets the original functions that are intercepted by `IncrementalDomAop`.
    * @return {!Object}
    */
-
 		IncrementalDomAop.getOriginalFns = function getOriginalFns() {
 			return fnStack[0];
 		};
@@ -7182,7 +7208,6 @@ babelHelpers;
    * @param {!Array} args
    * @return {!Object}
    */
-
 		IncrementalDomUtils.buildConfigFromCall = function buildConfigFromCall(args) {
 			var config = {};
 			if (args[1]) {
@@ -7255,7 +7280,6 @@ babelHelpers;
    * @param {!function} callback Function to be called when children have all
    *     been captured.
   	 */
-
 		IncrementalDomChildren.capture = function capture(renderer, callback) {
 			renderer_ = renderer;
 			callback_ = callback;
@@ -7422,7 +7446,6 @@ babelHelpers;
    * Disposes all sub components that were not rerendered since the last
    * time this function was scheduled.
    */
-
 		IncrementalDomUnusedComponents.disposeUnused = function disposeUnused() {
 			for (var i = 0; i < comps_.length; i++) {
 				if (!comps_[i].isDisposed()) {
@@ -7488,7 +7511,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function IncrementalDomRenderer(comp) {
 			babelHelpers.classCallCheck(this, IncrementalDomRenderer);
 
@@ -7639,7 +7661,9 @@ babelHelpers;
 
 			if (comp.wasRendered) {
 				this.setConfig_(comp, config);
+				comp.getRenderer().startSkipUpdates();
 				comp.setState(config);
+				comp.getRenderer().stopSkipUpdates();
 			}
 			return comp;
 		};
@@ -7713,11 +7737,14 @@ babelHelpers;
 				value = core.isDefAndNotNull(value) && value !== false;
 			}
 
-			if (name === 'value') {
+			if (name === 'value' && element.value !== value) {
 				// This is a temporary fix to account for incremental dom setting
 				// "value" as an attribute only, which can cause bugs since that won't
 				// necessarily update the input's content it's set on. See
 				// https://github.com/google/incremental-dom/issues/239 for more details.
+				// We only do this if the new value is different though, as otherwise the
+				// browser will automatically move the typing cursor to the end of the
+				// field.
 				element[name] = value;
 			}
 
@@ -7869,21 +7896,6 @@ babelHelpers;
 			this.currentPrefix_ = config.ref;
 			this.generatedRefCount_[this.currentPrefix_] = 0;
 			IncrementalDomChildren.capture(this, this.handleChildrenCaptured_);
-		};
-
-		/**
-   * Checks if any other state property besides "element" has changed since the
-   * last render.
-   * @protected
-   */
-
-
-		IncrementalDomRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_() {
-			var count = Object.keys(this.changes_).length;
-			if (this.changes_.hasOwnProperty('element')) {
-				count--;
-			}
-			return count > 0;
 		};
 
 		/**
@@ -8096,7 +8108,7 @@ babelHelpers;
 			} else {
 				this.component_.addElementClasses();
 			}
-			this.emit('rendered', !this.component_.wasRendered);
+			this.emit('rendered', !this.isRendered_);
 			IncrementalDomRenderer.finishedRenderingComponent();
 		};
 
@@ -8218,7 +8230,7 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.update = function update() {
-			if (this.hasChangedBesidesElement_() && this.shouldUpdate(this.changes_)) {
+			if (this.hasChangedBesidesElement_(this.changes_) && this.shouldUpdate(this.changes_)) {
 				this.patch();
 			}
 		};
@@ -8466,6 +8478,7 @@ babelHelpers;
      * be used instead of the new code (he), see http://wiki/Main/IIISynonyms.
      */
     goog.define('goog.LOCALE', 'en'); // default to en
+
 
     /**
      * @define {boolean} Whether this code is running on trusted sites.
@@ -8815,6 +8828,7 @@ babelHelpers;
     // base.js.  Work is being done to make it disableable or replaceable for
     // different environments (DOM-less JavaScript interpreters like Rhino or V8,
     // for example). See bootstrap/ for more information.
+
 
     /**
      * @define {boolean} Whether to enable the debug loader.
@@ -9584,6 +9598,7 @@ babelHelpers;
     //==============================================================================
     // Language Enhancements
     //==============================================================================
+
 
     /**
      * This is a "fixed" version of the typeof operator.  It differs from the typeof
@@ -12271,6 +12286,7 @@ babelHelpers;
       // of these to just a handful of files in your source tree where usages can be
       // carefully audited.
 
+
       /**
        * Protects a string from being used in an noAutoescaped context.
        *
@@ -12490,6 +12506,7 @@ babelHelpers;
       // -----------------------------------------------------------------------------
       // Basic directives/functions.
 
+
       /**
        * Truncates a string to a given max length (if it's currently longer),
        * optionally adding ellipsis at the end.
@@ -12578,6 +12595,7 @@ babelHelpers;
 
       // -----------------------------------------------------------------------------
       // Generated code.
+
 
       // START GENERATED CODE FOR ESCAPERS.
 
@@ -12988,7 +13006,6 @@ babelHelpers;
    * @return {!function()} Function with incremental dom calls for building
    *     the given html string.
    */
-
 		HTML2IncDom.buildFn = function buildFn(html) {
 			return function () {
 				return HTML2IncDom.run(html);
@@ -13161,7 +13178,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function Soy(comp) {
 			babelHelpers.classCallCheck(this, Soy);
 
@@ -14715,7 +14731,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		AutocompleteBase.prototype.created = function created() {
 			this.eventHandler_ = new EventHandler();
 			this.on('select', this.select);
@@ -15035,7 +15050,6 @@ babelHelpers;
    * @param {!Object} item
    * @protected
    */
-
 		ListItem.prototype.setterItemFn_ = function setterItemFn_(item) {
 			if (item.textPrimary && core.isString(item.textPrimary)) {
 				item.textPrimary = Soy.toIncDom(item.textPrimary);
@@ -15208,7 +15222,6 @@ babelHelpers;
    * {@code itemSelected} event.
    * @param {!Event} event The native click event
    */
-
 		List.prototype.handleClick = function handleClick(event) {
 			var target = event.target;
 			while (target) {
@@ -15368,7 +15381,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		Autocomplete.prototype.attached = function attached() {
 			_AutocompleteBase.prototype.attached.call(this);
 			this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
@@ -15712,7 +15724,6 @@ babelHelpers;
    * @param {!Event} event
    * @protected
    */
-
 		ButtonGroup.prototype.handleClick_ = function handleClick_(event) {
 			var button = event.delegateTarget;
 			var index = button.getAttribute('data-index');
@@ -15827,7 +15838,6 @@ babelHelpers;
 		/**
    * Delegates a click event to the passed selector.
    */
-
 		function Clipboard(opt_config) {
 			babelHelpers.classCallCheck(this, Clipboard);
 
@@ -15939,7 +15949,6 @@ babelHelpers;
 		/**
    * Initializes selection either from a `text` or `target` state.
    */
-
 		function ClipboardAction(opt_config) {
 			babelHelpers.classCallCheck(this, ClipboardAction);
 
@@ -16534,7 +16543,6 @@ babelHelpers;
    * @protected
    * @throws {Error} If types are different.
    */
-
 		Datatable.prototype.assertNoMixedTypesInArrays_ = function assertNoMixedTypesInArrays_(value) {
 			var _this2 = this;
 
@@ -16996,7 +17004,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		Dropdown.prototype.attached = function attached() {
 			_Component.prototype.attached.call(this);
 			this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
@@ -17427,7 +17434,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		Modal.prototype.created = function created() {
 			this.eventHandler_ = new EventHandler();
 		};
@@ -17876,7 +17882,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		Pagination.prototype.created = function created() {
 			/**
     * Contains the previous page value
@@ -18137,7 +18142,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		TooltipBase.prototype.attached = function attached() {
 			this.align();
 			this.syncTriggerEvents(this.triggerEvents);
@@ -18558,7 +18562,6 @@ babelHelpers;
    * hiding animation is done.
    * @protected
    */
-
 		Tooltip.prototype.hideCompletely_ = function hideCompletely_() {
 			if (!this.visible) {
 				this.element.style.display = 'none';
@@ -18739,7 +18742,6 @@ babelHelpers;
    * @param {Element} prevAlignElement
    * @override
    */
-
 		Popover.prototype.syncAlignElement = function syncAlignElement(alignElement) {
 			_TooltipBase.prototype.syncAlignElement.call(this, alignElement);
 
@@ -18928,7 +18930,6 @@ babelHelpers;
    * @return {number}
    * @protected
    */
-
 		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
 			if (value < this.min) {
 				value = this.min;
@@ -19081,7 +19082,7 @@ babelHelpers;
       ie_open('div', null, null, 'class', 'rating-items');
       var optionLimit18 = opt_data.options.length;
       for (var option18 = 0; option18 < optionLimit18; option18++) {
-        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'title', opt_data.options[option18].title, 'type', 'button');
+        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
       }
       ie_close('div');
       ie_open('input', null, null, 'type', 'hidden', 'aria-hidden', 'true', 'name', opt_data.inputHiddenName, 'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
@@ -19136,7 +19137,6 @@ babelHelpers;
         /**
          * @inheritDoc
          */
-
         Rating.prototype.created = function created() {
             this.ratingClicked_ = this.value;
         };
@@ -19325,10 +19325,8 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function Scrollspy(opt_config) {
 			babelHelpers.classCallCheck(this, Scrollspy);
-
 
 			/**
     * Holds the regions cache.
@@ -19336,7 +19334,6 @@ babelHelpers;
     * @private
     * @default []
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			_this.regions = [];
@@ -19809,7 +19806,6 @@ babelHelpers;
    * @return {number}
    * @protected
    */
-
 		Select.prototype.findItemIndex_ = function findItemIndex_(element) {
 			var items = this.element.querySelectorAll('li');
 			for (var i = 0; i < items.length; i++) {
@@ -20035,17 +20031,14 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function DragAutoScroll(opt_config) {
 			babelHelpers.classCallCheck(this, DragAutoScroll);
-
 
 			/**
     * The handler for the current call to `setTimeout`.
     * @type {?number}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			_this.scrollTimeout_ = null;
@@ -20223,7 +20216,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function DragScrollDelta() {
 			babelHelpers.classCallCheck(this, DragScrollDelta);
 
@@ -20232,7 +20224,6 @@ babelHelpers;
     * @type {EventHandler}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.handler_ = new EventHandler();
@@ -20348,7 +20339,6 @@ babelHelpers;
    * @return {!Array<!EventHandle>}
    * @static
    */
-
 		DragShim.attachDocListeners = function attachDocListeners(useShim, listeners) {
 			var element = document;
 			if (useShim) {
@@ -20450,17 +20440,14 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function Drag(opt_config) {
 			babelHelpers.classCallCheck(this, Drag);
-
 
 			/**
     * The drag placeholder that is active at the moment.
     * @type {Element}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _State.call(this, opt_config));
 
 			_this.activeDragPlaceholder_ = null;
@@ -21396,30 +21383,25 @@ babelHelpers;
 	var Drag = this.metal.Drag;
 	var Position = this.metal.position;
 
-
 	/**
   * Adds the functionality of dropping dragged elements to specific
   * targets to the `Drag` class.
   * @extends {Drag}
   */
-
 	var DragDrop = function (_Drag) {
 		babelHelpers.inherits(DragDrop, _Drag);
 
 		/**
    * @inheritDoc
    */
-
 		function DragDrop(opt_config) {
 			babelHelpers.classCallCheck(this, DragDrop);
-
 
 			/**
     * The currently active targets, that is, the ones that the dragged source is over.
     * @type {!Array<!Element>}
     * @protected
     */
-
 			var _this = babelHelpers.possibleConstructorReturn(this, _Drag.call(this, opt_config));
 
 			_this.activeTargets_ = [];
@@ -21788,7 +21770,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		Slider.prototype.attached = function attached() {
 			/**
     * Manages dragging the rail handle to update the slider value.
@@ -22093,7 +22074,6 @@ babelHelpers;
 		/**
    * Handles switcher click.
    */
-
 		Switcher.prototype.handleClick = function handleClick() {
 			this.checked = !this.checked;
 		};
@@ -22141,7 +22121,6 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
-
 		function Toggler(opt_config) {
 			babelHelpers.classCallCheck(this, Toggler);
 
@@ -22476,7 +22455,6 @@ babelHelpers;
    *   node is located inside the `nodes` state.
    * @return {!Object}
    */
-
 		Treeview.prototype.getNodeObj = function getNodeObj(path) {
 			var obj = this.nodes[path[0]];
 			for (var i = 1; i < path.length; i++) {

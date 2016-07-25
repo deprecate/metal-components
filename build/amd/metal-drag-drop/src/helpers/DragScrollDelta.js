@@ -51,7 +51,6 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-events/src/events', 'metal-po
 		/**
    * @inheritDoc
    */
-
 		function DragScrollDelta() {
 			_classCallCheck(this, DragScrollDelta);
 

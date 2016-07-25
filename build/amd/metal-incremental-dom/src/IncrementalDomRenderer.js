@@ -57,7 +57,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		/**
    * @inheritDoc
    */
-
 		function IncrementalDomRenderer(comp) {
 			_classCallCheck(this, IncrementalDomRenderer);
 
@@ -166,7 +165,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 
 			if (comp.wasRendered) {
 				this.setConfig_(comp, config);
+				comp.getRenderer().startSkipUpdates();
 				comp.setState(config);
+				comp.getRenderer().stopSkipUpdates();
 			}
 			return comp;
 		};
@@ -208,11 +209,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				value = _metal.core.isDefAndNotNull(value) && value !== false;
 			}
 
-			if (name === 'value') {
+			if (name === 'value' && element.value !== value) {
 				// This is a temporary fix to account for incremental dom setting
 				// "value" as an attribute only, which can cause bugs since that won't
 				// necessarily update the input's content it's set on. See
 				// https://github.com/google/incremental-dom/issues/239 for more details.
+				// We only do this if the new value is different though, as otherwise the
+				// browser will automatically move the typing cursor to the end of the
+				// field.
 				element[name] = value;
 			}
 
@@ -302,14 +306,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			this.currentPrefix_ = config.ref;
 			this.generatedRefCount_[this.currentPrefix_] = 0;
 			_IncrementalDomChildren2.default.capture(this, this.handleChildrenCaptured_);
-		};
-
-		IncrementalDomRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_() {
-			var count = Object.keys(this.changes_).length;
-			if (this.changes_.hasOwnProperty('element')) {
-				count--;
-			}
-			return count > 0;
 		};
 
 		IncrementalDomRenderer.prototype.intercept_ = function intercept_() {
@@ -428,7 +424,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			} else {
 				this.component_.addElementClasses();
 			}
-			this.emit('rendered', !this.component_.wasRendered);
+			this.emit('rendered', !this.isRendered_);
 			IncrementalDomRenderer.finishedRenderingComponent();
 		};
 
@@ -500,7 +496,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		};
 
 		IncrementalDomRenderer.prototype.update = function update() {
-			if (this.hasChangedBesidesElement_() && this.shouldUpdate(this.changes_)) {
+			if (this.hasChangedBesidesElement_(this.changes_) && this.shouldUpdate(this.changes_)) {
 				this.patch();
 			}
 		};

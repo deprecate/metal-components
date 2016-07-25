@@ -53,7 +53,6 @@ define(['exports', 'metal/src/metal', 'metal-state/src/State', 'metal-position/s
 		/**
    * @inheritDoc
    */
-
 		function DragAutoScroll(opt_config) {
 			_classCallCheck(this, DragAutoScroll);
 

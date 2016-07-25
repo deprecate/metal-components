@@ -59,7 +59,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './helpers/DragAu
 		/**
    * @inheritDoc
    */
-
 		function Drag(opt_config) {
 			_classCallCheck(this, Drag);
 
