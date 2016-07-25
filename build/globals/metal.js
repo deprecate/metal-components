@@ -14,6 +14,24 @@ babelHelpers.classCallCheck = function (instance, Constructor) {
   }
 };
 
+babelHelpers.createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
 babelHelpers.defineProperty = function (obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -51,6 +69,16 @@ babelHelpers.possibleConstructorReturn = function (self, call) {
   }
 
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
+babelHelpers.toConsumableArray = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
 };
 
 babelHelpers;
@@ -1464,6 +1492,7 @@ babelHelpers;
 
 (function () {
 	var array = this.metalNamed.metal.array;
+	var object = this.metalNamed.metal.object;
 	var Disposable = this.metalNamed.metal.Disposable;
 
 	/**
@@ -1494,7 +1523,9 @@ babelHelpers;
     */
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
-			_this.blacklist_ = opt_blacklist || {};
+			_this.blacklist_ = object.mixin({
+				newListener: true
+			}, opt_blacklist);
 
 			/**
     * The origin emitter. This emitter's events will be proxied through the
@@ -3193,15 +3224,56 @@ babelHelpers;
   * changes, as well as configured with validators, setters and other options.
   * See the `addToState` method for a complete list of available configuration
   * options for each state key.
-  * @constructor
   * @extends {EventEmitter}
   */
 
 	var State = function (_EventEmitter) {
 		babelHelpers.inherits(State, _EventEmitter);
 
-		function State(opt_config) {
+		/**
+   * Constructor function for `State`.
+   * @param {Object=} opt_config Optional config object with initial values to
+   *     set state properties to.
+   * @param {Object=} opt_obj Optional object that should hold the state
+   *     properties. If none is given, they will be added directly to `this`
+   *     instead.
+   * @param {Object=} opt_context Optional context to call functions (like
+   *     validators and setters) on. Defaults to `this`.
+   * @param {Object=} opt_commonOpts Optional common option values to be used
+   *     by all this instance's state properties.
+   */
+		function State(opt_config, opt_obj, opt_context, opt_commonOpts) {
 			babelHelpers.classCallCheck(this, State);
+
+			/**
+    * Common option values to be used by all this instance's state properties.
+    * @type {Object}
+    * @protected
+    */
+			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
+
+			_this.commonOpts_ = opt_commonOpts;
+
+			/**
+    * Context to call functions (like validators and setters) on.
+    * @type {!Object}
+    * @protected
+    */
+			_this.context_ = opt_context || _this;
+
+			/**
+    * Map of keys that can not be used as state keys.
+    * @param {!Object<string, boolean>}
+    * @protected
+    */
+			_this.keysBlacklist_ = {};
+
+			/**
+    * Object that should hold the state properties.
+    * @type {!Object}
+    * @protected
+    */
+			_this.obj_ = opt_obj || _this;
 
 			/**
     * Object with information about the batch event that is currently
@@ -3209,8 +3281,6 @@ babelHelpers;
     * @type {Object}
     * @protected
     */
-			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
-
 			_this.scheduledBatchData_ = null;
 
 			/**
@@ -3237,12 +3307,16 @@ babelHelpers;
 
 		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
 			this.buildKeyInfo_(name, config, initialValue);
-			Object.defineProperty(this, name, this.buildKeyPropertyDef_(name));
+			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
+			this.assertGivenIfRequired_(name);
 		};
 
 		/**
    * Adds the given key(s) to the state, together with its(their) configs.
    * Config objects support the given settings:
+   *     required - When set to `true`, causes errors to be printed (via
+   *     `console.error`) if no value is given for the property.
+   *
    *     setter - Function for normalizing state key values. It receives the new
    *     value that was set, and returns the value that should be stored.
    *
@@ -3288,11 +3362,12 @@ babelHelpers;
 			for (var i = 0; i < names.length; i++) {
 				var name = names[i];
 				this.buildKeyInfo_(name, configsOrName[name], initialValues[name]);
-				props[name] = this.buildKeyPropertyDef_(name);
+				props[name] = this.buildKeyPropertyDef_(name, opt_contextOrInitialValue);
+				this.assertGivenIfRequired_(name);
 			}
 
 			if (opt_contextOrInitialValue !== false) {
-				Object.defineProperties(opt_contextOrInitialValue || this, props);
+				Object.defineProperties(opt_contextOrInitialValue || this.obj_, props);
 			}
 		};
 
@@ -3306,11 +3381,29 @@ babelHelpers;
 
 		State.prototype.addToStateFromStaticHint_ = function addToStateFromStaticHint_(opt_config) {
 			var ctor = this.constructor;
-			var defineContext = false;
-			if (State.mergeStateStatic(ctor)) {
-				defineContext = ctor.prototype;
+			var defineContext;
+			var merged = State.mergeStateStatic(ctor);
+			if (this.obj_ === this) {
+				defineContext = merged ? ctor.prototype : false;
 			}
 			this.addToState(ctor.STATE_MERGED, opt_config, defineContext);
+		};
+
+		/**
+   * Logs an error if the given property is required but wasn't given.
+   * @param {string} name
+   * @protected
+   */
+
+
+		State.prototype.assertGivenIfRequired_ = function assertGivenIfRequired_(name) {
+			var info = this.stateInfo_[name];
+			if (info.config.required) {
+				var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
+				if (!core.isDefAndNotNull(value)) {
+					console.error('The property called "' + name + '" is required but didn\n\'t ' + 'receive a value.');
+				}
+			}
 		};
 
 		/**
@@ -3323,7 +3416,7 @@ babelHelpers;
 
 
 		State.prototype.assertValidStateKeyName_ = function assertValidStateKeyName_(name) {
-			if (this.constructor.INVALID_KEYS_MERGED[name]) {
+			if (this.constructor.INVALID_KEYS_MERGED[name] || this.keysBlacklist_[name]) {
 				throw new Error('It\'s not allowed to create a state key with the name "' + name + '".');
 			}
 		};
@@ -3339,7 +3432,9 @@ babelHelpers;
 
 		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue) {
 			this.assertValidStateKeyName_(name);
-
+			if (this.commonOpts_) {
+				config = object.mixin({}, config, this.commonOpts_);
+			}
 			this.stateInfo_[name] = {
 				config: config || {},
 				initialValue: initialValue,
@@ -3350,20 +3445,22 @@ babelHelpers;
 		/**
    * Builds the property definition object for the specified state key.
    * @param {string} name The name of the key.
+   * @param {Object=} opt_context The object where the property will be added.
    * @return {!Object}
    * @protected
    */
 
 
-		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name) {
+		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name, opt_context) {
+			var stateObj = opt_context === this.constructor.prototype ? null : this;
 			return {
 				configurable: true,
 				enumerable: true,
 				get: function get() {
-					return this.getStateKeyValue_(name);
+					return (stateObj || this).getStateKeyValue_(name);
 				},
 				set: function set(val) {
-					this.setStateKeyValue_(name, val);
+					(stateObj || this).setStateKeyValue_(name, val);
 				}
 			};
 		};
@@ -3381,9 +3478,9 @@ babelHelpers;
 
 		State.prototype.callFunction_ = function callFunction_(fn, args) {
 			if (core.isString(fn)) {
-				return this[fn].apply(this, args);
+				return this.context_[fn].apply(this.context_, args);
 			} else if (core.isFunction(fn)) {
-				return fn.apply(this, args);
+				return fn.apply(this.context_, args);
 			}
 		};
 
@@ -3478,7 +3575,7 @@ babelHelpers;
 
 
 		State.prototype.get = function get(name) {
-			return this[name];
+			return this.obj_[name];
 		};
 
 		/**
@@ -3494,7 +3591,7 @@ babelHelpers;
 			var names = opt_names || this.getStateKeys();
 
 			for (var i = 0; i < names.length; i++) {
-				state[names[i]] = this[names[i]];
+				state[names[i]] = this.get(names[i]);
 			}
 
 			return state;
@@ -3573,7 +3670,7 @@ babelHelpers;
 			if (this.shouldInformChange_(name, prevVal)) {
 				var data = {
 					key: name,
-					newVal: this[name],
+					newVal: this.get(name),
 					prevVal: prevVal
 				};
 				this.emit(name + 'Changed', data);
@@ -3599,7 +3696,7 @@ babelHelpers;
 			this.setInitialValue_(name);
 			if (!info.written) {
 				info.state = State.KeyStates.INITIALIZING_DEFAULT;
-				this.setDefaultValue_(name);
+				this.setDefaultValue(name);
 			}
 			info.state = State.KeyStates.INITIALIZED;
 		};
@@ -3609,11 +3706,10 @@ babelHelpers;
    * @param {!Array} values The values to be merged.
    * @return {!Object} The merged value.
    * @static
-   * @protected
    */
 
 
-		State.mergeState_ = function mergeState_(values) {
+		State.mergeState = function mergeState(values) {
 			return object.mixin.apply(null, [{}].concat(values.reverse()));
 		};
 
@@ -3626,7 +3722,7 @@ babelHelpers;
 
 
 		State.mergeStateStatic = function mergeStateStatic(ctor) {
-			return core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState_);
+			return core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
 		};
 
 		/**
@@ -3655,7 +3751,7 @@ babelHelpers;
 
 		State.prototype.removeStateKey = function removeStateKey(name) {
 			this.stateInfo_[name] = null;
-			delete this[name];
+			delete this.obj_[name];
 		};
 
 		/**
@@ -3695,7 +3791,7 @@ babelHelpers;
 
 		State.prototype.set = function set(name, value) {
 			if (this.hasStateKey(name)) {
-				this[name] = value;
+				this.obj_[name] = value;
 			}
 		};
 
@@ -3703,17 +3799,16 @@ babelHelpers;
    * Sets the default value of the requested state key.
    * @param {string} name The name of the key.
    * @return {*}
-   * @protected
    */
 
 
-		State.prototype.setDefaultValue_ = function setDefaultValue_(name) {
+		State.prototype.setDefaultValue = function setDefaultValue(name) {
 			var config = this.stateInfo_[name].config;
 
 			if (config.value !== undefined) {
-				this[name] = config.value;
+				this.set(name, config.value);
 			} else {
-				this[name] = this.callFunction_(config.valueFn);
+				this.set(name, this.callFunction_(config.valueFn));
 			}
 		};
 
@@ -3728,9 +3823,19 @@ babelHelpers;
 		State.prototype.setInitialValue_ = function setInitialValue_(name) {
 			var info = this.stateInfo_[name];
 			if (info.initialValue !== undefined) {
-				this[name] = info.initialValue;
+				this.set(name, info.initialValue);
 				info.initialValue = undefined;
 			}
+		};
+
+		/**
+   * Sets a map of keys that are not valid state keys.
+   * @param {!Object<string, boolean>}
+   */
+
+
+		State.prototype.setKeysBlacklist_ = function setKeysBlacklist_(blacklist) {
+			this.keysBlacklist_ = blacklist;
 		};
 
 		/**
@@ -3773,8 +3878,9 @@ babelHelpers;
 				info.state = State.KeyStates.INITIALIZED;
 			}
 
-			var prevVal = this[name];
+			var prevVal = this.get(name);
 			info.value = this.callSetter_(name, value, prevVal);
+			this.assertGivenIfRequired_(name);
 			info.written = true;
 			this.informChange_(name, prevVal);
 		};
@@ -3795,7 +3901,7 @@ babelHelpers;
 
 		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
 			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED && (core.isObject(prevVal) || prevVal !== this[name]);
+			return info.state === State.KeyStates.INITIALIZED && (core.isObject(prevVal) || prevVal !== this.get(name));
 		};
 
 		/**
@@ -3828,7 +3934,7 @@ babelHelpers;
 	State.INVALID_KEYS = ['state', 'stateKey'];
 
 	/**
-  * Constants that represent the states that an a state key can be in.
+  * Constants that represent the states that a state key can be in.
   * @type {!Object}
   */
 	State.KeyStates = {
@@ -4763,6 +4869,220 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var array = this.metalNamed.metal.array;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
+	var EventEmitter = this.metalNamed.events.EventEmitter;
+	var EventEmitterProxy = this.metalNamed.events.EventEmitterProxy;
+	var State = this.metal.State;
+
+	var ComponentDataManager = function (_EventEmitter) {
+		babelHelpers.inherits(ComponentDataManager, _EventEmitter);
+
+		/**
+   * Constructor for `ComponentDataManager`.
+   * @param {!Component} component
+   * @param {!Object} data
+   */
+		function ComponentDataManager(component, data) {
+			babelHelpers.classCallCheck(this, ComponentDataManager);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
+
+			_this.component_ = component;
+
+			core.mergeSuperClassesProperty(_this.constructor, 'BLACKLIST', array.firstDefinedValue);
+			State.mergeStateStatic(_this.component_.constructor);
+
+			_this.createState_(data, _this.component_);
+			return _this;
+		}
+
+		/**
+   * Adds a state property to the component.
+   * @param {string} name
+   * @param {!Object} config
+   * @param {*} opt_initialValue
+   */
+
+
+		ComponentDataManager.prototype.add = function add(name, config, opt_initialValue) {
+			this.state_.addToState(name, config, opt_initialValue);
+		};
+
+		/**
+   * Builds the configuration data that will be passed to the `State` instance.
+   * @param {!Object} data
+   * @return {!Object}
+   * @protected
+   */
+
+
+		ComponentDataManager.prototype.buildStateInstanceData_ = function buildStateInstanceData_(data) {
+			return object.mixin({}, data, this.component_.constructor.STATE_MERGED);
+		};
+
+		/**
+   * Creates the `State` instance that will handle the main component data.
+   * @param {!Object} data
+   * @param {!Object} holder The object that should hold the data properties.
+   * @protected
+   */
+
+
+		ComponentDataManager.prototype.createState_ = function createState_(data, holder) {
+			var state = new State({}, holder, this.component_);
+			state.setKeysBlacklist_(this.constructor.BLACKLIST_MERGED);
+			state.addToState(this.buildStateInstanceData_(data), this.component_.getInitialConfig());
+
+			var listener = this.emit_.bind(this);
+			state.on('stateChanged', listener);
+			state.on('stateKeyChanged', listener);
+			this.state_ = state;
+
+			this.proxy_ = new EventEmitterProxy(state, this.component_);
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		ComponentDataManager.prototype.disposeInternal = function disposeInternal() {
+			_EventEmitter.prototype.disposeInternal.call(this);
+
+			this.state_.dispose();
+			this.state_ = null;
+
+			this.proxy_.dispose();
+			this.proxy_ = null;
+		};
+
+		/**
+   * Emits the specified event.
+   * @param {!Object} data
+   * @param {!Object} event
+   * @protected
+   */
+
+
+		ComponentDataManager.prototype.emit_ = function emit_(data, event) {
+			var orig = event.type;
+			var name = orig === 'stateChanged' ? 'dataChanged' : 'dataPropChanged';
+			this.emit(name, data);
+		};
+
+		/**
+   * Gets the data with the given name.
+   * @param {string} name
+   * @return {*}
+   */
+
+
+		ComponentDataManager.prototype.get = function get(name) {
+			return this.state_.get(name);
+		};
+
+		/**
+   * Gets the keys for state data that can be synced via `sync` functions.
+   * @return {!Array<string>}
+   */
+
+
+		ComponentDataManager.prototype.getSyncKeys = function getSyncKeys() {
+			return this.state_.getStateKeys();
+		};
+
+		/**
+   * Gets the keys for state data.
+   * @return {!Array<string>}
+   */
+
+
+		ComponentDataManager.prototype.getStateKeys = function getStateKeys() {
+			return this.state_.getStateKeys();
+		};
+
+		/**
+   * Gets the whole state data.
+   * @return {!Object}
+   */
+
+
+		ComponentDataManager.prototype.getState = function getState() {
+			return this.state_.getState();
+		};
+
+		/**
+   * Gets the `State` instance being used.
+   * @return {!Object}
+   */
+
+
+		ComponentDataManager.prototype.getStateInstance = function getStateInstance() {
+			return this.state_;
+		};
+
+		/**
+   * Updates all non internal data with the given values (or to the default
+   * value if none is given).
+   * @param {!Object} data
+   */
+
+
+		ComponentDataManager.prototype.replaceNonInternal = function replaceNonInternal(data) {
+			ComponentDataManager.replaceNonInternal(data, this.state_);
+		};
+
+		/**
+   * Updates all non internal data with the given values (or to the default
+   * value if none is given).
+   * @param {!Object} data
+   * @param {!State} state
+   */
+
+
+		ComponentDataManager.replaceNonInternal = function replaceNonInternal(data, state) {
+			var keys = state.getStateKeys();
+			for (var i = 0; i < keys.length; i++) {
+				var key = keys[i];
+				if (!state.getStateKeyConfig(key).internal) {
+					if (data.hasOwnProperty(key)) {
+						state.set(key, data[key]);
+					} else {
+						state.setDefaultValue(key);
+					}
+				}
+			}
+		};
+
+		/**
+   * Sets the value of all the specified state keys.
+   * @param {!Object.<string,*>} values A map of state keys to the values they
+   *   should be set to.
+   * @param {function()=} opt_callback An optional function that will be run
+   *   after the next batched update is triggered.
+   */
+
+
+		ComponentDataManager.prototype.setState = function setState(state, opt_callback) {
+			this.state_.setState(state, opt_callback);
+		};
+
+		return ComponentDataManager;
+	}(EventEmitter);
+
+	ComponentDataManager.BLACKLIST = {
+		components: true,
+		element: true,
+		wasRendered: true
+	};
+
+	this.metal.ComponentDataManager = ComponentDataManager;
+}).call(this);
+'use strict';
+
+(function () {
 	var EventEmitter = this.metalNamed.events.EventEmitter;
 	var EventHandler = this.metalNamed.events.EventHandler;
 
@@ -4790,10 +5110,11 @@ babelHelpers;
 			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
 			_this.on('rendered', _this.handleRendered_);
 
+			var manager = component.getDataManager();
 			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
-				_this.componentRendererEvents_.add(_this.component_.on('stateKeyChanged', _this.handleComponentRendererStateKeyChanged_.bind(_this)));
+				_this.componentRendererEvents_.add(manager.on('dataPropChanged', _this.handleManagerDataPropChanged_.bind(_this)));
 			} else {
-				_this.componentRendererEvents_.add(_this.component_.on('stateChanged', _this.handleComponentRendererStateChanged_.bind(_this)));
+				_this.componentRendererEvents_.add(manager.on('dataChanged', _this.handleManagerDataChanged_.bind(_this)));
 			}
 			return _this;
 		}
@@ -4809,7 +5130,7 @@ babelHelpers;
 		};
 
 		/**
-   * Handles a `stateChanged` event from this renderer's component. Calls the
+   * Handles a `dataChanged` event from the component's data manager. Calls the
    * `update` function if the component has already been rendered for the first
    * time.
    * @param {!Object<string, Object>} changes Object containing the names
@@ -4819,27 +5140,26 @@ babelHelpers;
    */
 
 
-		ComponentRenderer.prototype.handleComponentRendererStateChanged_ = function handleComponentRendererStateChanged_(changes) {
-			if (this.shouldRerender_(changes)) {
+		ComponentRenderer.prototype.handleManagerDataChanged_ = function handleManagerDataChanged_(changes) {
+			if (this.shouldRerender_()) {
 				this.update(changes);
 			}
 		};
 
 		/**
-   * Handles a `stateKeyChanged` event from this renderer's component. This is
-   * similar to `handleComponentRendererStateChanged_`, but only called for
+   * Handles a `dataPropChanged` event from the component's data manager. This
+   * is similar to `handleManagerDataChanged_`, but only called for
    * components that have requested updates to happen synchronously.
    * @param {!{key: string, newVal: *, prevVal: *}} data
    * @protected
    */
 
 
-		ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
-			var changes = {
-				changes: babelHelpers.defineProperty({}, data.key, data)
-			};
-			if (this.shouldRerender_(changes)) {
-				this.update(changes);
+		ComponentRenderer.prototype.handleManagerDataPropChanged_ = function handleManagerDataPropChanged_(data) {
+			if (this.shouldRerender_()) {
+				this.update({
+					changes: babelHelpers.defineProperty({}, data.key, data)
+				});
 			}
 		};
 
@@ -4851,22 +5171,6 @@ babelHelpers;
 
 		ComponentRenderer.prototype.handleRendered_ = function handleRendered_() {
 			this.isRendered_ = true;
-		};
-
-		/**
-   * Checks if any other state property besides "element" has changed.
-   * @param {!Object} changes
-   * @return {boolean}
-   * @protected
-   */
-
-
-		ComponentRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_(changes) {
-			var count = Object.keys(changes).length;
-			if (changes.hasOwnProperty('element')) {
-				count--;
-			}
-			return count > 0;
 		};
 
 		/**
@@ -4882,15 +5186,14 @@ babelHelpers;
 		};
 
 		/**
-   * Checks if the given changes object should cause a rerender.
-   * @param {!Object} changes
+   * Checks if changes should cause a rerender right now.
    * @return {boolean}
    * @protected
    */
 
 
-		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_(changes) {
-			return this.isRendered_ && !this.skipUpdates_ && this.hasChangedBesidesElement_(changes.changes);
+		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_() {
+			return this.isRendered_ && !this.skipUpdates_;
 		};
 
 		/**
@@ -4935,9 +5238,10 @@ babelHelpers;
 	var object = this.metalNamed.metal.object;
 	var dom = this.metalNamed.dom.dom;
 	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
+	var ComponentDataManager = this.metal.ComponentDataManager;
 	var ComponentRenderer = this.metal.ComponentRenderer;
+	var EventEmitter = this.metalNamed.events.EventEmitter;
 	var EventHandler = this.metalNamed.events.EventHandler;
-	var State = this.metal.State;
 
 	/**
   * Component collects common behaviors to be followed by UI components, such
@@ -4984,8 +5288,8 @@ babelHelpers;
   * @extends {State}
   */
 
-	var Component = function (_State) {
-		babelHelpers.inherits(Component, _State);
+	var Component = function (_EventEmitter) {
+		babelHelpers.inherits(Component, _EventEmitter);
 
 		/**
    * Constructor function for `Component`.
@@ -5006,7 +5310,7 @@ babelHelpers;
     * @type {!Object<string, bool>}
     * @protected
     */
-			var _this = babelHelpers.possibleConstructorReturn(this, _State.call(this, opt_config));
+			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			_this.attachedListeners_ = {};
 
@@ -5061,15 +5365,20 @@ babelHelpers;
 			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
 			core.mergeSuperClassesProperty(_this.constructor, 'SYNC_UPDATES', array.firstDefinedValue);
 
+			_this.element = _this.initialConfig_.element;
+
+			_this.dataManager_ = _this.createDataManager();
+
 			_this.renderer_ = _this.createRenderer();
-			_this.renderer_.on('rendered', _this.rendered.bind(_this));
+			_this.renderer_.on('rendered', _this.handleRendererRendered_.bind(_this));
 
 			_this.on('stateChanged', _this.handleStateChanged_);
 			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
 			_this.on('eventsChanged', _this.onEventsChanged_);
-			_this.addListenersFromObj_(_this.events);
+			_this.addListenersFromObj_(_this.dataManager_.get('events'));
 
 			_this.created();
+			_this.componentCreated_ = true;
 			if (opt_parentElement !== false) {
 				_this.render_(opt_parentElement);
 			}
@@ -5084,19 +5393,24 @@ babelHelpers;
 
 		Component.prototype.addElementClasses = function addElementClasses() {
 			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
-			if (this.elementClasses) {
-				classesToAdd = classesToAdd + ' ' + this.elementClasses;
+			var elementClasses = this.dataManager_.get('elementClasses');
+			if (elementClasses) {
+				classesToAdd = classesToAdd + ' ' + elementClasses;
 			}
 			dom.addClasses(this.element, classesToAdd);
 		};
+
+		/**
+   * Getter logic for the element property.
+   * @return {Element}
+   */
+
 
 		/**
    * Adds the listeners specified in the given object.
    * @param {Object} events
    * @protected
    */
-
-
 		Component.prototype.addListenersFromObj_ = function addListenersFromObj_(events) {
 			var eventNames = Object.keys(events || {});
 			for (var i = 0; i < eventNames.length; i++) {
@@ -5170,6 +5484,18 @@ babelHelpers;
 
 
 		Component.prototype.created = function created() {};
+
+		/**
+   * Creates the data manager for this component. Sub classes can override this
+   * to return a custom manager as needed.
+   * @return {!ComponentDataManager}
+   */
+
+
+		Component.prototype.createDataManager = function createDataManager() {
+			core.mergeSuperClassesProperty(this.constructor, 'DATA_MANAGER', array.firstDefinedValue);
+			return new this.constructor.DATA_MANAGER_MERGED(this, Component.DATA);
+		};
 
 		/**
    * Creates the renderer for this component. Sub classes can override this to
@@ -5256,10 +5582,13 @@ babelHelpers;
 			this.disposeSubComponents(Object.keys(this.components));
 			this.components = null;
 
+			this.dataManager_.dispose();
+			this.dataManager_ = null;
+
 			this.renderer_.dispose();
 			this.renderer_ = null;
 
-			_State.prototype.disposeInternal.call(this);
+			_EventEmitter.prototype.disposeInternal.call(this);
 		};
 
 		/**
@@ -5302,6 +5631,16 @@ babelHelpers;
 		};
 
 		/**
+   * Gets the `ComponentDataManager` instance being used.
+   * @return {!ComponentDataManager}
+   */
+
+
+		Component.prototype.getDataManager = function getDataManager() {
+			return this.dataManager_;
+		};
+
+		/**
    * Gets the configuration object that was passed to this component's constructor.
    * @return {!Object}
    */
@@ -5329,6 +5668,26 @@ babelHelpers;
 		};
 
 		/**
+   * Gets state data for this component.
+   * @return {!Object}
+   */
+
+
+		Component.prototype.getState = function getState() {
+			return this.dataManager_.getState();
+		};
+
+		/**
+   * Gets the keys for the state data.
+   * @return {!Array<string>}
+   */
+
+
+		Component.prototype.getStateKeys = function getStateKeys() {
+			return this.dataManager_.getStateKeys();
+		};
+
+		/**
    * Calls the synchronization function for the state key.
    * @param {string} key
    * @param {Object.<string, Object>=} opt_change Object containing newVal and
@@ -5341,8 +5700,9 @@ babelHelpers;
 			var fn = this['sync' + key.charAt(0).toUpperCase() + key.slice(1)];
 			if (core.isFunction(fn)) {
 				if (!opt_change) {
+					var manager = this.getDataManager();
 					opt_change = {
-						newVal: this[key],
+						newVal: manager.get(key),
 						prevVal: undefined
 					};
 				}
@@ -5358,6 +5718,18 @@ babelHelpers;
 
 		Component.prototype.getRenderer = function getRenderer() {
 			return this.renderer_;
+		};
+
+		/**
+   * Handles a `rendered` event from the current renderer instance.
+   * @parma {!Object}
+   * @protected
+   */
+
+
+		Component.prototype.handleRendererRendered_ = function handleRendererRendered_(data) {
+			this.rendered(data);
+			this.emit('rendered', data);
 		};
 
 		/**
@@ -5424,18 +5796,11 @@ babelHelpers;
 
 
 		Component.prototype.onElementChanged_ = function onElementChanged_(event) {
-			if (event.prevVal === event.newVal) {
-				// The `elementChanged` event will be fired whenever the element is set,
-				// even if its value hasn't actually changed, since that's how State
-				// handles objects. We need to check manually here.
-				return;
-			}
-
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
 			if (event.newVal) {
 				this.addElementClasses();
-				this.syncVisible(this.visible);
+				this.syncVisible(this.dataManager_.get('visible'));
 			}
 		};
 
@@ -5538,20 +5903,20 @@ babelHelpers;
 		};
 
 		/**
-   * Setter logic for element state key.
-   * @param {string|Element} newVal
-   * @param {Element} currentVal
-   * @return {Element}
-   * @protected
+   * Setter logic for the element property.
+   * @param {?string|Element} val
    */
 
 
-		Component.prototype.setterElementFn_ = function setterElementFn_(newVal, currentVal) {
-			var element = newVal;
-			if (element) {
-				element = dom.toElement(newVal) || currentVal;
-			}
-			return element;
+		/**
+   * Sets the value of all the specified state keys.
+   * @param {!Object.<string,*>} values A map of state keys to the values they
+   *   should be set to.
+   * @param {function()=} opt_callback An optional function that will be run
+   *   after the next batched update is triggered.
+   */
+		Component.prototype.setState = function setState(state, opt_callback) {
+			this.dataManager_.setState(state, opt_callback);
 		};
 
 		/**
@@ -5583,7 +5948,7 @@ babelHelpers;
 
 
 		Component.prototype.syncState_ = function syncState_() {
-			var keys = this.getStateKeys();
+			var keys = this.dataManager_.getSyncKeys();
 			for (var i = 0; i < keys.length; i++) {
 				this.fireStateKeyChange_(keys[i]);
 			}
@@ -5652,18 +6017,6 @@ babelHelpers;
 		};
 
 		/**
-   * Validator logic for element state key.
-   * @param {?string|Element} val
-   * @return {boolean} True if val is a valid element.
-   * @protected
-   */
-
-
-		Component.prototype.validatorElementFn_ = function validatorElementFn_(val) {
-			return core.isElement(val) || core.isString(val) || !core.isDefAndNotNull(val);
-		};
-
-		/**
    * Validator logic for the `events` state key.
    * @param {Object} val
    * @return {boolean}
@@ -5675,27 +6028,43 @@ babelHelpers;
 			return !core.isDefAndNotNull(val) || core.isObject(val);
 		};
 
+		babelHelpers.createClass(Component, [{
+			key: 'element',
+			get: function get() {
+				return this.elementVal_;
+			},
+			set: function set(val) {
+				if (!core.isElement(val) && !core.isString(val) && core.isDefAndNotNull(val)) {
+					return;
+				}
+
+				if (val) {
+					val = dom.toElement(val) || this.elementVal_;
+				}
+
+				if (this.elementVal_ !== val) {
+					var prev = this.elementVal_;
+					this.elementVal_ = val;
+					if (this.componentCreated_) {
+						this.emit('elementChanged', {
+							prevVal: prev,
+							newVal: val
+						});
+					}
+				}
+			}
+		}]);
 		return Component;
-	}(State);
+	}(EventEmitter);
 
 	/**
-  * Component state definition.
+  * Component data definition.
   * @type {Object}
   * @static
   */
 
 
-	Component.STATE = {
-		/**
-   * Component element bounding box.
-   * @type {Element}
-   * @writeOnce
-   */
-		element: {
-			setter: 'setterElementFn_',
-			validator: 'validatorElementFn_'
-		},
-
+	Component.DATA = {
 		/**
    * CSS classes to be applied to the element.
    * @type {string}
@@ -5728,6 +6097,13 @@ babelHelpers;
 	Component.COMPONENT_FLAG = '__metal_component__';
 
 	/**
+  * The `ComponentDataManager` class that should be used. This class will be
+  * responsible for handling the component's data. Each component may have its
+  * own implementation.
+  */
+	Component.DATA_MANAGER = ComponentDataManager;
+
+	/**
   * CSS classes to be applied to the element.
   * @type {string}
   * @protected
@@ -5751,12 +6127,6 @@ babelHelpers;
   * @type {boolean}
   */
 	Component.SYNC_UPDATES = false;
-
-	/**
-  * A list with state key names that will automatically be rejected as invalid.
-  * @type {!Array<string>}
-  */
-	Component.INVALID_KEYS = ['components', 'wasRendered'];
 
 	/**
   * Sets a prototype flag to easily determine if a given constructor is for
@@ -5839,11 +6209,13 @@ babelHelpers;
 
 (function () {
   var Component = this.metal.Component;
+  var ComponentDataManager = this.metal.ComponentDataManager;
   var ComponentRegistry = this.metal.ComponentRegistry;
   var ComponentRenderer = this.metal.ComponentRenderer;
   this.metal.component = Component;
   this.metalNamed.component = this.metalNamed.component || {};
   this.metalNamed.component.Component = Component;
+  this.metalNamed.component.ComponentDataManager = ComponentDataManager;
   this.metalNamed.component.ComponentRegistry = ComponentRegistry;
   this.metalNamed.component.ComponentRenderer = ComponentRenderer;
 }).call(this);
@@ -7362,9 +7734,6 @@ babelHelpers;
 		} else {
 			child.tag = args[0];
 			child.config = IncrementalDomUtils.buildConfigFromCall(args);
-			if (IncrementalDomUtils.isComponentTag(child.tag)) {
-				child.config.ref = core.isDefAndNotNull(child.config.ref) ? child.config.ref : renderer_.buildRef(args[0]);
-			}
 			child.config.children = [];
 		}
 
@@ -7455,7 +7824,7 @@ babelHelpers;
 						// be currently being reused by another component.
 						comps_[i].element = null;
 
-						var ref = comps_[i].config.ref;
+						var ref = renderer.config_.ref;
 						var owner = renderer.getOwner();
 						if (owner.components[ref] === comps_[i]) {
 							owner.disposeSubComponents([ref]);
@@ -7493,6 +7862,7 @@ babelHelpers;
 	var core = this.metalNamed.metal.core;
 	var object = this.metalNamed.metal.object;
 	var dom = this.metal.dom;
+	var domData = this.metalNamed.dom.domData;
 	var Component = this.metalNamed.component.Component;
 	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
 	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
@@ -7517,20 +7887,27 @@ babelHelpers;
 			var _this = babelHelpers.possibleConstructorReturn(this, _ComponentRenderer.call(this, comp));
 
 			comp.context = {};
-			_this.setConfig_(comp, comp.getInitialConfig());
-			_this.changes_ = {};
+			_this.config_ = comp.getInitialConfig();
+			_this.clearChanges_();
 			comp.on('attached', _this.handleAttached_.bind(_this));
 
+			var manager = comp.getDataManager();
 			if (!_this.component_.constructor.SYNC_UPDATES_MERGED) {
 				// If the component is being updated synchronously we'll just reuse the
 				// `handleComponentRendererStateKeyChanged_` function from
 				// `ComponentRenderer`.
-				comp.on('stateKeyChanged', _this.handleStateKeyChanged_.bind(_this));
+				manager.on('dataPropChanged', _this.handleDataPropChanged_.bind(_this));
 			}
+
+			manager.add('children', {
+				validator: Array.isArray,
+				value: emptyChildren_
+			}, _this.config_.children || emptyChildren_);
 
 			// Binds functions that will be used many times, to avoid creating new
 			// functions each time.
 			_this.handleInterceptedAttributesCall_ = _this.handleInterceptedAttributesCall_.bind(_this);
+			_this.handleInterceptedCloseCall_ = _this.handleInterceptedCloseCall_.bind(_this);
 			_this.handleInterceptedOpenCall_ = _this.handleInterceptedOpenCall_.bind(_this);
 			_this.handleChildrenCaptured_ = _this.handleChildrenCaptured_.bind(_this);
 			_this.handleChildRender_ = _this.handleChildRender_.bind(_this);
@@ -7596,8 +7973,7 @@ babelHelpers;
 		};
 
 		/**
-   * Builds the "children" config property to be passed to the current
-   * component.
+   * Builds the "children" array to be passed to the current component.
    * @param {!Array<!Object>} children
    * @return {!Array<!Object>}
    * @protected
@@ -7609,18 +7985,38 @@ babelHelpers;
 		};
 
 		/**
-   * Builds the key for the next component that is found.
-   * @param {string} tag The component's tag.
-   * @return {string}
+   * Returns an array with the args that should be passed to the component's
+   * `shouldUpdate` method. This can be overridden by sub classes to change
+   * what the method should receive.
+   * @return {!Array}
+   * @protected
    */
 
 
-		IncrementalDomRenderer.prototype.buildRef = function buildRef(tag) {
-			var ctor = core.isString(tag) ? ComponentRegistry.getConstructor(tag) : tag;
-			var prefix = this.currentPrefix_ + core.getUid(ctor, true);
-			var count = this.generatedRefCount_[prefix] || 0;
-			this.generatedRefCount_[prefix] = count + 1;
-			return prefix + 'sub' + count;
+		IncrementalDomRenderer.prototype.buildShouldUpdateArgs_ = function buildShouldUpdateArgs_() {
+			return [this.changes_];
+		};
+
+		/**
+   * Clears the changes object.
+   * @protected;
+   */
+
+
+		IncrementalDomRenderer.prototype.clearChanges_ = function clearChanges_() {
+			this.changes_ = {};
+		};
+
+		/**
+   * Removes the most recent component from the queue of rendering components.
+   */
+
+
+		IncrementalDomRenderer.finishedRenderingComponent = function finishedRenderingComponent() {
+			renderingComponents_.pop();
+			if (renderingComponents_.length === 0) {
+				IncrementalDomUnusedComponents.disposeUnused();
+			}
 		};
 
 		/**
@@ -7634,6 +8030,73 @@ babelHelpers;
 		};
 
 		/**
+   * Gets the data object that should be currently used. This object will either
+   * come from the current element being rendered by incremental dom or from
+   * the component instance being rendered (only when the current element is the
+   * component's direct parent).
+   * @return {!Object}
+   */
+
+
+		IncrementalDomRenderer.getCurrentData = function getCurrentData() {
+			var element = IncrementalDOM.currentElement();
+			var comp = IncrementalDomRenderer.getComponentBeingRendered();
+			var renderer = comp.getRenderer();
+			var obj = renderer;
+			if (renderer.rootElementReached_ && element !== comp.element.parentNode) {
+				obj = domData.get(element);
+			}
+			obj.incDomData_ = obj.incDomData_ || {
+				currComps: {
+					keys: {},
+					order: {}
+				},
+				prevComps: {
+					keys: {},
+					order: {}
+				}
+			};
+			return obj.incDomData_;
+		};
+
+		/**
+   * Returns the event name if the given attribute is a listener (of the form
+   * "on<EventName>"), or null if it isn't.
+   * @param {string} attr
+   * @return {?string}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.getEventFromListenerAttr_ = function getEventFromListenerAttr_(attr) {
+			var matches = IncrementalDomRenderer.LISTENER_REGEX.exec(attr);
+			var eventName = matches ? matches[1] ? matches[1] : matches[2] : null;
+			return eventName ? eventName.toLowerCase() : null;
+		};
+
+		/**
+   * Gets the component that is this component's owner (that is, the one that
+   * passed its data and holds its ref), or null if there's none.
+   * @return {Component}
+   */
+
+
+		IncrementalDomRenderer.prototype.getOwner = function getOwner() {
+			return this.owner_;
+		};
+
+		/**
+   * Gets the component that is this component's parent (that is, the one that
+   * actually rendered it), or null if there's no parent.
+   * @return {Component}
+   */
+
+
+		IncrementalDomRenderer.prototype.getParent = function getParent() {
+			return this.parent_;
+		};
+
+		/**
    * Gets the sub component referenced by the given tag and config data,
    * creating it if it doesn't yet exist.
    * @param {string|!Function} tagOrCtor The tag name.
@@ -7644,27 +8107,27 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.getSubComponent_ = function getSubComponent_(tagOrCtor, config) {
-			var ConstructorFn = tagOrCtor;
-			if (core.isString(ConstructorFn)) {
-				ConstructorFn = ComponentRegistry.getConstructor(tagOrCtor);
+			var Ctor = tagOrCtor;
+			if (core.isString(Ctor)) {
+				Ctor = ComponentRegistry.getConstructor(tagOrCtor);
 			}
 
-			var comp = this.component_.components[config.ref];
-			if (comp && comp.constructor !== ConstructorFn) {
-				comp = null;
-			}
-
-			if (!comp) {
-				comp = new ConstructorFn(config, false);
+			var data = IncrementalDomRenderer.getCurrentData();
+			var comp;
+			if (core.isDef(config.ref)) {
+				comp = this.match_(this.component_.components[config.ref], Ctor, config);
 				this.component_.addSubComponent(config.ref, comp);
+			} else if (core.isDef(config.key)) {
+				comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
+				data.currComps.keys[config.key] = comp;
+			} else {
+				var type = core.getUid(Ctor, true);
+				data.currComps.order[type] = data.currComps.order[type] || [];
+				var order = data.currComps.order[type];
+				comp = this.match_((data.prevComps.order[type] || [])[order.length], Ctor, config);
+				order.push(comp);
 			}
 
-			if (comp.wasRendered) {
-				this.setConfig_(comp, config);
-				comp.getRenderer().startSkipUpdates();
-				comp.setState(config);
-				comp.getRenderer().stopSkipUpdates();
-			}
 			return comp;
 		};
 
@@ -7689,18 +8152,6 @@ babelHelpers;
 		};
 
 		/**
-   * Removes the most recent component from the queue of rendering components.
-   */
-
-
-		IncrementalDomRenderer.finishedRenderingComponent = function finishedRenderingComponent() {
-			renderingComponents_.pop();
-			if (renderingComponents_.length === 0) {
-				IncrementalDomUnusedComponents.disposeUnused();
-			}
-		};
-
-		/**
    * Handles the `attached` listener. Stores attach data.
    * @param {!Object} data
    * @protected
@@ -7709,6 +8160,53 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.handleAttached_ = function handleAttached_(data) {
 			this.attachData_ = data;
+		};
+
+		/**
+   * Handles the event of children having finished being captured.
+   * @param {!Object} The captured children in tree format.
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleChildrenCaptured_ = function handleChildrenCaptured_(tree) {
+			var _componentToRender_ = this.componentToRender_;
+			var config = _componentToRender_.config;
+			var tag = _componentToRender_.tag;
+
+			config.children = this.buildChildren_(tree.config.children);
+			this.componentToRender_ = null;
+			this.renderFromTag_(tag, config);
+		};
+
+		/**
+   * Handles a child being rendered via `IncrementalDomChildren.render`. Skips
+   * component nodes so that they can be rendered the correct way without
+   * having to recapture both them and their children via incremental dom.
+   * @param {!Object} node
+   * @return {boolean}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleChildRender_ = function handleChildRender_(node) {
+			if (node.tag && IncrementalDomUtils.isComponentTag(node.tag)) {
+				node.config.children = this.buildChildren_(node.config.children);
+				this.renderFromTag_(node.tag, node.config);
+				return true;
+			}
+		};
+
+		/**
+   * Handles the `dataPropChanged` event. Stores data that has changed since the
+   * last render.
+   * @param {!Object} data
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleDataPropChanged_ = function handleDataPropChanged_(data) {
+			this.changes_[data.key] = data;
 		};
 
 		/**
@@ -7764,55 +8262,18 @@ babelHelpers;
 		};
 
 		/**
-   * Handles the event of children having finished being captured.
-   * @param {!Object} The captured children in tree format.
+   * Handles an intercepted call to the `elementClose` function from incremental
+   * dom.
+   * @param {!function()} originalFn The original function before interception.
+   * @param {string} tag
    * @protected
    */
 
 
-		IncrementalDomRenderer.prototype.handleChildrenCaptured_ = function handleChildrenCaptured_(tree) {
-			var _componentToRender_ = this.componentToRender_;
-			var config = _componentToRender_.config;
-			var tag = _componentToRender_.tag;
-
-			config.children = this.buildChildren_(tree.config.children);
-			this.componentToRender_ = null;
-			this.currentPrefix_ = this.prevPrefix_;
-			this.prevPrefix_ = null;
-			this.renderFromTag_(tag, config);
-		};
-
-		/**
-   * Handles a child being rendered via `IncrementalDomChildren.render`. Skips
-   * component nodes so that they can be rendered the correct way without
-   * having to recapture both them and their children via incremental dom.
-   * @param {!Object} node
-   * @return {boolean}
-   * @protected
-   */
-
-
-		IncrementalDomRenderer.prototype.handleChildRender_ = function handleChildRender_(node) {
-			if (node.tag && IncrementalDomUtils.isComponentTag(node.tag)) {
-				node.config.children = this.buildChildren_(node.config.children);
-				this.renderFromTag_(node.tag, node.config);
-				return true;
-			}
-		};
-
-		/**
-   * Handles the `stateKeyChanged` event. Overrides original method from
-   * `ComponentRenderer` to guarantee that `IncrementalDomRenderer`'s logic
-   * will run first.
-   * @param {!Object} data
-   * @override
-   * @protected
-   */
-
-
-		IncrementalDomRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
-			this.handleStateKeyChanged_(data);
-			_ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_.call(this, data);
+		IncrementalDomRenderer.prototype.handleInterceptedCloseCall_ = function handleInterceptedCloseCall_(originalFn, tag) {
+			var element = originalFn(tag);
+			this.resetData_(domData.get(element).incDomData_);
+			return element;
 		};
 
 		/**
@@ -7833,9 +8294,24 @@ babelHelpers;
 		};
 
 		/**
+   * Handles the `dataPropChanged` event. Overrides original method from
+   * `ComponentRenderer` to guarantee that `IncrementalDomRenderer`'s logic
+   * will run first.
+   * @param {!Object} data
+   * @override
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.handleManagerDataPropChanged_ = function handleManagerDataPropChanged_(data) {
+			this.handleDataPropChanged_(data);
+			_ComponentRenderer.prototype.handleManagerDataPropChanged_.call(this, data);
+		};
+
+		/**
    * Handles an intercepted call to the `elementOpen` function from incremental
-   * dom, done for a regular element. Adds any inline listeners found and makes
-   * sure that component root elements are always reused.
+   * dom, done for a regular element. Adds any inline listeners found on the
+   * first render and makes sure that component root elements are always reused.
    * @param {!function()} originalFn The original function before interception.
    * @protected
    */
@@ -7849,26 +8325,14 @@ babelHelpers;
 				args[_key - 1] = arguments[_key];
 			}
 
-			if (!currRenderer.rootElementReached_ && currComp.config.key) {
-				args[1] = currComp.config.key;
+			if (!currRenderer.rootElementReached_ && currRenderer.config_.key) {
+				args[1] = currRenderer.config_.key;
 			}
 
 			var node = originalFn.apply(null, args);
 			this.attachDecoratedListeners_(node, args);
 			this.updateElementIfNotReached_(node);
 			return node;
-		};
-
-		/**
-   * Handles the `stateKeyChanged` event. Stores state properties that have
-   * changed since the last render.
-   * @param {!Object} data
-   * @protected
-   */
-
-
-		IncrementalDomRenderer.prototype.handleStateKeyChanged_ = function handleStateKeyChanged_(data) {
-			this.changes_[data.key] = data;
 		};
 
 		/**
@@ -7886,16 +8350,22 @@ babelHelpers;
 			}
 
 			var config = IncrementalDomUtils.buildConfigFromCall(args);
-			config.ref = core.isDefAndNotNull(config.ref) ? config.ref : this.buildRef(args[0]);
 			this.componentToRender_ = {
 				config: config,
 				tag: args[0]
 			};
-
-			this.prevPrefix_ = this.currentPrefix_;
-			this.currentPrefix_ = config.ref;
-			this.generatedRefCount_[this.currentPrefix_] = 0;
 			IncrementalDomChildren.capture(this, this.handleChildrenCaptured_);
+		};
+
+		/**
+   * Checks if the component's data has changed.
+   * @return {boolean}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.hasDataChanged_ = function hasDataChanged_() {
+			return Object.keys(this.changes_).length > 0;
 		};
 
 		/**
@@ -7907,6 +8377,7 @@ babelHelpers;
 		IncrementalDomRenderer.prototype.intercept_ = function intercept_() {
 			IncrementalDomAop.startInterception({
 				attributes: this.handleInterceptedAttributesCall_,
+				elementClose: this.handleInterceptedCloseCall_,
 				elementOpen: this.handleInterceptedOpenCall_
 			});
 		};
@@ -7923,40 +8394,59 @@ babelHelpers;
 		};
 
 		/**
-   * Returns the event name if the given attribute is a listener (of the form
-   * "on<EventName>"), or null if it isn't.
-   * @param {string} attr
-   * @return {?string}
+   * Returns the given component if it matches the specified constructor
+   * function. Otherwise, returns a new instance of the given constructor. On
+   * both cases the component's state and config will be updated.
+   * @param {Component} comp
+   * @param {!function()} Ctor
+   * @param {!Object} config
+   * @return {!Component}
    * @protected
    */
 
 
-		IncrementalDomRenderer.prototype.getEventFromListenerAttr_ = function getEventFromListenerAttr_(attr) {
-			var matches = IncrementalDomRenderer.LISTENER_REGEX.exec(attr);
-			var eventName = matches ? matches[1] ? matches[1] : matches[2] : null;
-			return eventName ? eventName.toLowerCase() : null;
+		IncrementalDomRenderer.prototype.match_ = function match_(comp, Ctor, config) {
+			if (!comp || comp.constructor !== Ctor) {
+				comp = new Ctor(config, false);
+			}
+			if (comp.wasRendered) {
+				comp.getRenderer().startSkipUpdates();
+				comp.getDataManager().replaceNonInternal(config);
+				comp.getRenderer().stopSkipUpdates();
+			}
+			comp.getRenderer().config_ = config;
+			return comp;
 		};
 
 		/**
-   * Gets the component that is this component's parent (that is, the one that
-   * actually rendered it), or null if there's no parent.
-   * @return {Component}
+   * Patches the component's element with the incremental dom function calls
+   * done by `renderInsidePatchDontSkip_`.
    */
 
 
-		IncrementalDomRenderer.prototype.getParent = function getParent() {
-			return this.parent_;
-		};
+		IncrementalDomRenderer.prototype.patch = function patch() {
+			if (!this.component_.element && this.parent_) {
+				// If the component has no content but was rendered from another component,
+				// we'll need to patch this parent to make sure that any new content will
+				// be added in the right place.
+				this.parent_.getRenderer().patch();
+				return;
+			}
 
-		/**
-   * Gets the component that is this component's owner (that is, the one that
-   * passed its config properties and holds its ref), or null if there's none.
-   * @return {Component}
-   */
-
-
-		IncrementalDomRenderer.prototype.getOwner = function getOwner() {
-			return this.owner_;
+			var tempParent = this.guaranteeParent_();
+			if (tempParent) {
+				IncrementalDOM.patch(tempParent, this.renderInsidePatchDontSkip_);
+				dom.exitDocument(this.component_.element);
+				if (this.component_.element && this.component_.inDocument) {
+					this.component_.renderElement_(this.attachData_.parent, this.attachData_.sibling);
+				}
+			} else {
+				var element = this.component_.element;
+				IncrementalDOM.patchOuter(element, this.renderInsidePatchDontSkip_);
+				if (!this.component_.element) {
+					dom.exitDocument(element);
+				}
+			}
 		};
 
 		/**
@@ -7966,7 +8456,7 @@ babelHelpers;
    or a component constructor.
    * @param {Object|Element=} opt_dataOrElement Optional config data for the
    *     function or parent for the rendered content.
-   * @param {Element=} opt_element Optional parent for the rendered content.
+   * @param {Element=} opt_parent Optional parent for the rendered content.
    * @return {!Component} The rendered component's instance.
    */
 
@@ -7990,7 +8480,7 @@ babelHelpers;
 					};
 
 					TempComponent.prototype.render = function render() {
-						fn(this.config);
+						fn(this.getRenderer().config_);
 					};
 
 					return TempComponent;
@@ -8075,7 +8565,7 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.renderInsidePatch = function renderInsidePatch() {
-			if (this.component_.wasRendered && !this.shouldUpdate(this.changes_) && IncrementalDOM.currentPointer() === this.component_.element) {
+			if (this.component_.wasRendered && !this.shouldUpdate() && IncrementalDOM.currentPointer() === this.component_.element) {
 				if (this.component_.element) {
 					IncrementalDOM.skipNode();
 				}
@@ -8093,13 +8583,10 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.renderInsidePatchDontSkip_ = function renderInsidePatchDontSkip_() {
 			IncrementalDomRenderer.startedRenderingComponent(this.component_);
-			this.changes_ = {};
+			this.clearChanges_();
 			this.rootElementReached_ = false;
 			IncrementalDomUnusedComponents.schedule(this.childComponents_ || []);
 			this.childComponents_ = [];
-			this.generatedRefCount_ = {};
-			this.listenersToAttach_ = [];
-			this.currentPrefix_ = '';
 			this.intercept_();
 			this.renderIncDom();
 			IncrementalDomAop.stopInterception();
@@ -8110,6 +8597,7 @@ babelHelpers;
 			}
 			this.emit('rendered', !this.isRendered_);
 			IncrementalDomRenderer.finishedRenderingComponent();
+			this.resetData_(this.incDomData_);
 		};
 
 		/**
@@ -8144,23 +8632,20 @@ babelHelpers;
 		};
 
 		/**
-   * Sets the component's config object with its new value.
-   * @param {!Component} comp The component to set the config for.
-   * @param {!Object} config
+   * Resets the given incremental dom data object, preparing it for the next
+   * pass.
+   * @param {Object}
    * @protected
    */
 
 
-		IncrementalDomRenderer.prototype.setConfig_ = function setConfig_(comp, config) {
-			var prevConfig = comp.config;
-			comp.config = config;
-			if (core.isFunction(comp.configChanged)) {
-				comp.configChanged(config, prevConfig || {});
+		IncrementalDomRenderer.prototype.resetData_ = function resetData_(data) {
+			if (data) {
+				data.prevComps.keys = data.currComps.keys;
+				data.prevComps.order = data.currComps.order;
+				data.currComps.keys = {};
+				data.currComps.order = {};
 			}
-			comp.emit('configChanged', {
-				prevVal: prevConfig,
-				newVal: config
-			});
 		};
 
 		/**
@@ -8168,14 +8653,18 @@ babelHelpers;
    * Can be overridden by subclasses or implemented by components to provide
    * customized behavior (only updating when a state property used by the
    * template changes, for example).
-   * @param {!Object} changes
    * @return {boolean}
    */
 
 
-		IncrementalDomRenderer.prototype.shouldUpdate = function shouldUpdate(changes) {
+		IncrementalDomRenderer.prototype.shouldUpdate = function shouldUpdate() {
+			if (!this.hasDataChanged_()) {
+				return false;
+			}
 			if (this.component_.shouldUpdate) {
-				return this.component_.shouldUpdate(changes);
+				var _component_;
+
+				return (_component_ = this.component_).shouldUpdate.apply(_component_, babelHelpers.toConsumableArray(this.buildShouldUpdateArgs_()));
 			}
 			return true;
 		};
@@ -8191,37 +8680,6 @@ babelHelpers;
 		};
 
 		/**
-   * Patches the component's element with the incremental dom function calls
-   * done by `renderIncDom`.
-   */
-
-
-		IncrementalDomRenderer.prototype.patch = function patch() {
-			if (!this.component_.element && this.parent_) {
-				// If the component has no content but was rendered from another component,
-				// we'll need to patch this parent to make sure that any new content will
-				// be added in the right place.
-				this.parent_.getRenderer().patch();
-				return;
-			}
-
-			var tempParent = this.guaranteeParent_();
-			if (tempParent) {
-				IncrementalDOM.patch(tempParent, this.renderInsidePatchDontSkip_);
-				dom.exitDocument(this.component_.element);
-				if (this.component_.element && this.component_.inDocument) {
-					this.component_.renderElement_(this.attachData_.parent, this.attachData_.sibling);
-				}
-			} else {
-				var element = this.component_.element;
-				IncrementalDOM.patchOuter(element, this.renderInsidePatchDontSkip_);
-				if (!this.component_.element) {
-					dom.exitDocument(element);
-				}
-			}
-		};
-
-		/**
    * Updates the renderer's component when state changes, patching its element
    * through the incremental dom function calls done by `renderIncDom`. Makes
    * sure that it won't cause a rerender if the only change was for the
@@ -8230,7 +8688,7 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.update = function update() {
-			if (this.hasChangedBesidesElement_(this.changes_) && this.shouldUpdate(this.changes_)) {
+			if (this.shouldUpdate()) {
 				this.patch();
 			}
 		};
@@ -13203,9 +13661,10 @@ babelHelpers;
 
 			var keys = elementTemplate.params || [];
 			var component = this.component_;
+			var state = component.getDataManager().getStateInstance();
 			for (var i = 0; i < keys.length; i++) {
-				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
-					component.addToState(keys[i], {}, component.getInitialConfig()[keys[i]]);
+				if (!state.hasStateKey(keys[i]) && !component[keys[i]]) {
+					state.addToState(keys[i], {}, component.getInitialConfig()[keys[i]]);
 				}
 			}
 		};
@@ -13225,14 +13684,8 @@ babelHelpers;
 			var _this2 = this;
 
 			var component = this.component_;
-			var data = object.mixin({}, component.config);
+			var data = object.mixin({}, this.config_);
 			component.getStateKeys().forEach(function (key) {
-				// Get all state values except "element", since it helps performance
-				// and the element shouldn't be referenced inside a soy template anyway.
-				if (key === 'element') {
-					return;
-				}
-
 				var value = component[key];
 				if (_this2.isHtmlParam_(key)) {
 					value = Soy.toIncDom(value);
@@ -13295,7 +13748,8 @@ babelHelpers;
 
 
 		Soy.prototype.isHtmlParam_ = function isHtmlParam_(name) {
-			if (this.component_.getStateKeyConfig(name).isHtml) {
+			var state = this.component_.getDataManager().getStateInstance();
+			if (state.getStateKeyConfig(name).isHtml) {
 				return true;
 			}
 			var type = this.soyParamTypes_[name] || '';
@@ -13356,13 +13810,12 @@ babelHelpers;
 		/**
    * Overrides the original `IncrementalDomRenderer` method so that only
    * state keys used by the main template can cause updates.
-   * @param {!Object} changes
    * @return {boolean}
    */
 
 
-		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
-			var should = _IncrementalDomRender.prototype.shouldUpdate.call(this, changes);
+		Soy.prototype.shouldUpdate = function shouldUpdate() {
+			var should = _IncrementalDomRender.prototype.shouldUpdate.call(this);
 			if (!should || this.component_.shouldUpdate) {
 				return should;
 			}
@@ -13370,7 +13823,7 @@ babelHelpers;
 			var fn = this.component_.constructor.TEMPLATE;
 			var params = fn ? SoyAop.getOriginalFn(fn).params : [];
 			for (var i = 0; i < params.length; i++) {
-				if (changes[params[i]]) {
+				if (this.changes_[params[i]]) {
 					return true;
 				}
 			}

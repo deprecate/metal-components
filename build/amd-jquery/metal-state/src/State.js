@@ -38,10 +38,50 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 	var State = function (_EventEmitter) {
 		_inherits(State, _EventEmitter);
 
-		function State(opt_config) {
+		/**
+   * Constructor function for `State`.
+   * @param {Object=} opt_config Optional config object with initial values to
+   *     set state properties to.
+   * @param {Object=} opt_obj Optional object that should hold the state
+   *     properties. If none is given, they will be added directly to `this`
+   *     instead.
+   * @param {Object=} opt_context Optional context to call functions (like
+   *     validators and setters) on. Defaults to `this`.
+   * @param {Object=} opt_commonOpts Optional common option values to be used
+   *     by all this instance's state properties.
+   */
+		function State(opt_config, opt_obj, opt_context, opt_commonOpts) {
 			_classCallCheck(this, State);
 
 			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
+
+			/**
+    * Common option values to be used by all this instance's state properties.
+    * @type {Object}
+    * @protected
+    */
+			_this.commonOpts_ = opt_commonOpts;
+
+			/**
+    * Context to call functions (like validators and setters) on.
+    * @type {!Object}
+    * @protected
+    */
+			_this.context_ = opt_context || _this;
+
+			/**
+    * Map of keys that can not be used as state keys.
+    * @param {!Object<string, boolean>}
+    * @protected
+    */
+			_this.keysBlacklist_ = {};
+
+			/**
+    * Object that should hold the state properties.
+    * @type {!Object}
+    * @protected
+    */
+			_this.obj_ = opt_obj || _this;
 
 			/**
     * Object with information about the batch event that is currently
@@ -75,7 +115,8 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
 			this.buildKeyInfo_(name, config, initialValue);
-			Object.defineProperty(this, name, this.buildKeyPropertyDef_(name));
+			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
+			this.assertGivenIfRequired_(name);
 		};
 
 		State.prototype.addToState = function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
@@ -90,32 +131,46 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			for (var i = 0; i < names.length; i++) {
 				var name = names[i];
 				this.buildKeyInfo_(name, configsOrName[name], initialValues[name]);
-				props[name] = this.buildKeyPropertyDef_(name);
+				props[name] = this.buildKeyPropertyDef_(name, opt_contextOrInitialValue);
+				this.assertGivenIfRequired_(name);
 			}
 
 			if (opt_contextOrInitialValue !== false) {
-				Object.defineProperties(opt_contextOrInitialValue || this, props);
+				Object.defineProperties(opt_contextOrInitialValue || this.obj_, props);
 			}
 		};
 
 		State.prototype.addToStateFromStaticHint_ = function addToStateFromStaticHint_(opt_config) {
 			var ctor = this.constructor;
-			var defineContext = false;
-			if (State.mergeStateStatic(ctor)) {
-				defineContext = ctor.prototype;
+			var defineContext;
+			var merged = State.mergeStateStatic(ctor);
+			if (this.obj_ === this) {
+				defineContext = merged ? ctor.prototype : false;
 			}
 			this.addToState(ctor.STATE_MERGED, opt_config, defineContext);
 		};
 
+		State.prototype.assertGivenIfRequired_ = function assertGivenIfRequired_(name) {
+			var info = this.stateInfo_[name];
+			if (info.config.required) {
+				var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
+				if (!_metal.core.isDefAndNotNull(value)) {
+					console.error('The property called "' + name + '" is required but didn\n\'t ' + 'receive a value.');
+				}
+			}
+		};
+
 		State.prototype.assertValidStateKeyName_ = function assertValidStateKeyName_(name) {
-			if (this.constructor.INVALID_KEYS_MERGED[name]) {
+			if (this.constructor.INVALID_KEYS_MERGED[name] || this.keysBlacklist_[name]) {
 				throw new Error('It\'s not allowed to create a state key with the name "' + name + '".');
 			}
 		};
 
 		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue) {
 			this.assertValidStateKeyName_(name);
-
+			if (this.commonOpts_) {
+				config = _metal.object.mixin({}, config, this.commonOpts_);
+			}
 			this.stateInfo_[name] = {
 				config: config || {},
 				initialValue: initialValue,
@@ -123,24 +178,25 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			};
 		};
 
-		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name) {
+		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name, opt_context) {
+			var stateObj = opt_context === this.constructor.prototype ? null : this;
 			return {
 				configurable: true,
 				enumerable: true,
 				get: function get() {
-					return this.getStateKeyValue_(name);
+					return (stateObj || this).getStateKeyValue_(name);
 				},
 				set: function set(val) {
-					this.setStateKeyValue_(name, val);
+					(stateObj || this).setStateKeyValue_(name, val);
 				}
 			};
 		};
 
 		State.prototype.callFunction_ = function callFunction_(fn, args) {
 			if (_metal.core.isString(fn)) {
-				return this[fn].apply(this, args);
+				return this.context_[fn].apply(this.context_, args);
 			} else if (_metal.core.isFunction(fn)) {
-				return fn.apply(this, args);
+				return fn.apply(this.context_, args);
 			}
 		};
 
@@ -187,7 +243,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.get = function get(name) {
-			return this[name];
+			return this.obj_[name];
 		};
 
 		State.prototype.getState = function getState(opt_names) {
@@ -195,7 +251,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			var names = opt_names || this.getStateKeys();
 
 			for (var i = 0; i < names.length; i++) {
-				state[names[i]] = this[names[i]];
+				state[names[i]] = this.get(names[i]);
 			}
 
 			return state;
@@ -227,7 +283,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			if (this.shouldInformChange_(name, prevVal)) {
 				var data = {
 					key: name,
-					newVal: this[name],
+					newVal: this.get(name),
 					prevVal: prevVal
 				};
 				this.emit(name + 'Changed', data);
@@ -246,17 +302,17 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			this.setInitialValue_(name);
 			if (!info.written) {
 				info.state = State.KeyStates.INITIALIZING_DEFAULT;
-				this.setDefaultValue_(name);
+				this.setDefaultValue(name);
 			}
 			info.state = State.KeyStates.INITIALIZED;
 		};
 
-		State.mergeState_ = function mergeState_(values) {
+		State.mergeState = function mergeState(values) {
 			return _metal.object.mixin.apply(null, [{}].concat(values.reverse()));
 		};
 
 		State.mergeStateStatic = function mergeStateStatic(ctor) {
-			return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState_);
+			return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
 		};
 
 		State.prototype.mergeInvalidKeys_ = function mergeInvalidKeys_() {
@@ -272,7 +328,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 		State.prototype.removeStateKey = function removeStateKey(name) {
 			this.stateInfo_[name] = null;
-			delete this[name];
+			delete this.obj_[name];
 		};
 
 		State.prototype.scheduleBatchEvent_ = function scheduleBatchEvent_(changeData) {
@@ -294,26 +350,30 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 		State.prototype.set = function set(name, value) {
 			if (this.hasStateKey(name)) {
-				this[name] = value;
+				this.obj_[name] = value;
 			}
 		};
 
-		State.prototype.setDefaultValue_ = function setDefaultValue_(name) {
+		State.prototype.setDefaultValue = function setDefaultValue(name) {
 			var config = this.stateInfo_[name].config;
 
 			if (config.value !== undefined) {
-				this[name] = config.value;
+				this.set(name, config.value);
 			} else {
-				this[name] = this.callFunction_(config.valueFn);
+				this.set(name, this.callFunction_(config.valueFn));
 			}
 		};
 
 		State.prototype.setInitialValue_ = function setInitialValue_(name) {
 			var info = this.stateInfo_[name];
 			if (info.initialValue !== undefined) {
-				this[name] = info.initialValue;
+				this.set(name, info.initialValue);
 				info.initialValue = undefined;
 			}
+		};
+
+		State.prototype.setKeysBlacklist_ = function setKeysBlacklist_(blacklist) {
+			this.keysBlacklist_ = blacklist;
 		};
 
 		State.prototype.setState = function setState(values, opt_callback) {
@@ -337,15 +397,16 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 				info.state = State.KeyStates.INITIALIZED;
 			}
 
-			var prevVal = this[name];
+			var prevVal = this.get(name);
 			info.value = this.callSetter_(name, value, prevVal);
+			this.assertGivenIfRequired_(name);
 			info.written = true;
 			this.informChange_(name, prevVal);
 		};
 
 		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
 			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this[name]);
+			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this.get(name));
 		};
 
 		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {
@@ -366,7 +427,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 	State.INVALID_KEYS = ['state', 'stateKey'];
 
 	/**
-  * Constants that represent the states that an a state key can be in.
+  * Constants that represent the states that a state key can be in.
   * @type {!Object}
   */
 	State.KeyStates = {

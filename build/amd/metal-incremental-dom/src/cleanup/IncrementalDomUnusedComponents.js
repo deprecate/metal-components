@@ -27,7 +27,7 @@ define(['exports'], function (exports) {
 						// be currently being reused by another component.
 						comps_[i].element = null;
 
-						var ref = comps_[i].config.ref;
+						var ref = renderer.config_.ref;
 						var owner = renderer.getOwner();
 						if (owner.components[ref] === comps_[i]) {
 							owner.disposeSubComponents([ref]);

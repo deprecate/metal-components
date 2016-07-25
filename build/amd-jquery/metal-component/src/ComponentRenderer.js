@@ -69,10 +69,11 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
 			_this.on('rendered', _this.handleRendered_);
 
+			var manager = component.getDataManager();
 			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
-				_this.componentRendererEvents_.add(_this.component_.on('stateKeyChanged', _this.handleComponentRendererStateKeyChanged_.bind(_this)));
+				_this.componentRendererEvents_.add(manager.on('dataPropChanged', _this.handleManagerDataPropChanged_.bind(_this)));
 			} else {
-				_this.componentRendererEvents_.add(_this.component_.on('stateChanged', _this.handleComponentRendererStateChanged_.bind(_this)));
+				_this.componentRendererEvents_.add(manager.on('dataChanged', _this.handleManagerDataChanged_.bind(_this)));
 			}
 			return _this;
 		}
@@ -87,31 +88,22 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			this.componentRendererEvents_ = null;
 		};
 
-		ComponentRenderer.prototype.handleComponentRendererStateChanged_ = function handleComponentRendererStateChanged_(changes) {
-			if (this.shouldRerender_(changes)) {
+		ComponentRenderer.prototype.handleManagerDataChanged_ = function handleManagerDataChanged_(changes) {
+			if (this.shouldRerender_()) {
 				this.update(changes);
 			}
 		};
 
-		ComponentRenderer.prototype.handleComponentRendererStateKeyChanged_ = function handleComponentRendererStateKeyChanged_(data) {
-			var changes = {
-				changes: _defineProperty({}, data.key, data)
-			};
-			if (this.shouldRerender_(changes)) {
-				this.update(changes);
+		ComponentRenderer.prototype.handleManagerDataPropChanged_ = function handleManagerDataPropChanged_(data) {
+			if (this.shouldRerender_()) {
+				this.update({
+					changes: _defineProperty({}, data.key, data)
+				});
 			}
 		};
 
 		ComponentRenderer.prototype.handleRendered_ = function handleRendered_() {
 			this.isRendered_ = true;
-		};
-
-		ComponentRenderer.prototype.hasChangedBesidesElement_ = function hasChangedBesidesElement_(changes) {
-			var count = Object.keys(changes).length;
-			if (changes.hasOwnProperty('element')) {
-				count--;
-			}
-			return count > 0;
 		};
 
 		ComponentRenderer.prototype.render = function render() {
@@ -121,8 +113,8 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			this.emit('rendered', !this.isRendered_);
 		};
 
-		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_(changes) {
-			return this.isRendered_ && !this.skipUpdates_ && this.hasChangedBesidesElement_(changes.changes);
+		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_() {
+			return this.isRendered_ && !this.skipUpdates_;
 		};
 
 		ComponentRenderer.prototype.startSkipUpdates = function startSkipUpdates() {

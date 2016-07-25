@@ -48,7 +48,9 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     * @type {Object}
     * @protected
     */
-			_this.blacklist_ = opt_blacklist || {};
+			_this.blacklist_ = _metal.object.mixin({
+				newListener: true
+			}, opt_blacklist);
 
 			/**
     * The origin emitter. This emitter's events will be proxied through the

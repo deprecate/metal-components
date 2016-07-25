@@ -1,13 +1,13 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRenderer', 'metal-events/src/events', 'metal-state/src/State'], function (exports, _metal, _dom, _ComponentRenderer, _events, _State2) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataManager', './ComponentRenderer', 'metal-events/src/events'], function (exports, _metal, _dom, _ComponentDataManager, _ComponentRenderer, _events) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _ComponentRenderer2 = _interopRequireDefault(_ComponentRenderer);
+	var _ComponentDataManager2 = _interopRequireDefault(_ComponentDataManager);
 
-	var _State3 = _interopRequireDefault(_State2);
+	var _ComponentRenderer2 = _interopRequireDefault(_ComponentRenderer);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -20,6 +20,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			throw new TypeError("Cannot call a class as a function");
 		}
 	}
+
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
 
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
@@ -45,8 +63,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var Component = function (_State) {
-		_inherits(Component, _State);
+	var Component = function (_EventEmitter) {
+		_inherits(Component, _EventEmitter);
 
 		/**
    * Constructor function for `Component`.
@@ -61,7 +79,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 		function Component(opt_config, opt_parentElement) {
 			_classCallCheck(this, Component);
 
-			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
 
 			/**
     * All listeners that were attached until the `DomEventEmitterProxy` instance
@@ -122,15 +140,20 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			_metal.core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
 			_metal.core.mergeSuperClassesProperty(_this.constructor, 'SYNC_UPDATES', _metal.array.firstDefinedValue);
 
+			_this.element = _this.initialConfig_.element;
+
+			_this.dataManager_ = _this.createDataManager();
+
 			_this.renderer_ = _this.createRenderer();
-			_this.renderer_.on('rendered', _this.rendered.bind(_this));
+			_this.renderer_.on('rendered', _this.handleRendererRendered_.bind(_this));
 
 			_this.on('stateChanged', _this.handleStateChanged_);
 			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
 			_this.on('eventsChanged', _this.onEventsChanged_);
-			_this.addListenersFromObj_(_this.events);
+			_this.addListenersFromObj_(_this.dataManager_.get('events'));
 
 			_this.created();
+			_this.componentCreated_ = true;
 			if (opt_parentElement !== false) {
 				_this.render_(opt_parentElement);
 			}
@@ -145,8 +168,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 
 		Component.prototype.addElementClasses = function addElementClasses() {
 			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
-			if (this.elementClasses) {
-				classesToAdd = classesToAdd + ' ' + this.elementClasses;
+			var elementClasses = this.dataManager_.get('elementClasses');
+			if (elementClasses) {
+				classesToAdd = classesToAdd + ' ' + elementClasses;
 			}
 			_dom.dom.addClasses(this.element, classesToAdd);
 		};
@@ -188,6 +212,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 
 		Component.prototype.created = function created() {};
 
+		Component.prototype.createDataManager = function createDataManager() {
+			_metal.core.mergeSuperClassesProperty(this.constructor, 'DATA_MANAGER', _metal.array.firstDefinedValue);
+			return new this.constructor.DATA_MANAGER_MERGED(this, Component.DATA);
+		};
+
 		Component.prototype.createRenderer = function createRenderer() {
 			_metal.core.mergeSuperClassesProperty(this.constructor, 'RENDERER', _metal.array.firstDefinedValue);
 			return new this.constructor.RENDERER_MERGED(this);
@@ -226,10 +255,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			this.disposeSubComponents(Object.keys(this.components));
 			this.components = null;
 
+			this.dataManager_.dispose();
+			this.dataManager_ = null;
+
 			this.renderer_.dispose();
 			this.renderer_ = null;
 
-			_State.prototype.disposeInternal.call(this);
+			_EventEmitter.prototype.disposeInternal.call(this);
 		};
 
 		Component.prototype.disposeSubComponents = function disposeSubComponents(keys) {
@@ -257,6 +289,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			return info;
 		};
 
+		Component.prototype.getDataManager = function getDataManager() {
+			return this.dataManager_;
+		};
+
 		Component.prototype.getInitialConfig = function getInitialConfig() {
 			return this.initialConfig_;
 		};
@@ -269,12 +305,21 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			}
 		};
 
+		Component.prototype.getState = function getState() {
+			return this.dataManager_.getState();
+		};
+
+		Component.prototype.getStateKeys = function getStateKeys() {
+			return this.dataManager_.getStateKeys();
+		};
+
 		Component.prototype.fireStateKeyChange_ = function fireStateKeyChange_(key, opt_change) {
 			var fn = this['sync' + key.charAt(0).toUpperCase() + key.slice(1)];
 			if (_metal.core.isFunction(fn)) {
 				if (!opt_change) {
+					var manager = this.getDataManager();
 					opt_change = {
-						newVal: this[key],
+						newVal: manager.get(key),
 						prevVal: undefined
 					};
 				}
@@ -284,6 +329,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 
 		Component.prototype.getRenderer = function getRenderer() {
 			return this.renderer_;
+		};
+
+		Component.prototype.handleRendererRendered_ = function handleRendererRendered_(data) {
+			this.rendered(data);
+			this.emit('rendered', data);
 		};
 
 		Component.prototype.handleStateChanged_ = function handleStateChanged_(event) {
@@ -312,18 +362,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 		};
 
 		Component.prototype.onElementChanged_ = function onElementChanged_(event) {
-			if (event.prevVal === event.newVal) {
-				// The `elementChanged` event will be fired whenever the element is set,
-				// even if its value hasn't actually changed, since that's how State
-				// handles objects. We need to check manually here.
-				return;
-			}
-
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
 			if (event.newVal) {
 				this.addElementClasses();
-				this.syncVisible(this.visible);
+				this.syncVisible(this.dataManager_.get('visible'));
 			}
 		};
 
@@ -366,12 +409,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			}
 		};
 
-		Component.prototype.setterElementFn_ = function setterElementFn_(newVal, currentVal) {
-			var element = newVal;
-			if (element) {
-				element = _dom.dom.toElement(newVal) || currentVal;
-			}
-			return element;
+		Component.prototype.setState = function setState(state, opt_callback) {
+			this.dataManager_.setState(state, opt_callback);
 		};
 
 		Component.prototype.setUpProxy_ = function setUpProxy_() {
@@ -390,7 +429,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 		};
 
 		Component.prototype.syncState_ = function syncState_() {
-			var keys = this.getStateKeys();
+			var keys = this.dataManager_.getSyncKeys();
 			for (var i = 0; i < keys.length; i++) {
 				this.fireStateKeyChange_(keys[i]);
 			}
@@ -421,33 +460,46 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 			return _metal.core.isString(val);
 		};
 
-		Component.prototype.validatorElementFn_ = function validatorElementFn_(val) {
-			return _metal.core.isElement(val) || _metal.core.isString(val) || !_metal.core.isDefAndNotNull(val);
-		};
-
 		Component.prototype.validatorEventsFn_ = function validatorEventsFn_(val) {
 			return !_metal.core.isDefAndNotNull(val) || _metal.core.isObject(val);
 		};
 
+		_createClass(Component, [{
+			key: 'element',
+			get: function get() {
+				return this.elementVal_;
+			},
+			set: function set(val) {
+				if (!_metal.core.isElement(val) && !_metal.core.isString(val) && _metal.core.isDefAndNotNull(val)) {
+					return;
+				}
+
+				if (val) {
+					val = _dom.dom.toElement(val) || this.elementVal_;
+				}
+
+				if (this.elementVal_ !== val) {
+					var prev = this.elementVal_;
+					this.elementVal_ = val;
+					if (this.componentCreated_) {
+						this.emit('elementChanged', {
+							prevVal: prev,
+							newVal: val
+						});
+					}
+				}
+			}
+		}]);
+
 		return Component;
-	}(_State3.default);
+	}(_events.EventEmitter);
 
 	/**
-  * Component state definition.
+  * Component data definition.
   * @type {Object}
   * @static
   */
-	Component.STATE = {
-		/**
-   * Component element bounding box.
-   * @type {Element}
-   * @writeOnce
-   */
-		element: {
-			setter: 'setterElementFn_',
-			validator: 'validatorElementFn_'
-		},
-
+	Component.DATA = {
 		/**
    * CSS classes to be applied to the element.
    * @type {string}
@@ -480,6 +532,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
 	Component.COMPONENT_FLAG = '__metal_component__';
 
 	/**
+  * The `ComponentDataManager` class that should be used. This class will be
+  * responsible for handling the component's data. Each component may have its
+  * own implementation.
+  */
+	Component.DATA_MANAGER = _ComponentDataManager2.default;
+
+	/**
   * CSS classes to be applied to the element.
   * @type {string}
   * @protected
@@ -503,12 +562,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentRende
   * @type {boolean}
   */
 	Component.SYNC_UPDATES = false;
-
-	/**
-  * A list with state key names that will automatically be rejected as invalid.
-  * @type {!Array<string>}
-  */
-	Component.INVALID_KEYS = ['components', 'wasRendered'];
 
 	/**
   * Sets a prototype flag to easily determine if a given constructor is for

@@ -82,9 +82,10 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 
 			var keys = elementTemplate.params || [];
 			var component = this.component_;
+			var state = component.getDataManager().getStateInstance();
 			for (var i = 0; i < keys.length; i++) {
-				if (!component.getStateKeyConfig(keys[i]) && !component[keys[i]]) {
-					component.addToState(keys[i], {}, component.getInitialConfig()[keys[i]]);
+				if (!state.hasStateKey(keys[i]) && !component[keys[i]]) {
+					state.addToState(keys[i], {}, component.getInitialConfig()[keys[i]]);
 				}
 			}
 		};
@@ -93,14 +94,8 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			var _this2 = this;
 
 			var component = this.component_;
-			var data = _metal.object.mixin({}, component.config);
+			var data = _metal.object.mixin({}, this.config_);
 			component.getStateKeys().forEach(function (key) {
-				// Get all state values except "element", since it helps performance
-				// and the element shouldn't be referenced inside a soy template anyway.
-				if (key === 'element') {
-					return;
-				}
-
 				var value = component[key];
 				if (_this2.isHtmlParam_(key)) {
 					value = Soy.toIncDom(value);
@@ -135,7 +130,8 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		};
 
 		Soy.prototype.isHtmlParam_ = function isHtmlParam_(name) {
-			if (this.component_.getStateKeyConfig(name).isHtml) {
+			var state = this.component_.getDataManager().getStateInstance();
+			if (state.getStateKeyConfig(name).isHtml) {
 				return true;
 			}
 			var type = this.soyParamTypes_[name] || '';
@@ -168,8 +164,8 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			ijData = data || {};
 		};
 
-		Soy.prototype.shouldUpdate = function shouldUpdate(changes) {
-			var should = _IncrementalDomRender.prototype.shouldUpdate.call(this, changes);
+		Soy.prototype.shouldUpdate = function shouldUpdate() {
+			var should = _IncrementalDomRender.prototype.shouldUpdate.call(this);
 			if (!should || this.component_.shouldUpdate) {
 				return should;
 			}
@@ -177,7 +173,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			var fn = this.component_.constructor.TEMPLATE;
 			var params = fn ? _SoyAop2.default.getOriginalFn(fn).params : [];
 			for (var i = 0; i < params.length; i++) {
-				if (changes[params[i]]) {
+				if (this.changes_[params[i]]) {
 					return true;
 				}
 			}
