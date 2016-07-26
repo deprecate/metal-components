@@ -24,8 +24,8 @@
     "metal"
   ],
   "dependencies": {
-    "metal-scrollspy": "^1.0.0",
-    "metal-soy": "^1.0.0"
+    "metal-scrollspy": "^2.0.0",
+    "metal-soy": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
