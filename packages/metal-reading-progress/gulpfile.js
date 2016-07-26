@@ -5,5 +5,5 @@ var metal = require('gulp-metal');
 metal.registerTasks({
 	bundleCssFileName: 'readingProgress.css',
 	bundleFileName: 'readingProgress.js',
-	moduleName: 'metal-readingProgress'
+	moduleName: 'metal-reading-progress'
 });

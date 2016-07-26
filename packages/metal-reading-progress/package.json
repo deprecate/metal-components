@@ -8,22 +8,28 @@
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
   },
-  "main": "src/ReadingProgress.js",
+  "jsnext:main": "src/ReadingProgress.js",
+  "main": "lib/ReadingProgress.js",
   "files": [
+    "lib",
     "src",
     "test"
   ],
   "scripts": {
+    "compile": "babel --presets metal -d lib/ src/",
+    "prepublish": "gulp soy && npm run compile",
     "test": "gulp test"
   },
   "keywords": [
     "metal"
   ],
   "dependencies": {
-    "metal-scrollspy": "^1.0.0-rc.1",
-    "metal-soy": "^1.0.0-rc.13"
+    "metal-scrollspy": "^1.0.0",
+    "metal-soy": "^1.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-preset-metal": "^4.0.0",
     "bootstrap": "^3.3.6",
     "gulp": "^3.8.11",
     "gulp-metal": "^1.0.0",
