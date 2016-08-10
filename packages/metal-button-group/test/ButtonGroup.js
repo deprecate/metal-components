@@ -100,6 +100,38 @@ describe('ButtonGroup', function() {
 		});
 	});
 
+	it('should update "aria-checked" attribute when button is clicked', function(done) {
+		buttonGroup = new ButtonGroup({
+			buttons: [
+				{
+					label: 'First'
+				},
+				{
+					label: 'Second'
+				}
+			]
+		});
+
+		var buttonElements = buttonGroup.element.querySelectorAll('button');
+		assert.strictEqual('false', buttonElements[0].getAttribute('aria-checked'));
+		assert.strictEqual('false', buttonElements[1].getAttribute('aria-checked'));
+
+		dom.triggerEvent(buttonElements[0], 'click');
+		buttonGroup.once('stateChanged', function() {
+			assert.strictEqual('true', buttonElements[0].getAttribute('aria-checked'));
+			assert.strictEqual('false', buttonElements[1].getAttribute('aria-checked'));
+
+			dom.triggerEvent(buttonElements[1], 'click');
+			buttonGroup.once('stateChanged', function() {
+				assert.strictEqual('true', buttonElements[0].getAttribute('aria-checked'));
+				assert.strictEqual('true', buttonElements[1].getAttribute('aria-checked'));
+				assert.ok(dom.hasClass(buttonElements[0], ButtonGroup.SELECTED_CLASS));
+				assert.ok(dom.hasClass(buttonElements[1], ButtonGroup.SELECTED_CLASS));
+				done();
+			});
+		});
+	});
+
 	it('should automatically select the number of buttons remaining to reach `minSelected`', function() {
 		buttonGroup = new ButtonGroup({
 			buttons: [
