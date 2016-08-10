@@ -10,6 +10,8 @@
 		class="switcher{$elementClasses ? ' ' + $elementClasses : ''}{$checked ? ' switcher-on' : ''}"
 		data-onclick="handleClick"
 		data-onkeyup="handleKeyUp"
+		role="checkbox"
+		aria-checked="{$checked ? 'true' : 'false'}"
 		tabindex="0">
 		<div class="switcher-control">
 			<div class="switcher-control-icon"></div>

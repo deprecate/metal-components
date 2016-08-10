@@ -13,21 +13,21 @@ describe('Switcher', function() {
 		}
 	});
 
-	it('should switcher turn on when checked state is true', function() {
+	it('should turn on switcher when checked state is true', function() {
 		switcher = new Switcher({
 			checked: true
 		});
 		assert.ok(dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
-	it('should switcher turn off when checked state is false', function() {
+	it('should turn off switcher when checked state is false', function() {
 		switcher = new Switcher({
 			checked: false
 		});
 		assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
 	});
 
-	it('should switcher toggle on click', function(done) {
+	it('should toggle switcher on click', function(done) {
 		switcher = new Switcher();
 		dom.triggerEvent(switcher.element, 'click');
 		async.nextTick(function() {
@@ -40,7 +40,7 @@ describe('Switcher', function() {
 		});
 	});
 
-	it('should switcher toggle on ENTER or SPACE keys', function(done) {
+	it('should toggle switcher on ENTER or SPACE keys', function(done) {
 		switcher = new Switcher();
 		dom.triggerEvent(switcher.element, 'keyup', {
 			keyCode: 13
@@ -57,7 +57,7 @@ describe('Switcher', function() {
 		});
 	});
 
-	it('should not switcher toggle on key other than ENTER or SPACE', function(done) {
+	it('should not toggle switcher on key other than ENTER or SPACE', function(done) {
 		switcher = new Switcher();
 		dom.triggerEvent(switcher.element, 'keyup', {
 			keyCode: 20
@@ -65,6 +65,21 @@ describe('Switcher', function() {
 		async.nextTick(function() {
 			assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
 			done();
+		});
+	});
+
+	it('should update aria attributes when switcher is checked/unchecked', function(done) {
+		switcher = new Switcher();
+		assert.strictEqual('checkbox', switcher.element.getAttribute('role'));
+
+		dom.triggerEvent(switcher.element, 'click');
+		async.nextTick(function() {
+			assert.strictEqual('true', switcher.element.getAttribute('aria-checked'));
+			dom.triggerEvent(switcher.element, 'click');
+			async.nextTick(function() {
+				assert.strictEqual('false', switcher.element.getAttribute('aria-checked'));
+				done();
+			});
 		});
 	});
 
