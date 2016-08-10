@@ -8,7 +8,9 @@
 {template .render}
 	<div
 		class="switcher{$elementClasses ? ' ' + $elementClasses : ''}{$checked ? ' switcher-on' : ''}"
-		data-onclick="handleClick">
+		data-onclick="handleClick"
+		data-onkeyup="handleKeyUp"
+		tabindex="0">
 		<div class="switcher-control">
 			<div class="switcher-control-icon"></div>
 		</div>

@@ -40,6 +40,34 @@ describe('Switcher', function() {
 		});
 	});
 
+	it('should switcher toggle on ENTER or SPACE keys', function(done) {
+		switcher = new Switcher();
+		dom.triggerEvent(switcher.element, 'keyup', {
+			keyCode: 13
+		});
+		async.nextTick(function() {
+			assert.ok(dom.hasClass(switcher.element, 'switcher-on'));
+			dom.triggerEvent(switcher.element, 'keyup', {
+				keyCode: 32
+			});
+			async.nextTick(function() {
+				assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
+				done();
+			});
+		});
+	});
+
+	it('should not switcher toggle on key other than ENTER or SPACE', function(done) {
+		switcher = new Switcher();
+		dom.triggerEvent(switcher.element, 'keyup', {
+			keyCode: 20
+		});
+		async.nextTick(function() {
+			assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
+			done();
+		});
+	});
+
 	it('should decorate', function() {
 		var element = document.createElement('div');
 		dom.enterDocument(element);

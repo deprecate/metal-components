@@ -15,6 +15,15 @@ class Switcher extends Component {
 	handleClick() {
 		this.checked = !this.checked;
 	}
+
+	/**
+	 * Handles switcher keyboard press.
+	 */
+	handleKeyUp() {
+		if (event.keyCode === 13 || event.keyCode === 32) {
+			this.checked = !this.checked;
+		}
+	}
 }
 
 /**
