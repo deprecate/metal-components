@@ -119,16 +119,17 @@ describe('Treeview', function() {
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
 		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
+		var nodeListElement = nodeWrapperElement.parentNode;
 
 		dom.triggerEvent(nodeMainElement, 'click');
 		treeview.once('stateChanged', function() {
 			assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
-			assert.strictEqual('true', nodeMainElement.getAttribute('aria-expanded'));
+			assert.strictEqual('true', nodeListElement.getAttribute('aria-expanded'));
 
 			dom.triggerEvent(nodeMainElement, 'click');
 			treeview.once('stateChanged', function() {
 				assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
-				assert.strictEqual('false', nodeMainElement.getAttribute('aria-expanded'));
+				assert.strictEqual('false', nodeListElement.getAttribute('aria-expanded'));
 				done();
 			});
 		});
@@ -149,15 +150,13 @@ describe('Treeview', function() {
 		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
-		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
-
-		dom.triggerEvent(nodeMainElement, 'keyup', {
+		dom.triggerEvent(nodeWrapperElement, 'keyup', {
 			keyCode: 13
 		});
 		treeview.once('stateChanged', function() {
 			assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
 
-			dom.triggerEvent(nodeMainElement, 'keyup', {
+			dom.triggerEvent(nodeWrapperElement, 'keyup', {
 				keyCode: 13
 			});
 			treeview.once('stateChanged', function() {
@@ -182,15 +181,14 @@ describe('Treeview', function() {
 		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
-		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
 
-		dom.triggerEvent(nodeMainElement, 'keyup', {
+		dom.triggerEvent(nodeWrapperElement, 'keyup', {
 			keyCode: 32
 		});
 		treeview.once('stateChanged', function() {
 			assert.ok(dom.hasClass(nodeWrapperElement, 'expanded'));
 
-			dom.triggerEvent(nodeMainElement, 'keyup', {
+			dom.triggerEvent(nodeWrapperElement, 'keyup', {
 				keyCode: 32
 			});
 			treeview.once('stateChanged', function() {
@@ -215,14 +213,13 @@ describe('Treeview', function() {
 		});
 
 		var nodeWrapperElement = treeview.element.querySelector('.treeview-node-wrapper');
-		var nodeMainElement = nodeWrapperElement.querySelector('.treeview-node-main');
 
-		dom.triggerEvent(nodeMainElement, 'keyup', {
+		dom.triggerEvent(nodeWrapperElement, 'keyup', {
 			keyCode: 1
 		});
 		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
 
-		dom.triggerEvent(nodeMainElement, 'keyup', {
+		dom.triggerEvent(nodeWrapperElement, 'keyup', {
 			keyCode: 20
 		});
 		assert.ok(!dom.hasClass(nodeWrapperElement, 'expanded'));
@@ -252,7 +249,7 @@ describe('Treeview', function() {
 		assert.ok(!treeview.nodes[0].children[0].expanded);
 	});
 
-	it('should not replace surface contents when node element is clicked', function(done) {
+	it('should not replace whole content when node element is clicked', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -276,7 +273,7 @@ describe('Treeview', function() {
 		});
 	});
 
-	it('should replace surface contents when nodes state changes without click', function(done) {
+	it('should replace whole contnet when node contents actually change', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
