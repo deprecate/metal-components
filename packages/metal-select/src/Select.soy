@@ -4,8 +4,10 @@
  * @param? arrowClass
  * @param? buttonClass
  * @param? elementClasses
+ * @param? expanded_
  * @param? handleDropdownStateSynced_
  * @param? handleItemClick_
+ * @param? handleItemKeyDown_
  * @param? hiddenInputName
  * @param items
  * @param? values
@@ -23,7 +25,10 @@
 		{call Dropdown.render}
 			{param body kind="html"}
 				{foreach $item in $items}
-					<li data-onclick="{$handleItemClick_ ?: ''}" class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
+					<li
+						data-onclick="{$handleItemClick_ ?: ''}"
+						data-onkeydown="{$handleItemKeyDown_ ?: ''}"
+						class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
 						<a href="javascript:;">
 							{call .renderAsHtml_}
 								{param value: $item /}
@@ -33,8 +38,14 @@
 				{/foreach}
 			{/param}
 			{param events: ['stateSynced': $handleDropdownStateSynced_] /}
+			{param expanded: $expanded_ /}
 			{param header kind="html"}
-				<button class="{$buttonClass ? $buttonClass : ''} dropdown-select" type="button" data-onclick="toggle">
+				<button
+					class="{$buttonClass ? $buttonClass : ''} dropdown-select"
+					type="button"
+					data-onclick="toggle"
+					aria-haspopup="true"
+					aria-expanded="{$expanded_ ? 'true' : 'false'}">
 					{if $currSelectedIndex == -1}
 						{if $label}
 							{$label}

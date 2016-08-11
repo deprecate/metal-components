@@ -60,9 +60,14 @@ class Select extends Component {
 			// been made visible before we try focusing them.
 			this.focusIndex_(0);
 			this.openedWithKeyboard_ = false;
+		} else if (this.closedWithKeyboard_) {
+			this.element.querySelector('.dropdown-select').focus();
+			this.closedWithKeyboard_ = false;
 		} else if (data.changes.expanded) {
 			this.focusedIndex_ = null;
 		}
+
+		this.expanded_ = this.getDropdown().expanded;
 	}
 
 	/**
@@ -72,9 +77,22 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemClick_(event) {
-		this.selectedIndex = this.findItemIndex_(event.delegateTarget);
-		this.getDropdown().close();
+		this.selectItem_(event.delegateTarget);
 		event.preventDefault();
+	}
+
+	/**
+	 * Handles a `keydown` event on one of the items. Updates `selectedIndex`
+	 * accordingly.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleItemKeyDown_(event) {
+		if ((event.keyCode === 13 || event.keyCode === 32)) {
+			this.closedWithKeyboard_ = true;
+			this.selectItem_(event.delegateTarget);
+			event.preventDefault();
+		}
 	}
 
 	/**
@@ -83,10 +101,11 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleKeyDown_(event) {
-		if (this.getDropdown().expanded) {
+		if (this.expanded_) {
 			switch (event.keyCode) {
 				case 27:
-					this.getDropdown().close();
+					this.closedWithKeyboard_ = true;
+					this.expanded_ = false;
 					break;
 				case 38:
 					this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
@@ -101,10 +120,20 @@ class Select extends Component {
 			}
 		} else if ((event.keyCode === 13 || event.keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
 			this.openedWithKeyboard_ = true;
-			this.getDropdown().open();
+			this.expanded_ = true;
 			event.preventDefault();
 			return;
 		}
+	}
+
+	/**
+	 * Selects the item for the given element, and closes the dropdown.
+	 * @param {!Element} itemElement
+	 * @protected
+	 */
+	selectItem_(itemElement) {
+		this.selectedIndex = this.findItemIndex_(itemElement);
+		this.expanded_ = false;
 	}
 
 	/**
@@ -142,6 +171,16 @@ Select.STATE = {
 	buttonClass: {
 		validator: core.isString,
 		value: 'btn btn-default'
+	},
+
+	/**
+	 * Flag indicating if the select dropdown is currently expanded.
+	 * @type {boolean}
+	 */
+	expanded_: {
+		validator: core.isBoolean,
+		value: false,
+		internal: true
 	},
 
 	/**

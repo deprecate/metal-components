@@ -169,16 +169,23 @@ describe('Select', function() {
 	});
 
 	describe('Keyboard', function() {
-		it('should close the dropdown when ESC key is pressed', function() {
+		it('should close the dropdown and focus select button when ESC key is pressed', function(done) {
 			select = new Select({
 				items: ['First', 'Second', 'Third']
 			});
 
-			dom.triggerEvent(select.element.querySelector('button'), 'click');
-			dom.triggerEvent(select.element, 'keydown', {
-				keyCode: 27
+			const button = select.element.querySelector('button');
+			dom.triggerEvent(button, 'click');
+			select.getDropdown().once('stateSynced', function() {
+				dom.triggerEvent(select.element, 'keydown', {
+					keyCode: 27
+				});
+				dom.on(button, 'focus', function() {
+					assert.ok(!select.getDropdown().expanded);
+					assert.strictEqual(button, document.activeElement);
+					done();
+				});
 			});
-			assert.ok(!select.getDropdown().expanded);
 		});
 
 		it('should automatically open dropdown and focus first option if "ENTER" key is pressed on button', function(done) {
@@ -204,8 +211,8 @@ describe('Select', function() {
 			dom.triggerEvent(select.element.querySelector('button'), 'keydown', {
 				keyCode: 32
 			});
-			assert.ok(select.getDropdown().expanded);
 			select.getDropdown().once('stateChanged', function() {
+				assert.ok(select.getDropdown().expanded);
 				assert.strictEqual(document.activeElement, select.element.querySelector('.select-option a'));
 				done();
 			});
@@ -328,6 +335,58 @@ describe('Select', function() {
 					keyCode: 38
 				});
 				assert.strictEqual(document.activeElement, options[2]);
+				done();
+			});
+		});
+
+		it('should automatically select value and focus on button if item is selected via keyboard', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third'],
+				selectedIndex: -1
+			});
+
+			const button = select.element.querySelector('button');
+			dom.triggerEvent(button, 'keydown', {
+				keyCode: 13
+			});
+			select.getDropdown().once('stateChanged', function() {
+				dom.triggerEvent(
+					select.element.querySelector('.select-option a'),
+					'keydown',
+					{
+						keyCode: 32
+					}
+				);
+				dom.on(button, 'focus', function() {
+					assert.ok(!select.getDropdown().expanded);
+					assert.strictEqual(0, select.selectedIndex);
+					assert.strictEqual(button, document.activeElement);
+					done();
+				});
+			});
+		});
+
+		it('should not select value unsupported key is pressed on an item', function(done) {
+			select = new Select({
+				items: ['First', 'Second', 'Third'],
+				selectedIndex: -1
+			});
+
+			const button = select.element.querySelector('button');
+			dom.triggerEvent(button, 'keydown', {
+				keyCode: 13
+			});
+			select.getDropdown().once('stateChanged', function() {
+				dom.triggerEvent(
+					select.element.querySelector('.select-option a'),
+					'keydown',
+					{
+						keyCode: 10
+					}
+				);
+				assert.strictEqual(-1, select.selectedIndex);
+				assert.ok(select.getDropdown().expanded);
+				assert.notStrictEqual(button, document.activeElement);
 				done();
 			});
 		});
