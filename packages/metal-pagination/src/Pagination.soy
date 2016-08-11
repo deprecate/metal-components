@@ -15,24 +15,26 @@
 		{if $showControls == true}
 			{let $disabled: (not $circular and $page == 0) ? true : false /}
 			{call .renderControlElement_}
+				{param ariaLabel: $strings.prevAriaLabel /}
 				{param content: $strings.prev /}
 				{param disabled: $disabled /}
 				{param index: 0 /}
 			{/call}
 		{/if}
-		
-		{for $i in range($total)}		
+
+		{for $i in range($total)}
 			{let $active: $page == $i ? true : false /}
 			{call .renderElement_}
 				{param active: $active /}
 				{param content: $offset + $i/}
 				{param index: $i /}
-			{/call}	
+			{/call}
 		{/for}
 
 		{if $showControls == true}
 			{let $disabled: (not $circular and $page == $total - 1) ? true : false /}
 			{call .renderControlElement_}
+				{param ariaLabel: $strings.nextAriaLabel /}
 				{param content: $strings.next /}
 				{param disabled: $disabled /}
 				{param index: 1 /}
@@ -53,10 +55,16 @@
 {/template}
 
 /**
+ * @param ariaLabel
  * @param content
  * @param disabled
  * @param index
  */
 {template .renderControlElement_}
-	<li class="pagination-control{$disabled ? ' disabled' : ''}" {if not $disabled}data-onclick="onClickControls"{/if} data-control-index="{$index}"><a href="#">{$content}</a></li>
+	<li
+		class="pagination-control{$disabled ? ' disabled' : ''}"
+		{if not $disabled}data-onclick="onClickControls"{/if}
+		data-control-index="{$index}">
+		<a href="#" aria-label="{$ariaLabel}">{$content}</a>
+	</li>
 {/template}

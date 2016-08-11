@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'metal';
+import { core, object } from 'metal';
 import templates from './Pagination.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
@@ -202,10 +202,18 @@ Pagination.STATE = {
 	 */
 	strings: {
 		validator: core.isObject,
-		value: {
-			next: 'Next',
-			prev: 'Prev'
-		}
+		setter: val => {
+			return object.mixin(
+				{
+					next: 'Next',
+					nextAriaLabel: 'Next',
+					prev: 'Prev',
+					prevAriaLabel: 'Previous'
+				},
+				val
+			);
+		},
+		valueFn: () => {}
 	},
 
 	/**
