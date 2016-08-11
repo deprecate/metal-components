@@ -160,6 +160,30 @@ describe('Tabs', function() {
 		assert.equal(2, tabs.tab);
 	});
 
+	it('should update "aria-expanded" attribute when selected tab changes', (done) => {
+		tabs = new Tabs({
+			tabs: [
+				{
+					label: 'test_label1'
+				},
+				{
+					label: 'test_label2'
+				}
+			]
+		});
+
+		var tabElements = tabs.element.querySelectorAll('a');
+		assert.strictEqual('true', tabElements[0].getAttribute('aria-expanded'));
+		assert.strictEqual('false', tabElements[1].getAttribute('aria-expanded'));
+
+		tabs.tab = 1;
+		tabs.once('stateSynced', function() {
+			assert.strictEqual('false', tabElements[0].getAttribute('aria-expanded'));
+			assert.strictEqual('true', tabElements[1].getAttribute('aria-expanded'));
+			done();
+		});
+	});
+
 	it('should toggle the tab disabled state correctly', () => {
 		tabs = new Tabs({
 			tabs: [

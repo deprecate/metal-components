@@ -16,7 +16,13 @@
 				{let $isCurrentTab: $tab == index($current_tab) /}
 
 				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($current_tab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
-					<a {if not $isDisabled}href="#"{/if} role="tab" data-toggle="tab">{$current_tab.label}</a>
+					<a
+						{if not $isDisabled}href="#"{/if}
+						role="tab"
+						aria-expanded="{$isCurrentTab ? 'true' : 'false'}"
+						data-toggle="tab">
+						{$current_tab.label}
+					</a>
 				</li>
 			{/foreach}
 		</ul>
