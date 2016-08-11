@@ -86,6 +86,23 @@ describe('Slider', function() {
 		});
 	});
 
+	it('should update aria attributes when value changes', function(done) {
+		slider = new Slider({
+			max: 100,
+			min: 0,
+			value: 20
+		});
+
+		const handle = slider.element.querySelector('.handle');
+		assert.strictEqual('20', handle.getAttribute('aria-valuenow'));
+
+		slider.value = 80;
+		slider.once('stateSynced', function() {
+			assert.strictEqual('80', handle.getAttribute('aria-valuenow'));
+			done();
+		});
+	});
+
 	it('should update the drag container when element changes', function() {
 		slider = new Slider();
 		assert.strictEqual(slider.element, slider.getDrag().container);
@@ -152,6 +169,17 @@ describe('Slider', function() {
 			assert.strictEqual(20, slider.value);
 			done();
 		});
+	});
+
+	it('should add aria attributes for min/max values', function() {
+		slider = new Slider({
+			max: 100,
+			min: 0
+		});
+
+		const handle = slider.element.querySelector('.handle');
+		assert.strictEqual('100', handle.getAttribute('aria-valuemax'));
+		assert.strictEqual('0', handle.getAttribute('aria-valuemin'));
 	});
 
 	it('should allow calling the soy template without params', function() {

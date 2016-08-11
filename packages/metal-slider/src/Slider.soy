@@ -19,7 +19,14 @@
 		<div class="rail" data-onmousedown="onRailMouseDown_">
 			<div class="rail-active" style="width: {$percentage}"></div>
 			<div class="rail-handle">
-				<div class="handle" tabindex="0"></div>
+				<div
+					class="handle"
+					tabindex="0"
+					role="slider"
+					aria-valuemin="{$minNumber}"
+					aria-valuemax="{$maxNumber}"
+					aria-valuenow="{$valueNumber}">
+				</div>
 			</div>
 		</div>
 	</div>
