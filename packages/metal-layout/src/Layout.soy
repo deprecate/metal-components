@@ -4,9 +4,13 @@
 * @param rows
 */
 {template .render}
-	<div class="layout">
+	<div class="layout" role="grid">
 		{foreach $row in ($rows)}
-			<div class="row">
+			<div
+				class="row"
+				role="row"
+				tabindex="0"
+				aria-label="Row {index($row) + 1} of {length($rows)}">
 				{foreach $column in ($row.columns)}
 					{call LayoutCol.render data="$column" /}
 				{/foreach}

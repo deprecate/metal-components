@@ -4,14 +4,19 @@
 * @param rows
 */
 {template .render}
-	<div class="layout-builder">
+	<div class="layout-builder" role="grid">
 		{foreach $row in ($rows)}
-			<div class="row layout-builder-row">
+			<div
+				class="row layout-builder-row"
+				role="row"
+				tabindex="0"
+				aria-label="Row {index($row) + 1} of {length($rows)}">
 				<button
 					type="button"
 					class="btn btn-default layout-builder-remove-row"
 					data-index="{index($row)}"
-					data-onclick="handleClickRemove_">
+					data-onclick="handleClickRemove_"
+					aria-label="Remove row">
 					<span class="glyphicon glyphicon-trash"></span>
 				</button>
 				{foreach $column in ($row.columns)}

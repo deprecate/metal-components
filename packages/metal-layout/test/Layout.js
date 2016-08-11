@@ -70,4 +70,26 @@ describe('Layout', function() {
 		assert.strictEqual('Column 2.2', columns[1].textContent);
 		assert.ok(dom.hasClass(columns[1], 'col-md-4'));
 	});
+
+	it('should add aria attributes to rows', function() {
+		layout = new Layout({
+			rows: [
+				{
+					columns: []
+				},
+				{
+					columns: []
+				}
+			]
+		});
+		assert.strictEqual('grid', layout.element.getAttribute('role'));
+
+		const rows = layout.element.childNodes;
+		assert.strictEqual(2, rows.length);
+
+		assert.strictEqual('row', rows[0].getAttribute('role'));
+		assert.strictEqual('Row 1 of 2', rows[0].getAttribute('aria-label'));
+		assert.strictEqual('row', rows[1].getAttribute('role'));
+		assert.strictEqual('Row 2 of 2', rows[1].getAttribute('aria-label'));
+	});
 });

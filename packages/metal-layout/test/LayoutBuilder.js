@@ -17,6 +17,28 @@ describe('LayoutBuilder', function() {
 		assert.deepEqual([], builder.rows);
 	});
 
+	it('should add aria attributes to rows', function() {
+		builder = new LayoutBuilder({
+			rows: [
+				{
+					columns: []
+				},
+				{
+					columns: []
+				}
+			]
+		});
+		assert.strictEqual('grid', builder.element.getAttribute('role'));
+
+		const rows = builder.element.childNodes;
+		assert.strictEqual(2, rows.length);
+
+		assert.strictEqual('row', rows[0].getAttribute('role'));
+		assert.strictEqual('Row 1 of 2', rows[0].getAttribute('aria-label'));
+		assert.strictEqual('row', rows[1].getAttribute('role'));
+		assert.strictEqual('Row 2 of 2', rows[1].getAttribute('aria-label'));
+	});
+
 	it('should remove row when button is clicked', function(done) {
 		builder = new LayoutBuilder({
 			rows: [
