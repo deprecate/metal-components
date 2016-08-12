@@ -384,11 +384,11 @@ describe('Modal', function() {
 		var data = {
 			id: 'modal',
 			elementClasses: 'centered',
-			header: () => IncrementalDOM.text('header'),
+			header: 'header',
 			headerId: 'header',
-			body: () => IncrementalDOM.text('body'),
+			body: 'body',
 			bodyId: 'header',
-			footer: () => IncrementalDOM.text('footer'),
+			footer: 'footer',
 			overlay: true,
 			role: 'dialog'
 		};
@@ -414,9 +414,9 @@ describe('Modal', function() {
 		var data = {
 			id: 'modal',
 			elementClasses: 'centered',
-			header: () => IncrementalDOM.text('header'),
-			body: () => IncrementalDOM.text('body'),
-			footer: () => IncrementalDOM.text('footer'),
+			header: 'header',
+			body: 'body',
+			footer: 'footer',
 			overlay: true
 		};
 		var element = document.createElement('div');
@@ -435,9 +435,9 @@ describe('Modal', function() {
 
 	it('should handle calling template without passing "elementClasses"', function() {
 		var data = {
-			header: () => IncrementalDOM.text('header'),
-			body: () => IncrementalDOM.text('body'),
-			footer: () => IncrementalDOM.text('footer'),
+			header: 'header',
+			body: 'body',
+			footer: 'footer',
 			overlay: true
 		};
 		var element = document.createElement('div');
