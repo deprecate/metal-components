@@ -195,11 +195,27 @@ Modal.STATE = {
 	},
 
 	/**
+	 * The id used by the body element.
+	 * @type {string}
+	 */
+	bodyId: {
+		valueFn: () => 'modal-body-' + core.getUid()
+	},
+
+	/**
 	 * Content to be placed inside modal footer. Can be either an html string or
 	 * a function that calls incremental dom for rendeirng the footer.
 	 * @type {string|function()}
 	 */
 	footer: {
+	},
+
+	/**
+	 * The id used by the header element.
+	 * @type {string}
+	 */
+	headerId: {
+		valueFn: () => 'modal-header-' + core.getUid()
 	},
 
 	/**

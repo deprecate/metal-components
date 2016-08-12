@@ -5,15 +5,20 @@
  */
 {template .render}
 	{@param? body: html}
+	{@param? bodyId: string}
 	{@param? elementClasses: string}
 	{@param? footer: html}
 	{@param? header: html}
+	{@param? headerId: string}
 	{@param? noCloseButton: bool}
 	{@param? role: string}
-	<div
-		class="modal{$elementClasses ? ' ' + $elementClasses : ''}"
-		role="{$role ? $role : 'dialog'}">
-		<div class="modal-dialog" tabindex="0">
+	<div class="modal{$elementClasses ? ' ' + $elementClasses : ''}">
+		<div
+			class="modal-dialog"
+			tabindex="0"
+			role="{$role ? $role : 'dialog'}"
+			aria-labelledby="{$headerId}"
+			aria-describedby="{$bodyId}">
 			<div class="modal-content">
 				<header class="modal-header">
 					{if $header}
@@ -22,10 +27,10 @@
 								<span aria-hidden="true">×</span>
 							</button>
 						{/if}
-						{$header}
+						<div id="{$headerId}">{$header}</div>
 					{/if}
 				</header>
-				<section class="modal-body">
+				<section class="modal-body" id="{$bodyId}" role="document" tabindex="0">
 					{if $body}
 						{$body}
 					{/if}

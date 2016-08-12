@@ -181,14 +181,24 @@ describe('Modal', function() {
 
 	it('should set the "role" HTML attribute to "dialog" by default', function() {
 		modal = new Modal();
-		assert.strictEqual('dialog', modal.element.getAttribute('role'));
+		assert.strictEqual('dialog', modal.element.childNodes[0].getAttribute('role'));
 	});
 
 	it('should set the "role" HTML attribute to value specified by the "role" state', function() {
 		modal = new Modal({
 			role: 'alertdialog'
 		});
-		assert.strictEqual('alertdialog', modal.element.getAttribute('role'));
+		assert.strictEqual('alertdialog', modal.element.childNodes[0].getAttribute('role'));
+	});
+
+	it('should set the header and body ids to values specified by the user', function() {
+		modal = new Modal({
+			bodyId: 'body',
+			header: 'My Header',
+			headerId: 'header'
+		});
+		assert.ok(modal.element.querySelector('#header'));
+		assert.ok(modal.element.querySelector('#body'));
 	});
 
 	describe('Automatic Focus', function() {
@@ -375,7 +385,9 @@ describe('Modal', function() {
 			id: 'modal',
 			elementClasses: 'centered',
 			header: () => IncrementalDOM.text('header'),
+			headerId: 'header',
 			body: () => IncrementalDOM.text('body'),
+			bodyId: 'header',
 			footer: () => IncrementalDOM.text('footer'),
 			overlay: true,
 			role: 'dialog'
@@ -388,7 +400,9 @@ describe('Modal', function() {
 			element: element.childNodes[0],
 			elementClasses: 'centered',
 			header: 'header',
+			headerId: 'header',
 			body: 'body',
+			bodyId: 'header',
 			footer: 'footer',
 			visible: false
 		});
