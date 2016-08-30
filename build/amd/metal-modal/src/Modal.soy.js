@@ -81,9 +81,11 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     /**
      * @param {{
      *    body: (?soydata.SanitizedHtml|string|undefined),
+     *    bodyId: (null|string|undefined),
      *    elementClasses: (null|string|undefined),
      *    footer: (?soydata.SanitizedHtml|string|undefined),
      *    header: (?soydata.SanitizedHtml|string|undefined),
+     *    headerId: (null|string|undefined),
      *    noCloseButton: (boolean|null|undefined),
      *    role: (null|string|undefined)
      * }} opt_data
@@ -96,18 +98,22 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       opt_data = opt_data || {};
       soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
+      soy.asserts.assertType(opt_data.bodyId == null || opt_data.bodyId instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.bodyId), 'bodyId', opt_data.bodyId, 'null|string|undefined');
+      var bodyId = /** @type {null|string|undefined} */opt_data.bodyId;
       soy.asserts.assertType(opt_data.elementClasses == null || opt_data.elementClasses instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.elementClasses), 'elementClasses', opt_data.elementClasses, 'null|string|undefined');
       var elementClasses = /** @type {null|string|undefined} */opt_data.elementClasses;
       soy.asserts.assertType(opt_data.footer == null || opt_data.footer instanceof Function || opt_data.footer instanceof soydata.UnsanitizedText || goog.isString(opt_data.footer), 'footer', opt_data.footer, '?soydata.SanitizedHtml|string|undefined');
       var footer = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.footer;
       soy.asserts.assertType(opt_data.header == null || opt_data.header instanceof Function || opt_data.header instanceof soydata.UnsanitizedText || goog.isString(opt_data.header), 'header', opt_data.header, '?soydata.SanitizedHtml|string|undefined');
       var header = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.header;
+      soy.asserts.assertType(opt_data.headerId == null || opt_data.headerId instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.headerId), 'headerId', opt_data.headerId, 'null|string|undefined');
+      var headerId = /** @type {null|string|undefined} */opt_data.headerId;
       soy.asserts.assertType(opt_data.noCloseButton == null || goog.isBoolean(opt_data.noCloseButton) || opt_data.noCloseButton === 1 || opt_data.noCloseButton === 0, 'noCloseButton', opt_data.noCloseButton, 'boolean|null|undefined');
       var noCloseButton = /** @type {boolean|null|undefined} */opt_data.noCloseButton;
       soy.asserts.assertType(opt_data.role == null || opt_data.role instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.role), 'role', opt_data.role, 'null|string|undefined');
       var role = /** @type {null|string|undefined} */opt_data.role;
-      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''), 'role', role ? role : 'dialog');
-      ie_open('div', null, null, 'class', 'modal-dialog', 'tabindex', '0');
+      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''));
+      ie_open('div', null, null, 'class', 'modal-dialog', 'tabindex', '0', 'role', role ? role : 'dialog', 'aria-labelledby', headerId, 'aria-describedby', bodyId);
       ie_open('div', null, null, 'class', 'modal-content');
       ie_open('header', null, null, 'class', 'modal-header');
       if (header) {
@@ -118,10 +124,12 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
           ie_close('span');
           ie_close('button');
         }
+        ie_open('div', null, null, 'id', headerId);
         header();
+        ie_close('div');
       }
       ie_close('header');
-      ie_open('section', null, null, 'class', 'modal-body');
+      ie_open('section', null, null, 'class', 'modal-body', 'id', bodyId, 'role', 'document', 'tabindex', '0');
       if (body) {
         body();
       }
@@ -140,8 +148,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $render.soyTemplateName = 'Modal.render';
     }
 
-    exports.render.params = ["body", "elementClasses", "footer", "header", "noCloseButton", "role"];
-    exports.render.types = { "body": "html", "elementClasses": "string", "footer": "html", "header": "html", "noCloseButton": "bool", "role": "string" };
+    exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role"];
+    exports.render.types = { "body": "html", "bodyId": "string", "elementClasses": "string", "footer": "html", "header": "html", "headerId": "string", "noCloseButton": "bool", "role": "string" };
     exports.templates = templates = exports;
     return exports;
   });

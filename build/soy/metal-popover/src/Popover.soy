@@ -8,8 +8,8 @@
  * @param? withArrow
  */
 {template .render}
-	{@param? content: html}
-	{@param? title: html}
+	{@param? content: html|string}
+	{@param? title: html|string}
 	{let $positionClasses: ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'] /}
 	{let $currentPosition: isNonnull($alignedPosition) ? $alignedPosition : $position /}
 	{let $positionClass: isNonnull($currentPosition) ? $positionClasses[$currentPosition] : 'bottom' /}

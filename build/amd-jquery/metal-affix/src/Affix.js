@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/State', 'metal-events/src/events', 'metal-position/src/all/position', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _State2, _events, _position, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/all/state', 'metal-events/src/events', 'metal-position/src/all/position', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _state, _events, _position, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 
 	var _metal2 = _interopRequireDefault(_metal);
 
-	var _State3 = _interopRequireDefault(_State2);
+	var _state2 = _interopRequireDefault(_state);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -136,7 +136,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		};
 
 		return Affix;
-	}(_State3.default);
+	}(_state2.default);
 
 	/**
   * Holds positions enum.

@@ -64,11 +64,11 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
     goog.require('goog.asserts');
     /** @suppress {extraRequire} */
-    goog.require('soy.asserts');
-    /** @suppress {extraRequire} */
-    goog.require('goog.i18n.bidi');
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -89,40 +89,45 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       ie_open('li', null, null, 'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix', 'data-index', opt_data.index);
       if (opt_data.item.avatar) {
         ie_open('span', null, null, 'class', 'list-image pull-left ' + opt_data.item.avatar['class']);
-        $htmlContent({ content: opt_data.item.avatar.content }, null, opt_ijData);
+        var dyn0 = opt_data.item.avatar.content;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('span');
       }
       ie_open('div', null, null, 'class', 'list-main-content pull-left');
       ie_open('div', null, null, 'class', 'list-text-primary');
-      $htmlContent({ content: opt_data.item.textPrimary }, null, opt_ijData);
+      var dyn1 = opt_data.item.textPrimary;
+      if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       ie_close('div');
       if (opt_data.item.textSecondary) {
         ie_open('div', null, null, 'class', 'list-text-secondary');
-        $htmlContent({ content: opt_data.item.textSecondary }, null, opt_ijData);
+        var dyn2 = opt_data.item.textSecondary;
+        if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
         ie_close('div');
       }
       ie_close('div');
       if (opt_data.item.icons) {
-        var iconList48 = opt_data.item.icons;
-        var iconListLen48 = iconList48.length;
-        for (var iconIndex48 = 0; iconIndex48 < iconListLen48; iconIndex48++) {
-          var iconData48 = iconList48[iconIndex48];
-          ie_void('span', null, null, 'class', 'btn-icon ' + iconData48 + ' pull-right');
+        var iconList45 = opt_data.item.icons;
+        var iconListLen45 = iconList45.length;
+        for (var iconIndex45 = 0; iconIndex45 < iconListLen45; iconIndex45++) {
+          var iconData45 = iconList45[iconIndex45];
+          ie_void('span', null, null, 'class', 'btn-icon ' + iconData45 + ' pull-right');
         }
       }
       if (opt_data.item.iconsHtml) {
         ie_open('div', null, null, 'class', 'pull-right');
-        var iconHtmlList55 = opt_data.item.iconsHtml;
-        var iconHtmlListLen55 = iconHtmlList55.length;
-        for (var iconHtmlIndex55 = 0; iconHtmlIndex55 < iconHtmlListLen55; iconHtmlIndex55++) {
-          var iconHtmlData55 = iconHtmlList55[iconHtmlIndex55];
-          $htmlContent({ content: iconHtmlData55 }, null, opt_ijData);
+        var iconHtmlList51 = opt_data.item.iconsHtml;
+        var iconHtmlListLen51 = iconHtmlList51.length;
+        for (var iconHtmlIndex51 = 0; iconHtmlIndex51 < iconHtmlListLen51; iconHtmlIndex51++) {
+          var iconHtmlData51 = iconHtmlList51[iconHtmlIndex51];
+          var dyn3 = iconHtmlData51;
+          if (typeof dyn3 == 'function') dyn3();else if (dyn3 != null) itext(dyn3);
         }
         ie_close('div');
       }
       if (opt_data.item.label) {
         ie_open('span', null, null, 'class', 'label list-label pull-right ' + opt_data.item.label['class']);
-        itext((goog.asserts.assert(opt_data.item.label.content != null), opt_data.item.label.content));
+        var dyn4 = opt_data.item.label.content;
+        if (typeof dyn4 == 'function') dyn4();else if (dyn4 != null) itext(dyn4);
         ie_close('span');
       }
       ie_close('li');
@@ -132,32 +137,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $render.soyTemplateName = 'ListItem.render';
     }
 
-    /**
-     * @param {{
-     *    content: (?soydata.SanitizedHtml|string|undefined)
-     * }} opt_data
-     * @param {(null|undefined)=} opt_ignored
-     * @param {Object<string, *>=} opt_ijData
-     * @return {void}
-     * @suppress {checkTypes}
-     */
-    function $htmlContent(opt_data, opt_ignored, opt_ijData) {
-      opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
-      var content = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.content;
-      if (content) {
-        content();
-      }
-    }
-    exports.htmlContent = $htmlContent;
-    if (goog.DEBUG) {
-      $htmlContent.soyTemplateName = 'ListItem.htmlContent';
-    }
-
     exports.render.params = ["index", "item", "elementClasses"];
     exports.render.types = { "index": "any", "item": "any", "elementClasses": "any" };
-    exports.htmlContent.params = ["content"];
-    exports.htmlContent.types = { "content": "html" };
     exports.templates = templates = exports;
     return exports;
   });

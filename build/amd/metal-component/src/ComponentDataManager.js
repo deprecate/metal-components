@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/src/State'], function (exports, _metal, _events, _State) {
+define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/src/all/state'], function (exports, _metal, _events, _state) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _State2 = _interopRequireDefault(_State);
+	var _state2 = _interopRequireDefault(_state);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -59,7 +59,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/sr
 			_this.component_ = component;
 
 			_metal.core.mergeSuperClassesProperty(_this.constructor, 'BLACKLIST', _metal.array.firstDefinedValue);
-			_State2.default.mergeStateStatic(_this.component_.constructor);
+			_state2.default.mergeStateStatic(_this.component_.constructor);
 
 			_this.createState_(data, _this.component_);
 			return _this;
@@ -73,8 +73,10 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/sr
    */
 
 
-		ComponentDataManager.prototype.add = function add(name, config, opt_initialValue) {
-			this.state_.addToState(name, config, opt_initialValue);
+		ComponentDataManager.prototype.add = function add() {
+			var _state_;
+
+			(_state_ = this.state_).addToState.apply(_state_, arguments);
 		};
 
 		ComponentDataManager.prototype.buildStateInstanceData_ = function buildStateInstanceData_(data) {
@@ -82,7 +84,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/sr
 		};
 
 		ComponentDataManager.prototype.createState_ = function createState_(data, holder) {
-			var state = new _State2.default({}, holder, this.component_);
+			var state = new _state2.default({}, holder, this.component_);
 			state.setKeysBlacklist_(this.constructor.BLACKLIST_MERGED);
 			state.addToState(this.buildStateInstanceData_(data), this.component_.getInitialConfig());
 

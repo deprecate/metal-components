@@ -5,8 +5,6 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
 		value: true
 	});
 
-	var _metal2 = _interopRequireDefault(_metal);
-
 	var _PaginationSoy2 = _interopRequireDefault(_PaginationSoy);
 
 	var _component2 = _interopRequireDefault(_component);
@@ -168,7 +166,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
    * @default true
    */
 		circular: {
-			validator: _metal2.default.isBoolean,
+			validator: _metal.core.isBoolean,
 			value: true
 		},
 
@@ -178,7 +176,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
    * @default 1
    */
 		offset: {
-			validator: _metal2.default.isNumber,
+			validator: _metal.core.isNumber,
 			value: 1
 		},
 
@@ -188,7 +186,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
    * @default 0
    */
 		page: {
-			validator: _metal2.default.isNumber,
+			validator: _metal.core.isNumber,
 			value: 0
 		},
 
@@ -198,7 +196,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
    * @default true
    */
 		showControls: {
-			validator: _metal2.default.isBoolean,
+			validator: _metal.core.isBoolean,
 			value: true
 		},
 
@@ -208,11 +206,16 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
    * @default {next: 'Next', prev: 'Prev'}
    */
 		strings: {
-			validator: _metal2.default.isObject,
-			value: {
-				next: 'Next',
-				prev: 'Prev'
-			}
+			validator: _metal.core.isObject,
+			setter: function setter(val) {
+				return _metal.object.mixin({
+					next: 'Next',
+					nextAriaLabel: 'Next',
+					prev: 'Prev',
+					prevAriaLabel: 'Previous'
+				}, val);
+			},
+			valueFn: function valueFn() {}
 		},
 
 		/**
@@ -223,7 +226,7 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
    * @default 0
    */
 		total: {
-			validator: _metal2.default.isNumber,
+			validator: _metal.core.isNumber,
 			value: 0
 		}
 	};

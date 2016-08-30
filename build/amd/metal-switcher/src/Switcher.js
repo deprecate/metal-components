@@ -62,6 +62,12 @@ define(['exports', 'metal/src/metal', './Switcher.soy.js', 'metal-component/src/
 			this.checked = !this.checked;
 		};
 
+		Switcher.prototype.handleKeyUp = function handleKeyUp() {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.checked = !this.checked;
+			}
+		};
+
 		return Switcher;
 	}(_component2.default);
 

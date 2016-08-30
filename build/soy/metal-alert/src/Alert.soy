@@ -6,7 +6,7 @@
  * @param? elementClasses
  */
 {template .render}
-	{@param? body: html}
+	{@param? body: html|string}
 	<div class="alert{$dismissible ? ' alert-dismissible' : ''}{$elementClasses ? ' ' + $elementClasses : ''}" role="alert">
 		{if $body}
 			{$body}

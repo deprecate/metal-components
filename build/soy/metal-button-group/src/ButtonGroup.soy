@@ -11,11 +11,16 @@
 		{foreach $button in $buttons}
 			{let $type: $button.type ? $button.type : 'button' /}
 			{let $cssClass: $button.cssClass ? $button.cssClass : 'btn btn-default' /}
+			{let $selectedClass kind="text"}
+				{call .selectedClass}{param label: $button.label /}{param selected: $selected /}{/call}
+			{/let}
 			<button
 				type="{$type}"
-				class="{$cssClass}{call .selectedClass}{param label: $button.label /}{param selected: $selected /}{/call}"
+				class="{$cssClass}{$selectedClass}"
 				data-index="{index($button)}"
-				data-onclick="handleClick_">
+				data-onclick="handleClick_"
+				role="checkbox"
+				aria-checked="{$selectedClass ? 'true' : 'false'}">
 				<span class="btn-group-label">{$button.label ? $button.label : ''}</span>
 				{if $button.icon}
 					<span class="{$button.icon}"></span>

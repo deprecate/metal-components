@@ -114,14 +114,14 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 
 		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
-			this.buildKeyInfo_(name, config, initialValue);
+			this.buildKeyInfo_(name, config, initialValue, arguments.length > 2);
 			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
 			this.assertGivenIfRequired_(name);
 		};
 
 		State.prototype.addToState = function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
 			if (_metal.core.isString(configsOrName)) {
-				return this.addKeyToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue);
+				return this.addKeyToState.apply(this, arguments);
 			}
 
 			var initialValues = opt_initialValuesOrConfig || {};
@@ -130,7 +130,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			var props = {};
 			for (var i = 0; i < names.length; i++) {
 				var name = names[i];
-				this.buildKeyInfo_(name, configsOrName[name], initialValues[name]);
+				this.buildKeyInfo_(name, configsOrName[name], initialValues[name], initialValues.hasOwnProperty(name));
 				props[name] = this.buildKeyPropertyDef_(name, opt_contextOrInitialValue);
 				this.assertGivenIfRequired_(name);
 			}
@@ -166,16 +166,19 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			}
 		};
 
-		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue) {
+		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue, hasInitialValue) {
 			this.assertValidStateKeyName_(name);
+			config = config && config.config ? config.config : config || {};
 			if (this.commonOpts_) {
 				config = _metal.object.mixin({}, config, this.commonOpts_);
 			}
 			this.stateInfo_[name] = {
-				config: config || {},
-				initialValue: initialValue,
+				config: config,
 				state: State.KeyStates.UNINITIALIZED
 			};
+			if (hasInitialValue && this.callValidator_(name, initialValue)) {
+				this.stateInfo_[name].initialValue = initialValue;
+			}
 		};
 
 		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name, opt_context) {
@@ -213,7 +216,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			var info = this.stateInfo_[name];
 			var config = info.config;
 			if (config.validator) {
-				var validatorReturn = this.callFunction_(config.validator, [value, name, this]);
+				var validatorReturn = this.callFunction_(config.validator, [value, name, this.context_]);
 
 				if (validatorReturn instanceof Error) {
 					console.error('Warning: ' + validatorReturn);
@@ -262,21 +265,29 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.getStateKeys = function getStateKeys() {
-			return Object.keys(this.stateInfo_);
+			return this.stateInfo_ ? Object.keys(this.stateInfo_) : [];
 		};
 
 		State.prototype.getStateKeyValue_ = function getStateKeyValue_(name) {
-			this.initStateKey_(name);
-			return this.stateInfo_[name].value;
+			if (!this.warnIfDisposed_(name)) {
+				this.initStateKey_(name);
+				return this.stateInfo_[name].value;
+			}
 		};
 
 		State.prototype.hasBeenSet = function hasBeenSet(name) {
 			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED || info.initialValue;
+			return info.state === State.KeyStates.INITIALIZED || this.hasInitialValue_(name);
+		};
+
+		State.prototype.hasInitialValue_ = function hasInitialValue_(name) {
+			return this.stateInfo_[name].hasOwnProperty('initialValue');
 		};
 
 		State.prototype.hasStateKey = function hasStateKey(key) {
-			return !!this.stateInfo_[key];
+			if (!this.warnIfDisposed_(key)) {
+				return !!this.stateInfo_[key];
+			}
 		};
 
 		State.prototype.informChange_ = function informChange_(name, prevVal) {
@@ -301,7 +312,6 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			info.state = State.KeyStates.INITIALIZING;
 			this.setInitialValue_(name);
 			if (!info.written) {
-				info.state = State.KeyStates.INITIALIZING_DEFAULT;
 				this.setDefaultValue(name);
 			}
 			info.state = State.KeyStates.INITIALIZED;
@@ -365,8 +375,8 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.setInitialValue_ = function setInitialValue_(name) {
-			var info = this.stateInfo_[name];
-			if (info.initialValue !== undefined) {
+			if (this.hasInitialValue_(name)) {
+				var info = this.stateInfo_[name];
 				this.set(name, info.initialValue);
 				info.initialValue = undefined;
 			}
@@ -388,12 +398,12 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		};
 
 		State.prototype.setStateKeyValue_ = function setStateKeyValue_(name, value) {
-			if (!this.canSetState(name) || !this.validateKeyValue_(name, value)) {
+			if (this.warnIfDisposed_(name) || !this.canSetState(name) || !this.validateKeyValue_(name, value)) {
 				return;
 			}
 
 			var info = this.stateInfo_[name];
-			if (info.initialValue === undefined && info.state === State.KeyStates.UNINITIALIZED) {
+			if (!this.hasInitialValue_(name) && info.state === State.KeyStates.UNINITIALIZED) {
 				info.state = State.KeyStates.INITIALIZED;
 			}
 
@@ -412,7 +422,15 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {
 			var info = this.stateInfo_[name];
 
-			return info.state === State.KeyStates.INITIALIZING_DEFAULT || this.callValidator_(name, value);
+			return info.state === State.KeyStates.INITIALIZING || this.callValidator_(name, value);
+		};
+
+		State.prototype.warnIfDisposed_ = function warnIfDisposed_(name) {
+			var disposed = this.isDisposed();
+			if (disposed) {
+				console.warn('Error. Trying to access property "' + name + '" on disposed instance');
+			}
+			return disposed;
 		};
 
 		return State;
@@ -433,8 +451,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 	State.KeyStates = {
 		UNINITIALIZED: 0,
 		INITIALIZING: 1,
-		INITIALIZING_DEFAULT: 2,
-		INITIALIZED: 3
+		INITIALIZED: 2
 	};
 
 	exports.default = State;

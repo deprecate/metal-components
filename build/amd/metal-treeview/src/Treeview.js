@@ -70,7 +70,8 @@ define(['exports', './Treeview.soy.js', 'metal-component/src/all/component', 'me
 
 		Treeview.prototype.handleNodeKeyUp_ = function handleNodeKeyUp_(event) {
 			if (event.keyCode === 13 || event.keyCode === 32) {
-				this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
+				this.toggleExpandedState_(event.delegateTarget);
+				event.stopPropagation();
 			}
 		};
 

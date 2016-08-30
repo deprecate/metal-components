@@ -87,16 +87,16 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       ie_open('ul', null, null, 'class', 'pagination' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
       if (opt_data.showControls == true) {
         var disabled__soy8 = !opt_data.circular && opt_data.page == 0 ? true : false;
-        $renderControlElement_({ content: opt_data.strings.prev, disabled: disabled__soy8, index: 0 }, null, opt_ijData);
+        $renderControlElement_({ ariaLabel: opt_data.strings.prevAriaLabel, content: opt_data.strings.prev, disabled: disabled__soy8, index: 0 }, null, opt_ijData);
       }
-      var iLimit13 = opt_data.total;
-      for (var i13 = 0; i13 < iLimit13; i13++) {
-        var active__soy14 = opt_data.page == i13 ? true : false;
-        $renderElement_({ active: active__soy14, content: opt_data.offset + i13, index: i13 }, null, opt_ijData);
+      var iLimit14 = opt_data.total;
+      for (var i14 = 0; i14 < iLimit14; i14++) {
+        var active__soy15 = opt_data.page == i14 ? true : false;
+        $renderElement_({ active: active__soy15, content: opt_data.offset + i14, index: i14 }, null, opt_ijData);
       }
       if (opt_data.showControls == true) {
-        var disabled__soy21 = !opt_data.circular && opt_data.page == opt_data.total - 1 ? true : false;
-        $renderControlElement_({ content: opt_data.strings.next, disabled: disabled__soy21, index: 1 }, null, opt_ijData);
+        var disabled__soy22 = !opt_data.circular && opt_data.page == opt_data.total - 1 ? true : false;
+        $renderControlElement_({ ariaLabel: opt_data.strings.nextAriaLabel, content: opt_data.strings.next, disabled: disabled__soy22, index: 1 }, null, opt_ijData);
       }
       ie_close('ul');
     }
@@ -145,7 +145,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       }
       iattr('data-control-index', opt_data.index);
       ie_open_end();
-      ie_open('a', null, null, 'href', '#');
+      ie_open('a', null, null, 'href', '#', 'aria-label', opt_data.ariaLabel);
       itext((goog.asserts.assert(opt_data.content != null), opt_data.content));
       ie_close('a');
       ie_close('li');
@@ -159,8 +159,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     exports.render.types = { "circular": "any", "elementClasses": "any", "offset": "any", "page": "any", "strings": "any", "showControls": "any", "total": "any" };
     exports.renderElement_.params = ["active", "content", "index"];
     exports.renderElement_.types = { "active": "any", "content": "any", "index": "any" };
-    exports.renderControlElement_.params = ["content", "disabled", "index"];
-    exports.renderControlElement_.types = { "content": "any", "disabled": "any", "index": "any" };
+    exports.renderControlElement_.params = ["ariaLabel", "content", "disabled", "index"];
+    exports.renderControlElement_.types = { "ariaLabel": "any", "content": "any", "disabled": "any", "index": "any" };
     exports.templates = templates = exports;
     return exports;
   });

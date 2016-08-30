@@ -4,15 +4,17 @@
  * @param? arrowClass
  * @param? buttonClass
  * @param? elementClasses
+ * @param? expanded_
  * @param? handleDropdownStateSynced_
  * @param? handleItemClick_
+ * @param? handleItemKeyDown_
  * @param? hiddenInputName
  * @param items
  * @param? values
  * @param? selectedIndex
  */
 {template .render}
-	{@param? label: html}
+	{@param? label: html|string}
 	<div class="select{$elementClasses ? ' ' + $elementClasses : ''}" data-onkeydown="handleKeyDown_">
 		{let $currSelectedIndex: isNonnull($selectedIndex) ? $selectedIndex : ($label or (length($items) == 0) ? -1 : 0) /}
 		<input
@@ -23,26 +25,27 @@
 		{call Dropdown.render}
 			{param body kind="html"}
 				{foreach $item in $items}
-					<li data-onclick="{$handleItemClick_ ?: ''}" class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
-						<a href="javascript:;">
-							{call .renderAsHtml_}
-								{param value: $item /}
-							{/call}
-						</a>
+					<li
+						data-onclick="{$handleItemClick_ ?: ''}"
+						data-onkeydown="{$handleItemKeyDown_ ?: ''}"
+						class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
+						<a href="javascript:;">{$item}</a>
 					</li>
 				{/foreach}
 			{/param}
 			{param events: ['stateSynced': $handleDropdownStateSynced_] /}
+			{param expanded: $expanded_ /}
 			{param header kind="html"}
-				<button class="{$buttonClass ? $buttonClass : ''} dropdown-select" type="button" data-onclick="toggle">
+				<button
+					class="{$buttonClass ? $buttonClass : ''} dropdown-select"
+					type="button"
+					data-onclick="toggle"
+					aria-haspopup="true"
+					aria-expanded="{$expanded_ ? 'true' : 'false'}">
 					{if $currSelectedIndex == -1}
-						{if $label}
-							{$label}
-						{/if}
+						{$label}
 					{else}
-						{call .renderAsHtml_}
-							{param value: $items[$currSelectedIndex] /}
-						{/call}
+						{$items[$currSelectedIndex]}
 					{/if}
 					{sp}<span class="{$arrowClass ? $arrowClass : 'caret'}"></span>
 				</button>
@@ -50,11 +53,4 @@
 			{param ref: 'dropdown' /}
 		{/call}
 	</div>
-{/template}
-
-/**
- */
-{template .renderAsHtml_}
-	{@param value: html}
-	{$value}
 {/template}

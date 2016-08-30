@@ -99,7 +99,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
       ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy15);
       ie_open('div', null, null, 'class', 'rail-handle');
-      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0');
+      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0', 'role', 'slider', 'aria-valuemin', minNumber__soy4, 'aria-valuemax', maxNumber__soy3, 'aria-valuenow', valueNumber__soy5);
       ie_close('div');
       ie_close('div');
       ie_close('div');

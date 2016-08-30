@@ -206,7 +206,7 @@ babelHelpers;
 		/**
    * Returns true if value is not undefined or null.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
@@ -217,7 +217,7 @@ babelHelpers;
 		/**
    * Returns true if value is a document.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
@@ -228,7 +228,7 @@ babelHelpers;
 		/**
    * Returns true if value is a dom element.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
@@ -250,7 +250,7 @@ babelHelpers;
 		/**
    * Returns true if value is null.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
@@ -272,7 +272,7 @@ babelHelpers;
 		/**
    * Returns true if value is a window.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
@@ -296,7 +296,7 @@ babelHelpers;
 		/**
    * Returns true if value is a Promise.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
@@ -307,12 +307,12 @@ babelHelpers;
 		/**
    * Returns true if value is a string.
    * @param {*} val
-   * @return {Boolean}
+   * @return {boolean}
    */
 
 
 		core.isString = function isString(val) {
-			return typeof val === 'string';
+			return typeof val === 'string' || val instanceof String;
 		};
 
 		/**
@@ -1929,18 +1929,24 @@ babelHelpers;
 
 		/**
    * Adds the requested CSS classes to an element.
-   * @param {!Element} element The element to add CSS classes to.
+   * @param {!Element|!Nodelist} elements The element or elements to add CSS classes to.
    * @param {string} classes CSS classes to add.
    */
-		dom.addClasses = function addClasses(element, classes) {
-			if (!core.isObject(element) || !core.isString(classes)) {
+		dom.addClasses = function addClasses(elements, classes) {
+			if (!core.isObject(elements) || !core.isString(classes)) {
 				return;
 			}
 
-			if ('classList' in element) {
-				dom.addClassesWithNative_(element, classes);
-			} else {
-				dom.addClassesWithoutNative_(element, classes);
+			if (!elements.length) {
+				elements = [elements];
+			}
+
+			for (var i = 0; i < elements.length; i++) {
+				if ('classList' in elements[i]) {
+					dom.addClassesWithNative_(elements[i], classes);
+				} else {
+					dom.addClassesWithoutNative_(elements[i], classes);
+				}
 			}
 		};
 
@@ -2439,20 +2445,26 @@ babelHelpers;
 
 		/**
    * Removes the requested CSS classes from an element.
-   * @param {!Element} element The element to remove CSS classes from.
+   * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
    * @param {string} classes CSS classes to remove.
    */
 
 
-		dom.removeClasses = function removeClasses(element, classes) {
-			if (!core.isObject(element) || !core.isString(classes)) {
+		dom.removeClasses = function removeClasses(elements, classes) {
+			if (!core.isObject(elements) || !core.isString(classes)) {
 				return;
 			}
 
-			if ('classList' in element) {
-				dom.removeClassesWithNative_(element, classes);
-			} else {
-				dom.removeClassesWithoutNative_(element, classes);
+			if (!elements.length) {
+				elements = [elements];
+			}
+
+			for (var i = 0; i < elements.length; i++) {
+				if ('classList' in elements[i]) {
+					dom.removeClassesWithNative_(elements[i], classes);
+				} else {
+					dom.removeClassesWithoutNative_(elements[i], classes);
+				}
 			}
 		};
 
@@ -2698,6 +2710,13 @@ babelHelpers;
 
 
 		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
+			if (event.type === 'click' && event.button === 2) {
+				// Firefox triggers "click" events on the document for right clicks. This
+				// causes our delegate logic to trigger it for regular elements too, which
+				// shouldn't happen. Ignoring them here.
+				return;
+			}
+
 			var data = domData.get(element);
 			var listeners = data.listeners[event.type];
 			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
@@ -3213,6 +3232,338 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var core = this.metalNamed.metal.core;
+
+	/**
+  * Provides access to various type validators that will return an
+  * instance of Error when validation fails. Note that all type validators
+  * will also accept null or undefined values. To not accept these you should
+  * instead make your state property required.
+  */
+
+	var validators = {
+		any: function any() {
+			return function () {
+				return true;
+			};
+		},
+		array: validateType('array'),
+		bool: validateType('boolean'),
+		func: validateType('function'),
+		number: validateType('number'),
+		object: validateType('object'),
+		string: validateType('string'),
+
+		/**
+   * Creates a validator that checks the values of an array against a type.
+   * @param {function()} validator Type validator to check each index against.
+   * @return {function()} Validator.
+   */
+		arrayOf: function arrayOf(validator) {
+			return maybe(function (value, name, context) {
+				var result = validators.array(value, name, context);
+				if (isInvalid(result)) {
+					return result;
+				}
+				for (var i = 0; i < value.length; i++) {
+					if (isInvalid(validator(value[i], name, context))) {
+						return composeError('Expected an array of single type', name, context);
+					}
+				}
+				return true;
+			});
+		},
+
+		/**
+   * Creates a validator that compares a value to a specific class.
+   * @param {function()} expectedClass Class to check value against.
+   * @return {function()} Validator.
+   */
+		instanceOf: function instanceOf(expectedClass) {
+			return maybe(function (value, name, context) {
+				if (!(value instanceof expectedClass)) {
+					return composeError('Expected instance of ' + expectedClass, name, context);
+				}
+				return true;
+			});
+		},
+
+		/**
+   * Creates a validator that checks the values of an object against a type.
+   * @param {function()} typeValidator Validator to check value against.
+   * @return {function()} Validator.
+   */
+		objectOf: function objectOf(typeValidator) {
+			return maybe(function (value, name, context) {
+				for (var key in value) {
+					if (isInvalid(typeValidator(value[key]))) {
+						return composeError('Expected object of one type', name, context);
+					}
+				}
+				return true;
+			});
+		},
+
+		/**
+   * Creates a validator that checks equality against specific values.
+   * @param {!Array} arrayOfValues Array of values to check equality against.
+   * @return {function()} Validator.
+   */
+		oneOf: function oneOf(arrayOfValues) {
+			return maybe(function (value, name, context) {
+				var result = validators.array(arrayOfValues, name, context);
+				if (isInvalid(result)) {
+					return result;
+				}
+
+				for (var i = 0; i < arrayOfValues.length; i++) {
+					var oneOfValue = arrayOfValues[i];
+					if (value === oneOfValue) {
+						return true;
+					}
+				}
+
+				return composeError('Expected one of given values.', name, context);
+			});
+		},
+
+		/**
+   * Creates a validator that checks a value against multiple types and only has
+   * to pass one.
+   * @param {!Array} arrayOfTypeValidators Array of validators to check value
+   *     against.
+   * @return {function()} Validator.
+   */
+		oneOfType: function oneOfType(arrayOfTypeValidators) {
+			return maybe(function (value, name, context) {
+				var result = validators.array(arrayOfTypeValidators, name, context);
+				if (isInvalid(result)) {
+					return result;
+				}
+
+				for (var i = 0; i < arrayOfTypeValidators.length; i++) {
+					if (!isInvalid(arrayOfTypeValidators[i](value, name, context))) {
+						return true;
+					}
+				}
+
+				return composeError('Expected one of given types.', name, context);
+			});
+		},
+
+		/**
+   * Creates a validator that checks the shape of an object.
+   * @param {!Object} shape An object containing type validators for each key.
+   * @return {function()} Validator.
+   */
+		shapeOf: function shapeOf(shape) {
+			return maybe(function (value, name, context) {
+				var result = validators.object(shape, name, context);
+				if (isInvalid(result)) {
+					return result;
+				}
+
+				for (var key in shape) {
+					var required = false;
+					var validator = shape[key];
+					if (validator.config) {
+						required = validator.config.required;
+						validator = validator.config.validator;
+					}
+					if (required && !core.isDefAndNotNull(value[key]) || isInvalid(validator(value[key]))) {
+						return composeError('Expected object with a specific shape', name, context);
+					}
+				}
+
+				return true;
+			});
+		}
+	};
+
+	/**
+  * Composes a warning a warning message.
+  * @param {string} error Error message to display to console.
+  * @param {?string} name Name of state property that is giving the error.
+  * @param {Object} context
+  * @return {!Error} Instance of Error class.
+  */
+	function composeError(error, name, context) {
+		var compName = context ? core.getFunctionName(context.constructor) : null;
+		var renderer = context && context.getRenderer && context.getRenderer();
+		var parent = renderer && renderer.getParent ? context.getRenderer().getParent() : null;
+		var parentName = parent ? core.getFunctionName(parent.constructor) : null;
+		var location = parentName ? 'Check render method of \'' + parentName + '\'.' : '';
+		return new Error('Warning: Invalid state passed to \'' + name + '\'. ' + (error + ' Passed to \'' + compName + '\'. ' + location));
+	}
+
+	/**
+  * Returns the type of the given value.
+  * @param {*} value Any value.
+  * @return {string} Type of value.
+  */
+	function getType(value) {
+		var type = typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value);
+		if (Array.isArray(value)) {
+			return 'array';
+		}
+		return type;
+	}
+
+	/**
+  * Checks if the given validator result says that the value is invalid.
+  * @param {boolean|!Error} result
+  * @return {boolean}
+  */
+	function isInvalid(result) {
+		return result instanceof Error;
+	}
+
+	/**
+  * Creates a validator that checks a value against a single type, null, or
+  * undefined.
+  * @param {function()} typeValidator Validator to check value against.
+  * @return {function()} Validator.
+  */
+	function maybe(typeValidator) {
+		return function (value, name, context) {
+			if (!core.isDef(value) || core.isNull(value)) {
+				return true;
+			}
+			return typeValidator(value, name, context);
+		};
+	}
+
+	/**
+  * Creates a validator that checks against a specific primitive type. If this
+  * validator is called with no arguments, it will return the actual validator
+  * function instead of running it. That's done to allow all validators to be
+  * used consistently, since some (like `arrayOf`) always require that you call
+  * the function before receiving the actual validator.
+  * @param {string} expectedType Type to check against.
+  * @return {function()} Validator if called with arguments, or wrapper function
+  *     that returns the validator otherwise.
+  */
+	function validateType(expectedType) {
+		var validatorFn = maybe(function (value, name, context) {
+			var type = getType(value);
+			if (type !== expectedType) {
+				return composeError('Expected type \'' + expectedType + '\', but received type \'' + type + '\'.', name, context);
+			}
+			return true;
+		});
+		return function () {
+			if (arguments.length === 0) {
+				return validatorFn;
+			} else {
+				return validatorFn.apply(undefined, arguments);
+			}
+		};
+	}
+
+	this.metal.validators = validators;
+}).call(this);
+'use strict';
+
+(function () {
+	var object = this.metalNamed.metal.object;
+	var validators = this.metal.validators;
+
+	/**
+  * Sugar api that can be used as an alternative for manually building `State`
+  * configuration in the expected format. For example, instead of having
+  * something like this:
+  *
+  * ```js
+  * MyClass.STATE = {
+  *   foo: {
+  *     required: true,
+  *     validator: validators.number,
+  *     value: 13
+  *   }
+  * };
+  * ```
+  *
+  * You could instead do:
+  *
+  * ```js
+  * MyClass.STATE = {
+  *   foo: Config.required().number().value(13)
+  * };
+  * ```
+  */
+
+	var Config = {
+		/**
+   * Adds the `required` flag to the `State` configuration.
+   * @param {boolean} required Flag to set "required" to. True by default.
+   * @return {!Object} `State` configuration object.
+   */
+		required: function required() {
+			var _required = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+			return mergeConfig(this, { required: _required });
+		},
+
+
+		/**
+   * Adds a setter to the `State` configuration.
+   * @param {!function()} setter
+   * @return {!Object} `State` configuration object.
+   */
+		setter: function setter(_setter) {
+			return mergeConfig(this, { setter: _setter });
+		},
+
+
+		/**
+   * Adds a validator to the `State` configuration.
+   * @param {!function()} validator
+   * @return {!Object} `State` configuration object.
+   */
+		validator: function validator(_validator) {
+			return mergeConfig(this, { validator: _validator });
+		},
+
+
+		/**
+   * Adds a default value to the `State` configuration.
+   * @param {*} value
+   * @return {!Object} `State` configuration object.
+   */
+		value: function value(_value) {
+			return mergeConfig(this, { value: _value });
+		}
+	};
+
+	/**
+  * Merges the given config object into the one that has been built so far.
+  * @param {!Object} context The object calling this function.
+  * @param {!Object} config The object to merge to the built config.
+  * @return {!Object} The final object containing the built config.
+  */
+	function mergeConfig(context, config) {
+		var obj = context;
+		if (obj === Config) {
+			obj = Object.create(Config);
+			obj.config = {};
+		}
+		object.mixin(obj.config, config);
+		return obj;
+	}
+
+	// Add all validators to `Config`.
+	var fnNames = Object.keys(validators);
+	fnNames.forEach(function (name) {
+		return Config[name] = function () {
+			return this.validator(validators[name]);
+		};
+	});
+
+	this.metal.Config = Config;
+}).call(this);
+'use strict';
+
+(function () {
 	var array = this.metalNamed.metal.array;
 	var async = this.metalNamed.metal.async;
 	var core = this.metalNamed.metal.core;
@@ -3306,7 +3657,7 @@ babelHelpers;
 
 
 		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
-			this.buildKeyInfo_(name, config, initialValue);
+			this.buildKeyInfo_(name, config, initialValue, arguments.length > 2);
 			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
 			this.assertGivenIfRequired_(name);
 		};
@@ -3352,7 +3703,7 @@ babelHelpers;
 
 		State.prototype.addToState = function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
 			if (core.isString(configsOrName)) {
-				return this.addKeyToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue);
+				return this.addKeyToState.apply(this, arguments);
 			}
 
 			var initialValues = opt_initialValuesOrConfig || {};
@@ -3361,7 +3712,7 @@ babelHelpers;
 			var props = {};
 			for (var i = 0; i < names.length; i++) {
 				var name = names[i];
-				this.buildKeyInfo_(name, configsOrName[name], initialValues[name]);
+				this.buildKeyInfo_(name, configsOrName[name], initialValues[name], initialValues.hasOwnProperty(name));
 				props[name] = this.buildKeyPropertyDef_(name, opt_contextOrInitialValue);
 				this.assertGivenIfRequired_(name);
 			}
@@ -3426,20 +3777,25 @@ babelHelpers;
    * @param {string} name The name of the key.
    * @param {Object} config The config object for the key.
    * @param {*} initialValue The initial value of the key.
+   * @param {boolean} hasInitialValue Flag indicating if an initial value was
+   *     given or not (important since `initialValue` can also be `undefined`).
    * @protected
    */
 
 
-		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue) {
+		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue, hasInitialValue) {
 			this.assertValidStateKeyName_(name);
+			config = config && config.config ? config.config : config || {};
 			if (this.commonOpts_) {
 				config = object.mixin({}, config, this.commonOpts_);
 			}
 			this.stateInfo_[name] = {
-				config: config || {},
-				initialValue: initialValue,
+				config: config,
 				state: State.KeyStates.UNINITIALIZED
 			};
+			if (hasInitialValue && this.callValidator_(name, initialValue)) {
+				this.stateInfo_[name].initialValue = initialValue;
+			}
 		};
 
 		/**
@@ -3517,7 +3873,7 @@ babelHelpers;
 			var info = this.stateInfo_[name];
 			var config = info.config;
 			if (config.validator) {
-				var validatorReturn = this.callFunction_(config.validator, [value, name, this]);
+				var validatorReturn = this.callFunction_(config.validator, [value, name, this.context_]);
 
 				if (validatorReturn instanceof Error) {
 					console.error('Warning: ' + validatorReturn);
@@ -3611,12 +3967,12 @@ babelHelpers;
 
 		/**
    * Returns an array with all state keys.
-   * @return {Array.<string>}
+   * @return {!Array.<string>}
    */
 
 
 		State.prototype.getStateKeys = function getStateKeys() {
-			return Object.keys(this.stateInfo_);
+			return this.stateInfo_ ? Object.keys(this.stateInfo_) : [];
 		};
 
 		/**
@@ -3629,8 +3985,10 @@ babelHelpers;
 
 
 		State.prototype.getStateKeyValue_ = function getStateKeyValue_(name) {
-			this.initStateKey_(name);
-			return this.stateInfo_[name].value;
+			if (!this.warnIfDisposed_(name)) {
+				this.initStateKey_(name);
+				return this.stateInfo_[name].value;
+			}
 		};
 
 		/**
@@ -3643,7 +4001,19 @@ babelHelpers;
 
 		State.prototype.hasBeenSet = function hasBeenSet(name) {
 			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED || info.initialValue;
+			return info.state === State.KeyStates.INITIALIZED || this.hasInitialValue_(name);
+		};
+
+		/**
+   * Checks if an initial value was given to the specified state property.
+   * @param {string} name The name of the key.
+   * @return {boolean}
+   * @protected
+   */
+
+
+		State.prototype.hasInitialValue_ = function hasInitialValue_(name) {
+			return this.stateInfo_[name].hasOwnProperty('initialValue');
 		};
 
 		/**
@@ -3654,7 +4024,9 @@ babelHelpers;
 
 
 		State.prototype.hasStateKey = function hasStateKey(key) {
-			return !!this.stateInfo_[key];
+			if (!this.warnIfDisposed_(key)) {
+				return !!this.stateInfo_[key];
+			}
 		};
 
 		/**
@@ -3695,7 +4067,6 @@ babelHelpers;
 			info.state = State.KeyStates.INITIALIZING;
 			this.setInitialValue_(name);
 			if (!info.written) {
-				info.state = State.KeyStates.INITIALIZING_DEFAULT;
 				this.setDefaultValue(name);
 			}
 			info.state = State.KeyStates.INITIALIZED;
@@ -3821,8 +4192,8 @@ babelHelpers;
 
 
 		State.prototype.setInitialValue_ = function setInitialValue_(name) {
-			var info = this.stateInfo_[name];
-			if (info.initialValue !== undefined) {
+			if (this.hasInitialValue_(name)) {
+				var info = this.stateInfo_[name];
 				this.set(name, info.initialValue);
 				info.initialValue = undefined;
 			}
@@ -3869,12 +4240,12 @@ babelHelpers;
 
 
 		State.prototype.setStateKeyValue_ = function setStateKeyValue_(name, value) {
-			if (!this.canSetState(name) || !this.validateKeyValue_(name, value)) {
+			if (this.warnIfDisposed_(name) || !this.canSetState(name) || !this.validateKeyValue_(name, value)) {
 				return;
 			}
 
 			var info = this.stateInfo_[name];
-			if (info.initialValue === undefined && info.state === State.KeyStates.UNINITIALIZED) {
+			if (!this.hasInitialValue_(name) && info.state === State.KeyStates.UNINITIALIZED) {
 				info.state = State.KeyStates.INITIALIZED;
 			}
 
@@ -3917,7 +4288,23 @@ babelHelpers;
 		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {
 			var info = this.stateInfo_[name];
 
-			return info.state === State.KeyStates.INITIALIZING_DEFAULT || this.callValidator_(name, value);
+			return info.state === State.KeyStates.INITIALIZING || this.callValidator_(name, value);
+		};
+
+		/**
+   * Warns if this instance has already been disposed.
+   * @param {string} name Name of the property to be accessed if not disposed.
+   * @return {boolean} True if disposed, or false otherwise.
+   * @protected
+   */
+
+
+		State.prototype.warnIfDisposed_ = function warnIfDisposed_(name) {
+			var disposed = this.isDisposed();
+			if (disposed) {
+				console.warn('Error. Trying to access property "' + name + '" on disposed instance');
+			}
+			return disposed;
 		};
 
 		return State;
@@ -3940,11 +4327,22 @@ babelHelpers;
 	State.KeyStates = {
 		UNINITIALIZED: 0,
 		INITIALIZING: 1,
-		INITIALIZING_DEFAULT: 2,
-		INITIALIZED: 3
+		INITIALIZED: 2
 	};
 
 	this.metal.State = State;
+}).call(this);
+'use strict';
+
+(function () {
+  var validators = this.metal.validators;
+  var Config = this.metal.Config;
+  var State = this.metal.State;
+  this.metal.state = State;
+  this.metalNamed.state = this.metalNamed.state || {};
+  this.metalNamed.state.validators = validators;
+  this.metalNamed.state.Config = Config;
+  this.metalNamed.state.State = State;
 }).call(this);
 'use strict';
 
@@ -4593,7 +4991,7 @@ babelHelpers;
 	var core = this.metal.metal;
 	var dom = this.metalNamed.dom.dom;
 	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
-	var State = this.metal.State;
+	var State = this.metal.state;
 	var EventEmitter = this.metal.events;
 	var Position = this.metal.position;
 
@@ -4874,7 +5272,7 @@ babelHelpers;
 	var object = this.metalNamed.metal.object;
 	var EventEmitter = this.metalNamed.events.EventEmitter;
 	var EventEmitterProxy = this.metalNamed.events.EventEmitterProxy;
-	var State = this.metal.State;
+	var State = this.metal.state;
 
 	var ComponentDataManager = function (_EventEmitter) {
 		babelHelpers.inherits(ComponentDataManager, _EventEmitter);
@@ -4906,8 +5304,10 @@ babelHelpers;
    */
 
 
-		ComponentDataManager.prototype.add = function add(name, config, opt_initialValue) {
-			this.state_.addToState(name, config, opt_initialValue);
+		ComponentDataManager.prototype.add = function add() {
+			var _state_;
+
+			(_state_ = this.state_).addToState.apply(_state_, arguments);
 		};
 
 		/**
@@ -5109,13 +5509,7 @@ babelHelpers;
 			_this.componentRendererEvents_ = new EventHandler();
 			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
 			_this.on('rendered', _this.handleRendered_);
-
-			var manager = component.getDataManager();
-			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
-				_this.componentRendererEvents_.add(manager.on('dataPropChanged', _this.handleManagerDataPropChanged_.bind(_this)));
-			} else {
-				_this.componentRendererEvents_.add(manager.on('dataChanged', _this.handleManagerDataChanged_.bind(_this)));
-			}
+			component.on('dataManagerCreated', _this.handleDataManagerCreated_.bind(_this));
 			return _this;
 		}
 
@@ -5127,6 +5521,22 @@ babelHelpers;
 		ComponentRenderer.prototype.disposeInternal = function disposeInternal() {
 			this.componentRendererEvents_.removeAllListeners();
 			this.componentRendererEvents_ = null;
+		};
+
+		/**
+   * Handles a `dataManagerCreated` event from the component. Listens to events
+   * on the manager that has been created.
+   * @protected
+   */
+
+
+		ComponentRenderer.prototype.handleDataManagerCreated_ = function handleDataManagerCreated_() {
+			var manager = this.component_.getDataManager();
+			if (this.component_.constructor.SYNC_UPDATES_MERGED) {
+				this.componentRendererEvents_.add(manager.on('dataPropChanged', this.handleManagerDataPropChanged_.bind(this)));
+			} else {
+				this.componentRendererEvents_.add(manager.on('dataChanged', this.handleManagerDataChanged_.bind(this)));
+			}
 		};
 
 		/**
@@ -5367,10 +5777,11 @@ babelHelpers;
 
 			_this.element = _this.initialConfig_.element;
 
-			_this.dataManager_ = _this.createDataManager();
-
 			_this.renderer_ = _this.createRenderer();
 			_this.renderer_.on('rendered', _this.handleRendererRendered_.bind(_this));
+
+			_this.dataManager_ = _this.createDataManager();
+			_this.emit('dataManagerCreated');
 
 			_this.on('stateChanged', _this.handleStateChanged_);
 			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
@@ -5385,20 +5796,6 @@ babelHelpers;
 			_this.on('elementChanged', _this.onElementChanged_);
 			return _this;
 		}
-
-		/**
-   * Adds the necessary classes to the component's element.
-   */
-
-
-		Component.prototype.addElementClasses = function addElementClasses() {
-			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
-			var elementClasses = this.dataManager_.get('elementClasses');
-			if (elementClasses) {
-				classesToAdd = classesToAdd + ' ' + elementClasses;
-			}
-			dom.addClasses(this.element, classesToAdd);
-		};
 
 		/**
    * Getter logic for the element property.
@@ -5799,7 +6196,6 @@ babelHelpers;
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
 			if (event.newVal) {
-				this.addElementClasses();
 				this.syncVisible(this.dataManager_.get('visible'));
 			}
 		};
@@ -5920,6 +6316,22 @@ babelHelpers;
 		};
 
 		/**
+   * Setter for the `elementClasses` data property. Appends given value with
+   * the one specified in `ELEMENT_CLASSES`.
+   * @param {string} val
+   * @return {string}
+   * @protected
+   */
+
+
+		Component.prototype.setterElementClassesFn_ = function setterElementClassesFn_(val) {
+			if (this.constructor.ELEMENT_CLASSES_MERGED) {
+				val += ' ' + this.constructor.ELEMENT_CLASSES_MERGED;
+			}
+			return val.trim();
+		};
+
+		/**
    * Creates the `DomEventEmitterProxy` instance and has it start proxying any
    * listeners that have already been listened to.
    * @protected
@@ -5969,20 +6381,6 @@ babelHelpers;
 		};
 
 		/**
-   * State synchronization logic for the `elementClasses` state key.
-   * @param {string} newVal
-   * @param {string} prevVal
-   */
-
-
-		Component.prototype.syncElementClasses = function syncElementClasses(newVal, prevVal) {
-			if (this.element && prevVal) {
-				dom.removeClasses(this.element, prevVal);
-			}
-			this.addElementClasses();
-		};
-
-		/**
    * State synchronization logic for `visible` state key.
    * Updates the element's display value according to its visibility.
    * @param {boolean} newVal
@@ -6003,18 +6401,6 @@ babelHelpers;
 
 
 		Component.prototype.rendered = function rendered() {};
-
-		/**
-   * Validator logic for elementClasses state key.
-   * @param {string} val
-   * @return {boolean} True if val is a valid element classes.
-   * @protected
-   */
-
-
-		Component.prototype.validatorElementClassesFn_ = function validatorElementClassesFn_(val) {
-			return core.isString(val);
-		};
 
 		/**
    * Validator logic for the `events` state key.
@@ -6070,7 +6456,9 @@ babelHelpers;
    * @type {string}
    */
 		elementClasses: {
-			validator: 'validatorElementClassesFn_'
+			setter: 'setterElementClassesFn_',
+			validator: core.isString,
+			value: ''
 		},
 
 		/**
@@ -7656,10 +8044,11 @@ babelHelpers;
 			renderer_ = renderer;
 			callback_ = callback;
 			tree_ = {
-				config: {
+				props: {
 					children: []
 				}
 			};
+			tree_.config = tree_.props;
 			currentParent_ = tree_;
 			isCapturing_ = true;
 			IncrementalDomAop.startInterception({
@@ -7694,11 +8083,11 @@ babelHelpers;
 				args[0] = tree.text;
 				IncrementalDOM.text.apply(null, args);
 			} else {
-				var _args = IncrementalDomUtils.buildCallFromConfig(tree.tag, tree.config);
+				var _args = IncrementalDomUtils.buildCallFromConfig(tree.tag, tree.props);
 				IncrementalDOM.elementOpen.apply(null, _args);
-				if (tree.config.children) {
-					for (var i = 0; i < tree.config.children.length; i++) {
-						IncrementalDomChildren.render(tree.config.children[i], opt_skipNode);
+				if (tree.props.children) {
+					for (var i = 0; i < tree.props.children.length; i++) {
+						IncrementalDomChildren.render(tree.props.children[i], opt_skipNode);
 					}
 				}
 				IncrementalDOM.elementClose(tree.tag);
@@ -7733,8 +8122,9 @@ babelHelpers;
 			}
 		} else {
 			child.tag = args[0];
-			child.config = IncrementalDomUtils.buildConfigFromCall(args);
-			child.config.children = [];
+			child.props = IncrementalDomUtils.buildConfigFromCall(args);
+			child.props.children = [];
+			child.config = child.props;
 		}
 
 		addChildToTree(child);
@@ -7742,7 +8132,7 @@ babelHelpers;
 	}
 
 	function addChildToTree(child) {
-		currentParent_.config.children.push(child);
+		currentParent_.props.children.push(child);
 	}
 
 	/**
@@ -7805,6 +8195,7 @@ babelHelpers;
 
 (function () {
 	var comps_ = [];
+	var disposing_ = false;
 
 	var IncrementalDomUnusedComponents = function () {
 		function IncrementalDomUnusedComponents() {
@@ -7816,25 +8207,22 @@ babelHelpers;
    * time this function was scheduled.
    */
 		IncrementalDomUnusedComponents.disposeUnused = function disposeUnused() {
-			for (var i = 0; i < comps_.length; i++) {
-				if (!comps_[i].isDisposed()) {
-					var renderer = comps_[i].getRenderer();
-					if (!renderer.getParent()) {
-						// Don't let disposing cause the element to be removed, since it may
-						// be currently being reused by another component.
-						comps_[i].element = null;
+			if (disposing_) {
+				return;
+			}
+			disposing_ = true;
 
-						var ref = renderer.config_.ref;
-						var owner = renderer.getOwner();
-						if (owner.components[ref] === comps_[i]) {
-							owner.disposeSubComponents([ref]);
-						} else {
-							comps_[i].dispose();
-						}
-					}
+			for (var i = 0; i < comps_.length; i++) {
+				var comp = comps_[i];
+				if (!comp.isDisposed() && !comp.getRenderer().getParent()) {
+					// Don't let disposing cause the element to be removed, since it may
+					// be currently being reused by another component.
+					comp.element = null;
+					comp.dispose();
 				}
 			}
 			comps_ = [];
+			disposing_ = false;
 		};
 
 		/**
@@ -7846,8 +8234,10 @@ babelHelpers;
 
 		IncrementalDomUnusedComponents.schedule = function schedule(comps) {
 			for (var i = 0; i < comps.length; i++) {
-				comps[i].getRenderer().parent_ = null;
-				comps_.push(comps[i]);
+				if (!comps[i].isDisposed()) {
+					comps[i].getRenderer().parent_ = null;
+					comps_.push(comps[i]);
+				}
 			}
 		};
 
@@ -7888,21 +8278,9 @@ babelHelpers;
 
 			comp.context = {};
 			_this.config_ = comp.getInitialConfig();
+			_this.childComponents_ = [];
 			_this.clearChanges_();
 			comp.on('attached', _this.handleAttached_.bind(_this));
-
-			var manager = comp.getDataManager();
-			if (!_this.component_.constructor.SYNC_UPDATES_MERGED) {
-				// If the component is being updated synchronously we'll just reuse the
-				// `handleComponentRendererStateKeyChanged_` function from
-				// `ComponentRenderer`.
-				manager.on('dataPropChanged', _this.handleDataPropChanged_.bind(_this));
-			}
-
-			manager.add('children', {
-				validator: Array.isArray,
-				value: emptyChildren_
-			}, _this.config_.children || emptyChildren_);
 
 			// Binds functions that will be used many times, to avoid creating new
 			// functions each time.
@@ -7914,6 +8292,28 @@ babelHelpers;
 			_this.renderInsidePatchDontSkip_ = _this.renderInsidePatchDontSkip_.bind(_this);
 			return _this;
 		}
+
+		/**
+   * Adds the given css classes to the specified arguments for an incremental
+   * dom call, merging with the existing value if there is one.
+   * @param {string} elementClasses
+   * @param {!Array} args
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.addElementClasses_ = function addElementClasses_(elementClasses, args) {
+			for (var i = 3; i < args.length; i += 2) {
+				if (args[i] === 'class') {
+					args[i + 1] = this.removeDuplicateClasses_(args[i + 1] + ' ' + elementClasses);
+					return;
+				}
+			}
+			while (args.length < 3) {
+				args.push(null);
+			}
+			args.push('class', elementClasses);
+		};
 
 		/**
    * Attaches inline listeners found on the first component render, since those
@@ -8005,6 +8405,31 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.clearChanges_ = function clearChanges_() {
 			this.changes_ = {};
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		IncrementalDomRenderer.prototype.disposeInternal = function disposeInternal() {
+			_ComponentRenderer.prototype.disposeInternal.call(this);
+
+			var comp = this.component_;
+			var ref = this.config_.ref;
+			var owner = this.getOwner();
+			if (owner && owner.components && owner.components[ref] === comp) {
+				delete owner.components[ref];
+			}
+
+			for (var i = 0; i < this.childComponents_.length; i++) {
+				var child = this.childComponents_[i];
+				if (!child.isDisposed()) {
+					child.element = null;
+					child.dispose();
+				}
+			}
+			this.childComponents_ = null;
 		};
 
 		/**
@@ -8171,12 +8596,12 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.handleChildrenCaptured_ = function handleChildrenCaptured_(tree) {
 			var _componentToRender_ = this.componentToRender_;
-			var config = _componentToRender_.config;
+			var props = _componentToRender_.props;
 			var tag = _componentToRender_.tag;
 
-			config.children = this.buildChildren_(tree.config.children);
+			props.children = this.buildChildren_(tree.props.children);
 			this.componentToRender_ = null;
-			this.renderFromTag_(tag, config);
+			this.renderFromTag_(tag, props);
 		};
 
 		/**
@@ -8191,10 +8616,32 @@ babelHelpers;
 
 		IncrementalDomRenderer.prototype.handleChildRender_ = function handleChildRender_(node) {
 			if (node.tag && IncrementalDomUtils.isComponentTag(node.tag)) {
-				node.config.children = this.buildChildren_(node.config.children);
-				this.renderFromTag_(node.tag, node.config);
+				node.props.children = this.buildChildren_(node.props.children);
+				this.renderFromTag_(node.tag, node.props);
 				return true;
 			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		IncrementalDomRenderer.prototype.handleDataManagerCreated_ = function handleDataManagerCreated_() {
+			_ComponentRenderer.prototype.handleDataManagerCreated_.call(this);
+
+			var manager = this.component_.getDataManager();
+			if (!this.component_.constructor.SYNC_UPDATES_MERGED) {
+				// If the component is being updated synchronously we'll just reuse the
+				// `handleComponentRendererStateKeyChanged_` function from
+				// `ComponentRenderer`.
+				manager.on('dataPropChanged', this.handleDataPropChanged_.bind(this));
+			}
+
+			manager.add('children', {
+				validator: Array.isArray,
+				value: emptyChildren_
+			}, this.config_.children || emptyChildren_);
 		};
 
 		/**
@@ -8325,8 +8772,14 @@ babelHelpers;
 				args[_key - 1] = arguments[_key];
 			}
 
-			if (!currRenderer.rootElementReached_ && currRenderer.config_.key) {
-				args[1] = currRenderer.config_.key;
+			if (!currRenderer.rootElementReached_) {
+				if (currRenderer.config_.key) {
+					args[1] = currRenderer.config_.key;
+				}
+				var elementClasses = currComp.getDataManager().get('elementClasses');
+				if (elementClasses) {
+					this.addElementClasses_(elementClasses, args);
+				}
 			}
 
 			var node = originalFn.apply(null, args);
@@ -8349,9 +8802,9 @@ babelHelpers;
 				args[_key2 - 1] = arguments[_key2];
 			}
 
-			var config = IncrementalDomUtils.buildConfigFromCall(args);
+			var props = IncrementalDomUtils.buildConfigFromCall(args);
 			this.componentToRender_ = {
-				config: config,
+				props: props,
 				tag: args[0]
 			};
 			IncrementalDomChildren.capture(this, this.handleChildrenCaptured_);
@@ -8447,6 +8900,27 @@ babelHelpers;
 					dom.exitDocument(element);
 				}
 			}
+		};
+
+		/**
+   * Removes duplicate css classes from the given string.
+   * @param {string} cssClasses
+   * @return {string}
+   * @protected
+   */
+
+
+		IncrementalDomRenderer.prototype.removeDuplicateClasses_ = function removeDuplicateClasses_(cssClasses) {
+			var noDuplicates = [];
+			var all = cssClasses.split(/\s+/);
+			var used = {};
+			for (var i = 0; i < all.length; i++) {
+				if (!used[all[i]]) {
+					used[all[i]] = true;
+					noDuplicates.push(all[i]);
+				}
+			}
+			return noDuplicates.join(' ');
 		};
 
 		/**
@@ -8585,15 +9059,13 @@ babelHelpers;
 			IncrementalDomRenderer.startedRenderingComponent(this.component_);
 			this.clearChanges_();
 			this.rootElementReached_ = false;
-			IncrementalDomUnusedComponents.schedule(this.childComponents_ || []);
+			IncrementalDomUnusedComponents.schedule(this.childComponents_);
 			this.childComponents_ = [];
 			this.intercept_();
 			this.renderIncDom();
 			IncrementalDomAop.stopInterception();
 			if (!this.rootElementReached_) {
 				this.component_.element = null;
-			} else {
-				this.component_.addElementClasses();
 			}
 			this.emit('rendered', !this.isRendered_);
 			IncrementalDomRenderer.finishedRenderingComponent();
@@ -8667,6 +9139,18 @@ babelHelpers;
 				return (_component_ = this.component_).shouldUpdate.apply(_component_, babelHelpers.toConsumableArray(this.buildShouldUpdateArgs_()));
 			}
 			return true;
+		};
+
+		/**
+   * Skips the next disposal of children components, by clearing the array as
+   * if there were no children rendered the last time. This can be useful for
+   * allowing components to be reused by other parent components in separate
+   * render update cycles.
+   */
+
+
+		IncrementalDomRenderer.prototype.skipNextChildrenDisposal = function skipNextChildrenDisposal() {
+			this.childComponents_ = [];
 		};
 
 		/**
@@ -10924,7 +11408,7 @@ babelHelpers;
       goog.global['COMPILED'] = COMPILED;
     }
 
-    goog.string = {};
+    goog.provide('goog.string');
 
     /**
      * Does simple python-style string substitution.
@@ -13633,23 +14117,15 @@ babelHelpers;
 	var Soy = function (_IncrementalDomRender) {
 		babelHelpers.inherits(Soy, _IncrementalDomRender);
 
-		/**
-   * @inheritDoc
-   */
-		function Soy(comp) {
+		function Soy() {
 			babelHelpers.classCallCheck(this, Soy);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _IncrementalDomRender.call(this, comp));
-
-			_this.addMissingStateKeys_();
-			return _this;
+			return babelHelpers.possibleConstructorReturn(this, _IncrementalDomRender.apply(this, arguments));
 		}
+
 		/**
    * Adds the template params to the component's state, if they don't exist yet.
    * @protected
    */
-
-
 		Soy.prototype.addMissingStateKeys_ = function addMissingStateKeys_() {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
 			if (!core.isFunction(elementTemplate)) {
@@ -13717,6 +14193,16 @@ babelHelpers;
 				}
 				return goog.loadedModules_[namespace][templateName](opt_data, opt_ignored, opt_ijData);
 			};
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Soy.prototype.handleDataManagerCreated_ = function handleDataManagerCreated_() {
+			_IncrementalDomRender.prototype.handleDataManagerCreated_.call(this);
+			this.addMissingStateKeys_();
 		};
 
 		/**
@@ -13898,6 +14384,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -13920,11 +14408,12 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof goog.soy.data.SanitizedContent || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       ie_open('div', null, null, 'class', 'alert' + (opt_data.dismissible ? ' alert-dismissible' : '') + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'alert');
       if (body) {
-        body();
+        var dyn0 = body;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       }
       if (opt_data.dismissible) {
         ie_open('button', null, null, 'type', 'button', 'class', 'close', 'aria-label', 'Close', 'data-onclick', 'toggle');
@@ -13941,7 +14430,7 @@ babelHelpers;
     }
 
     exports.render.params = ["body", "dismissible", "elementClasses"];
-    exports.render.types = { "body": "html", "dismissible": "any", "elementClasses": "any" };
+    exports.render.types = { "body": "html|string", "dismissible": "any", "elementClasses": "any" };
     templates = exports;
     return exports;
   });
@@ -14166,9 +14655,7 @@ babelHelpers;
    * The body content of the alert.
    * @type {string}
    */
-		body: {
-			isHtml: true
-		},
+		body: {},
 
 		/**
    * Flag indicating if the alert should be dismissable (closeable).
@@ -15362,11 +15849,11 @@ babelHelpers;
     /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
+    goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
     goog.require('goog.asserts');
     /** @suppress {extraRequire} */
-    goog.require('soy.asserts');
-    /** @suppress {extraRequire} */
-    goog.require('goog.i18n.bidi');
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -15387,40 +15874,45 @@ babelHelpers;
       ie_open('li', null, null, 'class', 'listitem list-group-item ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + ' clearfix', 'data-index', opt_data.index);
       if (opt_data.item.avatar) {
         ie_open('span', null, null, 'class', 'list-image pull-left ' + opt_data.item.avatar['class']);
-        $htmlContent({ content: opt_data.item.avatar.content }, null, opt_ijData);
+        var dyn0 = opt_data.item.avatar.content;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('span');
       }
       ie_open('div', null, null, 'class', 'list-main-content pull-left');
       ie_open('div', null, null, 'class', 'list-text-primary');
-      $htmlContent({ content: opt_data.item.textPrimary }, null, opt_ijData);
+      var dyn1 = opt_data.item.textPrimary;
+      if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       ie_close('div');
       if (opt_data.item.textSecondary) {
         ie_open('div', null, null, 'class', 'list-text-secondary');
-        $htmlContent({ content: opt_data.item.textSecondary }, null, opt_ijData);
+        var dyn2 = opt_data.item.textSecondary;
+        if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
         ie_close('div');
       }
       ie_close('div');
       if (opt_data.item.icons) {
-        var iconList48 = opt_data.item.icons;
-        var iconListLen48 = iconList48.length;
-        for (var iconIndex48 = 0; iconIndex48 < iconListLen48; iconIndex48++) {
-          var iconData48 = iconList48[iconIndex48];
-          ie_void('span', null, null, 'class', 'btn-icon ' + iconData48 + ' pull-right');
+        var iconList45 = opt_data.item.icons;
+        var iconListLen45 = iconList45.length;
+        for (var iconIndex45 = 0; iconIndex45 < iconListLen45; iconIndex45++) {
+          var iconData45 = iconList45[iconIndex45];
+          ie_void('span', null, null, 'class', 'btn-icon ' + iconData45 + ' pull-right');
         }
       }
       if (opt_data.item.iconsHtml) {
         ie_open('div', null, null, 'class', 'pull-right');
-        var iconHtmlList55 = opt_data.item.iconsHtml;
-        var iconHtmlListLen55 = iconHtmlList55.length;
-        for (var iconHtmlIndex55 = 0; iconHtmlIndex55 < iconHtmlListLen55; iconHtmlIndex55++) {
-          var iconHtmlData55 = iconHtmlList55[iconHtmlIndex55];
-          $htmlContent({ content: iconHtmlData55 }, null, opt_ijData);
+        var iconHtmlList51 = opt_data.item.iconsHtml;
+        var iconHtmlListLen51 = iconHtmlList51.length;
+        for (var iconHtmlIndex51 = 0; iconHtmlIndex51 < iconHtmlListLen51; iconHtmlIndex51++) {
+          var iconHtmlData51 = iconHtmlList51[iconHtmlIndex51];
+          var dyn3 = iconHtmlData51;
+          if (typeof dyn3 == 'function') dyn3();else if (dyn3 != null) itext(dyn3);
         }
         ie_close('div');
       }
       if (opt_data.item.label) {
         ie_open('span', null, null, 'class', 'label list-label pull-right ' + opt_data.item.label['class']);
-        itext((goog.asserts.assert(opt_data.item.label.content != null), opt_data.item.label.content));
+        var dyn4 = opt_data.item.label.content;
+        if (typeof dyn4 == 'function') dyn4();else if (dyn4 != null) itext(dyn4);
         ie_close('span');
       }
       ie_close('li');
@@ -15430,32 +15922,8 @@ babelHelpers;
       $render.soyTemplateName = 'ListItem.render';
     }
 
-    /**
-     * @param {{
-     *    content: (?soydata.SanitizedHtml|string|undefined)
-     * }} opt_data
-     * @param {(null|undefined)=} opt_ignored
-     * @param {Object<string, *>=} opt_ijData
-     * @return {void}
-     * @suppress {checkTypes}
-     */
-    function $htmlContent(opt_data, opt_ignored, opt_ijData) {
-      opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
-      var content = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.content;
-      if (content) {
-        content();
-      }
-    }
-    exports.htmlContent = $htmlContent;
-    if (goog.DEBUG) {
-      $htmlContent.soyTemplateName = 'ListItem.htmlContent';
-    }
-
     exports.render.params = ["index", "item", "elementClasses"];
     exports.render.types = { "index": "any", "item": "any", "elementClasses": "any" };
-    exports.htmlContent.params = ["content"];
-    exports.htmlContent.types = { "content": "html" };
     templates = exports;
     return exports;
   });
@@ -15580,6 +16048,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -16079,18 +16549,20 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       ie_open('div', null, null, 'class', 'btn-group component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      var buttonList26 = opt_data.buttons;
-      var buttonListLen26 = buttonList26.length;
-      for (var buttonIndex26 = 0; buttonIndex26 < buttonListLen26; buttonIndex26++) {
-        var buttonData26 = buttonList26[buttonIndex26];
-        var type__soy6 = buttonData26.type ? buttonData26.type : 'button';
-        var cssClass__soy7 = buttonData26.cssClass ? buttonData26.cssClass : 'btn btn-default';
-        ie_open('button', null, null, 'type', type__soy6, 'class', cssClass__soy7 + $selectedClass({ label: buttonData26.label, selected: opt_data.selected }, null, opt_ijData), 'data-index', buttonIndex26, 'data-onclick', 'handleClick_');
+      var buttonList30 = opt_data.buttons;
+      var buttonListLen30 = buttonList30.length;
+      for (var buttonIndex30 = 0; buttonIndex30 < buttonListLen30; buttonIndex30++) {
+        var buttonData30 = buttonList30[buttonIndex30];
+        var type__soy6 = buttonData30.type ? buttonData30.type : 'button';
+        var cssClass__soy7 = buttonData30.cssClass ? buttonData30.cssClass : 'btn btn-default';
+        var selectedClass__soy8 = '';
+        selectedClass__soy8 += $selectedClass({ label: buttonData30.label, selected: opt_data.selected }, null, opt_ijData);
+        ie_open('button', null, null, 'type', type__soy6, 'class', cssClass__soy7 + selectedClass__soy8, 'data-index', buttonIndex30, 'data-onclick', 'handleClick_', 'role', 'checkbox', 'aria-checked', selectedClass__soy8 ? 'true' : 'false');
         ie_open('span', null, null, 'class', 'btn-group-label');
-        itext((goog.asserts.assert((buttonData26.label ? buttonData26.label : '') != null), buttonData26.label ? buttonData26.label : ''));
+        itext((goog.asserts.assert((buttonData30.label ? buttonData30.label : '') != null), buttonData30.label ? buttonData30.label : ''));
         ie_close('span');
-        if (buttonData26.icon) {
-          ie_void('span', null, null, 'class', buttonData26.icon);
+        if (buttonData30.icon) {
+          ie_void('span', null, null, 'class', buttonData30.icon);
         }
         ie_close('button');
       }
@@ -16111,11 +16583,11 @@ babelHelpers;
     function $selectedClass(opt_data, opt_ignored, opt_ijData) {
       var output = '';
       if (opt_data.selected) {
-        var selectedValueList35 = opt_data.selected;
-        var selectedValueListLen35 = selectedValueList35.length;
-        for (var selectedValueIndex35 = 0; selectedValueIndex35 < selectedValueListLen35; selectedValueIndex35++) {
-          var selectedValueData35 = selectedValueList35[selectedValueIndex35];
-          output += selectedValueData35 == opt_data.label ? ' btn-group-selected' : '';
+        var selectedValueList39 = opt_data.selected;
+        var selectedValueListLen39 = selectedValueList39.length;
+        for (var selectedValueIndex39 = 0; selectedValueIndex39 < selectedValueListLen39; selectedValueIndex39++) {
+          var selectedValueData39 = selectedValueList39[selectedValueIndex39];
+          output += selectedValueData39 == opt_data.label ? ' btn-group-selected' : '';
         }
       }
       return output;
@@ -16279,7 +16751,7 @@ babelHelpers;
 (function () {
 	var core = this.metal.metal;
 	var dom = this.metal.dom;
-	var State = this.metal.State;
+	var State = this.metal.state;
 
 	/**
   * Clipboard component.
@@ -17779,9 +18251,11 @@ babelHelpers;
     /**
      * @param {{
      *    body: (?soydata.SanitizedHtml|string|undefined),
+     *    bodyId: (null|string|undefined),
      *    elementClasses: (null|string|undefined),
      *    footer: (?soydata.SanitizedHtml|string|undefined),
      *    header: (?soydata.SanitizedHtml|string|undefined),
+     *    headerId: (null|string|undefined),
      *    noCloseButton: (boolean|null|undefined),
      *    role: (null|string|undefined)
      * }} opt_data
@@ -17794,18 +18268,22 @@ babelHelpers;
       opt_data = opt_data || {};
       soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
+      soy.asserts.assertType(opt_data.bodyId == null || opt_data.bodyId instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.bodyId), 'bodyId', opt_data.bodyId, 'null|string|undefined');
+      var bodyId = /** @type {null|string|undefined} */opt_data.bodyId;
       soy.asserts.assertType(opt_data.elementClasses == null || opt_data.elementClasses instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.elementClasses), 'elementClasses', opt_data.elementClasses, 'null|string|undefined');
       var elementClasses = /** @type {null|string|undefined} */opt_data.elementClasses;
       soy.asserts.assertType(opt_data.footer == null || opt_data.footer instanceof Function || opt_data.footer instanceof soydata.UnsanitizedText || goog.isString(opt_data.footer), 'footer', opt_data.footer, '?soydata.SanitizedHtml|string|undefined');
       var footer = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.footer;
       soy.asserts.assertType(opt_data.header == null || opt_data.header instanceof Function || opt_data.header instanceof soydata.UnsanitizedText || goog.isString(opt_data.header), 'header', opt_data.header, '?soydata.SanitizedHtml|string|undefined');
       var header = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.header;
+      soy.asserts.assertType(opt_data.headerId == null || opt_data.headerId instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.headerId), 'headerId', opt_data.headerId, 'null|string|undefined');
+      var headerId = /** @type {null|string|undefined} */opt_data.headerId;
       soy.asserts.assertType(opt_data.noCloseButton == null || goog.isBoolean(opt_data.noCloseButton) || opt_data.noCloseButton === 1 || opt_data.noCloseButton === 0, 'noCloseButton', opt_data.noCloseButton, 'boolean|null|undefined');
       var noCloseButton = /** @type {boolean|null|undefined} */opt_data.noCloseButton;
       soy.asserts.assertType(opt_data.role == null || opt_data.role instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.role), 'role', opt_data.role, 'null|string|undefined');
       var role = /** @type {null|string|undefined} */opt_data.role;
-      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''), 'role', role ? role : 'dialog');
-      ie_open('div', null, null, 'class', 'modal-dialog', 'tabindex', '0');
+      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''));
+      ie_open('div', null, null, 'class', 'modal-dialog', 'tabindex', '0', 'role', role ? role : 'dialog', 'aria-labelledby', headerId, 'aria-describedby', bodyId);
       ie_open('div', null, null, 'class', 'modal-content');
       ie_open('header', null, null, 'class', 'modal-header');
       if (header) {
@@ -17816,10 +18294,12 @@ babelHelpers;
           ie_close('span');
           ie_close('button');
         }
+        ie_open('div', null, null, 'id', headerId);
         header();
+        ie_close('div');
       }
       ie_close('header');
-      ie_open('section', null, null, 'class', 'modal-body');
+      ie_open('section', null, null, 'class', 'modal-body', 'id', bodyId, 'role', 'document', 'tabindex', '0');
       if (body) {
         body();
       }
@@ -17838,8 +18318,8 @@ babelHelpers;
       $render.soyTemplateName = 'Modal.render';
     }
 
-    exports.render.params = ["body", "elementClasses", "footer", "header", "noCloseButton", "role"];
-    exports.render.types = { "body": "html", "elementClasses": "string", "footer": "html", "header": "html", "noCloseButton": "bool", "role": "string" };
+    exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role"];
+    exports.render.types = { "body": "html", "bodyId": "string", "elementClasses": "string", "footer": "html", "header": "html", "headerId": "string", "noCloseButton": "bool", "role": "string" };
     templates = exports;
     return exports;
   });
@@ -18101,11 +18581,31 @@ babelHelpers;
 		body: {},
 
 		/**
+   * The id used by the body element.
+   * @type {string}
+   */
+		bodyId: {
+			valueFn: function valueFn() {
+				return 'modal-body-' + core.getUid();
+			}
+		},
+
+		/**
    * Content to be placed inside modal footer. Can be either an html string or
    * a function that calls incremental dom for rendeirng the footer.
    * @type {string|function()}
    */
 		footer: {},
+
+		/**
+   * The id used by the header element.
+   * @type {string}
+   */
+		headerId: {
+			valueFn: function valueFn() {
+				return 'modal-header-' + core.getUid();
+			}
+		},
 
 		/**
    * Content to be placed inside modal header. Can be either an html string or
@@ -18216,16 +18716,16 @@ babelHelpers;
       ie_open('ul', null, null, 'class', 'pagination' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
       if (opt_data.showControls == true) {
         var disabled__soy8 = !opt_data.circular && opt_data.page == 0 ? true : false;
-        $renderControlElement_({ content: opt_data.strings.prev, disabled: disabled__soy8, index: 0 }, null, opt_ijData);
+        $renderControlElement_({ ariaLabel: opt_data.strings.prevAriaLabel, content: opt_data.strings.prev, disabled: disabled__soy8, index: 0 }, null, opt_ijData);
       }
-      var iLimit13 = opt_data.total;
-      for (var i13 = 0; i13 < iLimit13; i13++) {
-        var active__soy14 = opt_data.page == i13 ? true : false;
-        $renderElement_({ active: active__soy14, content: opt_data.offset + i13, index: i13 }, null, opt_ijData);
+      var iLimit14 = opt_data.total;
+      for (var i14 = 0; i14 < iLimit14; i14++) {
+        var active__soy15 = opt_data.page == i14 ? true : false;
+        $renderElement_({ active: active__soy15, content: opt_data.offset + i14, index: i14 }, null, opt_ijData);
       }
       if (opt_data.showControls == true) {
-        var disabled__soy21 = !opt_data.circular && opt_data.page == opt_data.total - 1 ? true : false;
-        $renderControlElement_({ content: opt_data.strings.next, disabled: disabled__soy21, index: 1 }, null, opt_ijData);
+        var disabled__soy22 = !opt_data.circular && opt_data.page == opt_data.total - 1 ? true : false;
+        $renderControlElement_({ ariaLabel: opt_data.strings.nextAriaLabel, content: opt_data.strings.next, disabled: disabled__soy22, index: 1 }, null, opt_ijData);
       }
       ie_close('ul');
     }
@@ -18274,7 +18774,7 @@ babelHelpers;
       }
       iattr('data-control-index', opt_data.index);
       ie_open_end();
-      ie_open('a', null, null, 'href', '#');
+      ie_open('a', null, null, 'href', '#', 'aria-label', opt_data.ariaLabel);
       itext((goog.asserts.assert(opt_data.content != null), opt_data.content));
       ie_close('a');
       ie_close('li');
@@ -18288,8 +18788,8 @@ babelHelpers;
     exports.render.types = { "circular": "any", "elementClasses": "any", "offset": "any", "page": "any", "strings": "any", "showControls": "any", "total": "any" };
     exports.renderElement_.params = ["active", "content", "index"];
     exports.renderElement_.types = { "active": "any", "content": "any", "index": "any" };
-    exports.renderControlElement_.params = ["content", "disabled", "index"];
-    exports.renderControlElement_.types = { "content": "any", "disabled": "any", "index": "any" };
+    exports.renderControlElement_.params = ["ariaLabel", "content", "disabled", "index"];
+    exports.renderControlElement_.types = { "ariaLabel": "any", "content": "any", "disabled": "any", "index": "any" };
     templates = exports;
     return exports;
   });
@@ -18315,7 +18815,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
+	var core = this.metalNamed.metal.core;
+	var object = this.metalNamed.metal.object;
 	var templates = this.metal.Pagination;
 	var Component = this.metal.component;
 	var Soy = this.metal.Soy;
@@ -18543,10 +19044,15 @@ babelHelpers;
    */
 		strings: {
 			validator: core.isObject,
-			value: {
-				next: 'Next',
-				prev: 'Prev'
-			}
+			setter: function setter(val) {
+				return object.mixin({
+					next: 'Next',
+					nextAriaLabel: 'Next',
+					prev: 'Prev',
+					prevAriaLabel: 'Previous'
+				}, val);
+			},
+			valueFn: function valueFn() {}
 		},
 
 		/**
@@ -18880,9 +19386,7 @@ babelHelpers;
    * Content to be placed inside tooltip.
    * @type {string}
    */
-		title: {
-			isHtml: true
-		}
+		title: {}
 	};
 
 	/**
@@ -18924,6 +19428,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -18947,7 +19453,7 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof goog.soy.data.SanitizedContent || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
       var title = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.title;
       var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
@@ -18956,7 +19462,8 @@ babelHelpers;
       ie_void('div', null, null, 'class', 'tooltip-arrow');
       ie_open('section', null, null, 'class', 'tooltip-inner');
       if (title) {
-        title();
+        var dyn0 = title;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       }
       ie_close('section');
       ie_close('div');
@@ -18967,7 +19474,7 @@ babelHelpers;
     }
 
     exports.render.params = ["title", "alignedPosition", "elementClasses", "position"];
-    exports.render.types = { "title": "html", "alignedPosition": "any", "elementClasses": "any", "position": "any" };
+    exports.render.types = { "title": "html|string", "alignedPosition": "any", "elementClasses": "any", "position": "any" };
     templates = exports;
     return exports;
   });
@@ -19087,6 +19594,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -19112,9 +19621,9 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof goog.soy.data.SanitizedContent || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
       var content = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.content;
-      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof goog.soy.data.SanitizedContent || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
       var title = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.title;
       var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
@@ -19125,13 +19634,15 @@ babelHelpers;
       }
       ie_open('h3', null, null, 'class', 'popover-title' + (title ? '' : ' hidden'));
       if (title) {
-        title();
+        var dyn0 = title;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       }
       ie_close('h3');
       ie_open('div', null, null, 'class', 'popover-content');
       ie_open('p');
       if (content) {
-        content();
+        var dyn1 = content;
+        if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       }
       ie_close('p');
       ie_close('div');
@@ -19143,7 +19654,7 @@ babelHelpers;
     }
 
     exports.render.params = ["content", "title", "alignedPosition", "elementClasses", "position", "withArrow"];
-    exports.render.types = { "content": "html", "title": "html", "alignedPosition": "any", "elementClasses": "any", "position": "any", "withArrow": "any" };
+    exports.render.types = { "content": "html|string", "title": "html|string", "alignedPosition": "any", "elementClasses": "any", "position": "any", "withArrow": "any" };
     templates = exports;
     return exports;
   });
@@ -19236,7 +19747,6 @@ babelHelpers;
    * @type {string}
    */
 		content: {
-			isHtml: true,
 			validator: function validator(val) {
 				return core.isString(val) || core.isFunction(val);
 			}
@@ -19535,7 +20045,7 @@ babelHelpers;
       ie_open('div', null, null, 'class', 'rating-items');
       var optionLimit18 = opt_data.options.length;
       for (var option18 = 0; option18 < optionLimit18; option18++) {
-        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
+        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title ? opt_data.options[option18].title : option18, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
       }
       ie_close('div');
       ie_open('input', null, null, 'type', 'hidden', 'aria-hidden', 'true', 'name', opt_data.inputHiddenName, 'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
@@ -19766,7 +20276,7 @@ babelHelpers;
 	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var Position = this.metal.position;
-	var State = this.metal.State;
+	var State = this.metal.state;
 
 	/**
   * Scrollspy utility.
@@ -20116,6 +20626,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -20132,8 +20644,10 @@ babelHelpers;
      *    arrowClass: (?),
      *    buttonClass: (?),
      *    elementClasses: (?),
+     *    expanded_: (?),
      *    handleDropdownStateSynced_: (?),
      *    handleItemClick_: (?),
+     *    handleItemKeyDown_: (?),
      *    hiddenInputName: (?),
      *    items: (?),
      *    values: (?),
@@ -20147,38 +20661,39 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       var $$temp;
-      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof goog.soy.data.SanitizedContent || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
       var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       ie_open('div', null, null, 'class', 'select' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onkeydown', 'handleKeyDown_');
       var currSelectedIndex__soy6 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
       ie_open('input', null, null, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
       ie_close('input');
       var param12 = function param12() {
-        var itemList21 = opt_data.items;
-        var itemListLen21 = itemList21.length;
-        for (var itemIndex21 = 0; itemIndex21 < itemListLen21; itemIndex21++) {
-          var itemData21 = itemList21[itemIndex21];
-          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex21 ? ' selected' : ''));
+        var itemList22 = opt_data.items;
+        var itemListLen22 = itemList22.length;
+        for (var itemIndex22 = 0; itemIndex22 < itemListLen22; itemIndex22++) {
+          var itemData22 = itemList22[itemIndex22];
+          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'data-onkeydown', ($$temp = opt_data.handleItemKeyDown_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex22 ? ' selected' : ''));
           ie_open('a', null, null, 'href', 'javascript:;');
-          $renderAsHtml_({ value: itemData21 }, null, opt_ijData);
+          var dyn0 = itemData22;
+          if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
           ie_close('a');
           ie_close('li');
         }
       };
-      var param24 = function param24() {
-        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle');
+      var param26 = function param26() {
+        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle', 'aria-haspopup', 'true', 'aria-expanded', opt_data.expanded_ ? 'true' : 'false');
         if (currSelectedIndex__soy6 == -1) {
-          if (label) {
-            label();
-          }
+          var dyn1 = label;
+          if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
         } else {
-          $renderAsHtml_({ value: opt_data.items[currSelectedIndex__soy6] }, null, opt_ijData);
+          var dyn2 = opt_data.items[currSelectedIndex__soy6];
+          if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
         }
         itext(' ');
         ie_void('span', null, null, 'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
         ie_close('button');
       };
-      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, header: param24, ref: 'dropdown' }, null, opt_ijData);
+      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, expanded: opt_data.expanded_, header: param26, ref: 'dropdown' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -20186,29 +20701,8 @@ babelHelpers;
       $render.soyTemplateName = 'Select.render';
     }
 
-    /**
-     * @param {{
-     *    value: (!soydata.SanitizedHtml|string)
-     * }} opt_data
-     * @param {(null|undefined)=} opt_ignored
-     * @param {Object<string, *>=} opt_ijData
-     * @return {void}
-     * @suppress {checkTypes}
-     */
-    function $renderAsHtml_(opt_data, opt_ignored, opt_ijData) {
-      soy.asserts.assertType(opt_data.value instanceof Function || opt_data.value instanceof soydata.UnsanitizedText || goog.isString(opt_data.value), 'value', opt_data.value, 'Function');
-      var value = /** @type {Function} */opt_data.value;
-      value();
-    }
-    exports.renderAsHtml_ = $renderAsHtml_;
-    if (goog.DEBUG) {
-      $renderAsHtml_.soyTemplateName = 'Select.renderAsHtml_';
-    }
-
-    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "handleDropdownStateSynced_", "handleItemClick_", "hiddenInputName", "items", "values", "selectedIndex"];
-    exports.render.types = { "label": "html", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
-    exports.renderAsHtml_.params = ["value"];
-    exports.renderAsHtml_.types = { "value": "html" };
+    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "expanded_", "handleDropdownStateSynced_", "handleItemClick_", "handleItemKeyDown_", "hiddenInputName", "items", "values", "selectedIndex"];
+    exports.render.types = { "label": "html|string", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "expanded_": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "handleItemKeyDown_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
     templates = exports;
     return exports;
   });
@@ -20306,9 +20800,14 @@ babelHelpers;
 				// been made visible before we try focusing them.
 				this.focusIndex_(0);
 				this.openedWithKeyboard_ = false;
+			} else if (this.closedWithKeyboard_) {
+				this.element.querySelector('.dropdown-select').focus();
+				this.closedWithKeyboard_ = false;
 			} else if (data.changes.expanded) {
 				this.focusedIndex_ = null;
 			}
+
+			this.expanded_ = this.getDropdown().expanded;
 		};
 
 		/**
@@ -20320,9 +20819,24 @@ babelHelpers;
 
 
 		Select.prototype.handleItemClick_ = function handleItemClick_(event) {
-			this.selectedIndex = this.findItemIndex_(event.delegateTarget);
-			this.getDropdown().close();
+			this.selectItem_(event.delegateTarget);
 			event.preventDefault();
+		};
+
+		/**
+   * Handles a `keydown` event on one of the items. Updates `selectedIndex`
+   * accordingly.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		Select.prototype.handleItemKeyDown_ = function handleItemKeyDown_(event) {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.closedWithKeyboard_ = true;
+				this.selectItem_(event.delegateTarget);
+				event.preventDefault();
+			}
 		};
 
 		/**
@@ -20333,10 +20847,11 @@ babelHelpers;
 
 
 		Select.prototype.handleKeyDown_ = function handleKeyDown_(event) {
-			if (this.getDropdown().expanded) {
+			if (this.expanded_) {
 				switch (event.keyCode) {
 					case 27:
-						this.getDropdown().close();
+						this.closedWithKeyboard_ = true;
+						this.expanded_ = false;
 						break;
 					case 38:
 						this.focusedIndex_ = core.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
@@ -20351,10 +20866,22 @@ babelHelpers;
 				}
 			} else if ((event.keyCode === 13 || event.keyCode === 32) && dom.hasClass(event.target, 'dropdown-select')) {
 				this.openedWithKeyboard_ = true;
-				this.getDropdown().open();
+				this.expanded_ = true;
 				event.preventDefault();
 				return;
 			}
+		};
+
+		/**
+   * Selects the item for the given element, and closes the dropdown.
+   * @param {!Element} itemElement
+   * @protected
+   */
+
+
+		Select.prototype.selectItem_ = function selectItem_(itemElement) {
+			this.selectedIndex = this.findItemIndex_(itemElement);
+			this.expanded_ = false;
 		};
 
 		/**
@@ -20401,6 +20928,16 @@ babelHelpers;
 		},
 
 		/**
+   * Flag indicating if the select dropdown is currently expanded.
+   * @type {boolean}
+   */
+		expanded_: {
+			validator: core.isBoolean,
+			value: false,
+			internal: true
+		},
+
+		/**
    * The name of the hidden input field
    * @type {string}
    */
@@ -20429,9 +20966,6 @@ babelHelpers;
    * @type {string}
    */
 		label: {
-			setter: function setter(label) {
-				return Soy.toIncDom(label);
-			},
 			validator: core.isString
 		},
 
@@ -20470,7 +21004,7 @@ babelHelpers;
 
 (function () {
 	var core = this.metal.metal;
-	var State = this.metal.State;
+	var State = this.metal.state;
 	var Position = this.metal.position;
 
 	/**
@@ -20879,7 +21413,7 @@ babelHelpers;
 	var DragShim = this.metal.DragShim;
 	var EventHandler = this.metalNamed.events.EventHandler;
 	var Position = this.metal.position;
-	var State = this.metal.State;
+	var State = this.metal.state;
 
 	/**
   * Responsible for making elements draggable. Handles all the logic
@@ -22163,7 +22697,7 @@ babelHelpers;
       ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
       ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy15);
       ie_open('div', null, null, 'class', 'rail-handle');
-      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0');
+      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0', 'role', 'slider', 'aria-valuemin', minNumber__soy4, 'aria-valuemax', maxNumber__soy3, 'aria-valuenow', valueNumber__soy5);
       ie_close('div');
       ie_close('div');
       ie_close('div');
@@ -22469,7 +23003,7 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      ie_open('div', null, null, 'class', 'switcher' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + (opt_data.checked ? ' switcher-on' : ''), 'data-onclick', 'handleClick');
+      ie_open('div', null, null, 'class', 'switcher' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : '') + (opt_data.checked ? ' switcher-on' : ''), 'data-onclick', 'handleClick', 'data-onkeyup', 'handleKeyUp', 'role', 'checkbox', 'aria-checked', opt_data.checked ? 'true' : 'false', 'tabindex', '0');
       ie_open('div', null, null, 'class', 'switcher-control');
       ie_void('div', null, null, 'class', 'switcher-control-icon');
       ie_close('div');
@@ -22531,6 +23065,17 @@ babelHelpers;
 			this.checked = !this.checked;
 		};
 
+		/**
+   * Handles switcher keyboard press.
+   */
+
+
+		Switcher.prototype.handleKeyUp = function handleKeyUp() {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.checked = !this.checked;
+			}
+		};
+
 		return Switcher;
 	}(Component);
 
@@ -22562,7 +23107,7 @@ babelHelpers;
 	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var EventHandler = this.metalNamed.events.EventHandler;
-	var State = this.metal.State;
+	var State = this.metal.state;
 
 	/**
   * Toggler component.
@@ -22791,7 +23336,7 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'class', 'treeview' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tree');
+      ie_open('div', null, null, 'class', 'treeview' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
       $nodes(opt_data, null, opt_ijData);
       ie_close('div');
     }
@@ -22809,7 +23354,7 @@ babelHelpers;
      */
     function $nodes(opt_data, opt_ignored, opt_ijData) {
       if (opt_data.nodes) {
-        ie_open('ul', null, null, 'class', 'treeview-nodes');
+        ie_open('ul', null, null, 'class', 'treeview-nodes', 'role', 'tree');
         var nodeList17 = opt_data.nodes;
         var nodeListLen17 = nodeList17.length;
         for (var nodeIndex17 = 0; nodeIndex17 < nodeListLen17; nodeIndex17++) {
@@ -22833,10 +23378,17 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $node(opt_data, opt_ignored, opt_ijData) {
-      ie_open('li', null, null, 'class', 'treeview-node', 'data-treeview-path', opt_data.path);
+      ie_open_start('li');
+      iattr('class', 'treeview-node');
+      iattr('data-treeview-path', opt_data.path);
+      iattr('data-onkeyup', 'handleNodeKeyUp_');
+      $ariaExpanded(opt_data, null, opt_ijData);
+      iattr('role', 'treeitem');
+      iattr('tabindex', '0');
+      ie_open_end();
       if (opt_data.node) {
         ie_open('div', null, null, 'class', 'treeview-node-wrapper' + (opt_data.node.expanded ? ' expanded' : ''));
-        ie_open('div', null, null, 'class', 'treeview-node-main clearfix' + (opt_data.node.children ? ' hasChildren' : ''), 'data-onclick', 'handleNodeClicked_', 'data-onkeyup', 'handleNodeKeyUp_', 'aria-expanded', opt_data.node.expanded ? 'true' : 'false', 'role', 'treeitem', 'tabindex', '0');
+        ie_open('div', null, null, 'class', 'treeview-node-main clearfix' + (opt_data.node.children ? ' hasChildren' : ''), 'data-onclick', 'handleNodeClicked_');
         if (opt_data.node.children) {
           ie_void('div', null, null, 'class', 'treeview-node-toggler');
         }
@@ -22854,12 +23406,31 @@ babelHelpers;
       $node.soyTemplateName = 'Treeview.node';
     }
 
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $ariaExpanded(opt_data, opt_ignored, opt_ijData) {
+      if (opt_data.node.children) {
+        iattr('aria-expanded', opt_data.node.expanded ? 'true' : 'false');
+      }
+    }
+    exports.ariaExpanded = $ariaExpanded;
+    if (goog.DEBUG) {
+      $ariaExpanded.soyTemplateName = 'Treeview.ariaExpanded';
+    }
+
     exports.render.params = ["elementClasses", "nodes"];
     exports.render.types = { "elementClasses": "any", "nodes": "any" };
     exports.nodes.params = ["nodes", "parentPath"];
     exports.nodes.types = { "nodes": "any", "parentPath": "any" };
     exports.node.params = ["node", "path"];
     exports.node.types = { "node": "any", "path": "any" };
+    exports.ariaExpanded.params = ["node"];
+    exports.ariaExpanded.types = { "node": "any" };
     templates = exports;
     return exports;
   });
@@ -22937,7 +23508,8 @@ babelHelpers;
 
 		Treeview.prototype.handleNodeKeyUp_ = function handleNodeKeyUp_(event) {
 			if (event.keyCode === 13 || event.keyCode === 32) {
-				this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
+				this.toggleExpandedState_(event.delegateTarget);
+				event.stopPropagation();
 			}
 		};
 

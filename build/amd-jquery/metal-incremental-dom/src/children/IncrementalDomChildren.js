@@ -47,10 +47,11 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 			renderer_ = renderer;
 			callback_ = callback;
 			tree_ = {
-				config: {
+				props: {
 					children: []
 				}
 			};
+			tree_.config = tree_.props;
 			currentParent_ = tree_;
 			isCapturing_ = true;
 			_IncrementalDomAop2.default.startInterception({
@@ -76,11 +77,11 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 				args[0] = tree.text;
 				IncrementalDOM.text.apply(null, args);
 			} else {
-				var _args = _IncrementalDomUtils2.default.buildCallFromConfig(tree.tag, tree.config);
+				var _args = _IncrementalDomUtils2.default.buildCallFromConfig(tree.tag, tree.props);
 				IncrementalDOM.elementOpen.apply(null, _args);
-				if (tree.config.children) {
-					for (var i = 0; i < tree.config.children.length; i++) {
-						IncrementalDomChildren.render(tree.config.children[i], opt_skipNode);
+				if (tree.props.children) {
+					for (var i = 0; i < tree.props.children.length; i++) {
+						IncrementalDomChildren.render(tree.props.children[i], opt_skipNode);
 					}
 				}
 				IncrementalDOM.elementClose(tree.tag);
@@ -115,8 +116,9 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 			}
 		} else {
 			child.tag = args[0];
-			child.config = _IncrementalDomUtils2.default.buildConfigFromCall(args);
-			child.config.children = [];
+			child.props = _IncrementalDomUtils2.default.buildConfigFromCall(args);
+			child.props.children = [];
+			child.config = child.props;
 		}
 
 		addChildToTree(child);
@@ -124,7 +126,7 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 	}
 
 	function addChildToTree(child) {
-		currentParent_.config.children.push(child);
+		currentParent_.props.children.push(child);
 	}
 
 	/**

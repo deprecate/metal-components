@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/State', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _State3, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/all/state', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _state, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,7 +9,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 
 	var _dom2 = _interopRequireDefault(_dom);
 
-	var _State4 = _interopRequireDefault(_State3);
+	var _state2 = _interopRequireDefault(_state);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -95,7 +95,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		};
 
 		return Clipboard;
-	}(_State4.default);
+	}(_state2.default);
 
 	/**
   * State definition.
@@ -262,7 +262,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		};
 
 		return ClipboardAction;
-	}(_State4.default);
+	}(_state2.default);
 
 	/**
   * State definition.

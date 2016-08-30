@@ -69,6 +69,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -94,9 +96,9 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.content == null || opt_data.content instanceof Function || opt_data.content instanceof goog.soy.data.SanitizedContent || opt_data.content instanceof soydata.UnsanitizedText || goog.isString(opt_data.content), 'content', opt_data.content, '?soydata.SanitizedHtml|string|undefined');
       var content = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.content;
-      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof goog.soy.data.SanitizedContent || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
       var title = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.title;
       var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
@@ -107,13 +109,15 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       }
       ie_open('h3', null, null, 'class', 'popover-title' + (title ? '' : ' hidden'));
       if (title) {
-        title();
+        var dyn0 = title;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       }
       ie_close('h3');
       ie_open('div', null, null, 'class', 'popover-content');
       ie_open('p');
       if (content) {
-        content();
+        var dyn1 = content;
+        if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       }
       ie_close('p');
       ie_close('div');
@@ -125,7 +129,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     }
 
     exports.render.params = ["content", "title", "alignedPosition", "elementClasses", "position", "withArrow"];
-    exports.render.types = { "content": "html", "title": "html", "alignedPosition": "any", "elementClasses": "any", "position": "any", "withArrow": "any" };
+    exports.render.types = { "content": "html|string", "title": "html|string", "alignedPosition": "any", "elementClasses": "any", "position": "any", "withArrow": "any" };
     exports.templates = templates = exports;
     return exports;
   });

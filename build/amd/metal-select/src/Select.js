@@ -87,22 +87,35 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				// been made visible before we try focusing them.
 				this.focusIndex_(0);
 				this.openedWithKeyboard_ = false;
+			} else if (this.closedWithKeyboard_) {
+				this.element.querySelector('.dropdown-select').focus();
+				this.closedWithKeyboard_ = false;
 			} else if (data.changes.expanded) {
 				this.focusedIndex_ = null;
 			}
+
+			this.expanded_ = this.getDropdown().expanded;
 		};
 
 		Select.prototype.handleItemClick_ = function handleItemClick_(event) {
-			this.selectedIndex = this.findItemIndex_(event.delegateTarget);
-			this.getDropdown().close();
+			this.selectItem_(event.delegateTarget);
 			event.preventDefault();
 		};
 
+		Select.prototype.handleItemKeyDown_ = function handleItemKeyDown_(event) {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.closedWithKeyboard_ = true;
+				this.selectItem_(event.delegateTarget);
+				event.preventDefault();
+			}
+		};
+
 		Select.prototype.handleKeyDown_ = function handleKeyDown_(event) {
-			if (this.getDropdown().expanded) {
+			if (this.expanded_) {
 				switch (event.keyCode) {
 					case 27:
-						this.getDropdown().close();
+						this.closedWithKeyboard_ = true;
+						this.expanded_ = false;
 						break;
 					case 38:
 						this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
@@ -117,10 +130,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				}
 			} else if ((event.keyCode === 13 || event.keyCode === 32) && _dom2.default.hasClass(event.target, 'dropdown-select')) {
 				this.openedWithKeyboard_ = true;
-				this.getDropdown().open();
+				this.expanded_ = true;
 				event.preventDefault();
 				return;
 			}
+		};
+
+		Select.prototype.selectItem_ = function selectItem_(itemElement) {
+			this.selectedIndex = this.findItemIndex_(itemElement);
+			this.expanded_ = false;
 		};
 
 		Select.prototype.setItems_ = function setItems_(items) {
@@ -160,6 +178,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		},
 
 		/**
+   * Flag indicating if the select dropdown is currently expanded.
+   * @type {boolean}
+   */
+		expanded_: {
+			validator: _metal2.default.isBoolean,
+			value: false,
+			internal: true
+		},
+
+		/**
    * The name of the hidden input field
    * @type {string}
    */
@@ -188,9 +216,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
    * @type {string}
    */
 		label: {
-			setter: function setter(label) {
-				return _Soy2.default.toIncDom(label);
-			},
 			validator: _metal2.default.isString
 		},
 

@@ -85,18 +85,20 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       ie_open('div', null, null, 'class', 'btn-group component' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      var buttonList26 = opt_data.buttons;
-      var buttonListLen26 = buttonList26.length;
-      for (var buttonIndex26 = 0; buttonIndex26 < buttonListLen26; buttonIndex26++) {
-        var buttonData26 = buttonList26[buttonIndex26];
-        var type__soy6 = buttonData26.type ? buttonData26.type : 'button';
-        var cssClass__soy7 = buttonData26.cssClass ? buttonData26.cssClass : 'btn btn-default';
-        ie_open('button', null, null, 'type', type__soy6, 'class', cssClass__soy7 + $selectedClass({ label: buttonData26.label, selected: opt_data.selected }, null, opt_ijData), 'data-index', buttonIndex26, 'data-onclick', 'handleClick_');
+      var buttonList30 = opt_data.buttons;
+      var buttonListLen30 = buttonList30.length;
+      for (var buttonIndex30 = 0; buttonIndex30 < buttonListLen30; buttonIndex30++) {
+        var buttonData30 = buttonList30[buttonIndex30];
+        var type__soy6 = buttonData30.type ? buttonData30.type : 'button';
+        var cssClass__soy7 = buttonData30.cssClass ? buttonData30.cssClass : 'btn btn-default';
+        var selectedClass__soy8 = '';
+        selectedClass__soy8 += $selectedClass({ label: buttonData30.label, selected: opt_data.selected }, null, opt_ijData);
+        ie_open('button', null, null, 'type', type__soy6, 'class', cssClass__soy7 + selectedClass__soy8, 'data-index', buttonIndex30, 'data-onclick', 'handleClick_', 'role', 'checkbox', 'aria-checked', selectedClass__soy8 ? 'true' : 'false');
         ie_open('span', null, null, 'class', 'btn-group-label');
-        itext((goog.asserts.assert((buttonData26.label ? buttonData26.label : '') != null), buttonData26.label ? buttonData26.label : ''));
+        itext((goog.asserts.assert((buttonData30.label ? buttonData30.label : '') != null), buttonData30.label ? buttonData30.label : ''));
         ie_close('span');
-        if (buttonData26.icon) {
-          ie_void('span', null, null, 'class', buttonData26.icon);
+        if (buttonData30.icon) {
+          ie_void('span', null, null, 'class', buttonData30.icon);
         }
         ie_close('button');
       }
@@ -117,11 +119,11 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function $selectedClass(opt_data, opt_ignored, opt_ijData) {
       var output = '';
       if (opt_data.selected) {
-        var selectedValueList35 = opt_data.selected;
-        var selectedValueListLen35 = selectedValueList35.length;
-        for (var selectedValueIndex35 = 0; selectedValueIndex35 < selectedValueListLen35; selectedValueIndex35++) {
-          var selectedValueData35 = selectedValueList35[selectedValueIndex35];
-          output += selectedValueData35 == opt_data.label ? ' btn-group-selected' : '';
+        var selectedValueList39 = opt_data.selected;
+        var selectedValueListLen39 = selectedValueList39.length;
+        for (var selectedValueIndex39 = 0; selectedValueIndex39 < selectedValueListLen39; selectedValueIndex39++) {
+          var selectedValueData39 = selectedValueList39[selectedValueIndex39];
+          output += selectedValueData39 == opt_data.label ? ' btn-group-selected' : '';
         }
       }
       return output;

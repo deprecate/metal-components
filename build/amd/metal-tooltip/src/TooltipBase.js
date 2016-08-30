@@ -247,9 +247,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
    * Content to be placed inside tooltip.
    * @type {string}
    */
-		title: {
-			isHtml: true
-		}
+		title: {}
 	};
 
 	/**

@@ -9,22 +9,16 @@
 	<li class="listitem list-group-item {$elementClasses ? ' ' + $elementClasses : ''} clearfix" data-index="{$index}">
 		{if $item.avatar}
 			<span class="list-image pull-left {$item.avatar.class}">
-				{call .htmlContent}
-					{param content: $item.avatar.content /}
-				{/call}
+				{$item.avatar.content}
 			</span>
 		{/if}
 		<div class="list-main-content pull-left">
 			<div class="list-text-primary">
-				{call .htmlContent}
-					{param content: $item.textPrimary /}
-				{/call}
+				{$item.textPrimary}
 			</div>
 			{if $item.textSecondary}
 				<div class="list-text-secondary">
-					{call .htmlContent}
-						{param content: $item.textSecondary /}
-					{/call}
+					{$item.textSecondary}
 				</div>
 			{/if}
 		</div>
@@ -36,9 +30,7 @@
 		{if $item.iconsHtml}
 			<div class="pull-right">
 				{foreach $iconHtml in $item.iconsHtml}
-					{call .htmlContent}
-						{param content: $iconHtml /}
-					{/call}
+					{$iconHtml}
 				{/foreach}
 			</div>
 		{/if}
@@ -48,14 +40,4 @@
 			</span>
 		{/if}
 	</li>
-{/template}
-
-/**
- * Prints the given param content as html.
- */
-{template .htmlContent kind="html"}
-	{@param? content: html}
-	{if $content}
-		{$content}
-	{/if}
 {/template}

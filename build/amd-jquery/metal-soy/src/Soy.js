@@ -54,22 +54,11 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 	var Soy = function (_IncrementalDomRender) {
 		_inherits(Soy, _IncrementalDomRender);
 
-		/**
-   * @inheritDoc
-   */
-		function Soy(comp) {
+		function Soy() {
 			_classCallCheck(this, Soy);
 
-			var _this = _possibleConstructorReturn(this, _IncrementalDomRender.call(this, comp));
-
-			_this.addMissingStateKeys_();
-			return _this;
+			return _possibleConstructorReturn(this, _IncrementalDomRender.apply(this, arguments));
 		}
-		/**
-   * Adds the template params to the component's state, if they don't exist yet.
-   * @protected
-   */
-
 
 		Soy.prototype.addMissingStateKeys_ = function addMissingStateKeys_() {
 			var elementTemplate = this.component_.constructor.TEMPLATE;
@@ -117,6 +106,11 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 				}
 				return goog.loadedModules_[namespace][templateName](opt_data, opt_ignored, opt_ijData);
 			};
+		};
+
+		Soy.prototype.handleDataManagerCreated_ = function handleDataManagerCreated_() {
+			_IncrementalDomRender.prototype.handleDataManagerCreated_.call(this);
+			this.addMissingStateKeys_();
 		};
 
 		Soy.handleInterceptedCall_ = function handleInterceptedCall_(originalFn) {

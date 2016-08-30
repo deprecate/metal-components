@@ -69,6 +69,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -85,8 +87,10 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      *    arrowClass: (?),
      *    buttonClass: (?),
      *    elementClasses: (?),
+     *    expanded_: (?),
      *    handleDropdownStateSynced_: (?),
      *    handleItemClick_: (?),
+     *    handleItemKeyDown_: (?),
      *    hiddenInputName: (?),
      *    items: (?),
      *    values: (?),
@@ -100,38 +104,39 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       var $$temp;
-      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof goog.soy.data.SanitizedContent || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
       var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       ie_open('div', null, null, 'class', 'select' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onkeydown', 'handleKeyDown_');
       var currSelectedIndex__soy6 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
       ie_open('input', null, null, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
       ie_close('input');
       var param12 = function param12() {
-        var itemList21 = opt_data.items;
-        var itemListLen21 = itemList21.length;
-        for (var itemIndex21 = 0; itemIndex21 < itemListLen21; itemIndex21++) {
-          var itemData21 = itemList21[itemIndex21];
-          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex21 ? ' selected' : ''));
+        var itemList22 = opt_data.items;
+        var itemListLen22 = itemList22.length;
+        for (var itemIndex22 = 0; itemIndex22 < itemListLen22; itemIndex22++) {
+          var itemData22 = itemList22[itemIndex22];
+          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'data-onkeydown', ($$temp = opt_data.handleItemKeyDown_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex22 ? ' selected' : ''));
           ie_open('a', null, null, 'href', 'javascript:;');
-          $renderAsHtml_({ value: itemData21 }, null, opt_ijData);
+          var dyn0 = itemData22;
+          if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
           ie_close('a');
           ie_close('li');
         }
       };
-      var param24 = function param24() {
-        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle');
+      var param26 = function param26() {
+        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle', 'aria-haspopup', 'true', 'aria-expanded', opt_data.expanded_ ? 'true' : 'false');
         if (currSelectedIndex__soy6 == -1) {
-          if (label) {
-            label();
-          }
+          var dyn1 = label;
+          if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
         } else {
-          $renderAsHtml_({ value: opt_data.items[currSelectedIndex__soy6] }, null, opt_ijData);
+          var dyn2 = opt_data.items[currSelectedIndex__soy6];
+          if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
         }
         itext(' ');
         ie_void('span', null, null, 'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
         ie_close('button');
       };
-      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, header: param24, ref: 'dropdown' }, null, opt_ijData);
+      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, expanded: opt_data.expanded_, header: param26, ref: 'dropdown' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -139,29 +144,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $render.soyTemplateName = 'Select.render';
     }
 
-    /**
-     * @param {{
-     *    value: (!soydata.SanitizedHtml|string)
-     * }} opt_data
-     * @param {(null|undefined)=} opt_ignored
-     * @param {Object<string, *>=} opt_ijData
-     * @return {void}
-     * @suppress {checkTypes}
-     */
-    function $renderAsHtml_(opt_data, opt_ignored, opt_ijData) {
-      soy.asserts.assertType(opt_data.value instanceof Function || opt_data.value instanceof soydata.UnsanitizedText || goog.isString(opt_data.value), 'value', opt_data.value, 'Function');
-      var value = /** @type {Function} */opt_data.value;
-      value();
-    }
-    exports.renderAsHtml_ = $renderAsHtml_;
-    if (goog.DEBUG) {
-      $renderAsHtml_.soyTemplateName = 'Select.renderAsHtml_';
-    }
-
-    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "handleDropdownStateSynced_", "handleItemClick_", "hiddenInputName", "items", "values", "selectedIndex"];
-    exports.render.types = { "label": "html", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
-    exports.renderAsHtml_.params = ["value"];
-    exports.renderAsHtml_.types = { "value": "html" };
+    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "expanded_", "handleDropdownStateSynced_", "handleItemClick_", "handleItemKeyDown_", "hiddenInputName", "items", "values", "selectedIndex"];
+    exports.render.types = { "label": "html|string", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "expanded_": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "handleItemKeyDown_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
     exports.templates = templates = exports;
     return exports;
   });

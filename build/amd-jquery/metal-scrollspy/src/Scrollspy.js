@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', 'metal-state/src/State', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _position, _State2, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/src/all/position', 'metal-state/src/all/state', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _position, _state, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,7 +11,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 
 	var _position2 = _interopRequireDefault(_position);
 
-	var _State3 = _interopRequireDefault(_State2);
+	var _state2 = _interopRequireDefault(_state);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -216,7 +216,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		};
 
 		return Scrollspy;
-	}(_State3.default);
+	}(_state2.default);
 
 	Scrollspy.STATE = {
 		/**

@@ -2189,7 +2189,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
       goog.global['COMPILED'] = COMPILED;
     }
 
-    goog.string = {};
+    goog.provide('goog.string');
 
     /**
      * Does simple python-style string substitution.

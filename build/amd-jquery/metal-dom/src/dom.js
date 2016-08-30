@@ -38,15 +38,21 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			_classCallCheck(this, dom);
 		}
 
-		dom.addClasses = function addClasses(element, classes) {
-			if (!_metal.core.isObject(element) || !_metal.core.isString(classes)) {
+		dom.addClasses = function addClasses(elements, classes) {
+			if (!_metal.core.isObject(elements) || !_metal.core.isString(classes)) {
 				return;
 			}
 
-			if ('classList' in element) {
-				dom.addClassesWithNative_(element, classes);
-			} else {
-				dom.addClassesWithoutNative_(element, classes);
+			if (!elements.length) {
+				elements = [elements];
+			}
+
+			for (var i = 0; i < elements.length; i++) {
+				if ('classList' in elements[i]) {
+					dom.addClassesWithNative_(elements[i], classes);
+				} else {
+					dom.addClassesWithoutNative_(elements[i], classes);
+				}
 			}
 		};
 
@@ -299,15 +305,21 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			}
 		};
 
-		dom.removeClasses = function removeClasses(element, classes) {
-			if (!_metal.core.isObject(element) || !_metal.core.isString(classes)) {
+		dom.removeClasses = function removeClasses(elements, classes) {
+			if (!_metal.core.isObject(elements) || !_metal.core.isString(classes)) {
 				return;
 			}
 
-			if ('classList' in element) {
-				dom.removeClassesWithNative_(element, classes);
-			} else {
-				dom.removeClassesWithoutNative_(element, classes);
+			if (!elements.length) {
+				elements = [elements];
+			}
+
+			for (var i = 0; i < elements.length; i++) {
+				if ('classList' in elements[i]) {
+					dom.removeClassesWithNative_(elements[i], classes);
+				} else {
+					dom.removeClassesWithoutNative_(elements[i], classes);
+				}
 			}
 		};
 
@@ -438,6 +450,13 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 		};
 
 		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
+			if (event.type === 'click' && event.button === 2) {
+				// Firefox triggers "click" events on the document for right clicks. This
+				// causes our delegate logic to trigger it for regular elements too, which
+				// shouldn't happen. Ignoring them here.
+				return;
+			}
+
 			var data = _domData2.default.get(element);
 			var listeners = data.listeners[event.type];
 			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);

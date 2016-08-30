@@ -12,6 +12,7 @@ define(['exports'], function (exports) {
 	}
 
 	var comps_ = [];
+	var disposing_ = false;
 
 	var IncrementalDomUnusedComponents = function () {
 		function IncrementalDomUnusedComponents() {
@@ -19,31 +20,30 @@ define(['exports'], function (exports) {
 		}
 
 		IncrementalDomUnusedComponents.disposeUnused = function disposeUnused() {
-			for (var i = 0; i < comps_.length; i++) {
-				if (!comps_[i].isDisposed()) {
-					var renderer = comps_[i].getRenderer();
-					if (!renderer.getParent()) {
-						// Don't let disposing cause the element to be removed, since it may
-						// be currently being reused by another component.
-						comps_[i].element = null;
+			if (disposing_) {
+				return;
+			}
+			disposing_ = true;
 
-						var ref = renderer.config_.ref;
-						var owner = renderer.getOwner();
-						if (owner.components[ref] === comps_[i]) {
-							owner.disposeSubComponents([ref]);
-						} else {
-							comps_[i].dispose();
-						}
-					}
+			for (var i = 0; i < comps_.length; i++) {
+				var comp = comps_[i];
+				if (!comp.isDisposed() && !comp.getRenderer().getParent()) {
+					// Don't let disposing cause the element to be removed, since it may
+					// be currently being reused by another component.
+					comp.element = null;
+					comp.dispose();
 				}
 			}
 			comps_ = [];
+			disposing_ = false;
 		};
 
 		IncrementalDomUnusedComponents.schedule = function schedule(comps) {
 			for (var i = 0; i < comps.length; i++) {
-				comps[i].getRenderer().parent_ = null;
-				comps_.push(comps[i]);
+				if (!comps[i].isDisposed()) {
+					comps[i].getRenderer().parent_ = null;
+					comps_.push(comps[i]);
+				}
 			}
 		};
 

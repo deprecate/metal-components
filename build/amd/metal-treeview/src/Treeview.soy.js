@@ -84,7 +84,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
-      ie_open('div', null, null, 'class', 'treeview' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'tree');
+      ie_open('div', null, null, 'class', 'treeview' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
       $nodes(opt_data, null, opt_ijData);
       ie_close('div');
     }
@@ -102,7 +102,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $nodes(opt_data, opt_ignored, opt_ijData) {
       if (opt_data.nodes) {
-        ie_open('ul', null, null, 'class', 'treeview-nodes');
+        ie_open('ul', null, null, 'class', 'treeview-nodes', 'role', 'tree');
         var nodeList17 = opt_data.nodes;
         var nodeListLen17 = nodeList17.length;
         for (var nodeIndex17 = 0; nodeIndex17 < nodeListLen17; nodeIndex17++) {
@@ -126,10 +126,17 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      * @suppress {checkTypes}
      */
     function $node(opt_data, opt_ignored, opt_ijData) {
-      ie_open('li', null, null, 'class', 'treeview-node', 'data-treeview-path', opt_data.path);
+      ie_open_start('li');
+      iattr('class', 'treeview-node');
+      iattr('data-treeview-path', opt_data.path);
+      iattr('data-onkeyup', 'handleNodeKeyUp_');
+      $ariaExpanded(opt_data, null, opt_ijData);
+      iattr('role', 'treeitem');
+      iattr('tabindex', '0');
+      ie_open_end();
       if (opt_data.node) {
         ie_open('div', null, null, 'class', 'treeview-node-wrapper' + (opt_data.node.expanded ? ' expanded' : ''));
-        ie_open('div', null, null, 'class', 'treeview-node-main clearfix' + (opt_data.node.children ? ' hasChildren' : ''), 'data-onclick', 'handleNodeClicked_', 'data-onkeyup', 'handleNodeKeyUp_', 'aria-expanded', opt_data.node.expanded ? 'true' : 'false', 'role', 'treeitem', 'tabindex', '0');
+        ie_open('div', null, null, 'class', 'treeview-node-main clearfix' + (opt_data.node.children ? ' hasChildren' : ''), 'data-onclick', 'handleNodeClicked_');
         if (opt_data.node.children) {
           ie_void('div', null, null, 'class', 'treeview-node-toggler');
         }
@@ -147,12 +154,31 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $node.soyTemplateName = 'Treeview.node';
     }
 
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $ariaExpanded(opt_data, opt_ignored, opt_ijData) {
+      if (opt_data.node.children) {
+        iattr('aria-expanded', opt_data.node.expanded ? 'true' : 'false');
+      }
+    }
+    exports.ariaExpanded = $ariaExpanded;
+    if (goog.DEBUG) {
+      $ariaExpanded.soyTemplateName = 'Treeview.ariaExpanded';
+    }
+
     exports.render.params = ["elementClasses", "nodes"];
     exports.render.types = { "elementClasses": "any", "nodes": "any" };
     exports.nodes.params = ["nodes", "parentPath"];
     exports.nodes.types = { "nodes": "any", "parentPath": "any" };
     exports.node.params = ["node", "path"];
     exports.node.types = { "node": "any", "path": "any" };
+    exports.ariaExpanded.params = ["node"];
+    exports.ariaExpanded.types = { "node": "any" };
     exports.templates = templates = exports;
     return exports;
   });

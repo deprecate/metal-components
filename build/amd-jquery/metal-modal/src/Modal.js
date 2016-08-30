@@ -185,11 +185,31 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		body: {},
 
 		/**
+   * The id used by the body element.
+   * @type {string}
+   */
+		bodyId: {
+			valueFn: function valueFn() {
+				return 'modal-body-' + _metal2.default.getUid();
+			}
+		},
+
+		/**
    * Content to be placed inside modal footer. Can be either an html string or
    * a function that calls incremental dom for rendeirng the footer.
    * @type {string|function()}
    */
 		footer: {},
+
+		/**
+   * The id used by the header element.
+   * @type {string}
+   */
+		headerId: {
+			valueFn: function valueFn() {
+				return 'modal-header-' + _metal2.default.getUid();
+			}
+		},
 
 		/**
    * Content to be placed inside modal header. Can be either an html string or

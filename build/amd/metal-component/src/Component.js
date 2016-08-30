@@ -142,10 +142,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 
 			_this.element = _this.initialConfig_.element;
 
-			_this.dataManager_ = _this.createDataManager();
-
 			_this.renderer_ = _this.createRenderer();
 			_this.renderer_.on('rendered', _this.handleRendererRendered_.bind(_this));
+
+			_this.dataManager_ = _this.createDataManager();
+			_this.emit('dataManagerCreated');
 
 			_this.on('stateChanged', _this.handleStateChanged_);
 			_this.newListenerHandle_ = _this.on('newListener', _this.handleNewListener_);
@@ -162,18 +163,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 		}
 
 		/**
-   * Adds the necessary classes to the component's element.
+   * Getter logic for the element property.
+   * @return {Element}
    */
 
-
-		Component.prototype.addElementClasses = function addElementClasses() {
-			var classesToAdd = this.constructor.ELEMENT_CLASSES_MERGED;
-			var elementClasses = this.dataManager_.get('elementClasses');
-			if (elementClasses) {
-				classesToAdd = classesToAdd + ' ' + elementClasses;
-			}
-			_dom.dom.addClasses(this.element, classesToAdd);
-		};
 
 		Component.prototype.addListenersFromObj_ = function addListenersFromObj_(events) {
 			var eventNames = Object.keys(events || {});
@@ -365,7 +358,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 			this.setUpProxy_();
 			this.elementEventProxy_.setOriginEmitter(event.newVal);
 			if (event.newVal) {
-				this.addElementClasses();
 				this.syncVisible(this.dataManager_.get('visible'));
 			}
 		};
@@ -413,6 +405,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 			this.dataManager_.setState(state, opt_callback);
 		};
 
+		Component.prototype.setterElementClassesFn_ = function setterElementClassesFn_(val) {
+			if (this.constructor.ELEMENT_CLASSES_MERGED) {
+				val += ' ' + this.constructor.ELEMENT_CLASSES_MERGED;
+			}
+			return val.trim();
+		};
+
 		Component.prototype.setUpProxy_ = function setUpProxy_() {
 			if (this.elementEventProxy_) {
 				return;
@@ -441,13 +440,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 			}
 		};
 
-		Component.prototype.syncElementClasses = function syncElementClasses(newVal, prevVal) {
-			if (this.element && prevVal) {
-				_dom.dom.removeClasses(this.element, prevVal);
-			}
-			this.addElementClasses();
-		};
-
 		Component.prototype.syncVisible = function syncVisible(newVal) {
 			if (this.element) {
 				this.element.style.display = newVal ? '' : 'none';
@@ -455,10 +447,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 		};
 
 		Component.prototype.rendered = function rendered() {};
-
-		Component.prototype.validatorElementClassesFn_ = function validatorElementClassesFn_(val) {
-			return _metal.core.isString(val);
-		};
 
 		Component.prototype.validatorEventsFn_ = function validatorEventsFn_(val) {
 			return !_metal.core.isDefAndNotNull(val) || _metal.core.isObject(val);
@@ -505,7 +493,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
    * @type {string}
    */
 		elementClasses: {
-			validator: 'validatorElementClassesFn_'
+			setter: 'setterElementClassesFn_',
+			validator: _metal.core.isString,
+			value: ''
 		},
 
 		/**

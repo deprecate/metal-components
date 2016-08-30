@@ -69,6 +69,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -92,7 +94,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.title == null || opt_data.title instanceof Function || opt_data.title instanceof goog.soy.data.SanitizedContent || opt_data.title instanceof soydata.UnsanitizedText || goog.isString(opt_data.title), 'title', opt_data.title, '?soydata.SanitizedHtml|string|undefined');
       var title = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.title;
       var positionClasses__soy3 = ['top', 'top', 'right', 'bottom', 'bottom', 'bottom', 'left', 'top'];
       var currentPosition__soy4 = opt_data.alignedPosition != null ? opt_data.alignedPosition : opt_data.position;
@@ -101,7 +103,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       ie_void('div', null, null, 'class', 'tooltip-arrow');
       ie_open('section', null, null, 'class', 'tooltip-inner');
       if (title) {
-        title();
+        var dyn0 = title;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       }
       ie_close('section');
       ie_close('div');
@@ -112,7 +115,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     }
 
     exports.render.params = ["title", "alignedPosition", "elementClasses", "position"];
-    exports.render.types = { "title": "html", "alignedPosition": "any", "elementClasses": "any", "position": "any" };
+    exports.render.types = { "title": "html|string", "alignedPosition": "any", "elementClasses": "any", "position": "any" };
     exports.templates = templates = exports;
     return exports;
   });

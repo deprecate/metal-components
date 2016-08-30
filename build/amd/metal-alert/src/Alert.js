@@ -182,9 +182,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-anim/src/A
    * The body content of the alert.
    * @type {string}
    */
-		body: {
-			isHtml: true
-		},
+		body: {},
 
 		/**
    * Flag indicating if the alert should be dismissable (closeable).

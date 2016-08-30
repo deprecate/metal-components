@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-state/src/State', 'metal-position/src/all/position'], function (exports, _metal, _State2, _position) {
+define(['exports', 'metal/src/metal', 'metal-state/src/all/state', 'metal-position/src/all/position'], function (exports, _metal, _state, _position) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -7,7 +7,7 @@ define(['exports', 'metal/src/metal', 'metal-state/src/State', 'metal-position/s
 
 	var _metal2 = _interopRequireDefault(_metal);
 
-	var _State3 = _interopRequireDefault(_State2);
+	var _state2 = _interopRequireDefault(_state);
 
 	var _position2 = _interopRequireDefault(_position);
 
@@ -136,7 +136,7 @@ define(['exports', 'metal/src/metal', 'metal-state/src/State', 'metal-position/s
 		};
 
 		return DragAutoScroll;
-	}(_State3.default);
+	}(_state2.default);
 
 	/**
   * State definition.

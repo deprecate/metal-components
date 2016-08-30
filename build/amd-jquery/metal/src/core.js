@@ -109,7 +109,7 @@ define(['exports'], function (exports) {
 		};
 
 		core.isString = function isString(val) {
-			return typeof val === 'string';
+			return typeof val === 'string' || val instanceof String;
 		};
 
 		core.mergeSuperClassesProperty = function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {

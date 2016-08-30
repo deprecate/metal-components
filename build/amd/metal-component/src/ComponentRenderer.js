@@ -68,13 +68,7 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			_this.componentRendererEvents_ = new _events.EventHandler();
 			_this.componentRendererEvents_.add(_this.component_.once('render', _this.render.bind(_this)));
 			_this.on('rendered', _this.handleRendered_);
-
-			var manager = component.getDataManager();
-			if (_this.component_.constructor.SYNC_UPDATES_MERGED) {
-				_this.componentRendererEvents_.add(manager.on('dataPropChanged', _this.handleManagerDataPropChanged_.bind(_this)));
-			} else {
-				_this.componentRendererEvents_.add(manager.on('dataChanged', _this.handleManagerDataChanged_.bind(_this)));
-			}
+			component.on('dataManagerCreated', _this.handleDataManagerCreated_.bind(_this));
 			return _this;
 		}
 
@@ -86,6 +80,15 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		ComponentRenderer.prototype.disposeInternal = function disposeInternal() {
 			this.componentRendererEvents_.removeAllListeners();
 			this.componentRendererEvents_ = null;
+		};
+
+		ComponentRenderer.prototype.handleDataManagerCreated_ = function handleDataManagerCreated_() {
+			var manager = this.component_.getDataManager();
+			if (this.component_.constructor.SYNC_UPDATES_MERGED) {
+				this.componentRendererEvents_.add(manager.on('dataPropChanged', this.handleManagerDataPropChanged_.bind(this)));
+			} else {
+				this.componentRendererEvents_.add(manager.on('dataChanged', this.handleManagerDataChanged_.bind(this)));
+			}
 		};
 
 		ComponentRenderer.prototype.handleManagerDataChanged_ = function handleManagerDataChanged_(changes) {

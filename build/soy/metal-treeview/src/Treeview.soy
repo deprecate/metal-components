@@ -6,7 +6,7 @@
  * @param nodes
  */
 {template .render}
-	<div class="treeview{$elementClasses ? ' ' + $elementClasses : ''}" role="tree">
+	<div class="treeview{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .nodes}
 			{param nodes: $nodes /}
 		{/call}
@@ -19,7 +19,7 @@
  */
 {template .nodes}
 	{if $nodes}
-		<ul class="treeview-nodes">
+		<ul class="treeview-nodes" role="tree">
 			{foreach $node in $nodes}
 				{let $index: index($node) /}
 				{call .node}
@@ -36,16 +36,16 @@
  * @param path
  */
 {template .node}
-	<li class="treeview-node" data-treeview-path="{$path}">
+	<li class="treeview-node" data-treeview-path="{$path}"
+		data-onkeyup="handleNodeKeyUp_"
+		{call .ariaExpanded data="all" /}
+		role="treeitem"
+		tabindex="0">
 		{if $node}
 			<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
 				<div
 					class="treeview-node-main clearfix{$node.children ? ' hasChildren' : ''}"
-					data-onclick="handleNodeClicked_"
-					data-onkeyup="handleNodeKeyUp_"
-					aria-expanded="{$node.expanded ? 'true' : 'false'}"
-					role="treeitem"
-					tabindex="0">
+					data-onclick="handleNodeClicked_">
 					{if $node.children}
 						<div class="treeview-node-toggler"></div>
 					{/if}
@@ -58,4 +58,13 @@
 			</div>
 		{/if}
 	</li>
+{/template}
+
+/**
+ * @param node
+ */
+{template .ariaExpanded kind="attributes"}
+	{if $node.children}
+	aria-expanded="{$node.expanded ? 'true' : 'false'}"
+	{/if}
 {/template}
