@@ -14,7 +14,7 @@
  * @param? selectedIndex
  */
 {template .render}
-	{@param? label: html}
+	{@param? label: html|string}
 	<div class="select{$elementClasses ? ' ' + $elementClasses : ''}" data-onkeydown="handleKeyDown_">
 		{let $currSelectedIndex: isNonnull($selectedIndex) ? $selectedIndex : ($label or (length($items) == 0) ? -1 : 0) /}
 		<input
@@ -29,11 +29,7 @@
 						data-onclick="{$handleItemClick_ ?: ''}"
 						data-onkeydown="{$handleItemKeyDown_ ?: ''}"
 						class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
-						<a href="javascript:;">
-							{call .renderAsHtml_}
-								{param value: $item /}
-							{/call}
-						</a>
+						<a href="javascript:;">{$item}</a>
 					</li>
 				{/foreach}
 			{/param}
@@ -47,13 +43,9 @@
 					aria-haspopup="true"
 					aria-expanded="{$expanded_ ? 'true' : 'false'}">
 					{if $currSelectedIndex == -1}
-						{if $label}
-							{$label}
-						{/if}
+						{$label}
 					{else}
-						{call .renderAsHtml_}
-							{param value: $items[$currSelectedIndex] /}
-						{/call}
+						{$items[$currSelectedIndex]}
 					{/if}
 					{sp}<span class="{$arrowClass ? $arrowClass : 'caret'}"></span>
 				</button>
@@ -61,11 +53,4 @@
 			{param ref: 'dropdown' /}
 		{/call}
 	</div>
-{/template}
-
-/**
- */
-{template .renderAsHtml_}
-	{@param value: html}
-	{$value}
 {/template}

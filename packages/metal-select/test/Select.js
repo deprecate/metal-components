@@ -2,7 +2,6 @@
 
 import dom from 'metal-dom';
 import Dropdown from 'metal-dropdown';
-import Soy from 'metal-soy';
 import Select from '../src/Select';
 
 describe('Select', function() {
@@ -398,7 +397,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
+					items: ['First', 'Second', 'Third'],
 					values: ['First', 'Second', 'Third'],
 					selectedIndex: 1
 				});
@@ -411,7 +410,7 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
+					items: ['First', 'Second', 'Third'],
 					values: ['First', 'Second', 'Third']
 				});
 			});
@@ -423,9 +422,9 @@ describe('Select', function() {
 			IncrementalDOM.patch(element, () => {
 				Select.TEMPLATE({
 					id: 'select',
-					items: ['First', 'Second', 'Third'].map(item => Soy.toIncDom(item)),
+					items: ['First', 'Second', 'Third'],
 					values: ['First', 'Second', 'Third'],
-					label: Soy.toIncDom('Order')
+					label: 'Order'
 				});
 			});
 			assert.strictEqual('', element.childNodes[0].querySelector('input[type="hidden"]').value);
