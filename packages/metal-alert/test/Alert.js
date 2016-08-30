@@ -1,7 +1,6 @@
 'use strict';
 
 import dom from 'metal-dom';
-import Soy from 'metal-soy';
 import Alert from '../src/Alert';
 
 describe('Alert', function() {
@@ -91,7 +90,7 @@ describe('Alert', function() {
 	it('should decorate', function() {
 		var config = {
 			elementClasses: 'alert-success fade',
-			body: Soy.toIncDom('<b>body</b>'),
+			body: 'body',
 			dismissible: true
 		};
 		var element = document.createElement('div');

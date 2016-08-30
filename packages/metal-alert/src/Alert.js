@@ -168,7 +168,6 @@ Alert.STATE = {
 	 * @type {string}
 	 */
 	body: {
-		isHtml: true
 	},
 
 	/**
