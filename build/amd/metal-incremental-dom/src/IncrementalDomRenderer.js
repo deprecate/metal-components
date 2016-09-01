@@ -75,6 +75,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			var _this = _possibleConstructorReturn(this, _ComponentRenderer.call(this, comp));
 
 			comp.context = {};
+			comp.refs = {};
 			_this.config_ = comp.getInitialConfig();
 			_this.childComponents_ = [];
 			_this.clearChanges_();
@@ -237,6 +238,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			if (_metal.core.isDef(config.ref)) {
 				comp = this.match_(this.component_.components[config.ref], Ctor, config);
 				this.component_.addSubComponent(config.ref, comp);
+				this.component_.refs[config.ref] = comp;
 			} else if (_metal.core.isDef(config.key)) {
 				comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
 				data.currComps.keys[config.key] = comp;
@@ -347,6 +349,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		};
 
 		IncrementalDomRenderer.prototype.handleInterceptedCloseCall_ = function handleInterceptedCloseCall_(originalFn, tag) {
+			this.emit(IncrementalDomRenderer.ELEMENT_CLOSED, { tag: tag });
 			var element = originalFn(tag);
 			this.resetData_(_dom.domData.get(element).incDomData_);
 			return element;
@@ -366,13 +369,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		};
 
 		IncrementalDomRenderer.prototype.handleRegularCall_ = function handleRegularCall_(originalFn) {
-			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
-			var currRenderer = currComp.getRenderer();
-
 			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 				args[_key - 1] = arguments[_key];
 			}
 
+			this.emit(IncrementalDomRenderer.ELEMENT_OPENED, { args: args });
+			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
+			var currRenderer = currComp.getRenderer();
 			if (!currRenderer.rootElementReached_) {
 				if (currRenderer.config_.key) {
 					args[1] = currRenderer.config_.key;
@@ -386,6 +389,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			var node = originalFn.apply(null, args);
 			this.attachDecoratedListeners_(node, args);
 			this.updateElementIfNotReached_(node);
+
+			var config = _IncrementalDomUtils2.default.buildConfigFromCall(args);
+			if (_metal.core.isDefAndNotNull(config.ref)) {
+				this.component_.refs[config.ref] = node;
+			}
 			return node;
 		};
 
@@ -549,6 +557,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			this.rootElementReached_ = false;
 			_IncrementalDomUnusedComponents2.default.schedule(this.childComponents_);
 			this.childComponents_ = [];
+			this.component_.refs = {};
 			this.intercept_();
 			this.renderIncDom();
 			_IncrementalDomAop2.default.stopInterception();
@@ -639,6 +648,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 	var renderingComponents_ = [];
 	var emptyChildren_ = [];
 
+	// Constants used as event names.
+	IncrementalDomRenderer.ELEMENT_OPENED = 'elementOpened';
+	IncrementalDomRenderer.ELEMENT_CLOSED = 'elementClosed';
+
+	// Regex pattern used to find inline listeners.
 	IncrementalDomRenderer.LISTENER_REGEX = /^(?:on([A-Z]\w+))|(?:data-on(\w+))$/;
 
 	exports.default = IncrementalDomRenderer;

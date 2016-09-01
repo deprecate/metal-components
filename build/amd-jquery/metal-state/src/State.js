@@ -71,7 +71,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 			/**
     * Map of keys that can not be used as state keys.
-    * @param {!Object<string, boolean>}
+    * @type {!Object<string, boolean>}
     * @protected
     */
 			_this.keysBlacklist_ = {};
@@ -116,6 +116,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
 			this.buildKeyInfo_(name, config, initialValue, arguments.length > 2);
 			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
+			this.validateInitialValue_(name);
 			this.assertGivenIfRequired_(name);
 		};
 
@@ -137,6 +138,12 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 			if (opt_contextOrInitialValue !== false) {
 				Object.defineProperties(opt_contextOrInitialValue || this.obj_, props);
+			}
+
+			// Validate initial values after all properties have been defined, otherwise
+			// it won't be possible to access those properties within validators.
+			for (var _i = 0; _i < names.length; _i++) {
+				this.validateInitialValue_(names[_i]);
 			}
 		};
 
@@ -176,7 +183,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 				config: config,
 				state: State.KeyStates.UNINITIALIZED
 			};
-			if (hasInitialValue && this.callValidator_(name, initialValue)) {
+			if (hasInitialValue) {
 				this.stateInfo_[name].initialValue = initialValue;
 			}
 		};
@@ -417,6 +424,13 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
 			var info = this.stateInfo_[name];
 			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this.get(name));
+		};
+
+		State.prototype.validateInitialValue_ = function validateInitialValue_(name) {
+			var info = this.stateInfo_[name];
+			if (this.hasInitialValue_(name) && !this.callValidator_(name, info.initialValue)) {
+				delete info.initialValue;
+			}
 		};
 
 		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {

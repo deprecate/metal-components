@@ -176,6 +176,25 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			return new _DomDelegatedEventHandle2.default(_metal.core.isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, _metal.core.isString(selectorOrTarget) ? selectorOrTarget : null);
 		};
 
+		dom.isAbleToInteractWith_ = function isAbleToInteractWith_(node, eventName) {
+			var currElement = node;
+			var isAble = true;
+			var matchesSelector = 'button, input, select, textarea, fieldset';
+
+			if (eventName === 'click') {
+				while (currElement) {
+					if (currElement.disabled && dom.match(currElement, matchesSelector)) {
+						isAble = false;
+						break;
+					}
+
+					currElement = currElement.parentNode;
+				}
+			}
+
+			return isAble;
+		};
+
 		dom.enterDocument = function enterDocument(node) {
 			node && dom.append(document.body, node);
 		};
@@ -427,10 +446,12 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 		};
 
 		dom.triggerEvent = function triggerEvent(element, eventName, opt_eventObj) {
-			var eventObj = document.createEvent('HTMLEvents');
-			eventObj.initEvent(eventName, true, true);
-			_metal.object.mixin(eventObj, opt_eventObj);
-			element.dispatchEvent(eventObj);
+			if (dom.isAbleToInteractWith_(element, eventName)) {
+				var eventObj = document.createEvent('HTMLEvents');
+				eventObj.initEvent(eventName, true, true);
+				_metal.object.mixin(eventObj, opt_eventObj);
+				element.dispatchEvent(eventObj);
+			}
 		};
 
 		dom.triggerListeners_ = function triggerListeners_(listeners, event, element, defaultFns) {

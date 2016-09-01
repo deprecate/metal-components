@@ -159,7 +159,9 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/sr
 
 	ComponentDataManager.BLACKLIST = {
 		components: true,
+		context: true,
 		element: true,
+		refs: true,
 		wasRendered: true
 	};
 

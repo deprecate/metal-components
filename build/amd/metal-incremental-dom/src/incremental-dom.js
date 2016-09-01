@@ -189,8 +189,8 @@ define([], function () {
         return;
       }
 
-      var nodeName = node.nodeName.toLowerCase();
       var isElement = node instanceof Element;
+      var nodeName = isElement ? node.localName : node.nodeName;
       var key = isElement ? node.getAttribute('key') : null;
       var data = initData(node, nodeName, key);
 
@@ -579,7 +579,7 @@ define([], function () {
 
       if ('production' !== 'production') {}
 
-      if (node !== currentNode) {
+      if (node !== currentNode && node.parentNode) {
         removeChild(currentParent, node, getData(currentParent).keyMap);
       }
 

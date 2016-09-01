@@ -2177,6 +2177,33 @@ babelHelpers;
 		};
 
 		/**
+   * Verifies if the element is able to trigger the Click event,
+   * simulating browsers behaviour, avoiding event listeners to be called by dom.triggerEvent method.
+   * @param {Element} node Element to be checked.
+   * @param {string} eventName The event name.
+   */
+
+
+		dom.isAbleToInteractWith_ = function isAbleToInteractWith_(node, eventName) {
+			var currElement = node;
+			var isAble = true;
+			var matchesSelector = 'button, input, select, textarea, fieldset';
+
+			if (eventName === 'click') {
+				while (currElement) {
+					if (currElement.disabled && dom.match(currElement, matchesSelector)) {
+						isAble = false;
+						break;
+					}
+
+					currElement = currElement.parentNode;
+				}
+			}
+
+			return isAble;
+		};
+
+		/**
    * Inserts node in document as last element.
    * @param {Element} node Element to remove children from.
    */
@@ -2660,15 +2687,17 @@ babelHelpers;
 
 
 		dom.triggerEvent = function triggerEvent(element, eventName, opt_eventObj) {
-			var eventObj = document.createEvent('HTMLEvents');
-			eventObj.initEvent(eventName, true, true);
-			object.mixin(eventObj, opt_eventObj);
-			element.dispatchEvent(eventObj);
+			if (dom.isAbleToInteractWith_(element, eventName)) {
+				var eventObj = document.createEvent('HTMLEvents');
+				eventObj.initEvent(eventName, true, true);
+				object.mixin(eventObj, opt_eventObj);
+				element.dispatchEvent(eventObj);
+			}
 		};
 
 		/**
    * Triggers the given listeners array.
-   * @param {Array<!function()} listeners
+   * @param {Array<!function()>} listeners
    * @param {!Event} event
    * @param {!Element} element
    * @param {!Array} defaultFns Array to collect default listeners in, instead
@@ -2763,7 +2792,7 @@ babelHelpers;
 
 		/**
    * Adds the given listener for the given event.
-   * @param {string} event.
+   * @param {string} event
    * @param {!function()} listener
    * @return {!EventHandle} The listened event's handle.
    * @protected
@@ -3000,7 +3029,7 @@ babelHelpers;
 
 		/**
    * Evaluates any script tags present in the given element.
-   * @params {!Element} element
+   * @param {!Element} element
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
    * @param {function()=} opt_appendFn Optional function to append the node
@@ -3133,7 +3162,7 @@ babelHelpers;
 
 		/**
    * Evaluates any style present in the given element.
-   * @params {!Element} element
+   * @param {!Element} element
    * @param {function()=} opt_callback Optional function to be called when the
    *   style has been run.
    * @param {function()=} opt_appendFn Optional function to append the node
@@ -3614,7 +3643,7 @@ babelHelpers;
 
 			/**
     * Map of keys that can not be used as state keys.
-    * @param {!Object<string, boolean>}
+    * @type {!Object<string, boolean>}
     * @protected
     */
 			_this.keysBlacklist_ = {};
@@ -3659,6 +3688,7 @@ babelHelpers;
 		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
 			this.buildKeyInfo_(name, config, initialValue, arguments.length > 2);
 			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
+			this.validateInitialValue_(name);
 			this.assertGivenIfRequired_(name);
 		};
 
@@ -3719,6 +3749,12 @@ babelHelpers;
 
 			if (opt_contextOrInitialValue !== false) {
 				Object.defineProperties(opt_contextOrInitialValue || this.obj_, props);
+			}
+
+			// Validate initial values after all properties have been defined, otherwise
+			// it won't be possible to access those properties within validators.
+			for (var _i = 0; _i < names.length; _i++) {
+				this.validateInitialValue_(names[_i]);
 			}
 		};
 
@@ -3793,7 +3829,7 @@ babelHelpers;
 				config: config,
 				state: State.KeyStates.UNINITIALIZED
 			};
-			if (hasInitialValue && this.callValidator_(name, initialValue)) {
+			if (hasInitialValue) {
 				this.stateInfo_[name].initialValue = initialValue;
 			}
 		};
@@ -4273,6 +4309,20 @@ babelHelpers;
 		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
 			var info = this.stateInfo_[name];
 			return info.state === State.KeyStates.INITIALIZED && (core.isObject(prevVal) || prevVal !== this.get(name));
+		};
+
+		/**
+   * Validates the initial value for the state property with the given name.
+   * @param {string} name
+   * @protected
+   */
+
+
+		State.prototype.validateInitialValue_ = function validateInitialValue_(name) {
+			var info = this.stateInfo_[name];
+			if (this.hasInitialValue_(name) && !this.callValidator_(name, info.initialValue)) {
+				delete info.initialValue;
+			}
 		};
 
 		/**
@@ -5474,7 +5524,9 @@ babelHelpers;
 
 	ComponentDataManager.BLACKLIST = {
 		components: true,
+		context: true,
 		element: true,
+		refs: true,
 		wasRendered: true
 	};
 
@@ -6119,7 +6171,7 @@ babelHelpers;
 
 		/**
    * Handles a `rendered` event from the current renderer instance.
-   * @parma {!Object}
+   * @param {!Object}
    * @protected
    */
 
@@ -6544,7 +6596,7 @@ babelHelpers;
    * Gets the constructor function for the given component name, or
    * undefined if it hasn't been registered yet.
    * @param {string} name The component's name.
-   * @return {?function}
+   * @return {?function()}
    * @static
    */
 		ComponentRegistry.getConstructor = function getConstructor(name) {
@@ -6792,8 +6844,8 @@ babelHelpers;
         return;
       }
 
-      var nodeName = node.nodeName.toLowerCase();
       var isElement = node instanceof Element;
+      var nodeName = isElement ? node.localName : node.nodeName;
       var key = isElement ? node.getAttribute('key') : null;
       var data = initData(node, nodeName, key);
 
@@ -7182,7 +7234,7 @@ babelHelpers;
 
       if ('production' !== 'production') {}
 
-      if (node !== currentNode) {
+      if (node !== currentNode && node.parentNode) {
         removeChild(currentParent, node, getData(currentParent).keyMap);
       }
 
@@ -8002,7 +8054,7 @@ babelHelpers;
 		/**
    * Checks if the given tag represents a metal component.
    * @param {string} tag
-   * @param {boolean}
+   * @return {boolean}
    */
 
 
@@ -8037,7 +8089,7 @@ babelHelpers;
    * Captures all child elements from incremental dom calls.
    * @param {!IncrementalDomRenderer} renderer The renderer that is capturing
    *   children.
-   * @param {!function} callback Function to be called when children have all
+   * @param {!function()} callback Function to be called when children have all
    *     been captured.
   	 */
 		IncrementalDomChildren.capture = function capture(renderer, callback) {
@@ -8060,7 +8112,7 @@ babelHelpers;
 
 		/**
    * Renders a children tree through incremental dom.
-   * @param {!{args: Array, !children: Array, isText: ?boolean}}
+   * @param {!{args: Array, children: !Array, isText: ?boolean}}
    * @param {function()=} opt_skipNode Optional function that is called for
    *     each node to be rendered. If it returns true, the node will be skipped.
    * @protected
@@ -8228,7 +8280,7 @@ babelHelpers;
 		/**
    * Schedules the given components to be checked and disposed if not used
    * anymore, when `IncrementalDomUnusedComponents.disposeUnused` is called.
-   * @param {!Array<!Component} comps
+   * @param {!Array<!Component>} comps
    */
 
 
@@ -8277,6 +8329,7 @@ babelHelpers;
 			var _this = babelHelpers.possibleConstructorReturn(this, _ComponentRenderer.call(this, comp));
 
 			comp.context = {};
+			comp.refs = {};
 			_this.config_ = comp.getInitialConfig();
 			_this.childComponents_ = [];
 			_this.clearChanges_();
@@ -8542,6 +8595,7 @@ babelHelpers;
 			if (core.isDef(config.ref)) {
 				comp = this.match_(this.component_.components[config.ref], Ctor, config);
 				this.component_.addSubComponent(config.ref, comp);
+				this.component_.refs[config.ref] = comp;
 			} else if (core.isDef(config.key)) {
 				comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
 				data.currComps.keys[config.key] = comp;
@@ -8718,6 +8772,7 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.handleInterceptedCloseCall_ = function handleInterceptedCloseCall_(originalFn, tag) {
+			this.emit(IncrementalDomRenderer.ELEMENT_CLOSED, { tag: tag });
 			var element = originalFn(tag);
 			this.resetData_(domData.get(element).incDomData_);
 			return element;
@@ -8765,13 +8820,13 @@ babelHelpers;
 
 
 		IncrementalDomRenderer.prototype.handleRegularCall_ = function handleRegularCall_(originalFn) {
-			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
-			var currRenderer = currComp.getRenderer();
-
 			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 				args[_key - 1] = arguments[_key];
 			}
 
+			this.emit(IncrementalDomRenderer.ELEMENT_OPENED, { args: args });
+			var currComp = IncrementalDomRenderer.getComponentBeingRendered();
+			var currRenderer = currComp.getRenderer();
 			if (!currRenderer.rootElementReached_) {
 				if (currRenderer.config_.key) {
 					args[1] = currRenderer.config_.key;
@@ -8785,6 +8840,11 @@ babelHelpers;
 			var node = originalFn.apply(null, args);
 			this.attachDecoratedListeners_(node, args);
 			this.updateElementIfNotReached_(node);
+
+			var config = IncrementalDomUtils.buildConfigFromCall(args);
+			if (core.isDefAndNotNull(config.ref)) {
+				this.component_.refs[config.ref] = node;
+			}
 			return node;
 		};
 
@@ -9061,6 +9121,7 @@ babelHelpers;
 			this.rootElementReached_ = false;
 			IncrementalDomUnusedComponents.schedule(this.childComponents_);
 			this.childComponents_ = [];
+			this.component_.refs = {};
 			this.intercept_();
 			this.renderIncDom();
 			IncrementalDomAop.stopInterception();
@@ -9106,7 +9167,7 @@ babelHelpers;
 		/**
    * Resets the given incremental dom data object, preparing it for the next
    * pass.
-   * @param {Object}
+   * @param {Object} data
    * @protected
    */
 
@@ -9218,6 +9279,11 @@ babelHelpers;
 	var renderingComponents_ = [];
 	var emptyChildren_ = [];
 
+	// Constants used as event names.
+	IncrementalDomRenderer.ELEMENT_OPENED = 'elementOpened';
+	IncrementalDomRenderer.ELEMENT_CLOSED = 'elementClosed';
+
+	// Regex pattern used to find inline listeners.
 	IncrementalDomRenderer.LISTENER_REGEX = /^(?:on([A-Z]\w+))|(?:data-on(\w+))$/;
 
 	this.metal.IncrementalDomRenderer = IncrementalDomRenderer;
@@ -13279,19 +13345,25 @@ babelHelpers;
        *     additional mappings.
        */
       soy.$$augmentMap = function (baseMap, additionalMap) {
+        return soy.$$assignDefaults(soy.$$assignDefaults({}, additionalMap), baseMap);
+      };
 
-        // Create a new map whose '__proto__' field is set to baseMap.
-        /** @constructor */
-        function TempCtor() {}
-        TempCtor.prototype = baseMap;
-        var augmentedMap = new TempCtor();
-
-        // Add the additional mappings to the new map.
-        for (var key in additionalMap) {
-          augmentedMap[key] = additionalMap[key];
+      /**
+       * Copies extra properties into an object if they do not already exist. The
+       * destination object is mutated in the process.
+       *
+       * @param {!Object} obj The destination object to update.
+       * @param {!Object} defaults An object with default properties to apply.
+       * @return {!Object} The destination object for convenience.
+       */
+      soy.$$assignDefaults = function (obj, defaults) {
+        for (var key in defaults) {
+          if (!(key in obj)) {
+            obj[key] = defaults[key];
+          }
         }
 
-        return augmentedMap;
+        return obj;
       };
 
       /**
