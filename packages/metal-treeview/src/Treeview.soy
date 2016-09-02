@@ -40,7 +40,8 @@
 		data-onkeyup="handleNodeKeyUp_"
 		{call .ariaExpanded data="all" /}
 		role="treeitem"
-		tabindex="0">
+		tabindex="{$path == '0' ? '0' : '-1'}"
+		ref="node-{$path}">
 		{if $node}
 			<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
 				<div

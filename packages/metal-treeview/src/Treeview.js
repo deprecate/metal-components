@@ -2,12 +2,30 @@
 
 import templates from './Treeview.soy.js';
 import Component from 'metal-component';
+import KeyboardFocusManager from 'metal-keyboard-focus';
 import Soy from 'metal-soy';
 
 /**
  * Treeview component.
  */
 class Treeview extends Component {
+	/**
+	 * @inheritDoc
+	 */
+	attached() {
+		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'li')
+			.setFocusHandler(this.handleNextFocus_.bind(this))
+			.start();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	disposed() {
+		this.keyboardFocusManager_.dispose();
+		this.keyboardFocusManager_ = null;
+	}
+
 	/**
 	 * Gets the node object from the `nodes` state that is located at the given
 	 * index path.
@@ -21,6 +39,57 @@ class Treeview extends Component {
 			obj = obj.children[path[i]];
 		}
 		return obj;
+	}
+
+	/**
+	 * Gets the treeview path for a given node.
+	 * @param {!Element} node
+	 * @return {!Array<string>}
+	 * @protected
+	 */
+	getPath_(node) {
+		return node.getAttribute('data-treeview-path').split('-');
+	}
+
+	/**
+	 * Handles the left arrow being pressed. If the node is expanded, it will be
+	 * closed. If it's closed, its parent's ref will be returned so it can be
+	 * focused by `KeyboardFocusManager`.
+	 * @param {!Array<string>} path
+	 * @param {!Object} obj
+	 * @return {?string}
+	 * @protected
+	 */
+	handleLeftArrow_(path, obj) {
+		if (obj.expanded) {
+			obj.expanded = false;
+			this.nodes = this.nodes;
+		} else if (path.length > 1) {
+			path.pop();
+			return Treeview.NODE_REF_PREFIX + path.join('-');
+		}
+	}
+
+	/**
+	 * Handles focus through keyboard.
+	 * @param {!Event} event
+	 * @return {boolean|string|Element}
+	 * @protected
+	 */
+	handleNextFocus_(event) {
+		event.stopPropagation();
+
+		const path = this.getPath_(event.delegateTarget);
+		const obj = this.getNodeObj(path);
+		switch (event.keyCode) {
+			case 37:
+				return this.handleLeftArrow_(path, obj);
+			case 39:
+				return this.handleRightArrow_(path, obj);
+			default:
+				// Use default behavior for other keys (like up/down arrows).
+				return true;
+		}
 	}
 
 	/**
@@ -46,18 +115,39 @@ class Treeview extends Component {
 	}
 
 	/**
+	 * Handles the right arrow being pressed. If the node is closed, it will be
+	 * expanded. If it's already expanded, the ref of its first child will be
+	 * returned so it can be focused by `KeyboardFocusManager`.
+	 * @param {!Array<string>} path
+	 * @param {!Object} obj
+	 * @return {?string}
+	 * @protected
+	 */
+	handleRightArrow_(path, obj) {
+		if (obj.expanded) {
+			path.push(0);
+			return Treeview.NODE_REF_PREFIX + path.join('-');
+		} else if (obj.children){
+			obj.expanded = true;
+			this.nodes = this.nodes;
+		}
+	}
+
+	/**
 	 * Toggles the expanded state for the given tree node.
 	 * @param {!Element} node
 	 * @protected
 	 */
 	toggleExpandedState_(node) {
-		var path = node.getAttribute('data-treeview-path').split('-');
-		var nodeObj = this.getNodeObj(path);
+		var nodeObj = this.getNodeObj(this.getPath_(node));
 		nodeObj.expanded = !nodeObj.expanded;
 		this.nodes = this.nodes;
 	}
 }
 Soy.register(Treeview, templates);
+
+// The prefix used for tree item nodes' refs.
+Treeview.NODE_REF_PREFIX = 'node-';
 
 /**
  * Treeview state definition.

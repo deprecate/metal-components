@@ -273,7 +273,7 @@ describe('Treeview', function() {
 		});
 	});
 
-	it('should replace whole contnet when node contents actually change', function(done) {
+	it('should replace whole content when node contents actually change', function(done) {
 		treeview = new Treeview({
 			nodes: [
 				{
@@ -319,5 +319,196 @@ describe('Treeview', function() {
 			element: element
 		}, data));
 		assert.strictEqual(soyRenderedContent, treeview.element.innerHTML);
+	});
+
+	describe('Keyboard focus', function() {
+		it('should go move between nodes at the same level via up/down arrow keys', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						name: 'Node 1'
+					},
+					{
+						name: 'Node 2'
+					},
+					{
+						name: 'Node 3'
+					}
+				]
+			});
+
+			var itemElements = treeview.element.querySelectorAll('.treeview-node');
+			dom.triggerEvent(itemElements[1], 'keydown', {
+				keyCode: 40
+			});
+			assert.strictEqual(itemElements[2], document.activeElement);
+
+			dom.triggerEvent(itemElements[2], 'keydown', {
+				keyCode: 38
+			});
+			assert.strictEqual(itemElements[1], document.activeElement);
+		});
+
+		it('should expand collapsed nodes via the right arrow key', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						children: [
+							{
+								name: 'Node 1.1'
+							}
+						],
+						expanded: false,
+						name: 'Node 1'
+					}
+				]
+			});
+
+			var prevFocusedElement = document.activeElement;
+			dom.triggerEvent(treeview.refs['node-0'], 'keydown', {
+				keyCode: 39
+			});
+			assert.ok(treeview.nodes[0].expanded);
+			assert.strictEqual(prevFocusedElement, document.activeElement);
+		});
+
+		it('should focus first child when the right arrow key is pressed on expanded node', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						children: [
+							{
+								name: 'Node 1.1'
+							},
+							{
+								name: 'Node 1.2'
+							}
+						],
+						expanded: true,
+						name: 'Node 1'
+					}
+				]
+			});
+
+			dom.triggerEvent(treeview.refs['node-0'], 'keydown', {
+				keyCode: 39
+			});
+			assert.ok(treeview.nodes[0].expanded);
+			assert.strictEqual(treeview.refs['node-0-0'], document.activeElement);
+		});
+
+		it('should do nothing if right arrow key is pressed on childless node', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						name: 'Node 1'
+					}
+				]
+			});
+
+			var prevFocusedElement = document.activeElement;
+			dom.triggerEvent(treeview.refs['node-0'], 'keydown', {
+				keyCode: 39
+			});
+			assert.ok(!treeview.nodes[0].hasOwnProperty('expanded'));
+			assert.strictEqual(prevFocusedElement, document.activeElement);
+		});
+
+		it('should focus parent when the left arrow key is pressed on childless node', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						children: [
+							{
+								name: 'Node 1.1'
+							}
+						],
+						expanded: true,
+						name: 'Node 1'
+					}
+				]
+			});
+
+			dom.triggerEvent(treeview.refs['node-0-0'], 'keydown', {
+				keyCode: 37
+			});
+			assert.strictEqual(treeview.refs['node-0'], document.activeElement);
+			assert.ok(treeview.nodes[0].expanded);
+		});
+
+		it('should do nothing if the left arrow key is pressed on childless root', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						name: 'Node 1'
+					}
+				]
+			});
+
+			var prevFocusedElement = document.activeElement;
+			dom.triggerEvent(treeview.refs['node-0'], 'keydown', {
+				keyCode: 37
+			});
+			assert.ok(!treeview.nodes[0].hasOwnProperty('expanded'));
+			assert.strictEqual(prevFocusedElement, document.activeElement);
+		});
+
+		it('should focus parent when the left arrow key is pressed on collapsed child node', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						children: [
+							{
+								children: [
+									{
+										name: 'Node 1.1.1'
+									}
+								],
+								expanded: false,
+								name: 'Node 1.1'
+							}
+						],
+						expanded: true,
+						name: 'Node 1'
+					}
+				]
+			});
+
+			dom.triggerEvent(treeview.refs['node-0-0'], 'keydown', {
+				keyCode: 37
+			});
+			assert.strictEqual(treeview.refs['node-0'], document.activeElement);
+			assert.ok(!treeview.nodes[0].children[0].expanded);
+			assert.ok(treeview.nodes[0].expanded);
+		});
+
+		it('should collapse node when the left arrow key is pressed on expanded node', function() {
+			treeview = new Treeview({
+				nodes: [
+					{
+						children: [
+							{
+								children: [
+									{
+										name: 'Node 1.1.1'
+									}
+								],
+								expanded: true,
+								name: 'Node 1.1'
+							}
+						],
+						expanded: true,
+						name: 'Node 1'
+					}
+				]
+			});
+
+			var prevFocusedElement = document.activeElement;
+			dom.triggerEvent(treeview.refs['node-0-0'], 'keydown', {
+				keyCode: 37
+			});
+			assert.strictEqual(prevFocusedElement, document.activeElement);
+			assert.ok(!treeview.nodes[0].children[0].expanded);
+		});
 	});
 });
