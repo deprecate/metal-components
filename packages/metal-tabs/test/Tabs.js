@@ -368,4 +368,127 @@ describe('Tabs', function() {
 
 		assert.equal(true, tabs.disabled);
 	});
+
+	describe('Keyboard focus', function() {
+		it('should move through tabs via arrow keys', function() {
+			tabs = new Tabs({
+				tabs: [
+					{
+						label: 'Tab 1'
+					},
+					{
+						label: 'Tab 2'
+					},
+					{
+						label: 'Tab 3'
+					}
+				]
+			});
+
+			var tabElements = tabs.element.querySelectorAll('a');
+			dom.triggerEvent(tabElements[0], 'keydown', {
+				keyCode: 39
+			});
+			assert.strictEqual(tabElements[1], document.activeElement);
+
+			dom.triggerEvent(tabElements[1], 'keydown', {
+				keyCode: 40
+			});
+			assert.strictEqual(tabElements[2], document.activeElement);
+
+			dom.triggerEvent(tabElements[2], 'keydown', {
+				keyCode: 37
+			});
+			assert.strictEqual(tabElements[1], document.activeElement);
+
+			dom.triggerEvent(tabElements[1], 'keydown', {
+				keyCode: 38
+			});
+			assert.strictEqual(tabElements[0], document.activeElement);
+		});
+
+		it('should move from last tab to first and vice versa via arrow keys', function() {
+			tabs = new Tabs({
+				tabs: [
+					{
+						label: 'Tab 1'
+					},
+					{
+						label: 'Tab 2'
+					},
+					{
+						label: 'Tab 3'
+					}
+				]
+			});
+
+			var tabElements = tabs.element.querySelectorAll('a');
+			dom.triggerEvent(tabElements[2], 'keydown', {
+				keyCode: 39
+			});
+			assert.strictEqual(tabElements[0], document.activeElement);
+
+			dom.triggerEvent(tabElements[0], 'keydown', {
+				keyCode: 37
+			});
+			assert.strictEqual(tabElements[2], document.activeElement);
+		});
+
+		it('should move from last tab to first and vice versa via arrow keys after tab size changes', function(done) {
+			tabs = new Tabs({
+				tabs: [
+					{
+						label: 'Tab 1'
+					},
+					{
+						label: 'Tab 2'
+					},
+					{
+						label: 'Tab 3'
+					}
+				]
+			});
+			tabs.addTab({
+				label: 'Tab 4'
+			});
+
+			tabs.once('stateSynced', function() {
+				const tabElements = tabs.element.querySelectorAll('a');
+				dom.triggerEvent(tabElements[3], 'keydown', {
+					keyCode: 39
+				});
+				assert.strictEqual(tabElements[0], document.activeElement);
+
+				dom.triggerEvent(tabElements[0], 'keydown', {
+					keyCode: 37
+				});
+				assert.strictEqual(tabElements[3], document.activeElement);
+
+				done();
+			});
+		});
+
+		it('should skip disabled tabs when moving via arrow keys', function() {
+			tabs = new Tabs({
+				tabs: [
+					{
+						label: 'Tab 1'
+					},
+					{
+						label: 'Tab 2',
+						disabled: true
+					},
+					{
+						label: 'Tab 3'
+					}
+				]
+			});
+
+			var tabElements = tabs.element.querySelectorAll('a');
+			dom.triggerEvent(tabElements[0], 'keydown', {
+				keyCode: 39
+			});
+			assert.strictEqual(tabElements[2], document.activeElement);
+		});
+	});
 });

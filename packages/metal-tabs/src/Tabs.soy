@@ -11,17 +11,20 @@
 {template .render}
 	{if length($tabs) > 0}
 		<ul class="nav {$type != 'none' ? 'nav-' + $type : ''} {$elementClasses ?: ''}" role="tablist">
-			{foreach $current_tab in $tabs}
-				{let $isDisabled: $disabled or $current_tab.disabled /}
-				{let $isCurrentTab: $tab == index($current_tab) /}
+			{foreach $currentTab in $tabs}
+				{let $isDisabled: $disabled or $currentTab.disabled /}
+				{let $isCurrentTab: $tab == index($currentTab) /}
 
-				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($current_tab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
+				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($currentTab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
 					<a
 						{if not $isDisabled}href="#"{/if}
+						ref="el{index($currentTab)}"
 						role="tab"
 						aria-expanded="{$isCurrentTab ? 'true' : 'false'}"
-						data-toggle="tab">
-						{$current_tab.label}
+						data-toggle="tab"
+						data-unfocusable="{$isDisabled ? 'true' : 'false'}"
+						tabindex="{$isCurrentTab ? '0' : '-1'}">
+						{$currentTab.label}
 					</a>
 				</li>
 			{/foreach}

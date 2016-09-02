@@ -27,6 +27,7 @@
   ],
   "dependencies": {
     "metal-component": "^2.0.0",
+    "metal-keyboard-focus": "^1.0.0",
     "metal-soy": "^2.0.0"
   },
   "devDependencies": {

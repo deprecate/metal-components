@@ -3,12 +3,22 @@
 import core from 'metal';
 import templates from './Tabs.soy.js';
 import Component from 'metal-component';
+import KeyboardFocusManager from 'metal-keyboard-focus';
 import Soy from 'metal-soy';
 
 /**
  * UI Component to navigate through tabbed data.
  */
 class Tabs extends Component {
+	/**
+	 * @inheritDoc
+	 */
+	attached() {
+		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'a')
+			.setCircularLength(this.tabs.length)
+			.start();
+	}
+
 	/**
 	 * Adds a tab to the tabs array at the specified index if given or
 	 * appends it at the end.
@@ -84,6 +94,14 @@ class Tabs extends Component {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	disposed() {
+		this.keyboardFocusManager_.dispose();
+		this.keyboardFocusManager_ = null;
+	}
+
+	/**
 	 * Removes the tab at the given index from the tabs array.
 	 * @return {number} Returns the index of the first tab which is not disabled.
 	 */
@@ -152,6 +170,16 @@ class Tabs extends Component {
 			this.tabs[index].disabled = disabled;
 
 			this.tabs = this.tabs;
+		}
+	}
+
+	/**
+	 * Synchronizes the component with the current value of the `tabs` state
+	 * property. Updates the length of the circular focus handling for tabs.
+	 */
+	syncTabs() {
+		if (this.keyboardFocusManager_) {
+			this.keyboardFocusManager_.setCircularLength(this.tabs.length);
 		}
 	}
 
