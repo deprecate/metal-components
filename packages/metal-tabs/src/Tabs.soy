@@ -18,7 +18,7 @@
 				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($currentTab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
 					<a
 						{if not $isDisabled}href="#"{/if}
-						ref="el{index($currentTab)}"
+						ref="tab-{index($currentTab)}"
 						role="tab"
 						aria-expanded="{$isCurrentTab ? 'true' : 'false'}"
 						data-toggle="tab"
