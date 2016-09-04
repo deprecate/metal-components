@@ -2,6 +2,7 @@
 
 /**
  * @param? arrowClass
+ * @param? disabled
  * @param? buttonClass
  * @param? elementClasses
  * @param? expanded_
@@ -18,6 +19,7 @@
 	<div class="select{$elementClasses ? ' ' + $elementClasses : ''}" data-onkeydown="handleKeyDown_">
 		{let $currSelectedIndex: isNonnull($selectedIndex) ? $selectedIndex : ($label or (length($items) == 0) ? -1 : 0) /}
 		<input
+			disabled="{$disabled}"
 			type="hidden"
 			name="{$hiddenInputName ? $hiddenInputName : ''}"
 			value="{$currSelectedIndex == -1 ? '' : $values ? $values[$currSelectedIndex] : ''}"
@@ -38,6 +40,7 @@
 			{param header kind="html"}
 				<button
 					class="{$buttonClass ? $buttonClass : ''} dropdown-select"
+					disabled="{$disabled}"
 					type="button"
 					data-onclick="toggle"
 					aria-haspopup="true"
