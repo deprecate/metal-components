@@ -130,6 +130,51 @@ describe('Select', function() {
 		assert.ok(!dropdown.expanded);
 	});
 
+	it('should not open dropdown when Select component is disabled', function() {
+		select = new Select({
+			disabled: true,
+			items: ['First', 'Second', 'Third']
+		});
+
+		var dropdown = select.getDropdown();
+		assert.ok(!dropdown.expanded);
+
+		dom.triggerEvent(select.element.querySelector('button'), 'click');
+		assert.ok(!dropdown.expanded);
+	});
+
+	it('should close dropdown when Select component gets disabled', function(done) {
+		select = new Select({
+			items: ['First', 'Second', 'Third']
+		});
+
+		dom.triggerEvent(select.element.querySelector('button'), 'click');
+
+		var dropdown = select.getDropdown();
+		assert.ok(dropdown.expanded);
+		
+		select.disabled = true;
+		select.once('stateChanged', function() {
+			assert.ok(!dropdown.expanded);
+			done();
+		});
+	});
+
+	it('should allow changing `selectedIndex` even Select component is disabled', function(done) {
+		select = new Select({
+			items: ['First', 'Second', 'Third']
+		});
+		
+		assert.strictEqual(select.selectedIndex, 0);
+		select.disabled = true;
+		select.selectedIndex = 1;
+
+		select.once('stateChanged', function() {
+			assert.strictEqual(select.selectedIndex, 1);
+			done();
+		});
+	});
+
 	it('should update button text when item is selected', function(done) {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
