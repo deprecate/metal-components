@@ -53,14 +53,12 @@
 		<table class="{$tableClasses ? $tableClasses + '' : ''} hidden">
 			<tbody>
 				{foreach $itemValue in $value}
-					<tr>
-						<td>
-							{call .render_ data="$itemValue"}
-								{param tableClasses: $tableClasses /}
-								{param displayColumnsType: $displayColumnsType /}
-							{/call}
-						</td>
-					</tr>
+					{call .renderObjectRows_}
+						{param columns: [0] /}
+						{param displayColumnsType: $displayColumnsType /}
+						{param tableClasses: $tableClasses /}
+						{param value: [$itemValue] /}
+					{/call}
 				{/foreach}
 			</tbody>
 		</table>
@@ -77,30 +75,19 @@
 {template .renderArrayOfObjects_}
 	<span class="datatable-array-object">
 		<table class="{$tableClasses ? $tableClasses : ''}">
-			<thead>
-				<tr>
-					{foreach $column in $columns}
-						<th scope="col">
-							{$column}
-							{if $displayColumnsType and $columnsType}
-								<span class="datatable-type">{$columnsType[$column]}</span>
-							{/if}
-						</th>
-					{/foreach}
-				</tr>
-			</thead>
+			{call .renderObjectHeaders_}
+				{param columns: $columns /}
+				{param columnsType: $columnsType /}
+				{param displayColumnsType: $displayColumnsType /}
+			{/call}
 			<tbody>
 				{foreach $itemValue in $value}
-					<tr>
-						{foreach $column in $columns}
-							<td>
-								{call .render_ data="$itemValue.value[$column]"}
-									{param displayColumnsType: $displayColumnsType /}
-									{param tableClasses: $tableClasses /}
-								{/call}
-							</td>
-						{/foreach}
-					</tr>
+					{call .renderObjectRows_}
+						{param columns: $columns /}
+						{param displayColumnsType: $displayColumnsType /}
+						{param tableClasses: $tableClasses /}
+						{param value: $itemValue.value /}
+					{/call}
 				{/foreach}
 			</tbody>
 		</table>
@@ -138,32 +125,60 @@
 	<span class="datatable-object">
 		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, {length(keys($value))} items</span>
 		<table class="{$tableClasses ? $tableClasses : ''} hidden">
-			<thead>
-				<tr>
-					{foreach $column in $columns}
-						<th scope="col">
-							{$column}
-							{if $displayColumnsType and $columnsType}
-								<span class="datatable-type">{$columnsType[$column]}</span>
-							{/if}
-						</th>
-					{/foreach}
-				</tr>
-			</thead>
+			{call .renderObjectHeaders_}
+				{param columns: $columns /}
+				{param columnsType: $columnsType /}
+				{param displayColumnsType: $displayColumnsType /}
+			{/call}
 			<tbody>
-				<tr>
-					{foreach $column in $columns}
-						<td>
-							{call .render_ data="$value[$column]"}
-								{param displayColumnsType: $displayColumnsType /}
-								{param tableClasses: $tableClasses /}
-							{/call}
-						</td>
-					{/foreach}
-				</tr>
+				{call .renderObjectRows_}
+					{param columns: $columns /}
+					{param displayColumnsType: $displayColumnsType /}
+					{param tableClasses: $tableClasses /}
+					{param value: $value /}
+				{/call}
 			</tbody>
 		</table>
 	</span>
+{/template}
+
+/**
+ * @param columns
+ * @param? columnsType
+ * @param? displayColumnsType
+ */
+{template .renderObjectHeaders_}
+	<thead>
+		<tr>
+			{foreach $column in $columns}
+				<th scope="col">
+					{$column}
+					{if $displayColumnsType and $columnsType}
+						<span class="datatable-type">{$columnsType[$column]}</span>
+					{/if}
+				</th>
+			{/foreach}
+		</tr>
+	</thead>
+{/template}
+
+/**
+ * @param columns
+ * @param value
+ * @param? displayColumnsType
+ * @param? tableClasses
+ */
+{template .renderObjectRows_}
+	<tr>
+		{foreach $column in $columns}
+			<td>
+				{call .render_ data="$value[$column]"}
+					{param displayColumnsType: $displayColumnsType /}
+					{param tableClasses: $tableClasses /}
+				{/call}
+			</td>
+		{/foreach}
+	</tr>
 {/template}
 
 /**
