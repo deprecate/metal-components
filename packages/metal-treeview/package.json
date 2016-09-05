@@ -1,6 +1,6 @@
 {
   "name": "metal-treeview",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Metal's tree view component",
   "license": "BSD",
   "repository": "metal/metal-treeview",
