@@ -1,5 +1,6 @@
 'use strict';
 
+import core from 'metal';
 import templates from './Treeview.soy.js';
 import Component from 'metal-component';
 import KeyboardFocusManager from 'metal-keyboard-focus';
@@ -16,6 +17,10 @@ class Treeview extends Component {
 		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'li')
 			.setFocusHandler(this.handleNextFocus_.bind(this))
 			.start();
+		this.keyboardFocusManager_.on(
+			KeyboardFocusManager.EVENT_FOCUSED,
+			this.handleKeyboardFocused_.bind(this)
+		);
 	}
 
 	/**
@@ -29,8 +34,8 @@ class Treeview extends Component {
 	/**
 	 * Gets the node object from the `nodes` state that is located at the given
 	 * index path.
-	 * @param {!Array<number>} path An array of indexes indicating where the searched
-	 *   node is located inside the `nodes` state.
+	 * @param {!Array<number>} path An array of indexes indicating where the
+	 *   searched node is located inside the `nodes` state.
 	 * @return {!Object}
 	 */
 	getNodeObj(path) {
@@ -49,6 +54,17 @@ class Treeview extends Component {
 	 */
 	getPath_(node) {
 		return node.getAttribute('data-treeview-path').split('-');
+	}
+
+	/**
+	 * Handles the `focused` event from `KeyboardFocusManager`. Stores the ref
+	 * of the last focused tree item so that we can retain it in the tab order
+	 * when the user leaves the tree.
+	 * @param {!Object} data
+	 * @protected
+	 */
+	handleKeyboardFocused_(data) {
+		this.lastFocusedRef_ = data.ref;
 	}
 
 	/**
@@ -155,6 +171,16 @@ Treeview.NODE_REF_PREFIX = 'node-';
  * @static
  */
 Treeview.STATE = {
+	/**
+	 * The ref of the last item that has been focused, so that we can retain only
+	 * that node in the tab order.
+	 * @type {string}
+	 */
+	lastFocusedRef_: {
+		internal: true,
+		validator: core.isString
+	},
+
 	/**
 	 * This tree view's nodes. Each node should have a name, and can optionally
 	 * have nested children nodes. It should also indicate if its children are

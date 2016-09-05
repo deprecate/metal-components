@@ -3,17 +3,20 @@
 /**
  * This renders the main element.
  * @param? elementClasses
+ * @param? lastFocusedRef_
  * @param nodes
  */
 {template .render}
 	<div class="treeview{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .nodes}
+			{param lastFocusedRef_: $lastFocusedRef_ /}
 			{param nodes: $nodes /}
 		{/call}
 	</div>
 {/template}
 
 /**
+ * @param? lastFocusedRef_
  * @param nodes
  * @param? parentPath
  */
@@ -23,6 +26,7 @@
 			{foreach $node in $nodes}
 				{let $index: index($node) /}
 				{call .node}
+					{param lastFocusedRef_: $lastFocusedRef_ /}
 					{param node: $node /}
 					{param path: isNonnull($parentPath) ? ($parentPath + '-' + $index) : $index /}
 				{/call}
@@ -32,16 +36,19 @@
 {/template}
 
 /**
+ * @param? lastFocusedRef_
  * @param node
  * @param path
  */
 {template .node}
+	{let $focusRef: $lastFocusedRef_ ? $lastFocusedRef_ : 'node-0' /}
+	{let $ref: 'node-' + $path /}
 	<li class="treeview-node" data-treeview-path="{$path}"
 		data-onkeyup="handleNodeKeyUp_"
 		{call .ariaExpanded data="all" /}
 		role="treeitem"
-		tabindex="{$path == '0' ? '0' : '-1'}"
-		ref="node-{$path}">
+		tabindex="{$focusRef == $ref ? '0' : '-1'}"
+		ref="{$ref}">
 		{if $node}
 			<div class="treeview-node-wrapper{$node.expanded ? ' expanded' : ''}">
 				<div
@@ -53,6 +60,7 @@
 					<span class="treeview-node-name">{$node.name}</span>
 				</div>
 				{call .nodes}
+					{param lastFocusedRef_: $lastFocusedRef_ /}
 					{param nodes: $node.children /}
 					{param parentPath: $path /}
 				{/call}

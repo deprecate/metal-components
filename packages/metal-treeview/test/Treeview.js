@@ -510,5 +510,32 @@ describe('Treeview', function() {
 			assert.strictEqual(prevFocusedElement, document.activeElement);
 			assert.ok(!treeview.nodes[0].children[0].expanded);
 		});
+
+		it('should make only the last focused item be in the tab order', function(done) {
+			treeview = new Treeview({
+				nodes: [
+					{
+						name: 'Node 1'
+					},
+					{
+						name: 'Node 2'
+					},
+					{
+						name: 'Node 3'
+					}
+				]
+			});
+
+			var itemElements = treeview.element.querySelectorAll('.treeview-node');
+			dom.triggerEvent(itemElements[0], 'keydown', {
+				keyCode: 40
+			});
+			treeview.once('stateSynced', function() {
+				assert.strictEqual('-1', itemElements[0].getAttribute('tabindex'));
+				assert.strictEqual('0', itemElements[1].getAttribute('tabindex'));
+				assert.strictEqual('-1', itemElements[2].getAttribute('tabindex'));
+				done();
+			});
+		});
 	});
 });
