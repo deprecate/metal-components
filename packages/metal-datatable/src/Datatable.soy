@@ -80,7 +80,7 @@
 			<thead>
 				<tr>
 					{foreach $column in $columns}
-						<th>
+						<th scope="col">
 							{$column}
 							{if $displayColumnsType and $columnsType}
 								<span class="datatable-type">{$columnsType[$column]}</span>
@@ -141,7 +141,7 @@
 			<thead>
 				<tr>
 					{foreach $column in $columns}
-						<th>
+						<th scope="col">
 							{$column}
 							{if $displayColumnsType and $columnsType}
 								<span class="datatable-type">{$columnsType[$column]}</span>
