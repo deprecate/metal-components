@@ -214,4 +214,44 @@ describe('Datatable', function() {
 		assert.strictEqual('string', datatable.data.type);
 		datatable.dispose();
 	});
+
+	describe('Keyboard focus', function() {
+		it('should move between columns via the left/right arrow keys', function() {
+			datatable = new Datatable({
+				data: {
+					key1: 'value1',
+					key2: 'value2'
+				}
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-0'], 'keydown', {
+				keyCode: 39
+			});
+			assert.strictEqual(datatable.refs['table-0-1'], document.activeElement);
+
+			dom.triggerEvent(datatable.refs['table-0-1'], 'keydown', {
+				keyCode: 37
+			});
+			assert.strictEqual(datatable.refs['table-0-0'], document.activeElement);
+		});
+
+		it('should move between rows via the up/down arrow keys', function() {
+			datatable = new Datatable({
+				data: {
+					key1: 'value1',
+					key2: 'value2'
+				}
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-0'], 'keydown', {
+				keyCode: 40
+			});
+			assert.strictEqual(datatable.refs['table-1-0'], document.activeElement);
+
+			dom.triggerEvent(datatable.refs['table-1-0'], 'keydown', {
+				keyCode: 38
+			});
+			assert.strictEqual(datatable.refs['table-0-0'], document.activeElement);
+		});
+	});
 });

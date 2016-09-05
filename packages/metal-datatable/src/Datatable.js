@@ -4,6 +4,7 @@ import core from 'metal';
 import dom from 'metal-dom';
 import templates from './Datatable.soy.js';
 import Component from 'metal-component';
+import KeyboardFocusManager from 'metal-keyboard-focus';
 import Soy from 'metal-soy';
 
 class Datatable extends Component {
@@ -37,6 +38,15 @@ class Datatable extends Component {
 		if (type1 && type2 && type1 !== type2) {
 			throw new Error('Datatable does not support mixed types in arrays.');
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	attached() {
+		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'td,th')
+			.setFocusHandler(this.handleNextFocus_.bind(this))
+			.start();
 	}
 
 	/**
@@ -96,6 +106,16 @@ class Datatable extends Component {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	disposed() {
+		if (this.keyboardFocusManager_) {
+			this.keyboardFocusManager_.dispose();
+			this.keyboardFocusManager_ = null;
+		}
+	}
+
+	/**
 	 * Internal helper to get literal JSON type of a value.
 	 * @param {*} value
 	 * @return {string} Type inferred from JSON value.
@@ -117,6 +137,42 @@ class Datatable extends Component {
 	}
 
 	/**
+	 * Handles focus through keyboard.
+	 * @param {!Event} event
+	 * @return {boolean|string|Element}
+	 * @protected
+	 */
+	handleNextFocus_() {
+		event.stopPropagation();
+
+		const ref = event.delegateTarget.getAttribute('ref');
+		switch (event.keyCode) {
+			case 38:
+				event.preventDefault();
+				return this.incrementRefRow_(ref, -1);
+			case 40:
+				event.preventDefault();
+				return this.incrementRefRow_(ref, 1);
+			default:
+				// Use default behavior for other keys (like left/right arrows).
+				return true;
+		}
+	}
+
+	/**
+	 * Increments the row position in the given ref.
+	 * @param {string} ref
+	 * @param {number} inc The amount the position should be incremented by.
+	 * @return {string}
+	 * @protected
+	 */
+	incrementRefRow_(ref, inc) {
+		return ref.replace(Datatable.REF_REGEX, (match, row, column) => {
+			return (parseInt(row, 10) + inc) + '-' + column;
+		});
+	}
+
+	/**
 	 * Returns true if data is already expanded, false otherwise.
 	 * @param {*} data
 	 * @return {boolean}
@@ -125,6 +181,12 @@ class Datatable extends Component {
 		return core.isObject(data) && 'columns' in data && 'type' in data;
 	}
 
+	/**
+	 * Setter for the `data` state property.
+	 * @param {!Object}
+	 * @return {!Object}
+	 * @protected
+	 */
 	setData_(data) {
 		if (!this.isAlreadyExpanded(data)) {
 			this.assertNoMixedTypesInArrays_(data);
@@ -278,6 +340,9 @@ Datatable.STATE = {
 		value: 'table table-bordered table-condensed table-hover'
 	}
 };
+
+// The regex used to extract the row/column positions from an element's ref.
+Datatable.REF_REGEX = /(\d+)-(\d+)$/;
 
 /**
  * Datatable supported types.

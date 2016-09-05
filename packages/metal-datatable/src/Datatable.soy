@@ -10,12 +10,14 @@
 	<div class="datatable{$elementClasses ? ' ' + $elementClasses : ''}">
 		{call .render_ data="$data"}
 			{param displayColumnsType: $displayColumnsType /}
+			{param path: 'table' /}
 			{param tableClasses: $tableClasses /}
 		{/call}
 	</div>
 {/template}
 
 /**
+ * @param path
  * @param type
  * @param? columns
  */
@@ -43,6 +45,7 @@
 {/template}
 
 /**
+ * @param path
  * @param value
  * @param? displayColumnsType
  * @param? tableClasses
@@ -53,9 +56,10 @@
 		<table class="{$tableClasses ? $tableClasses + '' : ''} hidden">
 			<tbody>
 				{foreach $itemValue in $value}
-					{call .renderObjectRows_}
+					{call .renderObjectRow_}
 						{param columns: [0] /}
 						{param displayColumnsType: $displayColumnsType /}
+						{param path: $path + '-' + index($itemValue) /}
 						{param tableClasses: $tableClasses /}
 						{param value: [$itemValue] /}
 					{/call}
@@ -70,6 +74,7 @@
  * @param value
  * @param? columnsType
  * @param? displayColumnsType
+ * @param path
  * @param? tableClasses
  */
 {template .renderArrayOfObjects_}
@@ -79,12 +84,14 @@
 				{param columns: $columns /}
 				{param columnsType: $columnsType /}
 				{param displayColumnsType: $displayColumnsType /}
+				{param path: $path + '-0' /}
 			{/call}
 			<tbody>
 				{foreach $itemValue in $value}
-					{call .renderObjectRows_}
+					{call .renderObjectRow_}
 						{param columns: $columns /}
 						{param displayColumnsType: $displayColumnsType /}
+						{param path: $path + '-' + (index($itemValue) + 1) /}
 						{param tableClasses: $tableClasses /}
 						{param value: $itemValue.value /}
 					{/call}
@@ -119,6 +126,7 @@
  * @param value
  * @param? columnsType
  * @param? displayColumnsType
+ * @param path
  * @param? tableClasses
  */
 {template .renderObject_}
@@ -129,11 +137,13 @@
 				{param columns: $columns /}
 				{param columnsType: $columnsType /}
 				{param displayColumnsType: $displayColumnsType /}
+				{param path: $path + '-0' /}
 			{/call}
 			<tbody>
-				{call .renderObjectRows_}
+				{call .renderObjectRow_}
 					{param columns: $columns /}
 					{param displayColumnsType: $displayColumnsType /}
+					{param path: $path + '-1' /}
 					{param tableClasses: $tableClasses /}
 					{param value: $value /}
 				{/call}
@@ -146,12 +156,14 @@
  * @param columns
  * @param? columnsType
  * @param? displayColumnsType
+ * @param path
  */
 {template .renderObjectHeaders_}
 	<thead>
 		<tr>
 			{foreach $column in $columns}
-				<th scope="col">
+				{let $currPath: $path + '-' + index($column) /}
+				<th scope="col" ref="{$currPath}" tabindex="{$currPath == 'table-0-0' ? '0' : '-1'}">
 					{$column}
 					{if $displayColumnsType and $columnsType}
 						<span class="datatable-type">{$columnsType[$column]}</span>
@@ -166,14 +178,17 @@
  * @param columns
  * @param value
  * @param? displayColumnsType
+ * @param path
  * @param? tableClasses
  */
-{template .renderObjectRows_}
+{template .renderObjectRow_}
 	<tr>
 		{foreach $column in $columns}
-			<td>
+			{let $currPath: $path + '-' + index($column) /}
+			<td ref="{$currPath}" tabindex="{$currPath == 'table-0-0' ? '0' : '-1'}">
 				{call .render_ data="$value[$column]"}
 					{param displayColumnsType: $displayColumnsType /}
+					{param path: $currPath /}
 					{param tableClasses: $tableClasses /}
 				{/call}
 			</td>
