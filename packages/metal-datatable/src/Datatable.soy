@@ -53,7 +53,7 @@
 {template .renderArray_}
 	<span class="datatable-array">
 		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Array, {length($value)} items</span>
-		<table class="{$tableClasses ? $tableClasses + '' : ''} hidden">
+		<table class="{$tableClasses ? $tableClasses + '' : ''} hidden" role="grid">
 			<tbody>
 				{foreach $itemValue in $value}
 					{call .renderObjectRow_}
@@ -163,7 +163,11 @@
 		<tr>
 			{foreach $column in $columns}
 				{let $currPath: $path + '-' + index($column) /}
-				<th scope="col" ref="{$currPath}" tabindex="{$currPath == 'table-0-0' ? '0' : '-1'}">
+				<th
+					role="columnheader"
+					scope="col"
+					ref="{$currPath}"
+					tabindex="{$currPath == 'table-0-0' ? '0' : '-1'}">
 					{$column}
 					{if $displayColumnsType and $columnsType}
 						<span class="datatable-type">{$columnsType[$column]}</span>
@@ -185,7 +189,10 @@
 	<tr>
 		{foreach $column in $columns}
 			{let $currPath: $path + '-' + index($column) /}
-			<td ref="{$currPath}" tabindex="{$currPath == 'table-0-0' ? '0' : '-1'}">
+			<td
+				role="gridcell"
+				ref="{$currPath}"
+				tabindex="{$currPath == 'table-0-0' ? '0' : '-1'}">
 				{call .render_ data="$value[$column]"}
 					{param displayColumnsType: $displayColumnsType /}
 					{param path: $currPath /}
