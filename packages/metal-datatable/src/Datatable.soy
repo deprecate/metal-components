@@ -79,7 +79,7 @@
  */
 {template .renderArrayOfObjects_}
 	<span class="datatable-array-object">
-		<table class="{$tableClasses ? $tableClasses : ''}">
+		<table class="{$tableClasses ? $tableClasses : ''}" role="grid">
 			{call .renderObjectHeaders_}
 				{param columns: $columns /}
 				{param columnsType: $columnsType /}
@@ -132,7 +132,7 @@
 {template .renderObject_}
 	<span class="datatable-object">
 		<span class="datatable-label collapsed" data-onclick="toggleTableContents">Object, {length(keys($value))} items</span>
-		<table class="{$tableClasses ? $tableClasses : ''} hidden">
+		<table class="{$tableClasses ? $tableClasses : ''} hidden" role="grid">
 			{call .renderObjectHeaders_}
 				{param columns: $columns /}
 				{param columnsType: $columnsType /}
