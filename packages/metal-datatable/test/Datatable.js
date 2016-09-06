@@ -4,6 +4,7 @@ import core from 'metal';
 import dom from 'metal-dom';
 import Datatable from '../src/Datatable';
 import Soy from 'metal-soy';
+import UA from 'metal-useragent';
 import { data_nested_array, data_nested_array_expanded_fn } from './data/data_nested_array.js';
 import { data_nested_deep, data_nested_deep_expanded_fn } from './data/data_nested_deep.js';
 import { data_nested_object, data_nested_object_expanded_fn } from './data/data_nested_object.js';
@@ -216,6 +217,10 @@ describe('Datatable', function() {
 	});
 
 	describe('Keyboard focus', function() {
+		afterEach(function() {
+			UA.testUserAgent('', '');
+		});
+
 		it('should move between columns via the left/right arrow keys', function() {
 			datatable = new Datatable({
 				data: {
@@ -252,6 +257,158 @@ describe('Datatable', function() {
 				keyCode: 38
 			});
 			assert.strictEqual(datatable.refs['table-0-0'], document.activeElement);
+		});
+
+		it('should move to first row of current column via cmd + up arrow on mac', function() {
+			UA.testUserAgent('', 'MacIntel');
+
+			datatable = new Datatable({
+				data: [
+					{
+						key1: '1.1',
+						key2: '1.2'
+					},
+					{
+						key1: '2.1',
+						key2: '2.2'
+					}
+				]
+			});
+
+			dom.triggerEvent(datatable.refs['table-2-1'], 'keydown', {
+				keyCode: 38,
+				metaKey: true
+			});
+			assert.strictEqual(datatable.refs['table-0-1'], document.activeElement);
+		});
+
+		it('should move to first row of current column via "page up" key', function() {
+			datatable = new Datatable({
+				data: [
+					{
+						key1: '1.1',
+						key2: '1.2'
+					},
+					{
+						key1: '2.1',
+						key2: '2.2'
+					}
+				]
+			});
+
+			dom.triggerEvent(datatable.refs['table-2-1'], 'keydown', {
+				keyCode: 33
+			});
+			assert.strictEqual(datatable.refs['table-0-1'], document.activeElement);
+		});
+
+		it('should move to last row of current column via cmd + down arrow on mac', function() {
+			UA.testUserAgent('', 'MacIntel');
+
+			datatable = new Datatable({
+				data: [
+					{
+						key1: '1.1',
+						key2: '1.2'
+					},
+					{
+						key1: '2.1',
+						key2: '2.2'
+					}
+				]
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-1'], 'keydown', {
+				keyCode: 40,
+				metaKey: true
+			});
+			assert.strictEqual(datatable.refs['table-2-1'], document.activeElement);
+		});
+
+		it('should move to last row of current column via "page down" key', function() {
+			datatable = new Datatable({
+				data: [
+					{
+						key1: '1.1',
+						key2: '1.2'
+					},
+					{
+						key1: '2.1',
+						key2: '2.2'
+					}
+				]
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-1'], 'keydown', {
+				keyCode: 34
+			});
+			assert.strictEqual(datatable.refs['table-2-1'], document.activeElement);
+		});
+
+		it('should move to first column of current row via cmd + left arrow on mac', function() {
+			UA.testUserAgent('', 'MacIntel');
+
+			datatable = new Datatable({
+				data: {
+					key1: 'value1',
+					key2: 'value2',
+					key3: 'value3'
+				}
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-2'], 'keydown', {
+				keyCode: 37,
+				metaKey: true
+			});
+			assert.strictEqual(datatable.refs['table-0-0'], document.activeElement);
+		});
+
+		it('should move to first column of current row via "home" key', function() {
+			datatable = new Datatable({
+				data: {
+					key1: 'value1',
+					key2: 'value2',
+					key3: 'value3'
+				}
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-2'], 'keydown', {
+				keyCode: 36
+			});
+			assert.strictEqual(datatable.refs['table-0-0'], document.activeElement);
+		});
+
+		it('should move to last column of current row via cmd + right arrow on mac', function() {
+			UA.testUserAgent('', 'MacIntel');
+
+			datatable = new Datatable({
+				data: {
+					key1: 'value1',
+					key2: 'value2',
+					key3: 'value3'
+				}
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-0'], 'keydown', {
+				keyCode: 39,
+				metaKey: true
+			});
+			assert.strictEqual(datatable.refs['table-0-2'], document.activeElement);
+		});
+
+		it('should move to last column of current row via "end" key', function() {
+			datatable = new Datatable({
+				data: {
+					key1: 'value1',
+					key2: 'value2',
+					key3: 'value3'
+				}
+			});
+
+			dom.triggerEvent(datatable.refs['table-0-0'], 'keydown', {
+				keyCode: 35
+			});
+			assert.strictEqual(datatable.refs['table-0-2'], document.activeElement);
 		});
 	});
 });

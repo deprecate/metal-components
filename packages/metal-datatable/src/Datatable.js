@@ -6,6 +6,7 @@ import templates from './Datatable.soy.js';
 import Component from 'metal-component';
 import KeyboardFocusManager from 'metal-keyboard-focus';
 import Soy from 'metal-soy';
+import UA from 'metal-useragent';
 
 class Datatable extends Component {
 
@@ -47,6 +48,44 @@ class Datatable extends Component {
 		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'td,th')
 			.setFocusHandler(this.handleNextFocus_.bind(this))
 			.start();
+	}
+
+	/**
+	 * Builds a ref with for the given row and column positions.
+	 * @param {string} prefix
+	 * @param {number} row
+	 * @param {number} col
+	 * @return {string}
+	 * @protected
+	 */
+	buildRef_(prefix, row, col) {
+		return prefix + row + '-' + col;
+	}
+
+	/**
+	 * Builds a ref string pointing to the last column.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {string}
+	 * @protected
+	 */
+	buildRefLastColumn_(event, data) {
+		const element = event.delegateTarget;
+		const cellLength = parseInt(element.getAttribute('data-cols'), 10);
+		return this.buildRef_(data.prefix, data.row, cellLength - 1);
+	}
+
+	/**
+	 * Builds a ref string pointing to the last row.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {string}
+	 * @protected
+	 */
+	buildRefLastRow_(event, data) {
+		const element = event.delegateTarget.parentNode;
+		const rowLength = parseInt(element.getAttribute('data-rows'), 10);
+		return this.buildRef_(data.prefix, rowLength - 1, data.col);
 	}
 
 	/**
@@ -116,6 +155,21 @@ class Datatable extends Component {
 	}
 
 	/**
+	 * Gets data (prefix, row and column) from the given ref.
+	 * @param {string} ref
+	 * @return {!{col: number, prefix: string, row: number}}
+	 * @protected
+	 */
+	extractDataFromRef_(ref) {
+		const matches = Datatable.REF_REGEX.exec(ref);
+		return {
+			col: parseInt(matches[2], 10),
+			prefix: ref.substr(0, ref.length - matches[0].length),
+			row: parseInt(matches[1], 10)
+		};
+	}
+
+	/**
 	 * Internal helper to get literal JSON type of a value.
 	 * @param {*} value
 	 * @return {string} Type inferred from JSON value.
@@ -137,39 +191,106 @@ class Datatable extends Component {
 	}
 
 	/**
+	 * Handles pressing the down arrow key inside a datatable grid.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {string|boolean}
+	 * @protected
+	 */
+	handleDownArrowKey_(event, data) {
+		if (event.metaKey && UA.isMac) {
+			return this.buildRefLastRow_(event, data);
+		} else {
+			return this.buildRef_(data.prefix, data.row + 1, data.col);
+		}
+	}
+
+	/**
+	 * Handles pressing the left arrow key inside a datatable grid.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {string|boolean}
+	 * @protected
+	 */
+	handleLeftArrowKey_(event, data) {
+		if (event.metaKey && UA.isMac) {
+			return this.buildRef_(data.prefix, data.row, 0);
+		}
+		return true;
+	}
+
+	/**
+	 * Handles pressing the right arrow key inside a datatable grid.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {string|boolean}
+	 * @protected
+	 */
+	handleRightArrowKey_(event, data) {
+		if (event.metaKey && UA.isMac) {
+			return this.buildRefLastColumn_(event, data);
+		}
+		return true;
+	}
+
+	/**
+	 * Handles pressing the up arrow key inside a datatable grid.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {string|boolean}
+	 * @protected
+	 */
+	handleUpArrowKey_(event, data) {
+		if (event.metaKey && UA.isMac) {
+			return this.buildRef_(data.prefix, 0, data.col);
+		} else {
+			return this.buildRef_(data.prefix, data.row - 1, data.col);
+		}
+	}
+
+	/**
+	 * Handles focus through keyboard, given the extracted ref data.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @return {boolean|string|Element}
+	 * @protected
+	 */
+	handleNextFocusData_(event, data) {
+		switch (event.keyCode) {
+			case 33:
+				return this.buildRef_(data.prefix, 0, data.col);
+			case 34:
+				return this.buildRefLastRow_(event, data);
+			case 35:
+				return this.buildRefLastColumn_(event, data);
+			case 36:
+				return this.buildRef_(data.prefix, data.row, 0);
+			case 37:
+				return this.handleLeftArrowKey_(event, data);
+			case 38:
+				return this.handleUpArrowKey_(event, data);
+			case 39:
+				return this.handleRightArrowKey_(event, data);
+			case 40:
+				return this.handleDownArrowKey_(event, data);
+		}
+	}
+
+	/**
 	 * Handles focus through keyboard.
 	 * @param {!Event} event
 	 * @return {boolean|string|Element}
 	 * @protected
 	 */
-	handleNextFocus_() {
-		event.stopPropagation();
-
+	handleNextFocus_(event) {
 		const ref = event.delegateTarget.getAttribute('ref');
-		switch (event.keyCode) {
-			case 38:
-				event.preventDefault();
-				return this.incrementRefRow_(ref, -1);
-			case 40:
-				event.preventDefault();
-				return this.incrementRefRow_(ref, 1);
-			default:
-				// Use default behavior for other keys (like left/right arrows).
-				return true;
+		const data = this.extractDataFromRef_(ref);
+		const returnValue = this.handleNextFocusData_(event, data);
+		if (returnValue) {
+			event.preventDefault();
+			event.stopPropagation();
 		}
-	}
-
-	/**
-	 * Increments the row position in the given ref.
-	 * @param {string} ref
-	 * @param {number} inc The amount the position should be incremented by.
-	 * @return {string}
-	 * @protected
-	 */
-	incrementRefRow_(ref, inc) {
-		return ref.replace(Datatable.REF_REGEX, (match, row, column) => {
-			return (parseInt(row, 10) + inc) + '-' + column;
-		});
+		return returnValue;
 	}
 
 	/**
