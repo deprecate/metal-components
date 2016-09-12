@@ -69,6 +69,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -87,7 +89,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       ie_open('div', null, null, 'class', 'datatable' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      $render_(soy.$$augmentMap(opt_data.data, { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
+      $render_(soy.$$assignDefaults({ displayColumnsType: opt_data.displayColumnsType, path: 'table', tableClasses: opt_data.tableClasses }, opt_data.data), null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -146,22 +148,14 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $renderArray_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-array');
-      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onclick', 'toggleTableContents');
-      itext('Array, ');
-      itext((goog.asserts.assert(opt_data.value.length != null), opt_data.value.length));
-      itext(' items');
-      ie_close('span');
-      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden');
+      $tableLabel({ number: opt_data.value.length, path: opt_data.path, type: 'Array' }, null, opt_ijData);
+      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden', 'role', 'grid');
       ie_open('tbody');
-      var itemValueList41 = opt_data.value;
-      var itemValueListLen41 = itemValueList41.length;
-      for (var itemValueIndex41 = 0; itemValueIndex41 < itemValueListLen41; itemValueIndex41++) {
-        var itemValueData41 = itemValueList41[itemValueIndex41];
-        ie_open('tr');
-        ie_open('td');
-        $render_(soy.$$augmentMap(itemValueData41, { tableClasses: opt_data.tableClasses, displayColumnsType: opt_data.displayColumnsType }), null, opt_ijData);
-        ie_close('td');
-        ie_close('tr');
+      var itemValueList48 = opt_data.value;
+      var itemValueListLen48 = itemValueList48.length;
+      for (var itemValueIndex48 = 0; itemValueIndex48 < itemValueListLen48; itemValueIndex48++) {
+        var itemValueData48 = itemValueList48[itemValueIndex48];
+        $renderObjectRow_({ columns: [0], displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-' + itemValueIndex48, rowIndex: itemValueIndex48, rowLength: opt_data.value.length, tableClasses: opt_data.tableClasses, value: [itemValueData48] }, null, opt_ijData);
       }
       ie_close('tbody');
       ie_close('table');
@@ -181,39 +175,14 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $renderArrayOfObjects_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-array-object');
-      ie_open('table', null, null, 'class', opt_data.tableClasses ? opt_data.tableClasses : '');
-      ie_open('thead');
-      ie_open('tr');
-      var columnList56 = opt_data.columns;
-      var columnListLen56 = columnList56.length;
-      for (var columnIndex56 = 0; columnIndex56 < columnListLen56; columnIndex56++) {
-        var columnData56 = columnList56[columnIndex56];
-        ie_open('th');
-        itext((goog.asserts.assert(columnData56 != null), columnData56));
-        if (opt_data.displayColumnsType && opt_data.columnsType) {
-          ie_open('span', null, null, 'class', 'datatable-type');
-          itext((goog.asserts.assert(opt_data.columnsType[columnData56] != null), opt_data.columnsType[columnData56]));
-          ie_close('span');
-        }
-        ie_close('th');
-      }
-      ie_close('tr');
-      ie_close('thead');
+      ie_open('table', null, null, 'class', opt_data.tableClasses ? opt_data.tableClasses : '', 'role', 'grid');
+      $renderObjectHeaders_({ columns: opt_data.columns, columnsType: opt_data.columnsType, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-0', rowLength: opt_data.value.length + 1 }, null, opt_ijData);
       ie_open('tbody');
-      var itemValueList68 = opt_data.value;
-      var itemValueListLen68 = itemValueList68.length;
-      for (var itemValueIndex68 = 0; itemValueIndex68 < itemValueListLen68; itemValueIndex68++) {
-        var itemValueData68 = itemValueList68[itemValueIndex68];
-        ie_open('tr');
-        var columnList65 = opt_data.columns;
-        var columnListLen65 = columnList65.length;
-        for (var columnIndex65 = 0; columnIndex65 < columnListLen65; columnIndex65++) {
-          var columnData65 = columnList65[columnIndex65];
-          ie_open('td');
-          $render_(soy.$$augmentMap(itemValueData68.value[columnData65], { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
-          ie_close('td');
-        }
-        ie_close('tr');
+      var itemValueList70 = opt_data.value;
+      var itemValueListLen70 = itemValueList70.length;
+      for (var itemValueIndex70 = 0; itemValueIndex70 < itemValueListLen70; itemValueIndex70++) {
+        var itemValueData70 = itemValueList70[itemValueIndex70];
+        $renderObjectRow_({ columns: opt_data.columns, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-' + (itemValueIndex70 + 1), rowIndex: itemValueIndex70 + 1, rowLength: opt_data.value.length + 1, tableClasses: opt_data.tableClasses, value: itemValueData70.value }, null, opt_ijData);
       }
       ie_close('tbody');
       ie_close('table');
@@ -233,7 +202,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $renderBoolean_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-boolean');
-      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      var dyn0 = opt_data.value;
+      if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('span');
     }
     exports.renderBoolean_ = $renderBoolean_;
@@ -267,7 +237,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $renderNumber_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-number');
-      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      var dyn1 = opt_data.value;
+      if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       ie_close('span');
     }
     exports.renderNumber_ = $renderNumber_;
@@ -284,40 +255,11 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $renderObject_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-object');
-      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onclick', 'toggleTableContents');
-      itext('Object, ');
-      itext((goog.asserts.assert(soy.$$getMapKeys(opt_data.value).length != null), soy.$$getMapKeys(opt_data.value).length));
-      itext(' items');
-      ie_close('span');
-      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden');
-      ie_open('thead');
-      ie_open('tr');
-      var columnList95 = opt_data.columns;
-      var columnListLen95 = columnList95.length;
-      for (var columnIndex95 = 0; columnIndex95 < columnListLen95; columnIndex95++) {
-        var columnData95 = columnList95[columnIndex95];
-        ie_open('th');
-        itext((goog.asserts.assert(columnData95 != null), columnData95));
-        if (opt_data.displayColumnsType && opt_data.columnsType) {
-          ie_open('span', null, null, 'class', 'datatable-type');
-          itext((goog.asserts.assert(opt_data.columnsType[columnData95] != null), opt_data.columnsType[columnData95]));
-          ie_close('span');
-        }
-        ie_close('th');
-      }
-      ie_close('tr');
-      ie_close('thead');
+      $tableLabel({ number: soy.$$getMapKeys(opt_data.value).length, path: opt_data.path, type: 'Object' }, null, opt_ijData);
+      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden', 'role', 'grid');
+      $renderObjectHeaders_({ columns: opt_data.columns, columnsType: opt_data.columnsType, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-0', rowLength: 2 }, null, opt_ijData);
       ie_open('tbody');
-      ie_open('tr');
-      var columnList103 = opt_data.columns;
-      var columnListLen103 = columnList103.length;
-      for (var columnIndex103 = 0; columnIndex103 < columnListLen103; columnIndex103++) {
-        var columnData103 = columnList103[columnIndex103];
-        ie_open('td');
-        $render_(soy.$$augmentMap(opt_data.value[columnData103], { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
-        ie_close('td');
-      }
-      ie_close('tr');
+      $renderObjectRow_({ columns: opt_data.columns, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-1', rowIndex: 1, rowLength: 2, tableClasses: opt_data.tableClasses, value: opt_data.value }, null, opt_ijData);
       ie_close('tbody');
       ie_close('table');
       ie_close('span');
@@ -325,6 +267,65 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     exports.renderObject_ = $renderObject_;
     if (goog.DEBUG) {
       $renderObject_.soyTemplateName = 'Datatable.renderObject_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderObjectHeaders_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('thead');
+      ie_open('tr', null, null, 'data-rows', opt_data.rowLength);
+      var columnList127 = opt_data.columns;
+      var columnListLen127 = columnList127.length;
+      for (var columnIndex127 = 0; columnIndex127 < columnListLen127; columnIndex127++) {
+        var columnData127 = columnList127[columnIndex127];
+        var currPath__soy112 = opt_data.path + '-' + columnIndex127;
+        ie_open('th', null, null, 'role', 'columnheader', 'scope', 'col', 'ref', currPath__soy112, 'tabindex', columnIndex127 == 0 ? '0' : '-1', 'data-cols', opt_data.columns.length);
+        var dyn2 = columnData127;
+        if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
+        if (opt_data.displayColumnsType && opt_data.columnsType) {
+          ie_open('span', null, null, 'class', 'datatable-type');
+          var dyn3 = opt_data.columnsType[columnData127];
+          if (typeof dyn3 == 'function') dyn3();else if (dyn3 != null) itext(dyn3);
+          ie_close('span');
+        }
+        ie_close('th');
+      }
+      ie_close('tr');
+      ie_close('thead');
+    }
+    exports.renderObjectHeaders_ = $renderObjectHeaders_;
+    if (goog.DEBUG) {
+      $renderObjectHeaders_.soyTemplateName = 'Datatable.renderObjectHeaders_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderObjectRow_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('tr', null, null, 'data-rows', opt_data.rowLength);
+      var columnList147 = opt_data.columns;
+      var columnListLen147 = columnList147.length;
+      for (var columnIndex147 = 0; columnIndex147 < columnListLen147; columnIndex147++) {
+        var columnData147 = columnList147[columnIndex147];
+        var currPath__soy134 = opt_data.path + '-' + columnIndex147;
+        ie_open('td', null, null, 'role', 'gridcell', 'ref', currPath__soy134, 'tabindex', opt_data.rowIndex == 0 && columnIndex147 == 0 ? '0' : '-1', 'data-cols', opt_data.columns.length);
+        $render_(soy.$$assignDefaults({ displayColumnsType: opt_data.displayColumnsType, path: currPath__soy134, tableClasses: opt_data.tableClasses }, opt_data.value[columnData147]), null, opt_ijData);
+        ie_close('td');
+      }
+      ie_close('tr');
+    }
+    exports.renderObjectRow_ = $renderObjectRow_;
+    if (goog.DEBUG) {
+      $renderObjectRow_.soyTemplateName = 'Datatable.renderObjectRow_';
     }
 
     /**
@@ -365,26 +366,54 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $renderString_.soyTemplateName = 'Datatable.renderString_';
     }
 
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $tableLabel(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onkeydown', 'handleKeydownToggle_', 'data-onclick', 'handleClickToggle_', 'ref', opt_data.path + '-label', 'tabindex', opt_data.path == 'table' ? 0 : -1);
+      var dyn4 = opt_data.type;
+      if (typeof dyn4 == 'function') dyn4();else if (dyn4 != null) itext(dyn4);
+      itext(', ');
+      var dyn5 = opt_data.number;
+      if (typeof dyn5 == 'function') dyn5();else if (dyn5 != null) itext(dyn5);
+      itext(' items');
+      ie_close('span');
+    }
+    exports.tableLabel = $tableLabel;
+    if (goog.DEBUG) {
+      $tableLabel.soyTemplateName = 'Datatable.tableLabel';
+    }
+
     exports.render.params = ["data", "displayColumnsType", "elementClasses", "tableClasses"];
     exports.render.types = { "data": "any", "displayColumnsType": "any", "elementClasses": "any", "tableClasses": "any" };
-    exports.render_.params = ["type", "columns"];
-    exports.render_.types = { "type": "any", "columns": "any" };
-    exports.renderArray_.params = ["value", "displayColumnsType", "tableClasses"];
-    exports.renderArray_.types = { "value": "any", "displayColumnsType": "any", "tableClasses": "any" };
-    exports.renderArrayOfObjects_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
-    exports.renderArrayOfObjects_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "tableClasses": "any" };
+    exports.render_.params = ["path", "type", "columns"];
+    exports.render_.types = { "path": "any", "type": "any", "columns": "any" };
+    exports.renderArray_.params = ["path", "value", "displayColumnsType", "tableClasses"];
+    exports.renderArray_.types = { "path": "any", "value": "any", "displayColumnsType": "any", "tableClasses": "any" };
+    exports.renderArrayOfObjects_.params = ["columns", "value", "columnsType", "displayColumnsType", "path", "tableClasses"];
+    exports.renderArrayOfObjects_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "path": "any", "tableClasses": "any" };
     exports.renderBoolean_.params = ["value"];
     exports.renderBoolean_.types = { "value": "any" };
     exports.renderNull_.params = [];
     exports.renderNull_.types = {};
     exports.renderNumber_.params = ["value"];
     exports.renderNumber_.types = { "value": "any" };
-    exports.renderObject_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
-    exports.renderObject_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "tableClasses": "any" };
+    exports.renderObject_.params = ["columns", "value", "columnsType", "displayColumnsType", "path", "tableClasses"];
+    exports.renderObject_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "path": "any", "tableClasses": "any" };
+    exports.renderObjectHeaders_.params = ["columns", "columnsType", "displayColumnsType", "path", "rowLength"];
+    exports.renderObjectHeaders_.types = { "columns": "any", "columnsType": "any", "displayColumnsType": "any", "path": "any", "rowLength": "any" };
+    exports.renderObjectRow_.params = ["columns", "value", "displayColumnsType", "path", "rowIndex", "rowLength", "tableClasses"];
+    exports.renderObjectRow_.types = { "columns": "any", "value": "any", "displayColumnsType": "any", "path": "any", "rowIndex": "any", "rowLength": "any", "tableClasses": "any" };
     exports.renderUndefined_.params = [];
     exports.renderUndefined_.types = {};
     exports.renderString_.params = ["value"];
     exports.renderString_.types = { "value": "html" };
+    exports.tableLabel.params = ["number", "path", "type"];
+    exports.tableLabel.types = { "number": "any", "path": "any", "type": "any" };
     exports.templates = templates = exports;
     return exports;
   });

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.js', 'metal-component/src/all/component', 'metal-soy/src/Soy', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _DatatableSoy, _component, _Soy, _JQueryAdapter) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.js', 'metal-component/src/all/component', 'metal-keyboard-focus/src/KeyboardFocusManager', 'metal-soy/src/Soy', 'metal-useragent/src/UA', 'metal-jquery-adapter/src/JQueryAdapter'], function (exports, _metal, _dom, _DatatableSoy, _component, _KeyboardFocusManager, _Soy, _UA, _JQueryAdapter) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -13,7 +13,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.
 
 	var _component2 = _interopRequireDefault(_component);
 
+	var _KeyboardFocusManager2 = _interopRequireDefault(_KeyboardFocusManager);
+
 	var _Soy2 = _interopRequireDefault(_Soy);
+
+	var _UA2 = _interopRequireDefault(_UA);
 
 	var _JQueryAdapter2 = _interopRequireDefault(_JQueryAdapter);
 
@@ -90,6 +94,26 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.
 			}
 		};
 
+		Datatable.prototype.attached = function attached() {
+			this.keyboardFocusManager_ = new _KeyboardFocusManager2.default(this, 'td,th').setFocusHandler(this.handleNextFocus_.bind(this)).start();
+		};
+
+		Datatable.prototype.buildRef_ = function buildRef_(prefix, row, col) {
+			return prefix + row + '-' + col;
+		};
+
+		Datatable.prototype.buildRefLastColumn_ = function buildRefLastColumn_(event, data) {
+			var element = event.delegateTarget;
+			var cellLength = parseInt(element.getAttribute('data-cols'), 10);
+			return this.buildRef_(data.prefix, data.row, cellLength - 1);
+		};
+
+		Datatable.prototype.buildRefLastRow_ = function buildRefLastRow_(event, data) {
+			var element = event.delegateTarget.parentNode;
+			var rowLength = parseInt(element.getAttribute('data-rows'), 10);
+			return this.buildRef_(data.prefix, rowLength - 1, data.col);
+		};
+
 		Datatable.prototype.collectColumnsFromArrayValues_ = function collectColumnsFromArrayValues_(expandedValue) {
 			var _this3 = this;
 
@@ -134,6 +158,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.
 			}
 		};
 
+		Datatable.prototype.disposed = function disposed() {
+			if (this.keyboardFocusManager_) {
+				this.keyboardFocusManager_.dispose();
+				this.keyboardFocusManager_ = null;
+			}
+		};
+
+		Datatable.prototype.extractDataFromRef_ = function extractDataFromRef_(ref) {
+			var matches = Datatable.REF_REGEX.exec(ref);
+			return {
+				col: parseInt(matches[2], 10),
+				prefix: ref.substr(0, ref.length - matches[0].length),
+				row: parseInt(matches[1], 10)
+			};
+		};
+
 		Datatable.prototype.getValueType_ = function getValueType_(value) {
 			if (value === null) {
 				return Datatable.TYPES.NULL;
@@ -150,6 +190,89 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.
 			return typeof value === 'undefined' ? 'undefined' : _typeof(value);
 		};
 
+		Datatable.prototype.handleClickToggle_ = function handleClickToggle_(event) {
+			this.toggleTableContents(event.delegateTarget);
+		};
+
+		Datatable.prototype.handleDownArrowKey_ = function handleDownArrowKey_(event, data) {
+			if (event.metaKey && _UA2.default.isMac) {
+				return this.buildRefLastRow_(event, data);
+			} else {
+				return this.buildRef_(data.prefix, data.row + 1, data.col);
+			}
+		};
+
+		Datatable.prototype.handleEnterKey_ = function handleEnterKey_(event, data) {
+			var ref = this.buildRef_(data.prefix, data.row, data.col) + '-label';
+			if (this.refs[ref]) {
+				this.toggleTableContents(this.refs[ref]);
+			}
+			event.stopPropagation();
+		};
+
+		Datatable.prototype.handleKeydownToggle_ = function handleKeydownToggle_(event) {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.toggleTableContents(event.delegateTarget);
+			}
+		};
+
+		Datatable.prototype.handleLeftArrowKey_ = function handleLeftArrowKey_(event, data) {
+			if (event.metaKey && _UA2.default.isMac) {
+				return this.buildRef_(data.prefix, data.row, 0);
+			}
+			return true;
+		};
+
+		Datatable.prototype.handleRightArrowKey_ = function handleRightArrowKey_(event, data) {
+			if (event.metaKey && _UA2.default.isMac) {
+				return this.buildRefLastColumn_(event, data);
+			}
+			return true;
+		};
+
+		Datatable.prototype.handleUpArrowKey_ = function handleUpArrowKey_(event, data) {
+			if (event.metaKey && _UA2.default.isMac) {
+				return this.buildRef_(data.prefix, 0, data.col);
+			} else {
+				return this.buildRef_(data.prefix, data.row - 1, data.col);
+			}
+		};
+
+		Datatable.prototype.handleNextFocusData_ = function handleNextFocusData_(event, data) {
+			switch (event.keyCode) {
+				case 13:
+				case 32:
+					return this.handleEnterKey_(event, data);
+				case 33:
+					return this.buildRef_(data.prefix, 0, data.col);
+				case 34:
+					return this.buildRefLastRow_(event, data);
+				case 35:
+					return this.buildRefLastColumn_(event, data);
+				case 36:
+					return this.buildRef_(data.prefix, data.row, 0);
+				case 37:
+					return this.handleLeftArrowKey_(event, data);
+				case 38:
+					return this.handleUpArrowKey_(event, data);
+				case 39:
+					return this.handleRightArrowKey_(event, data);
+				case 40:
+					return this.handleDownArrowKey_(event, data);
+			}
+		};
+
+		Datatable.prototype.handleNextFocus_ = function handleNextFocus_(event) {
+			var ref = event.delegateTarget.getAttribute('ref');
+			var data = this.extractDataFromRef_(ref);
+			var returnValue = this.handleNextFocusData_(event, data);
+			if (returnValue) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			return returnValue;
+		};
+
 		Datatable.prototype.isAlreadyExpanded = function isAlreadyExpanded(data) {
 			return _metal2.default.isObject(data) && 'columns' in data && 'type' in data;
 		};
@@ -162,8 +285,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.
 			return this.visitValuesAndWrapStringValues_(data);
 		};
 
-		Datatable.prototype.toggleTableContents = function toggleTableContents(event) {
-			var label = event.delegateTarget;
+		Datatable.prototype.toggleTableContents = function toggleTableContents(label) {
 			_dom2.default.toggleClasses(label, this.labelClasses);
 			_dom2.default.toggleClasses(_dom2.default.next(label, 'table'), this.hiddenClasses);
 		};
@@ -300,6 +422,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Datatable.soy.
 			value: 'table table-bordered table-condensed table-hover'
 		}
 	};
+
+	// The regex used to extract the row/column positions from an element's ref.
+	Datatable.REF_REGEX = /(\d+)-(\d+)$/;
 
 	/**
   * Datatable supported types.

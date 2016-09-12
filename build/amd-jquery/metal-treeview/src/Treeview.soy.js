@@ -67,6 +67,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -103,12 +105,12 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function $nodes(opt_data, opt_ignored, opt_ijData) {
       if (opt_data.nodes) {
         ie_open('ul', null, null, 'class', 'treeview-nodes', 'role', 'tree');
-        var nodeList17 = opt_data.nodes;
-        var nodeListLen17 = nodeList17.length;
-        for (var nodeIndex17 = 0; nodeIndex17 < nodeListLen17; nodeIndex17++) {
-          var nodeData17 = nodeList17[nodeIndex17];
-          var index__soy13 = nodeIndex17;
-          $node({ node: nodeData17, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy13 : index__soy13 }, null, opt_ijData);
+        var nodeList19 = opt_data.nodes;
+        var nodeListLen19 = nodeList19.length;
+        for (var nodeIndex19 = 0; nodeIndex19 < nodeListLen19; nodeIndex19++) {
+          var nodeData19 = nodeList19[nodeIndex19];
+          var index__soy14 = nodeIndex19;
+          $node({ lastFocusedRef_: opt_data.lastFocusedRef_, node: nodeData19, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy14 : index__soy14 }, null, opt_ijData);
         }
         ie_close('ul');
       }
@@ -126,13 +128,16 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      * @suppress {checkTypes}
      */
     function $node(opt_data, opt_ignored, opt_ijData) {
+      var focusRef__soy23 = opt_data.lastFocusedRef_ ? opt_data.lastFocusedRef_ : 'node-0';
+      var ref__soy24 = 'node-' + opt_data.path;
       ie_open_start('li');
       iattr('class', 'treeview-node');
       iattr('data-treeview-path', opt_data.path);
       iattr('data-onkeyup', 'handleNodeKeyUp_');
       $ariaExpanded(opt_data, null, opt_ijData);
       iattr('role', 'treeitem');
-      iattr('tabindex', '0');
+      iattr('tabindex', focusRef__soy23 == ref__soy24 ? '0' : '-1');
+      iattr('ref', ref__soy24);
       ie_open_end();
       if (opt_data.node) {
         ie_open('div', null, null, 'class', 'treeview-node-wrapper' + (opt_data.node.expanded ? ' expanded' : ''));
@@ -141,10 +146,11 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
           ie_void('div', null, null, 'class', 'treeview-node-toggler');
         }
         ie_open('span', null, null, 'class', 'treeview-node-name');
-        itext((goog.asserts.assert(opt_data.node.name != null), opt_data.node.name));
+        var dyn0 = opt_data.node.name;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('span');
         ie_close('div');
-        $nodes({ nodes: opt_data.node.children, parentPath: opt_data.path }, null, opt_ijData);
+        $nodes({ lastFocusedRef_: opt_data.lastFocusedRef_, nodes: opt_data.node.children, parentPath: opt_data.path }, null, opt_ijData);
         ie_close('div');
       }
       ie_close('li');
@@ -171,12 +177,12 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $ariaExpanded.soyTemplateName = 'Treeview.ariaExpanded';
     }
 
-    exports.render.params = ["elementClasses", "nodes"];
-    exports.render.types = { "elementClasses": "any", "nodes": "any" };
-    exports.nodes.params = ["nodes", "parentPath"];
-    exports.nodes.types = { "nodes": "any", "parentPath": "any" };
-    exports.node.params = ["node", "path"];
-    exports.node.types = { "node": "any", "path": "any" };
+    exports.render.params = ["elementClasses", "lastFocusedRef_", "nodes"];
+    exports.render.types = { "elementClasses": "any", "lastFocusedRef_": "any", "nodes": "any" };
+    exports.nodes.params = ["lastFocusedRef_", "nodes", "parentPath"];
+    exports.nodes.types = { "lastFocusedRef_": "any", "nodes": "any", "parentPath": "any" };
+    exports.node.params = ["lastFocusedRef_", "node", "path"];
+    exports.node.types = { "lastFocusedRef_": "any", "node": "any", "path": "any" };
     exports.ariaExpanded.params = ["node"];
     exports.ariaExpanded.types = { "node": "any" };
     exports.templates = templates = exports;

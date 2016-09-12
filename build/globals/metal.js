@@ -16477,6 +16477,13 @@ babelHelpers;
 
 
 		Autocomplete.prototype.request = function request(query) {
+			if (this.autocompleteClosing_) {
+				// While closing the input element will be focused, causing another
+				// request. This request should be ignored though, since we wish to close
+				// the dropdown list, not open it again.
+				return;
+			}
+
 			var self = this;
 			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
 				if (data) {
@@ -16497,8 +16504,10 @@ babelHelpers;
 
 		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
 			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+			this.autocompleteClosing_ = true;
 			this.emit('select', this.getList().items[selectedIndex]);
 			this.visible = false;
+			this.autocompleteClosing_ = false;
 		};
 
 		/**
@@ -17179,6 +17188,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -17197,7 +17208,7 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       ie_open('div', null, null, 'class', 'datatable' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''));
-      $render_(soy.$$augmentMap(opt_data.data, { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
+      $render_(soy.$$assignDefaults({ displayColumnsType: opt_data.displayColumnsType, path: 'table', tableClasses: opt_data.tableClasses }, opt_data.data), null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -17256,22 +17267,14 @@ babelHelpers;
      */
     function $renderArray_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-array');
-      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onclick', 'toggleTableContents');
-      itext('Array, ');
-      itext((goog.asserts.assert(opt_data.value.length != null), opt_data.value.length));
-      itext(' items');
-      ie_close('span');
-      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden');
+      $tableLabel({ number: opt_data.value.length, path: opt_data.path, type: 'Array' }, null, opt_ijData);
+      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses + '' : '') + ' hidden', 'role', 'grid');
       ie_open('tbody');
-      var itemValueList41 = opt_data.value;
-      var itemValueListLen41 = itemValueList41.length;
-      for (var itemValueIndex41 = 0; itemValueIndex41 < itemValueListLen41; itemValueIndex41++) {
-        var itemValueData41 = itemValueList41[itemValueIndex41];
-        ie_open('tr');
-        ie_open('td');
-        $render_(soy.$$augmentMap(itemValueData41, { tableClasses: opt_data.tableClasses, displayColumnsType: opt_data.displayColumnsType }), null, opt_ijData);
-        ie_close('td');
-        ie_close('tr');
+      var itemValueList48 = opt_data.value;
+      var itemValueListLen48 = itemValueList48.length;
+      for (var itemValueIndex48 = 0; itemValueIndex48 < itemValueListLen48; itemValueIndex48++) {
+        var itemValueData48 = itemValueList48[itemValueIndex48];
+        $renderObjectRow_({ columns: [0], displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-' + itemValueIndex48, rowIndex: itemValueIndex48, rowLength: opt_data.value.length, tableClasses: opt_data.tableClasses, value: [itemValueData48] }, null, opt_ijData);
       }
       ie_close('tbody');
       ie_close('table');
@@ -17291,39 +17294,14 @@ babelHelpers;
      */
     function $renderArrayOfObjects_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-array-object');
-      ie_open('table', null, null, 'class', opt_data.tableClasses ? opt_data.tableClasses : '');
-      ie_open('thead');
-      ie_open('tr');
-      var columnList56 = opt_data.columns;
-      var columnListLen56 = columnList56.length;
-      for (var columnIndex56 = 0; columnIndex56 < columnListLen56; columnIndex56++) {
-        var columnData56 = columnList56[columnIndex56];
-        ie_open('th');
-        itext((goog.asserts.assert(columnData56 != null), columnData56));
-        if (opt_data.displayColumnsType && opt_data.columnsType) {
-          ie_open('span', null, null, 'class', 'datatable-type');
-          itext((goog.asserts.assert(opt_data.columnsType[columnData56] != null), opt_data.columnsType[columnData56]));
-          ie_close('span');
-        }
-        ie_close('th');
-      }
-      ie_close('tr');
-      ie_close('thead');
+      ie_open('table', null, null, 'class', opt_data.tableClasses ? opt_data.tableClasses : '', 'role', 'grid');
+      $renderObjectHeaders_({ columns: opt_data.columns, columnsType: opt_data.columnsType, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-0', rowLength: opt_data.value.length + 1 }, null, opt_ijData);
       ie_open('tbody');
-      var itemValueList68 = opt_data.value;
-      var itemValueListLen68 = itemValueList68.length;
-      for (var itemValueIndex68 = 0; itemValueIndex68 < itemValueListLen68; itemValueIndex68++) {
-        var itemValueData68 = itemValueList68[itemValueIndex68];
-        ie_open('tr');
-        var columnList65 = opt_data.columns;
-        var columnListLen65 = columnList65.length;
-        for (var columnIndex65 = 0; columnIndex65 < columnListLen65; columnIndex65++) {
-          var columnData65 = columnList65[columnIndex65];
-          ie_open('td');
-          $render_(soy.$$augmentMap(itemValueData68.value[columnData65], { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
-          ie_close('td');
-        }
-        ie_close('tr');
+      var itemValueList70 = opt_data.value;
+      var itemValueListLen70 = itemValueList70.length;
+      for (var itemValueIndex70 = 0; itemValueIndex70 < itemValueListLen70; itemValueIndex70++) {
+        var itemValueData70 = itemValueList70[itemValueIndex70];
+        $renderObjectRow_({ columns: opt_data.columns, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-' + (itemValueIndex70 + 1), rowIndex: itemValueIndex70 + 1, rowLength: opt_data.value.length + 1, tableClasses: opt_data.tableClasses, value: itemValueData70.value }, null, opt_ijData);
       }
       ie_close('tbody');
       ie_close('table');
@@ -17343,7 +17321,8 @@ babelHelpers;
      */
     function $renderBoolean_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-boolean');
-      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      var dyn0 = opt_data.value;
+      if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('span');
     }
     exports.renderBoolean_ = $renderBoolean_;
@@ -17377,7 +17356,8 @@ babelHelpers;
      */
     function $renderNumber_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-number');
-      itext((goog.asserts.assert(opt_data.value != null), opt_data.value));
+      var dyn1 = opt_data.value;
+      if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       ie_close('span');
     }
     exports.renderNumber_ = $renderNumber_;
@@ -17394,40 +17374,11 @@ babelHelpers;
      */
     function $renderObject_(opt_data, opt_ignored, opt_ijData) {
       ie_open('span', null, null, 'class', 'datatable-object');
-      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onclick', 'toggleTableContents');
-      itext('Object, ');
-      itext((goog.asserts.assert(soy.$$getMapKeys(opt_data.value).length != null), soy.$$getMapKeys(opt_data.value).length));
-      itext(' items');
-      ie_close('span');
-      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden');
-      ie_open('thead');
-      ie_open('tr');
-      var columnList95 = opt_data.columns;
-      var columnListLen95 = columnList95.length;
-      for (var columnIndex95 = 0; columnIndex95 < columnListLen95; columnIndex95++) {
-        var columnData95 = columnList95[columnIndex95];
-        ie_open('th');
-        itext((goog.asserts.assert(columnData95 != null), columnData95));
-        if (opt_data.displayColumnsType && opt_data.columnsType) {
-          ie_open('span', null, null, 'class', 'datatable-type');
-          itext((goog.asserts.assert(opt_data.columnsType[columnData95] != null), opt_data.columnsType[columnData95]));
-          ie_close('span');
-        }
-        ie_close('th');
-      }
-      ie_close('tr');
-      ie_close('thead');
+      $tableLabel({ number: soy.$$getMapKeys(opt_data.value).length, path: opt_data.path, type: 'Object' }, null, opt_ijData);
+      ie_open('table', null, null, 'class', (opt_data.tableClasses ? opt_data.tableClasses : '') + ' hidden', 'role', 'grid');
+      $renderObjectHeaders_({ columns: opt_data.columns, columnsType: opt_data.columnsType, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-0', rowLength: 2 }, null, opt_ijData);
       ie_open('tbody');
-      ie_open('tr');
-      var columnList103 = opt_data.columns;
-      var columnListLen103 = columnList103.length;
-      for (var columnIndex103 = 0; columnIndex103 < columnListLen103; columnIndex103++) {
-        var columnData103 = columnList103[columnIndex103];
-        ie_open('td');
-        $render_(soy.$$augmentMap(opt_data.value[columnData103], { displayColumnsType: opt_data.displayColumnsType, tableClasses: opt_data.tableClasses }), null, opt_ijData);
-        ie_close('td');
-      }
-      ie_close('tr');
+      $renderObjectRow_({ columns: opt_data.columns, displayColumnsType: opt_data.displayColumnsType, path: opt_data.path + '-1', rowIndex: 1, rowLength: 2, tableClasses: opt_data.tableClasses, value: opt_data.value }, null, opt_ijData);
       ie_close('tbody');
       ie_close('table');
       ie_close('span');
@@ -17435,6 +17386,65 @@ babelHelpers;
     exports.renderObject_ = $renderObject_;
     if (goog.DEBUG) {
       $renderObject_.soyTemplateName = 'Datatable.renderObject_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderObjectHeaders_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('thead');
+      ie_open('tr', null, null, 'data-rows', opt_data.rowLength);
+      var columnList127 = opt_data.columns;
+      var columnListLen127 = columnList127.length;
+      for (var columnIndex127 = 0; columnIndex127 < columnListLen127; columnIndex127++) {
+        var columnData127 = columnList127[columnIndex127];
+        var currPath__soy112 = opt_data.path + '-' + columnIndex127;
+        ie_open('th', null, null, 'role', 'columnheader', 'scope', 'col', 'ref', currPath__soy112, 'tabindex', columnIndex127 == 0 ? '0' : '-1', 'data-cols', opt_data.columns.length);
+        var dyn2 = columnData127;
+        if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
+        if (opt_data.displayColumnsType && opt_data.columnsType) {
+          ie_open('span', null, null, 'class', 'datatable-type');
+          var dyn3 = opt_data.columnsType[columnData127];
+          if (typeof dyn3 == 'function') dyn3();else if (dyn3 != null) itext(dyn3);
+          ie_close('span');
+        }
+        ie_close('th');
+      }
+      ie_close('tr');
+      ie_close('thead');
+    }
+    exports.renderObjectHeaders_ = $renderObjectHeaders_;
+    if (goog.DEBUG) {
+      $renderObjectHeaders_.soyTemplateName = 'Datatable.renderObjectHeaders_';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $renderObjectRow_(opt_data, opt_ignored, opt_ijData) {
+      ie_open('tr', null, null, 'data-rows', opt_data.rowLength);
+      var columnList147 = opt_data.columns;
+      var columnListLen147 = columnList147.length;
+      for (var columnIndex147 = 0; columnIndex147 < columnListLen147; columnIndex147++) {
+        var columnData147 = columnList147[columnIndex147];
+        var currPath__soy134 = opt_data.path + '-' + columnIndex147;
+        ie_open('td', null, null, 'role', 'gridcell', 'ref', currPath__soy134, 'tabindex', opt_data.rowIndex == 0 && columnIndex147 == 0 ? '0' : '-1', 'data-cols', opt_data.columns.length);
+        $render_(soy.$$assignDefaults({ displayColumnsType: opt_data.displayColumnsType, path: currPath__soy134, tableClasses: opt_data.tableClasses }, opt_data.value[columnData147]), null, opt_ijData);
+        ie_close('td');
+      }
+      ie_close('tr');
+    }
+    exports.renderObjectRow_ = $renderObjectRow_;
+    if (goog.DEBUG) {
+      $renderObjectRow_.soyTemplateName = 'Datatable.renderObjectRow_';
     }
 
     /**
@@ -17475,26 +17485,54 @@ babelHelpers;
       $renderString_.soyTemplateName = 'Datatable.renderString_';
     }
 
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $tableLabel(opt_data, opt_ignored, opt_ijData) {
+      ie_open('span', null, null, 'class', 'datatable-label collapsed', 'data-onkeydown', 'handleKeydownToggle_', 'data-onclick', 'handleClickToggle_', 'ref', opt_data.path + '-label', 'tabindex', opt_data.path == 'table' ? 0 : -1);
+      var dyn4 = opt_data.type;
+      if (typeof dyn4 == 'function') dyn4();else if (dyn4 != null) itext(dyn4);
+      itext(', ');
+      var dyn5 = opt_data.number;
+      if (typeof dyn5 == 'function') dyn5();else if (dyn5 != null) itext(dyn5);
+      itext(' items');
+      ie_close('span');
+    }
+    exports.tableLabel = $tableLabel;
+    if (goog.DEBUG) {
+      $tableLabel.soyTemplateName = 'Datatable.tableLabel';
+    }
+
     exports.render.params = ["data", "displayColumnsType", "elementClasses", "tableClasses"];
     exports.render.types = { "data": "any", "displayColumnsType": "any", "elementClasses": "any", "tableClasses": "any" };
-    exports.render_.params = ["type", "columns"];
-    exports.render_.types = { "type": "any", "columns": "any" };
-    exports.renderArray_.params = ["value", "displayColumnsType", "tableClasses"];
-    exports.renderArray_.types = { "value": "any", "displayColumnsType": "any", "tableClasses": "any" };
-    exports.renderArrayOfObjects_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
-    exports.renderArrayOfObjects_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "tableClasses": "any" };
+    exports.render_.params = ["path", "type", "columns"];
+    exports.render_.types = { "path": "any", "type": "any", "columns": "any" };
+    exports.renderArray_.params = ["path", "value", "displayColumnsType", "tableClasses"];
+    exports.renderArray_.types = { "path": "any", "value": "any", "displayColumnsType": "any", "tableClasses": "any" };
+    exports.renderArrayOfObjects_.params = ["columns", "value", "columnsType", "displayColumnsType", "path", "tableClasses"];
+    exports.renderArrayOfObjects_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "path": "any", "tableClasses": "any" };
     exports.renderBoolean_.params = ["value"];
     exports.renderBoolean_.types = { "value": "any" };
     exports.renderNull_.params = [];
     exports.renderNull_.types = {};
     exports.renderNumber_.params = ["value"];
     exports.renderNumber_.types = { "value": "any" };
-    exports.renderObject_.params = ["columns", "value", "columnsType", "displayColumnsType", "tableClasses"];
-    exports.renderObject_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "tableClasses": "any" };
+    exports.renderObject_.params = ["columns", "value", "columnsType", "displayColumnsType", "path", "tableClasses"];
+    exports.renderObject_.types = { "columns": "any", "value": "any", "columnsType": "any", "displayColumnsType": "any", "path": "any", "tableClasses": "any" };
+    exports.renderObjectHeaders_.params = ["columns", "columnsType", "displayColumnsType", "path", "rowLength"];
+    exports.renderObjectHeaders_.types = { "columns": "any", "columnsType": "any", "displayColumnsType": "any", "path": "any", "rowLength": "any" };
+    exports.renderObjectRow_.params = ["columns", "value", "displayColumnsType", "path", "rowIndex", "rowLength", "tableClasses"];
+    exports.renderObjectRow_.types = { "columns": "any", "value": "any", "displayColumnsType": "any", "path": "any", "rowIndex": "any", "rowLength": "any", "tableClasses": "any" };
     exports.renderUndefined_.params = [];
     exports.renderUndefined_.types = {};
     exports.renderString_.params = ["value"];
     exports.renderString_.types = { "value": "html" };
+    exports.tableLabel.params = ["number", "path", "type"];
+    exports.tableLabel.types = { "number": "any", "path": "any", "type": "any" };
     templates = exports;
     return exports;
   });
@@ -17521,10 +17559,451 @@ babelHelpers;
 
 (function () {
 	var core = this.metal.metal;
+	var EventEmitter = this.metal.events;
+
+	/**
+  * Listens to keyboard events and uses them to move focus between different
+  * elements from a component (via the arrow keys for example).
+  * By default `KeyboardFocusManager` will assume that all focusable elements
+  * in the component will have refs that follow the pattern in
+  * KeyboardFocusManager.REF_REGEX, which includes a position number. The arrow
+  * keys will then automatically move between elements by
+  * incrementing/decrementing this position.
+  * It's possible to fully customize this behavior by passing a function to
+  * `setFocusHandler`. For more details check this function's docs.
+  */
+
+	var KeyboardFocusManager = function (_EventEmitter) {
+		babelHelpers.inherits(KeyboardFocusManager, _EventEmitter);
+
+		/**
+   * Constructor for `KeyboardFocusManager`.
+   * @param {!Component} component
+   * @param {string=} opt_selector
+   */
+		function KeyboardFocusManager(component, opt_selector) {
+			babelHelpers.classCallCheck(this, KeyboardFocusManager);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _EventEmitter.call(this));
+
+			_this.component_ = component;
+			_this.selector_ = opt_selector || '*';
+			_this.handleKey_ = _this.handleKey_.bind(_this);
+			return _this;
+		}
+
+		/**
+   * Builds a ref string for the given position.
+   * @param {string} prefix
+   * @param {number|string} position
+   * @return {string}
+   * @protected
+   */
+
+
+		KeyboardFocusManager.prototype.buildRef_ = function buildRef_(prefix, position) {
+			return prefix + position;
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		KeyboardFocusManager.prototype.disposeInternal = function disposeInternal() {
+			_EventEmitter.prototype.disposeInternal.call(this);
+			this.stop();
+			this.component_ = null;
+			this.selector_ = null;
+		};
+
+		/**
+   * Gets the next focusable element, that is, the next element that doesn't
+   * have the `data-unfocusable` attribute set to `true`.
+   * @param {string} prefix
+   * @param {number} position
+   * @param {number} increment
+   * @return {string}
+   * @protected
+   */
+
+
+		KeyboardFocusManager.prototype.getNextFocusable_ = function getNextFocusable_(prefix, position, increment) {
+			var initialPosition = position;
+			var element = void 0;
+			var ref = void 0;
+			do {
+				position = this.increment_(position, increment);
+				ref = this.buildRef_(prefix, position);
+				element = this.component_.refs[ref];
+			} while (this.isFocusable_(element) && position !== initialPosition);
+			return element ? ref : null;
+		};
+
+		/**
+   * Handles a `keydown` event. Decides if a new element should be focused
+   * according to the key that was pressed.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		KeyboardFocusManager.prototype.handleKey_ = function handleKey_(event) {
+			var element = this.focusHandler_ && this.focusHandler_(event);
+			if (!this.focusHandler_ || element === true) {
+				element = this.handleKeyDefault_(event);
+			}
+
+			var originalValue = element;
+			if (!core.isElement(element)) {
+				element = this.component_.refs[element];
+			}
+			if (element) {
+				element.focus();
+				this.emit(KeyboardFocusManager.EVENT_FOCUSED, {
+					element: element,
+					ref: core.isString(originalValue) ? originalValue : null
+				});
+			}
+		};
+
+		/**
+   * Handles a key press according to the default behavior. Assumes that all
+   * focusable elements in the component will have refs that follow the pattern
+   * in KeyboardFocusManager.REF_REGEX, which includes a position number. The
+   * arrow keys will then automatically move between elements by
+   * incrementing/decrementing the position.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		KeyboardFocusManager.prototype.handleKeyDefault_ = function handleKeyDefault_(event) {
+			var ref = event.delegateTarget.getAttribute('ref');
+			var matches = KeyboardFocusManager.REF_REGEX.exec(ref);
+			if (!matches) {
+				return;
+			}
+
+			var position = parseInt(matches[1], 10);
+			var prefix = ref.substr(0, ref.length - matches[1].length);
+			switch (event.keyCode) {
+				case 37:
+				case 38:
+					// Left/up arrow keys will focus the previous element.
+					return this.getNextFocusable_(prefix, position, -1);
+				case 39:
+				case 40:
+					// Right/down arrow keys will focus the next element.
+					return this.getNextFocusable_(prefix, position, 1);
+			}
+		};
+
+		/**
+   * Increments the given position, making sure to follow circular rules if
+   * enabled.
+   * @param {number} position
+   * @param {number} increment
+   * @return {number}
+   * @protected
+   */
+
+
+		KeyboardFocusManager.prototype.increment_ = function increment_(position, increment) {
+			var size = this.circularLength_;
+			position += increment;
+			if (core.isNumber(size)) {
+				if (position < 0) {
+					position = size - 1;
+				} else if (position >= size) {
+					position = 0;
+				}
+			}
+			return position;
+		};
+
+		/**
+   * Checks if the given element is focusable.
+   * @param {Element} element
+   * @return {boolean}
+   * @protected
+   */
+
+
+		KeyboardFocusManager.prototype.isFocusable_ = function isFocusable_(element) {
+			return element && element.getAttribute('data-unfocusable') === 'true';
+		};
+
+		/**
+   * Sets the length of the focusable elements. If a number is passed, the
+   * default focusing behavior will follow a circular pattern, going from the
+   * last to the first element, and vice versa.
+   * @param {?number} circularLength
+   * @chainable
+   */
+
+
+		KeyboardFocusManager.prototype.setCircularLength = function setCircularLength(circularLength) {
+			this.circularLength_ = circularLength;
+			return this;
+		};
+
+		/**
+   * Sets a handler function that will be called to decide which element should
+   * be focused according to the key that was pressed. It will receive the key
+   * event and should return one of the following:
+   *   - `true`, if the default behavior should be triggered instead.
+   *   - A string, representing a `ref` to the component element that should be
+   *       focused.
+   *   - The element itself that should be focused.
+   *   - Anything else, if nothing should be focused (skipping default behavior
+   *       too).
+   * @param {function(key: string)} focusHandler
+   * @chainable
+   */
+
+
+		KeyboardFocusManager.prototype.setFocusHandler = function setFocusHandler(focusHandler) {
+			this.focusHandler_ = focusHandler;
+			return this;
+		};
+
+		/**
+   * Starts listening to keyboard events and handling element focus.
+   * @chainable
+   */
+
+
+		KeyboardFocusManager.prototype.start = function start() {
+			if (!this.handle_) {
+				this.handle_ = this.component_.delegate('keydown', this.selector_, this.handleKey_);
+			}
+			return this;
+		};
+
+		/**
+   * Stops listening to keyboard events and handling element focus.
+   * @chainable
+   */
+
+
+		KeyboardFocusManager.prototype.stop = function stop() {
+			if (this.handle_) {
+				this.handle_.removeListener();
+				this.handle_ = null;
+			}
+			return this;
+		};
+
+		return KeyboardFocusManager;
+	}(EventEmitter);
+
+	// Event emitted when a selected element was focused via the keyboard.
+
+
+	KeyboardFocusManager.EVENT_FOCUSED = 'focused';
+
+	// The regex used to extract the position from an element's ref.
+	KeyboardFocusManager.REF_REGEX = /.+-(\d+)$/;
+
+	this.metal.KeyboardFocusManager = KeyboardFocusManager;
+}).call(this);
+'use strict';
+
+/**
+ * Metal.js browser user agent detection. It's extremely recommended the usage
+ * of feature checking over browser user agent sniffing. Unfortunately, in some
+ * situations feature checking can be slow or even impossible, therefore use
+ * this utility with caution.
+ * @see <a href="http://www.useragentstring.com/">User agent strings</a>.
+ */
+
+(function () {
+	var UA = function () {
+		function UA() {
+			babelHelpers.classCallCheck(this, UA);
+		}
+
+		/**
+   * Gets the native userAgent string from navigator if it exists. If
+   * navigator or navigator.userAgent string is missing, returns an empty
+   * string.
+   * @return {string}
+   * @private
+   * @static
+   */
+		UA.getNativeUserAgent = function getNativeUserAgent() {
+			var navigator = UA.globals.window.navigator;
+			if (navigator) {
+				var userAgent = navigator.userAgent;
+				if (userAgent) {
+					return userAgent;
+				}
+			}
+			return '';
+		};
+
+		/**
+   * Gets the native platform string from navigator if it exists. If
+   * navigator or navigator.platform string is missing, returns an empty
+   * string.
+   * @return {string}
+   * @private
+   * @static
+   */
+
+
+		UA.getNativePlatform = function getNativePlatform() {
+			var navigator = UA.globals.window.navigator;
+			if (navigator) {
+				var platform = navigator.platform;
+				if (platform) {
+					return platform;
+				}
+			}
+			return '';
+		};
+
+		/**
+   * Whether the platform contains the given string, ignoring case.
+   * @param {string} str
+   * @return {boolean}
+   * @private
+   * @static
+  */
+
+
+		UA.matchPlatform = function matchPlatform(str) {
+			return UA.platform.indexOf(str) !== -1;
+		};
+
+		/**
+   * Whether the user agent contains the given string, ignoring case.
+   * @param {string} str
+   * @return {boolean}
+   * @private
+   * @static
+  */
+
+
+		UA.matchUserAgent = function matchUserAgent(str) {
+			return UA.userAgent.indexOf(str) !== -1;
+		};
+
+		/**
+   * Tests the user agent.
+   * @param {string} userAgent The user agent string.
+   * @static
+   */
+
+
+		UA.testUserAgent = function testUserAgent(userAgent, platform) {
+			/**
+    * Holds the user agent value extracted from browser native user agent.
+    * @type {string}
+    * @static
+    */
+			UA.userAgent = userAgent;
+
+			/**
+    * Holds the platform value extracted from browser native platform.
+    * @type {string}
+    * @static
+    */
+			UA.platform = platform;
+
+			/**
+    * Whether the user's OS is Mac.
+    * @type {boolean}
+    * @static
+    */
+			UA.isMac = UA.matchPlatform('Mac');
+
+			/**
+    * Whether the user's OS is Win.
+    * @type {boolean}
+    * @static
+    */
+			UA.isWin = UA.matchPlatform('Win');
+
+			/**
+    * Whether the user's browser is Opera.
+    * @type {boolean}
+    * @static
+    */
+			UA.isOpera = UA.matchUserAgent('Opera') || UA.matchUserAgent('OPR');
+
+			/**
+    * Whether the user's browser is IE.
+    * @type {boolean}
+    * @static
+    */
+			UA.isIe = UA.matchUserAgent('Trident') || UA.matchUserAgent('MSIE');
+
+			/**
+    * Whether the user's browser is Edge.
+    * @type {boolean}
+    * @static
+    */
+			UA.isEdge = UA.matchUserAgent('Edge');
+
+			/**
+    * Whether the user's browser is IE or Edge.
+    * @type {boolean}
+    * @static
+    */
+			UA.isIeOrEdge = UA.isIe || UA.isEdge;
+
+			/**
+    * Whether the user's browser is Chrome.
+    * @type {boolean}
+    * @static
+    */
+			UA.isChrome = (UA.matchUserAgent('Chrome') || UA.matchUserAgent('CriOS')) && !UA.isOpera && !UA.isEdge;
+
+			/**
+    * Whether the user's browser is Safari.
+    * @type {boolean}
+    * @static
+    */
+			UA.isSafari = UA.matchUserAgent('Safari') && !(UA.isChrome || UA.isOpera || UA.isEdge);
+
+			/**
+    * Whether the user's browser is Firefox.
+    * @type {boolean}
+    * @static
+    */
+			UA.isFirefox = UA.matchUserAgent('Firefox');
+		};
+
+		return UA;
+	}();
+
+	/**
+  * Exposes global references.
+  * @type {object}
+  * @static
+  */
+
+
+	UA.globals = {
+		window: window
+	};
+
+	UA.testUserAgent(UA.getNativeUserAgent(), UA.getNativePlatform());
+
+	this.metal.UA = UA;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.metal.metal;
 	var dom = this.metal.dom;
 	var templates = this.metal.Datatable;
 	var Component = this.metal.component;
+	var KeyboardFocusManager = this.metal.KeyboardFocusManager;
 	var Soy = this.metal.Soy;
+	var UA = this.metal.UA;
 
 	var Datatable = function (_Component) {
 		babelHelpers.inherits(Datatable, _Component);
@@ -17569,6 +18048,59 @@ babelHelpers;
 			if (type1 && type2 && type1 !== type2) {
 				throw new Error('Datatable does not support mixed types in arrays.');
 			}
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Datatable.prototype.attached = function attached() {
+			this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'td,th').setFocusHandler(this.handleNextFocus_.bind(this)).start();
+		};
+
+		/**
+   * Builds a ref with for the given row and column positions.
+   * @param {string} prefix
+   * @param {number} row
+   * @param {number} col
+   * @return {string}
+   * @protected
+   */
+
+
+		Datatable.prototype.buildRef_ = function buildRef_(prefix, row, col) {
+			return prefix + row + '-' + col;
+		};
+
+		/**
+   * Builds a ref string pointing to the last column.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {string}
+   * @protected
+   */
+
+
+		Datatable.prototype.buildRefLastColumn_ = function buildRefLastColumn_(event, data) {
+			var element = event.delegateTarget;
+			var cellLength = parseInt(element.getAttribute('data-cols'), 10);
+			return this.buildRef_(data.prefix, data.row, cellLength - 1);
+		};
+
+		/**
+   * Builds a ref string pointing to the last row.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {string}
+   * @protected
+   */
+
+
+		Datatable.prototype.buildRefLastRow_ = function buildRefLastRow_(event, data) {
+			var element = event.delegateTarget.parentNode;
+			var rowLength = parseInt(element.getAttribute('data-rows'), 10);
+			return this.buildRef_(data.prefix, rowLength - 1, data.col);
 		};
 
 		/**
@@ -17640,6 +18172,35 @@ babelHelpers;
 		};
 
 		/**
+   * @inheritDoc
+   */
+
+
+		Datatable.prototype.disposed = function disposed() {
+			if (this.keyboardFocusManager_) {
+				this.keyboardFocusManager_.dispose();
+				this.keyboardFocusManager_ = null;
+			}
+		};
+
+		/**
+   * Gets data (prefix, row and column) from the given ref.
+   * @param {string} ref
+   * @return {!{col: number, prefix: string, row: number}}
+   * @protected
+   */
+
+
+		Datatable.prototype.extractDataFromRef_ = function extractDataFromRef_(ref) {
+			var matches = Datatable.REF_REGEX.exec(ref);
+			return {
+				col: parseInt(matches[2], 10),
+				prefix: ref.substr(0, ref.length - matches[0].length),
+				row: parseInt(matches[1], 10)
+			};
+		};
+
+		/**
    * Internal helper to get literal JSON type of a value.
    * @param {*} value
    * @return {string} Type inferred from JSON value.
@@ -17663,6 +18224,166 @@ babelHelpers;
 		};
 
 		/**
+   * Handles a 'click' event on a table label. Shows/hides the table.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		Datatable.prototype.handleClickToggle_ = function handleClickToggle_(event) {
+			this.toggleTableContents(event.delegateTarget);
+		};
+
+		/**
+   * Handles pressing the down arrow key inside a datatable grid.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {string|boolean}
+   * @protected
+   */
+
+
+		Datatable.prototype.handleDownArrowKey_ = function handleDownArrowKey_(event, data) {
+			if (event.metaKey && UA.isMac) {
+				return this.buildRefLastRow_(event, data);
+			} else {
+				return this.buildRef_(data.prefix, data.row + 1, data.col);
+			}
+		};
+
+		/**
+   * Handles pressing the enter key inside a datatable grid. Shows/hides the
+   * datatable inside the columns, if there is one.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @protected
+   */
+
+
+		Datatable.prototype.handleEnterKey_ = function handleEnterKey_(event, data) {
+			var ref = this.buildRef_(data.prefix, data.row, data.col) + '-label';
+			if (this.refs[ref]) {
+				this.toggleTableContents(this.refs[ref]);
+			}
+			event.stopPropagation();
+		};
+
+		/**
+   * Handles a 'keydown' event on a table label. Shows/hides the table if the
+   * pressed key was either ENTER or SPACE.
+   * @param {!Event} event
+   * @protected
+   */
+
+
+		Datatable.prototype.handleKeydownToggle_ = function handleKeydownToggle_(event) {
+			if (event.keyCode === 13 || event.keyCode === 32) {
+				this.toggleTableContents(event.delegateTarget);
+			}
+		};
+
+		/**
+   * Handles pressing the left arrow key inside a datatable grid.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {string|boolean}
+   * @protected
+   */
+
+
+		Datatable.prototype.handleLeftArrowKey_ = function handleLeftArrowKey_(event, data) {
+			if (event.metaKey && UA.isMac) {
+				return this.buildRef_(data.prefix, data.row, 0);
+			}
+			return true;
+		};
+
+		/**
+   * Handles pressing the right arrow key inside a datatable grid.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {string|boolean}
+   * @protected
+   */
+
+
+		Datatable.prototype.handleRightArrowKey_ = function handleRightArrowKey_(event, data) {
+			if (event.metaKey && UA.isMac) {
+				return this.buildRefLastColumn_(event, data);
+			}
+			return true;
+		};
+
+		/**
+   * Handles pressing the up arrow key inside a datatable grid.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {string|boolean}
+   * @protected
+   */
+
+
+		Datatable.prototype.handleUpArrowKey_ = function handleUpArrowKey_(event, data) {
+			if (event.metaKey && UA.isMac) {
+				return this.buildRef_(data.prefix, 0, data.col);
+			} else {
+				return this.buildRef_(data.prefix, data.row - 1, data.col);
+			}
+		};
+
+		/**
+   * Handles focus through keyboard, given the extracted ref data.
+   * @param {!Event} event
+   * @param {!Object} data Data extracted from the current cell's ref.
+   * @return {boolean|string|Element}
+   * @protected
+   */
+
+
+		Datatable.prototype.handleNextFocusData_ = function handleNextFocusData_(event, data) {
+			switch (event.keyCode) {
+				case 13:
+				case 32:
+					return this.handleEnterKey_(event, data);
+				case 33:
+					return this.buildRef_(data.prefix, 0, data.col);
+				case 34:
+					return this.buildRefLastRow_(event, data);
+				case 35:
+					return this.buildRefLastColumn_(event, data);
+				case 36:
+					return this.buildRef_(data.prefix, data.row, 0);
+				case 37:
+					return this.handleLeftArrowKey_(event, data);
+				case 38:
+					return this.handleUpArrowKey_(event, data);
+				case 39:
+					return this.handleRightArrowKey_(event, data);
+				case 40:
+					return this.handleDownArrowKey_(event, data);
+			}
+		};
+
+		/**
+   * Handles focus through keyboard.
+   * @param {!Event} event
+   * @return {boolean|string|Element}
+   * @protected
+   */
+
+
+		Datatable.prototype.handleNextFocus_ = function handleNextFocus_(event) {
+			var ref = event.delegateTarget.getAttribute('ref');
+			var data = this.extractDataFromRef_(ref);
+			var returnValue = this.handleNextFocusData_(event, data);
+			if (returnValue) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			return returnValue;
+		};
+
+		/**
    * Returns true if data is already expanded, false otherwise.
    * @param {*} data
    * @return {boolean}
@@ -17673,6 +18394,14 @@ babelHelpers;
 			return core.isObject(data) && 'columns' in data && 'type' in data;
 		};
 
+		/**
+   * Setter for the `data` state property.
+   * @param {!Object}
+   * @return {!Object}
+   * @protected
+   */
+
+
 		Datatable.prototype.setData_ = function setData_(data) {
 			if (!this.isAlreadyExpanded(data)) {
 				this.assertNoMixedTypesInArrays_(data);
@@ -17682,13 +18411,12 @@ babelHelpers;
 		};
 
 		/**
-   * Toggles sibling table content of <code>event.delegateTarget</code>.
-   * @param {Event} event
+   * Toggles sibling table content related to given label.
+   * @param {!Element} label
    */
 
 
-		Datatable.prototype.toggleTableContents = function toggleTableContents(event) {
-			var label = event.delegateTarget;
+		Datatable.prototype.toggleTableContents = function toggleTableContents(label) {
 			dom.toggleClasses(label, this.labelClasses);
 			dom.toggleClasses(dom.next(label, 'table'), this.hiddenClasses);
 		};
@@ -17852,6 +18580,9 @@ babelHelpers;
 			value: 'table table-bordered table-condensed table-hover'
 		}
 	};
+
+	// The regex used to extract the row/column positions from an element's ref.
+	Datatable.REF_REGEX = /(\d+)-(\d+)$/;
 
 	/**
   * Datatable supported types.
@@ -23391,6 +24122,8 @@ babelHelpers;
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -23427,12 +24160,12 @@ babelHelpers;
     function $nodes(opt_data, opt_ignored, opt_ijData) {
       if (opt_data.nodes) {
         ie_open('ul', null, null, 'class', 'treeview-nodes', 'role', 'tree');
-        var nodeList17 = opt_data.nodes;
-        var nodeListLen17 = nodeList17.length;
-        for (var nodeIndex17 = 0; nodeIndex17 < nodeListLen17; nodeIndex17++) {
-          var nodeData17 = nodeList17[nodeIndex17];
-          var index__soy13 = nodeIndex17;
-          $node({ node: nodeData17, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy13 : index__soy13 }, null, opt_ijData);
+        var nodeList19 = opt_data.nodes;
+        var nodeListLen19 = nodeList19.length;
+        for (var nodeIndex19 = 0; nodeIndex19 < nodeListLen19; nodeIndex19++) {
+          var nodeData19 = nodeList19[nodeIndex19];
+          var index__soy14 = nodeIndex19;
+          $node({ lastFocusedRef_: opt_data.lastFocusedRef_, node: nodeData19, path: opt_data.parentPath != null ? opt_data.parentPath + '-' + index__soy14 : index__soy14 }, null, opt_ijData);
         }
         ie_close('ul');
       }
@@ -23450,13 +24183,16 @@ babelHelpers;
      * @suppress {checkTypes}
      */
     function $node(opt_data, opt_ignored, opt_ijData) {
+      var focusRef__soy23 = opt_data.lastFocusedRef_ ? opt_data.lastFocusedRef_ : 'node-0';
+      var ref__soy24 = 'node-' + opt_data.path;
       ie_open_start('li');
       iattr('class', 'treeview-node');
       iattr('data-treeview-path', opt_data.path);
       iattr('data-onkeyup', 'handleNodeKeyUp_');
       $ariaExpanded(opt_data, null, opt_ijData);
       iattr('role', 'treeitem');
-      iattr('tabindex', '0');
+      iattr('tabindex', focusRef__soy23 == ref__soy24 ? '0' : '-1');
+      iattr('ref', ref__soy24);
       ie_open_end();
       if (opt_data.node) {
         ie_open('div', null, null, 'class', 'treeview-node-wrapper' + (opt_data.node.expanded ? ' expanded' : ''));
@@ -23465,10 +24201,11 @@ babelHelpers;
           ie_void('div', null, null, 'class', 'treeview-node-toggler');
         }
         ie_open('span', null, null, 'class', 'treeview-node-name');
-        itext((goog.asserts.assert(opt_data.node.name != null), opt_data.node.name));
+        var dyn0 = opt_data.node.name;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('span');
         ie_close('div');
-        $nodes({ nodes: opt_data.node.children, parentPath: opt_data.path }, null, opt_ijData);
+        $nodes({ lastFocusedRef_: opt_data.lastFocusedRef_, nodes: opt_data.node.children, parentPath: opt_data.path }, null, opt_ijData);
         ie_close('div');
       }
       ie_close('li');
@@ -23495,12 +24232,12 @@ babelHelpers;
       $ariaExpanded.soyTemplateName = 'Treeview.ariaExpanded';
     }
 
-    exports.render.params = ["elementClasses", "nodes"];
-    exports.render.types = { "elementClasses": "any", "nodes": "any" };
-    exports.nodes.params = ["nodes", "parentPath"];
-    exports.nodes.types = { "nodes": "any", "parentPath": "any" };
-    exports.node.params = ["node", "path"];
-    exports.node.types = { "node": "any", "path": "any" };
+    exports.render.params = ["elementClasses", "lastFocusedRef_", "nodes"];
+    exports.render.types = { "elementClasses": "any", "lastFocusedRef_": "any", "nodes": "any" };
+    exports.nodes.params = ["lastFocusedRef_", "nodes", "parentPath"];
+    exports.nodes.types = { "lastFocusedRef_": "any", "nodes": "any", "parentPath": "any" };
+    exports.node.params = ["lastFocusedRef_", "node", "path"];
+    exports.node.types = { "lastFocusedRef_": "any", "node": "any", "path": "any" };
     exports.ariaExpanded.params = ["node"];
     exports.ariaExpanded.types = { "node": "any" };
     templates = exports;
@@ -23528,8 +24265,10 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var core = this.metal.metal;
 	var templates = this.metal.Treeview;
 	var Component = this.metal.component;
+	var KeyboardFocusManager = this.metal.KeyboardFocusManager;
 	var Soy = this.metal.Soy;
 
 	/**
@@ -23545,18 +24284,108 @@ babelHelpers;
 		}
 
 		/**
+   * @inheritDoc
+   */
+		Treeview.prototype.attached = function attached() {
+			this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'li').setFocusHandler(this.handleNextFocus_.bind(this)).start();
+			this.keyboardFocusManager_.on(KeyboardFocusManager.EVENT_FOCUSED, this.handleKeyboardFocused_.bind(this));
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		Treeview.prototype.disposed = function disposed() {
+			this.keyboardFocusManager_.dispose();
+			this.keyboardFocusManager_ = null;
+		};
+
+		/**
    * Gets the node object from the `nodes` state that is located at the given
    * index path.
-   * @param {!Array<number>} path An array of indexes indicating where the searched
-   *   node is located inside the `nodes` state.
+   * @param {!Array<number>} path An array of indexes indicating where the
+   *   searched node is located inside the `nodes` state.
    * @return {!Object}
    */
+
+
 		Treeview.prototype.getNodeObj = function getNodeObj(path) {
 			var obj = this.nodes[path[0]];
 			for (var i = 1; i < path.length; i++) {
 				obj = obj.children[path[i]];
 			}
 			return obj;
+		};
+
+		/**
+   * Gets the treeview path for a given node.
+   * @param {!Element} node
+   * @return {!Array<string>}
+   * @protected
+   */
+
+
+		Treeview.prototype.getPath_ = function getPath_(node) {
+			return node.getAttribute('data-treeview-path').split('-');
+		};
+
+		/**
+   * Handles the `focused` event from `KeyboardFocusManager`. Stores the ref
+   * of the last focused tree item so that we can retain it in the tab order
+   * when the user leaves the tree.
+   * @param {!Object} data
+   * @protected
+   */
+
+
+		Treeview.prototype.handleKeyboardFocused_ = function handleKeyboardFocused_(data) {
+			this.lastFocusedRef_ = data.ref;
+		};
+
+		/**
+   * Handles the left arrow being pressed. If the node is expanded, it will be
+   * closed. If it's closed, its parent's ref will be returned so it can be
+   * focused by `KeyboardFocusManager`.
+   * @param {!Array<string>} path
+   * @param {!Object} obj
+   * @return {?string}
+   * @protected
+   */
+
+
+		Treeview.prototype.handleLeftArrow_ = function handleLeftArrow_(path, obj) {
+			if (obj.expanded) {
+				obj.expanded = false;
+				this.nodes = this.nodes;
+			} else if (path.length > 1) {
+				path.pop();
+				return Treeview.NODE_REF_PREFIX + path.join('-');
+			}
+		};
+
+		/**
+   * Handles focus through keyboard.
+   * @param {!Event} event
+   * @return {boolean|string|Element}
+   * @protected
+   */
+
+
+		Treeview.prototype.handleNextFocus_ = function handleNextFocus_(event) {
+			event.stopPropagation();
+
+			var path = this.getPath_(event.delegateTarget);
+			var obj = this.getNodeObj(path);
+			switch (event.keyCode) {
+				case 37:
+					return this.handleLeftArrow_(path, obj);
+				case 39:
+					return this.handleRightArrow_(path, obj);
+				default:
+					// Use default behavior for other keys (like up/down arrows).
+					return true;
+			}
 		};
 
 		/**
@@ -23586,6 +24415,27 @@ babelHelpers;
 		};
 
 		/**
+   * Handles the right arrow being pressed. If the node is closed, it will be
+   * expanded. If it's already expanded, the ref of its first child will be
+   * returned so it can be focused by `KeyboardFocusManager`.
+   * @param {!Array<string>} path
+   * @param {!Object} obj
+   * @return {?string}
+   * @protected
+   */
+
+
+		Treeview.prototype.handleRightArrow_ = function handleRightArrow_(path, obj) {
+			if (obj.expanded) {
+				path.push(0);
+				return Treeview.NODE_REF_PREFIX + path.join('-');
+			} else if (obj.children) {
+				obj.expanded = true;
+				this.nodes = this.nodes;
+			}
+		};
+
+		/**
    * Toggles the expanded state for the given tree node.
    * @param {!Element} node
    * @protected
@@ -23593,8 +24443,7 @@ babelHelpers;
 
 
 		Treeview.prototype.toggleExpandedState_ = function toggleExpandedState_(node) {
-			var path = node.getAttribute('data-treeview-path').split('-');
-			var nodeObj = this.getNodeObj(path);
+			var nodeObj = this.getNodeObj(this.getPath_(node));
 			nodeObj.expanded = !nodeObj.expanded;
 			this.nodes = this.nodes;
 		};
@@ -23604,12 +24453,25 @@ babelHelpers;
 
 	Soy.register(Treeview, templates);
 
+	// The prefix used for tree item nodes' refs.
+	Treeview.NODE_REF_PREFIX = 'node-';
+
 	/**
   * Treeview state definition.
   * @type {!Object}
   * @static
   */
 	Treeview.STATE = {
+		/**
+   * The ref of the last item that has been focused, so that we can retain only
+   * that node in the tab order.
+   * @type {string}
+   */
+		lastFocusedRef_: {
+			internal: true,
+			validator: core.isString
+		},
+
 		/**
    * This tree view's nodes. Each node should have a name, and can optionally
    * have nested children nodes. It should also indicate if its children are

@@ -123,6 +123,13 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		Autocomplete.prototype.request = function request(query) {
+			if (this.autocompleteClosing_) {
+				// While closing the input element will be focused, causing another
+				// request. This request should be ignored though, since we wish to close
+				// the dropdown list, not open it again.
+				return;
+			}
+
 			var self = this;
 			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
 				if (data) {
@@ -135,8 +142,10 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
 			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+			this.autocompleteClosing_ = true;
 			this.emit('select', this.getList().items[selectedIndex]);
 			this.visible = false;
+			this.autocompleteClosing_ = false;
 		};
 
 		Autocomplete.prototype.syncVisible = function syncVisible(visible) {
