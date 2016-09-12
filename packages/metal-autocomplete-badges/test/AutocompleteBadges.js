@@ -69,7 +69,7 @@ describe('AutocompleteBadges', function() {
 		});
 	});
 
-	it('should hide element when select item and check badges length it is equal to 1', function(done) {		
+	it('should hide autocomplete when select item and check badges length it is equal to 1', function(done) {		
 		component = new AutocompleteBadges({
 			elements: elements
 		});
