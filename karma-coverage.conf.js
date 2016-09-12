@@ -5,7 +5,7 @@ var merge = require('merge');
 var utils = require('./utils');
 
 var babelOptions = {
-	presets: ['metal'],
+	presets: ['metal-resolve-source', 'es2015'],
 	sourceMap: 'both'
 };
 
