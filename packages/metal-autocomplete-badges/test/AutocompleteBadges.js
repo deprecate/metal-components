@@ -69,7 +69,7 @@ describe('AutocompleteBadges', function() {
 		});
 	});
 
-	it('should select item and check badges length it is equal to 1', function(done) {		
+	it('should hide element when select item and check badges length it is equal to 1', function(done) {		
 		component = new AutocompleteBadges({
 			elements: elements
 		});
@@ -79,10 +79,34 @@ describe('AutocompleteBadges', function() {
 
 		component.autocomplete_.getList().once('rendered', function() {
 			component.autocomplete_.once('select', function(value) {
-				assert.strictEqual('Alabama', value.text);
-				component.once('rendered', function() {					
+				assert.strictEqual('Alabama', value.text);								
+				component.once('rendered', function() {						
+					assert.ok(!component.autocomplete_.visible);				
 					assert.strictEqual(1, component.element.querySelectorAll('.autocomplete-badges--list li').length);
 					done();	
+				})				
+			});
+			dom.triggerEvent(component.autocomplete_.element.querySelectorAll('li')[0], 'click');
+		});
+	});
+
+	it('should remove badge item and check if badges length it is equal to 0', function(done) {		
+		component = new AutocompleteBadges({
+			elements: elements
+		});
+
+		component.inputElement.value = 'a';
+		dom.triggerEvent(component.inputElement, 'input');
+
+		component.autocomplete_.getList().once('rendered', function() {
+			component.autocomplete_.once('select', function(value) {									
+				component.once('rendered', function() {									
+					component.once('rendered', function() {									
+						assert.strictEqual(0, component.element.querySelectorAll('.autocomplete-badges--list li').length);
+						done();	
+					});
+					var badge = component.element.querySelectorAll('.autocomplete-badges--list li')[0]			
+					dom.triggerEvent(badge.querySelector('.remove') , 'click');																			
 				})				
 			});
 			dom.triggerEvent(component.autocomplete_.element.querySelectorAll('li')[0], 'click');

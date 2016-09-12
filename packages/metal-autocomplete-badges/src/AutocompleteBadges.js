@@ -31,8 +31,6 @@ class AutocompleteBadges extends Component {
 		if(this.listBadgesElement) {			
 			this.inputElement.style.paddingLeft = this.getFullWidthListBadges_() + 'px';	
 		}
-
-		//console.log(this.element.querySelectorAll('.autocomplete-badges--list li').length);
 	}
 
 	/**
