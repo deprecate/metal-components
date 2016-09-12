@@ -1,0 +1,21 @@
+{namespace AutocompleteBadges}
+
+/**
+ * This renders the component's whole content.
+ * @param? badges
+ */
+{template .render}
+
+	<div class="autocomplete-badges">
+		<textarea autocomplete="off" class="autocomplete-field form-control" wrap="off" style="height: 30px; resize: none;"></textarea>		
+		<ul class="autocomplete-badges--list">
+			{foreach $badge in $badges}
+				<li class="badge">
+					<span>{$badge.text}</span>					
+					<span class="glyphicon glyphicon-remove" data-index="{index($badge)}" data-onclick="onBadgeItemClicked_"></span>
+				</li>
+			{/foreach}		
+		</ul>		
+	</div>
+
+{/template}

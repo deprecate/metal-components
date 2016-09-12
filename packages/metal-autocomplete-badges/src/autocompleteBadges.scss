@@ -1,0 +1,24 @@
+.autocomplete-badges {
+	position: relative;
+	
+	&--list {
+		position: absolute;
+		top: 0;
+		padding: 0;
+		
+		li {
+			
+			margin-top: 5px;			
+			margin-right: 4px;
+
+			span:first-child {
+				margin-right: 8px;
+			}
+
+			span:last-child {
+				cursor: pointer;
+			}
+		}
+	}
+}
+
