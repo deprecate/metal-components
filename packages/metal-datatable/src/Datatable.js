@@ -191,6 +191,15 @@ class Datatable extends Component {
 	}
 
 	/**
+	 * Handles a 'click' event on a table label. Shows/hides the table.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleClickToggle_(event) {
+		this.toggleTableContents(event.delegateTarget);
+	}
+
+	/**
 	 * Handles pressing the down arrow key inside a datatable grid.
 	 * @param {!Event} event
 	 * @param {!Object} data Data extracted from the current cell's ref.
@@ -202,6 +211,33 @@ class Datatable extends Component {
 			return this.buildRefLastRow_(event, data);
 		} else {
 			return this.buildRef_(data.prefix, data.row + 1, data.col);
+		}
+	}
+
+	/**
+	 * Handles pressing the enter key inside a datatable grid. Shows/hides the
+	 * datatable inside the columns, if there is one.
+	 * @param {!Event} event
+	 * @param {!Object} data Data extracted from the current cell's ref.
+	 * @protected
+	 */
+	handleEnterKey_(event, data) {
+		const ref = this.buildRef_(data.prefix, data.row, data.col) + '-label';
+		if (this.refs[ref]) {
+			this.toggleTableContents(this.refs[ref]);
+		}
+		event.stopPropagation();
+	}
+
+	/**
+	 * Handles a 'keydown' event on a table label. Shows/hides the table if the
+	 * pressed key was either ENTER or SPACE.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleKeydownToggle_(event) {
+		if (event.keyCode === 13 || event.keyCode === 32) {
+			this.toggleTableContents(event.delegateTarget);
 		}
 	}
 
@@ -257,6 +293,9 @@ class Datatable extends Component {
 	 */
 	handleNextFocusData_(event, data) {
 		switch (event.keyCode) {
+			case 13:
+			case 32:
+				return this.handleEnterKey_(event, data);
 			case 33:
 				return this.buildRef_(data.prefix, 0, data.col);
 			case 34:
@@ -317,11 +356,10 @@ class Datatable extends Component {
 	}
 
 	/**
-	 * Toggles sibling table content of <code>event.delegateTarget</code>.
-	 * @param {Event} event
+	 * Toggles sibling table content related to given label.
+	 * @param {!Element} label
 	 */
-	toggleTableContents(event) {
-		var label = event.delegateTarget;
+	toggleTableContents(label) {
 		dom.toggleClasses(label, this.labelClasses);
 		dom.toggleClasses(dom.next(label, 'table'), this.hiddenClasses);
 	}

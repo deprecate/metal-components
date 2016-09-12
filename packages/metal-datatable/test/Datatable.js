@@ -143,9 +143,93 @@ describe('Datatable', function() {
 		var label = datatable.element.querySelector('.datatable-label');
 		assert.ok(dom.hasClass(label, 'collapsed'));
 		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+
 		dom.triggerEvent(label, 'click');
 		assert.ok(dom.hasClass(label, 'expanded'));
 		assert.ok(!dom.hasClass(dom.next(label, 'table'), 'hidden'));
+		datatable.dispose();
+	});
+
+	it('should expand table contents when pressing enter or space on labels', function() {
+		datatable = new Datatable({
+			data: [1, 2, 3]
+		});
+		var label = datatable.element.querySelector('.datatable-label');
+		assert.ok(dom.hasClass(label, 'collapsed'));
+		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+
+		dom.triggerEvent(label, 'keydown', {
+			keyCode: 13
+		});
+		assert.ok(dom.hasClass(label, 'expanded'));
+		assert.ok(!dom.hasClass(dom.next(label, 'table'), 'hidden'));
+
+		dom.triggerEvent(label, 'keydown', {
+			keyCode: 32
+		});
+		assert.ok(!dom.hasClass(label, 'expanded'));
+		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+		datatable.dispose();
+	});
+
+	it('should not expand table contents when pressing key other than enter or space on labels', function() {
+		datatable = new Datatable({
+			data: [1, 2, 3]
+		});
+		var label = datatable.element.querySelector('.datatable-label');
+		assert.ok(dom.hasClass(label, 'collapsed'));
+		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+
+		dom.triggerEvent(label, 'keydown', {
+			keyCode: 10
+		});
+		assert.ok(dom.hasClass(label, 'collapsed'));
+		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+		datatable.dispose();
+	});
+
+	it('should expand table contents when pressing enter or space on columns with nested tables', function() {
+		datatable = new Datatable({
+			data: [
+				{
+					arr: [1, 2, 3]
+				}
+			]
+		});
+		var label = datatable.element.querySelector('.datatable-label');
+		assert.ok(dom.hasClass(label, 'collapsed'));
+		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+
+
+		const col = datatable.refs['table-1-0'];
+		dom.triggerEvent(col, 'keydown', {
+			keyCode: 13
+		});
+		assert.ok(dom.hasClass(label, 'expanded'));
+		assert.ok(!dom.hasClass(dom.next(label, 'table'), 'hidden'));
+
+		dom.triggerEvent(col, 'keydown', {
+			keyCode: 32
+		});
+		assert.ok(!dom.hasClass(label, 'expanded'));
+		assert.ok(dom.hasClass(dom.next(label, 'table'), 'hidden'));
+		datatable.dispose();
+	});
+
+	it('should not throw error if enter or space is pressed on column without nested datatables', function() {
+		datatable = new Datatable({
+			data: [1, 2, 3]
+		});
+
+		const col = datatable.refs['table-1-0'];
+		assert.doesNotThrow(() => {
+			dom.triggerEvent(col, 'keydown', {
+				keyCode: 13
+			});
+			dom.triggerEvent(col, 'keydown', {
+				keyCode: 32
+			});
+		});
 		datatable.dispose();
 	});
 
