@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,33 +73,37 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		function ButtonGroup() {
 			_classCallCheck(this, ButtonGroup);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (ButtonGroup.__proto__ || Object.getPrototypeOf(ButtonGroup)).apply(this, arguments));
 		}
 
-		ButtonGroup.prototype.handleClick_ = function handleClick_(event) {
-			var button = event.delegateTarget;
-			var index = button.getAttribute('data-index');
-			var selectedIndex = this.selected.indexOf(this.buttons[index].label);
-			if (selectedIndex === -1) {
-				this.selected.push(this.buttons[index].label);
-				this.selected = this.selected;
-			} else if (this.selected.length > this.minSelected) {
-				this.selected.splice(selectedIndex, 1);
-				this.selected = this.selected;
-			}
-		};
-
-		ButtonGroup.prototype.setterSelectedFn_ = function setterSelectedFn_(selected) {
-			var minSelected = Math.min(this.minSelected, this.buttons.length);
-			var i = 0;
-			while (selected.length < minSelected) {
-				if (selected.indexOf(this.buttons[i].label) === -1) {
-					selected.push(this.buttons[i].label);
+		_createClass(ButtonGroup, [{
+			key: 'handleClick_',
+			value: function handleClick_(event) {
+				var button = event.delegateTarget;
+				var index = button.getAttribute('data-index');
+				var selectedIndex = this.selected.indexOf(this.buttons[index].label);
+				if (selectedIndex === -1) {
+					this.selected.push(this.buttons[index].label);
+					this.selected = this.selected;
+				} else if (this.selected.length > this.minSelected) {
+					this.selected.splice(selectedIndex, 1);
+					this.selected = this.selected;
 				}
-				i++;
 			}
-			return selected;
-		};
+		}, {
+			key: 'setterSelectedFn_',
+			value: function setterSelectedFn_(selected) {
+				var minSelected = Math.min(this.minSelected, this.buttons.length);
+				var i = 0;
+				while (selected.length < minSelected) {
+					if (selected.indexOf(this.buttons[i].label) === -1) {
+						selected.push(this.buttons[i].label);
+					}
+					i++;
+				}
+				return selected;
+			}
+		}]);
 
 		return ButtonGroup;
 	}(_component2.default);

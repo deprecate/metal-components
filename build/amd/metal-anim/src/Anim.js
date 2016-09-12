@@ -19,51 +19,76 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom'], function (export
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var Anim = function () {
 		function Anim() {
 			_classCallCheck(this, Anim);
 		}
 
-		Anim.emulateEnd = function emulateEnd(element, opt_durationMs) {
-			if (this.getComputedDurationMs(element, 'animation') > this.getComputedDurationMs(element, 'transition')) {
+		_createClass(Anim, null, [{
+			key: 'emulateEnd',
+			value: function emulateEnd(element, opt_durationMs) {
+				if (this.getComputedDurationMs(element, 'animation') > this.getComputedDurationMs(element, 'transition')) {
+					return this.emulateEnd_(element, 'animation', opt_durationMs);
+				} else {
+					return this.emulateEnd_(element, 'transition', opt_durationMs);
+				}
+			}
+		}, {
+			key: 'emulateAnimationEnd',
+			value: function emulateAnimationEnd(element, opt_durationMs) {
 				return this.emulateEnd_(element, 'animation', opt_durationMs);
-			} else {
-				return this.emulateEnd_(element, 'transition', opt_durationMs);
 			}
-		};
-
-		Anim.emulateAnimationEnd = function emulateAnimationEnd(element, opt_durationMs) {
-			return this.emulateEnd_(element, 'animation', opt_durationMs);
-		};
-
-		Anim.emulateTransitionEnd = function emulateTransitionEnd(element, opt_durationMs) {
-			this.emulateEnd_(element, 'transition', opt_durationMs);
-		};
-
-		Anim.emulateEnd_ = function emulateEnd_(element, type, opt_durationMs) {
-			var duration = opt_durationMs;
-			if (!_metal2.default.isDef(opt_durationMs)) {
-				duration = this.getComputedDurationMs(element, type);
+		}, {
+			key: 'emulateTransitionEnd',
+			value: function emulateTransitionEnd(element, opt_durationMs) {
+				this.emulateEnd_(element, 'transition', opt_durationMs);
 			}
+		}, {
+			key: 'emulateEnd_',
+			value: function emulateEnd_(element, type, opt_durationMs) {
+				var duration = opt_durationMs;
+				if (!_metal2.default.isDef(opt_durationMs)) {
+					duration = this.getComputedDurationMs(element, type);
+				}
 
-			var delayed = setTimeout(function () {
-				_dom.dom.triggerEvent(element, _dom.features.checkAnimationEventName()[type]);
-			}, duration);
+				var delayed = setTimeout(function () {
+					_dom.dom.triggerEvent(element, _dom.features.checkAnimationEventName()[type]);
+				}, duration);
 
-			var abort = function abort() {
-				clearTimeout(delayed);
-				hoistedEvtHandler.removeListener();
-			};
-			var hoistedEvtHandler = _dom.dom.once(element, type + 'end', abort);
+				var abort = function abort() {
+					clearTimeout(delayed);
+					hoistedEvtHandler.removeListener();
+				};
+				var hoistedEvtHandler = _dom.dom.once(element, type + 'end', abort);
 
-			return {
-				abort: abort
-			};
-		};
-
-		Anim.getComputedDurationMs = function getComputedDurationMs(element, type) {
-			return (parseFloat(window.getComputedStyle(element, null).getPropertyValue(type + '-duration')) || 0) * 1000;
-		};
+				return {
+					abort: abort
+				};
+			}
+		}, {
+			key: 'getComputedDurationMs',
+			value: function getComputedDurationMs(element, type) {
+				return (parseFloat(window.getComputedStyle(element, null).getPropertyValue(type + '-duration')) || 0) * 1000;
+			}
+		}]);
 
 		return Anim;
 	}();

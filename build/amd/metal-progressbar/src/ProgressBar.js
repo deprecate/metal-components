@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,30 +73,35 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		function ProgressBar() {
 			_classCallCheck(this, ProgressBar);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).apply(this, arguments));
 		}
 
-		ProgressBar.prototype.setterValueFn_ = function setterValueFn_(value) {
-			if (value < this.min) {
-				value = this.min;
+		_createClass(ProgressBar, [{
+			key: 'setterValueFn_',
+			value: function setterValueFn_(value) {
+				if (value < this.min) {
+					value = this.min;
+				}
+				if (value > this.max) {
+					value = this.max;
+				}
+				return value;
 			}
-			if (value > this.max) {
-				value = this.max;
+		}, {
+			key: 'syncMax',
+			value: function syncMax(max) {
+				if (max < this.value) {
+					this.value = max;
+				}
 			}
-			return value;
-		};
-
-		ProgressBar.prototype.syncMax = function syncMax(max) {
-			if (max < this.value) {
-				this.value = max;
+		}, {
+			key: 'syncMin',
+			value: function syncMin(min) {
+				if (min > this.value) {
+					this.value = min;
+				}
 			}
-		};
-
-		ProgressBar.prototype.syncMin = function syncMin(min) {
-			if (min > this.value) {
-				this.value = min;
-			}
-		};
+		}]);
 
 		return ProgressBar;
 	}(_component2.default);

@@ -27,6 +27,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -34,6 +52,31 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -60,7 +103,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		function Scrollspy(opt_config) {
 			_classCallCheck(this, Scrollspy);
 
-			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, (Scrollspy.__proto__ || Object.getPrototypeOf(Scrollspy)).call(this, opt_config));
 
 			/**
     * Holds the regions cache.
@@ -86,134 +129,149 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
    */
 
 
-		Scrollspy.prototype.disposeInternal = function disposeInternal() {
-			this.deactivateAll();
-			this.scrollHandle_.dispose();
-			_State.prototype.disposeInternal.call(this);
-		};
-
-		Scrollspy.prototype.activate = function activate(index) {
-			if (this.activeIndex >= 0) {
-				this.deactivate(this.activeIndex);
+		_createClass(Scrollspy, [{
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.deactivateAll();
+				this.scrollHandle_.dispose();
+				_get(Scrollspy.prototype.__proto__ || Object.getPrototypeOf(Scrollspy.prototype), 'disposeInternal', this).call(this);
 			}
-			this.activeIndex = index;
-			_dom2.default.addClasses(this.getElementForIndex(index), this.activeClass);
-		};
-
-		Scrollspy.prototype.checkPosition = function checkPosition() {
-			var scrollHeight = this.getScrollHeight_();
-			var scrollTop = _position2.default.getScrollTop(this.scrollElement);
-
-			if (scrollHeight < scrollTop + this.offset) {
-				this.activate(this.regions.length - 1);
-				return;
+		}, {
+			key: 'activate',
+			value: function activate(index) {
+				if (this.activeIndex >= 0) {
+					this.deactivate(this.activeIndex);
+				}
+				this.activeIndex = index;
+				_dom2.default.addClasses(this.getElementForIndex(index), this.activeClass);
 			}
+		}, {
+			key: 'checkPosition',
+			value: function checkPosition() {
+				var scrollHeight = this.getScrollHeight_();
+				var scrollTop = _position2.default.getScrollTop(this.scrollElement);
 
-			var index = this.findBestRegionAt_();
-			if (index !== this.activeIndex) {
-				if (index === -1) {
-					this.deactivateAll();
-				} else {
-					this.activate(index);
+				if (scrollHeight < scrollTop + this.offset) {
+					this.activate(this.regions.length - 1);
+					return;
+				}
+
+				var index = this.findBestRegionAt_();
+				if (index !== this.activeIndex) {
+					if (index === -1) {
+						this.deactivateAll();
+					} else {
+						this.activate(index);
+					}
 				}
 			}
-		};
-
-		Scrollspy.prototype.deactivate = function deactivate(index) {
-			_dom2.default.removeClasses(this.getElementForIndex(index), this.activeClass);
-		};
-
-		Scrollspy.prototype.deactivateAll = function deactivateAll() {
-			for (var i = 0; i < this.regions.length; i++) {
-				this.deactivate(i);
+		}, {
+			key: 'deactivate',
+			value: function deactivate(index) {
+				_dom2.default.removeClasses(this.getElementForIndex(index), this.activeClass);
 			}
-			this.activeIndex = -1;
-		};
-
-		Scrollspy.prototype.findBestRegionAt_ = function findBestRegionAt_() {
-			var index = -1;
-			var origin = this.getCurrentPosition();
-			if (this.regions.length > 0 && origin >= this.regions[0].top) {
+		}, {
+			key: 'deactivateAll',
+			value: function deactivateAll() {
 				for (var i = 0; i < this.regions.length; i++) {
-					var region = this.regions[i];
-					var lastRegion = i === this.regions.length - 1;
-					if (origin >= region.top && (lastRegion || origin < this.regions[i + 1].top)) {
-						index = i;
-						break;
+					this.deactivate(i);
+				}
+				this.activeIndex = -1;
+			}
+		}, {
+			key: 'findBestRegionAt_',
+			value: function findBestRegionAt_() {
+				var index = -1;
+				var origin = this.getCurrentPosition();
+				if (this.regions.length > 0 && origin >= this.regions[0].top) {
+					for (var i = 0; i < this.regions.length; i++) {
+						var region = this.regions[i];
+						var lastRegion = i === this.regions.length - 1;
+						if (origin >= region.top && (lastRegion || origin < this.regions[i + 1].top)) {
+							index = i;
+							break;
+						}
 					}
 				}
+				return index;
 			}
-			return index;
-		};
+		}, {
+			key: 'getCurrentPosition',
+			value: function getCurrentPosition() {
+				var scrollTop = _position2.default.getScrollTop(this.scrollElement);
+				return scrollTop + this.offset + this.scrollElementRegion_.top;
+			}
+		}, {
+			key: 'getElementForIndex',
+			value: function getElementForIndex(index) {
+				return this.resolveElement(this.regions[index].link);
+			}
+		}, {
+			key: 'getScrollHeight_',
+			value: function getScrollHeight_() {
+				var scrollHeight = _position2.default.getHeight(this.scrollElement);
+				scrollHeight += this.scrollElementRegion_.top;
+				scrollHeight -= _position2.default.getClientHeight(this.scrollElement);
+				return scrollHeight;
+			}
+		}, {
+			key: 'init',
+			value: function init() {
+				this.refresh();
+				this.on('elementChanged', this.refresh);
+				this.on('offsetChanged', this.checkPosition);
+				this.on('scrollElementChanged', this.onScrollElementChanged_);
+				this.on('selectorChanged', this.refresh);
+			}
+		}, {
+			key: 'onScrollElementChanged_',
+			value: function onScrollElementChanged_(event) {
+				this.refresh();
 
-		Scrollspy.prototype.getCurrentPosition = function getCurrentPosition() {
-			var scrollTop = _position2.default.getScrollTop(this.scrollElement);
-			return scrollTop + this.offset + this.scrollElementRegion_.top;
-		};
+				this.scrollHandle_.dispose();
+				this.scrollHandle_ = _dom2.default.on(event.newVal, 'scroll', this.checkPosition.bind(this));
+			}
+		}, {
+			key: 'refresh',
+			value: function refresh() {
+				// Removes the "active" class from all current regions.
+				this.deactivateAll();
 
-		Scrollspy.prototype.getElementForIndex = function getElementForIndex(index) {
-			return this.resolveElement(this.regions[index].link);
-		};
+				this.scrollElementRegion_ = _position2.default.getRegion(this.scrollElement);
+				this.scrollHeight_ = this.getScrollHeight_();
 
-		Scrollspy.prototype.getScrollHeight_ = function getScrollHeight_() {
-			var scrollHeight = _position2.default.getHeight(this.scrollElement);
-			scrollHeight += this.scrollElementRegion_.top;
-			scrollHeight -= _position2.default.getClientHeight(this.scrollElement);
-			return scrollHeight;
-		};
-
-		Scrollspy.prototype.init = function init() {
-			this.refresh();
-			this.on('elementChanged', this.refresh);
-			this.on('offsetChanged', this.checkPosition);
-			this.on('scrollElementChanged', this.onScrollElementChanged_);
-			this.on('selectorChanged', this.refresh);
-		};
-
-		Scrollspy.prototype.onScrollElementChanged_ = function onScrollElementChanged_(event) {
-			this.refresh();
-
-			this.scrollHandle_.dispose();
-			this.scrollHandle_ = _dom2.default.on(event.newVal, 'scroll', this.checkPosition.bind(this));
-		};
-
-		Scrollspy.prototype.refresh = function refresh() {
-			// Removes the "active" class from all current regions.
-			this.deactivateAll();
-
-			this.scrollElementRegion_ = _position2.default.getRegion(this.scrollElement);
-			this.scrollHeight_ = this.getScrollHeight_();
-
-			this.regions = [];
-			var links = this.element.querySelectorAll(this.selector);
-			var scrollTop = _position2.default.getScrollTop(this.scrollElement);
-			for (var i = 0; i < links.length; ++i) {
-				var link = links[i];
-				if (link.hash && link.hash.length > 1) {
-					var element = document.getElementById(link.hash.substring(1));
-					if (element) {
-						var region = _position2.default.getRegion(element);
-						this.regions.push({
-							link: link,
-							top: region.top + scrollTop,
-							bottom: region.bottom + scrollTop
-						});
+				this.regions = [];
+				var links = this.element.querySelectorAll(this.selector);
+				var scrollTop = _position2.default.getScrollTop(this.scrollElement);
+				for (var i = 0; i < links.length; ++i) {
+					var link = links[i];
+					if (link.hash && link.hash.length > 1) {
+						var element = document.getElementById(link.hash.substring(1));
+						if (element) {
+							var region = _position2.default.getRegion(element);
+							this.regions.push({
+								link: link,
+								top: region.top + scrollTop,
+								bottom: region.bottom + scrollTop
+							});
+						}
 					}
 				}
+				this.sortRegions_();
+
+				// Removes the "active" class from all new regions and then activate the right one for
+				// the current position.
+				this.deactivateAll();
+				this.checkPosition();
 			}
-			this.sortRegions_();
-
-			// Removes the "active" class from all new regions and then activate the right one for
-			// the current position.
-			this.deactivateAll();
-			this.checkPosition();
-		};
-
-		Scrollspy.prototype.sortRegions_ = function sortRegions_() {
-			this.regions.sort(function (a, b) {
-				return a.top - b.top;
-			});
-		};
+		}, {
+			key: 'sortRegions_',
+			value: function sortRegions_() {
+				this.regions.sort(function (a, b) {
+					return a.top - b.top;
+				});
+			}
+		}]);
 
 		return Scrollspy;
 	}(_state2.default);

@@ -40,6 +40,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -47,6 +65,31 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -70,104 +113,121 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-position/s
 		function Dropdown() {
 			_classCallCheck(this, Dropdown);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Dropdown.__proto__ || Object.getPrototypeOf(Dropdown)).apply(this, arguments));
 		}
 
-		Dropdown.prototype.attached = function attached() {
-			_Component.prototype.attached.call(this);
-			this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
-		};
-
-		Dropdown.prototype.created = function created() {
-			this.eventHandler_ = new _events.EventHandler();
-		};
-
-		Dropdown.prototype.detached = function detached() {
-			_Component.prototype.detached.call(this);
-			this.eventHandler_.removeAllListeners();
-		};
-
-		Dropdown.prototype.close = function close() {
-			this.expanded = false;
-		};
-
-		Dropdown.prototype.isOpen = function isOpen() {
-			return this.expanded;
-		};
-
-		Dropdown.prototype.handleDocClick_ = function handleDocClick_(event) {
-			if (this.element.contains(event.target)) {
-				return;
+		_createClass(Dropdown, [{
+			key: 'attached',
+			value: function attached() {
+				_get(Dropdown.prototype.__proto__ || Object.getPrototypeOf(Dropdown.prototype), 'attached', this).call(this);
+				this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
 			}
-			this.close();
-		};
-
-		Dropdown.prototype.open = function open() {
-			this.expanded = true;
-		};
-
-		Dropdown.prototype.setterClassMapFn_ = function setterClassMapFn_(val) {
-			return _metal.object.mixin(this.valueClassMapFn_(), val);
-		};
-
-		Dropdown.prototype.setterPositionFn_ = function setterPositionFn_(val) {
-			if (_metal.core.isNumber(val)) {
-				return val;
+		}, {
+			key: 'created',
+			value: function created() {
+				this.eventHandler_ = new _events.EventHandler();
 			}
-			return val.toLowerCase() === 'up' ? _position.Align.TopLeft : _position.Align.BottomLeft;
-		};
-
-		Dropdown.prototype.syncExpanded = function syncExpanded(expanded) {
-			if (expanded && this.alignElementSelector) {
-				var alignElement = this.element.querySelector(this.alignElementSelector);
-				if (alignElement) {
-					var bodyElement = this.element.querySelector('.dropdown-menu');
-					this.alignedPosition = _position.Align.align(bodyElement, alignElement, this.position);
+		}, {
+			key: 'detached',
+			value: function detached() {
+				_get(Dropdown.prototype.__proto__ || Object.getPrototypeOf(Dropdown.prototype), 'detached', this).call(this);
+				this.eventHandler_.removeAllListeners();
+			}
+		}, {
+			key: 'close',
+			value: function close() {
+				this.expanded = false;
+			}
+		}, {
+			key: 'isOpen',
+			value: function isOpen() {
+				return this.expanded;
+			}
+		}, {
+			key: 'handleDocClick_',
+			value: function handleDocClick_(event) {
+				if (this.element.contains(event.target)) {
+					return;
 				}
+				this.close();
 			}
-		};
-
-		Dropdown.prototype.toggle = function toggle() {
-			this.expanded = !this.expanded;
-		};
-
-		Dropdown.prototype.validatePosition_ = function validatePosition_(position) {
-			if (_position.Align.isValidPosition(position)) {
-				return true;
+		}, {
+			key: 'open',
+			value: function open() {
+				this.expanded = true;
 			}
-			switch (position.toLowerCase()) {
-				case 'up':
-				case 'down':
-					return true;
-				default:
-					return false;
+		}, {
+			key: 'setterClassMapFn_',
+			value: function setterClassMapFn_(val) {
+				return _metal.object.mixin(this.valueClassMapFn_(), val);
 			}
-		};
-
-		Dropdown.prototype.valueBodyFn_ = function valueBodyFn_() {
-			var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
-			return dropdownMenu ? dropdownMenu.innerHTML : '';
-		};
-
-		Dropdown.prototype.valueClassMapFn_ = function valueClassMapFn_() {
-			var _ref;
-
-			return _ref = {}, _defineProperty(_ref, _position.Align.TopLeft, 'dropup'), _defineProperty(_ref, _position.Align.TopCenter, 'dropup'), _defineProperty(_ref, _position.Align.TopRight, 'dropup'), _defineProperty(_ref, _position.Align.BottomLeft, 'dropdown'), _defineProperty(_ref, _position.Align.BottomCenter, 'dropdown'), _defineProperty(_ref, _position.Align.BottomRight, 'dropdown'), _defineProperty(_ref, _position.Align.RightCenter, 'dropright'), _defineProperty(_ref, _position.Align.LeftCenter, 'dropleft'), _ref;
-		};
-
-		Dropdown.prototype.valueHeaderFn_ = function valueHeaderFn_() {
-			if (this.element) {
-				var wrapper = document.createElement('div');
-				for (var i = 0; i < this.element.childNodes.length; i++) {
-					if (_dom2.default.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
-						break;
+		}, {
+			key: 'setterPositionFn_',
+			value: function setterPositionFn_(val) {
+				if (_metal.core.isNumber(val)) {
+					return val;
+				}
+				return val.toLowerCase() === 'up' ? _position.Align.TopLeft : _position.Align.BottomLeft;
+			}
+		}, {
+			key: 'syncExpanded',
+			value: function syncExpanded(expanded) {
+				if (expanded && this.alignElementSelector) {
+					var alignElement = this.element.querySelector(this.alignElementSelector);
+					if (alignElement) {
+						var bodyElement = this.element.querySelector('.dropdown-menu');
+						this.alignedPosition = _position.Align.align(bodyElement, alignElement, this.position);
 					}
-					wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
 				}
-				return wrapper.innerHTML;
 			}
-			return '';
-		};
+		}, {
+			key: 'toggle',
+			value: function toggle() {
+				this.expanded = !this.expanded;
+			}
+		}, {
+			key: 'validatePosition_',
+			value: function validatePosition_(position) {
+				if (_position.Align.isValidPosition(position)) {
+					return true;
+				}
+				switch (position.toLowerCase()) {
+					case 'up':
+					case 'down':
+						return true;
+					default:
+						return false;
+				}
+			}
+		}, {
+			key: 'valueBodyFn_',
+			value: function valueBodyFn_() {
+				var dropdownMenu = this.element && this.element.querySelector('.dropdown-menu');
+				return dropdownMenu ? dropdownMenu.innerHTML : '';
+			}
+		}, {
+			key: 'valueClassMapFn_',
+			value: function valueClassMapFn_() {
+				var _ref;
+
+				return _ref = {}, _defineProperty(_ref, _position.Align.TopLeft, 'dropup'), _defineProperty(_ref, _position.Align.TopCenter, 'dropup'), _defineProperty(_ref, _position.Align.TopRight, 'dropup'), _defineProperty(_ref, _position.Align.BottomLeft, 'dropdown'), _defineProperty(_ref, _position.Align.BottomCenter, 'dropdown'), _defineProperty(_ref, _position.Align.BottomRight, 'dropdown'), _defineProperty(_ref, _position.Align.RightCenter, 'dropright'), _defineProperty(_ref, _position.Align.LeftCenter, 'dropleft'), _ref;
+			}
+		}, {
+			key: 'valueHeaderFn_',
+			value: function valueHeaderFn_() {
+				if (this.element) {
+					var wrapper = document.createElement('div');
+					for (var i = 0; i < this.element.childNodes.length; i++) {
+						if (_dom2.default.hasClass(this.element.childNodes[i], 'dropdown-menu')) {
+							break;
+						}
+						wrapper.appendChild(this.element.childNodes[i].cloneNode(true));
+					}
+					return wrapper.innerHTML;
+				}
+				return '';
+			}
+		}]);
 
 		return Dropdown;
 	}(_component2.default);

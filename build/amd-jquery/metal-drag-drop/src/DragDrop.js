@@ -23,6 +23,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -30,6 +48,31 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -56,7 +99,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
 		function DragDrop(opt_config) {
 			_classCallCheck(this, DragDrop);
 
-			var _this = _possibleConstructorReturn(this, _Drag.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, (DragDrop.__proto__ || Object.getPrototypeOf(DragDrop)).call(this, opt_config));
 
 			/**
     * The currently active targets, that is, the ones that the dragged source is over.
@@ -73,110 +116,122 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './Drag', 'metal-
    */
 
 
-		DragDrop.prototype.addTarget = function addTarget(target) {
-			this.targets.push(target);
-			this.targets = this.targets;
-		};
-
-		DragDrop.prototype.buildEventObject_ = function buildEventObject_() {
-			var obj = _Drag.prototype.buildEventObject_.call(this);
-			obj.target = this.activeTargets_[0];
-			obj.allActiveTargets = this.activeTargets_;
-			return obj;
-		};
-
-		DragDrop.prototype.cleanUpAfterDragging_ = function cleanUpAfterDragging_() {
-			_Drag.prototype.cleanUpAfterDragging_.call(this);
-			this.targets.forEach(function (target) {
-				return target.removeAttribute('aria-dropeffect');
-			});
-			if (this.activeTargets_.length) {
-				_dom2.default.removeClasses(this.activeTargets_[0], this.targetOverClass);
+		_createClass(DragDrop, [{
+			key: 'addTarget',
+			value: function addTarget(target) {
+				this.targets.push(target);
+				this.targets = this.targets;
 			}
-			this.activeTargets_ = [];
-		};
+		}, {
+			key: 'buildEventObject_',
+			value: function buildEventObject_() {
+				var obj = _get(DragDrop.prototype.__proto__ || Object.getPrototypeOf(DragDrop.prototype), 'buildEventObject_', this).call(this);
+				obj.target = this.activeTargets_[0];
+				obj.allActiveTargets = this.activeTargets_;
+				return obj;
+			}
+		}, {
+			key: 'cleanUpAfterDragging_',
+			value: function cleanUpAfterDragging_() {
+				_get(DragDrop.prototype.__proto__ || Object.getPrototypeOf(DragDrop.prototype), 'cleanUpAfterDragging_', this).call(this);
+				this.targets.forEach(function (target) {
+					return target.removeAttribute('aria-dropeffect');
+				});
+				if (this.activeTargets_.length) {
+					_dom2.default.removeClasses(this.activeTargets_[0], this.targetOverClass);
+				}
+				this.activeTargets_ = [];
+			}
+		}, {
+			key: 'findAllActiveTargets_',
+			value: function findAllActiveTargets_() {
+				var activeTargets = [];
+				var mainRegion;
+				var sourceRegion = this.getSourceRegion_();
+				var targets = this.targets;
+				targets.forEach(function (target, index) {
+					var region = _position2.default.getRegion(target);
+					if (targets[index] !== this.activeDragPlaceholder_ && _position2.default.intersectRegion(region, sourceRegion)) {
+						if (!mainRegion || _position2.default.insideRegion(mainRegion, region)) {
+							activeTargets = [targets[index]].concat(activeTargets);
+							mainRegion = region;
+						} else {
+							activeTargets.push(targets[index]);
+						}
+					}
+				}.bind(this));
+				return activeTargets;
+			}
+		}, {
+			key: 'getSourceRegion_',
+			value: function getSourceRegion_() {
+				if (_metal.core.isDefAndNotNull(this.mousePos_)) {
+					var x = this.mousePos_.x;
+					var y = this.mousePos_.y;
+					return _position2.default.makeRegion(y, 0, x, x, y, 0);
+				} else {
+					// We need to remove the scroll data from the region, since the other regions we'll
+					// be comparing to won't take that information into account.
+					var region = _metal.object.mixin({}, this.sourceRegion_);
+					region.left -= document.body.scrollLeft;
+					region.right -= document.body.scrollLeft;
+					region.top -= document.body.scrollTop;
+					region.bottom -= document.body.scrollTop;
+					return region;
+				}
+			}
+		}, {
+			key: 'handleContainerChanged_',
+			value: function handleContainerChanged_(data, event) {
+				_get(DragDrop.prototype.__proto__ || Object.getPrototypeOf(DragDrop.prototype), 'handleContainerChanged_', this).call(this, data, event);
+				if (this.prevTargetsSelector_) {
+					this.targets = this.prevTargetsSelector_;
+				}
+			}
+		}, {
+			key: 'removeTarget',
+			value: function removeTarget(target) {
+				_metal.array.remove(this.targets, target);
+				this.targets = this.targets;
+			}
+		}, {
+			key: 'setterTargetsFn_',
+			value: function setterTargetsFn_(val) {
+				this.prevTargetsSelector_ = _metal.core.isString(val) ? val : null;
+				return this.toElements_(val);
+			}
+		}, {
+			key: 'startDragging_',
+			value: function startDragging_() {
+				var _this2 = this;
 
-		DragDrop.prototype.findAllActiveTargets_ = function findAllActiveTargets_() {
-			var activeTargets = [];
-			var mainRegion;
-			var sourceRegion = this.getSourceRegion_();
-			var targets = this.targets;
-			targets.forEach(function (target, index) {
-				var region = _position2.default.getRegion(target);
-				if (targets[index] !== this.activeDragPlaceholder_ && _position2.default.intersectRegion(region, sourceRegion)) {
-					if (!mainRegion || _position2.default.insideRegion(mainRegion, region)) {
-						activeTargets = [targets[index]].concat(activeTargets);
-						mainRegion = region;
-					} else {
-						activeTargets.push(targets[index]);
+				if (this.ariaDropEffect) {
+					this.targets.forEach(function (target) {
+						return target.setAttribute('aria-dropeffect', _this2.ariaDropEffect);
+					});
+				}
+				_get(DragDrop.prototype.__proto__ || Object.getPrototypeOf(DragDrop.prototype), 'startDragging_', this).call(this);
+			}
+		}, {
+			key: 'updatePosition',
+			value: function updatePosition(deltaX, deltaY) {
+				_get(DragDrop.prototype.__proto__ || Object.getPrototypeOf(DragDrop.prototype), 'updatePosition', this).call(this, deltaX, deltaY);
+
+				var newTargets = this.findAllActiveTargets_();
+				if (newTargets[0] !== this.activeTargets_[0]) {
+					if (this.activeTargets_[0]) {
+						_dom2.default.removeClasses(this.activeTargets_[0], this.targetOverClass);
+						this.emit(DragDrop.Events.TARGET_LEAVE, this.buildEventObject_());
+					}
+
+					this.activeTargets_ = newTargets;
+					if (this.activeTargets_[0]) {
+						_dom2.default.addClasses(this.activeTargets_[0], this.targetOverClass);
+						this.emit(DragDrop.Events.TARGET_ENTER, this.buildEventObject_());
 					}
 				}
-			}.bind(this));
-			return activeTargets;
-		};
-
-		DragDrop.prototype.getSourceRegion_ = function getSourceRegion_() {
-			if (_metal.core.isDefAndNotNull(this.mousePos_)) {
-				var x = this.mousePos_.x;
-				var y = this.mousePos_.y;
-				return _position2.default.makeRegion(y, 0, x, x, y, 0);
-			} else {
-				// We need to remove the scroll data from the region, since the other regions we'll
-				// be comparing to won't take that information into account.
-				var region = _metal.object.mixin({}, this.sourceRegion_);
-				region.left -= document.body.scrollLeft;
-				region.right -= document.body.scrollLeft;
-				region.top -= document.body.scrollTop;
-				region.bottom -= document.body.scrollTop;
-				return region;
 			}
-		};
-
-		DragDrop.prototype.handleContainerChanged_ = function handleContainerChanged_(data, event) {
-			_Drag.prototype.handleContainerChanged_.call(this, data, event);
-			if (this.prevTargetsSelector_) {
-				this.targets = this.prevTargetsSelector_;
-			}
-		};
-
-		DragDrop.prototype.removeTarget = function removeTarget(target) {
-			_metal.array.remove(this.targets, target);
-			this.targets = this.targets;
-		};
-
-		DragDrop.prototype.setterTargetsFn_ = function setterTargetsFn_(val) {
-			this.prevTargetsSelector_ = _metal.core.isString(val) ? val : null;
-			return this.toElements_(val);
-		};
-
-		DragDrop.prototype.startDragging_ = function startDragging_() {
-			var _this2 = this;
-
-			if (this.ariaDropEffect) {
-				this.targets.forEach(function (target) {
-					return target.setAttribute('aria-dropeffect', _this2.ariaDropEffect);
-				});
-			}
-			_Drag.prototype.startDragging_.call(this);
-		};
-
-		DragDrop.prototype.updatePosition = function updatePosition(deltaX, deltaY) {
-			_Drag.prototype.updatePosition.call(this, deltaX, deltaY);
-
-			var newTargets = this.findAllActiveTargets_();
-			if (newTargets[0] !== this.activeTargets_[0]) {
-				if (this.activeTargets_[0]) {
-					_dom2.default.removeClasses(this.activeTargets_[0], this.targetOverClass);
-					this.emit(DragDrop.Events.TARGET_LEAVE, this.buildEventObject_());
-				}
-
-				this.activeTargets_ = newTargets;
-				if (this.activeTargets_[0]) {
-					_dom2.default.addClasses(this.activeTargets_[0], this.targetOverClass);
-					this.emit(DragDrop.Events.TARGET_ENTER, this.buildEventObject_());
-				}
-			}
-		};
+		}]);
 
 		return DragDrop;
 	}(_Drag3.default);

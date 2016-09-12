@@ -27,6 +27,24 @@ define(['exports', 'metal/src/metal', './Treeview.soy.js', 'metal-component/src/
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -57,87 +75,100 @@ define(['exports', 'metal/src/metal', './Treeview.soy.js', 'metal-component/src/
 		function Treeview() {
 			_classCallCheck(this, Treeview);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Treeview.__proto__ || Object.getPrototypeOf(Treeview)).apply(this, arguments));
 		}
 
-		Treeview.prototype.attached = function attached() {
-			this.keyboardFocusManager_ = new _KeyboardFocusManager2.default(this, 'li').setFocusHandler(this.handleNextFocus_.bind(this)).start();
-			this.keyboardFocusManager_.on(_KeyboardFocusManager2.default.EVENT_FOCUSED, this.handleKeyboardFocused_.bind(this));
-		};
-
-		Treeview.prototype.disposed = function disposed() {
-			this.keyboardFocusManager_.dispose();
-			this.keyboardFocusManager_ = null;
-		};
-
-		Treeview.prototype.getNodeObj = function getNodeObj(path) {
-			var obj = this.nodes[path[0]];
-			for (var i = 1; i < path.length; i++) {
-				obj = obj.children[path[i]];
+		_createClass(Treeview, [{
+			key: 'attached',
+			value: function attached() {
+				this.keyboardFocusManager_ = new _KeyboardFocusManager2.default(this, 'li').setFocusHandler(this.handleNextFocus_.bind(this)).start();
+				this.keyboardFocusManager_.on(_KeyboardFocusManager2.default.EVENT_FOCUSED, this.handleKeyboardFocused_.bind(this));
 			}
-			return obj;
-		};
-
-		Treeview.prototype.getPath_ = function getPath_(node) {
-			return node.getAttribute('data-treeview-path').split('-');
-		};
-
-		Treeview.prototype.handleKeyboardFocused_ = function handleKeyboardFocused_(data) {
-			this.lastFocusedRef_ = data.ref;
-		};
-
-		Treeview.prototype.handleLeftArrow_ = function handleLeftArrow_(path, obj) {
-			if (obj.expanded) {
-				obj.expanded = false;
-				this.nodes = this.nodes;
-			} else if (path.length > 1) {
-				path.pop();
-				return Treeview.NODE_REF_PREFIX + path.join('-');
+		}, {
+			key: 'disposed',
+			value: function disposed() {
+				this.keyboardFocusManager_.dispose();
+				this.keyboardFocusManager_ = null;
 			}
-		};
-
-		Treeview.prototype.handleNextFocus_ = function handleNextFocus_(event) {
-			event.stopPropagation();
-
-			var path = this.getPath_(event.delegateTarget);
-			var obj = this.getNodeObj(path);
-			switch (event.keyCode) {
-				case 37:
-					return this.handleLeftArrow_(path, obj);
-				case 39:
-					return this.handleRightArrow_(path, obj);
-				default:
-					// Use default behavior for other keys (like up/down arrows).
-					return true;
+		}, {
+			key: 'getNodeObj',
+			value: function getNodeObj(path) {
+				var obj = this.nodes[path[0]];
+				for (var i = 1; i < path.length; i++) {
+					obj = obj.children[path[i]];
+				}
+				return obj;
 			}
-		};
-
-		Treeview.prototype.handleNodeClicked_ = function handleNodeClicked_(event) {
-			this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
-		};
-
-		Treeview.prototype.handleNodeKeyUp_ = function handleNodeKeyUp_(event) {
-			if (event.keyCode === 13 || event.keyCode === 32) {
-				this.toggleExpandedState_(event.delegateTarget);
+		}, {
+			key: 'getPath_',
+			value: function getPath_(node) {
+				return node.getAttribute('data-treeview-path').split('-');
+			}
+		}, {
+			key: 'handleKeyboardFocused_',
+			value: function handleKeyboardFocused_(data) {
+				this.lastFocusedRef_ = data.ref;
+			}
+		}, {
+			key: 'handleLeftArrow_',
+			value: function handleLeftArrow_(path, obj) {
+				if (obj.expanded) {
+					obj.expanded = false;
+					this.nodes = this.nodes;
+				} else if (path.length > 1) {
+					path.pop();
+					return Treeview.NODE_REF_PREFIX + path.join('-');
+				}
+			}
+		}, {
+			key: 'handleNextFocus_',
+			value: function handleNextFocus_(event) {
 				event.stopPropagation();
-			}
-		};
 
-		Treeview.prototype.handleRightArrow_ = function handleRightArrow_(path, obj) {
-			if (obj.expanded) {
-				path.push(0);
-				return Treeview.NODE_REF_PREFIX + path.join('-');
-			} else if (obj.children) {
-				obj.expanded = true;
+				var path = this.getPath_(event.delegateTarget);
+				var obj = this.getNodeObj(path);
+				switch (event.keyCode) {
+					case 37:
+						return this.handleLeftArrow_(path, obj);
+					case 39:
+						return this.handleRightArrow_(path, obj);
+					default:
+						// Use default behavior for other keys (like up/down arrows).
+						return true;
+				}
+			}
+		}, {
+			key: 'handleNodeClicked_',
+			value: function handleNodeClicked_(event) {
+				this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
+			}
+		}, {
+			key: 'handleNodeKeyUp_',
+			value: function handleNodeKeyUp_(event) {
+				if (event.keyCode === 13 || event.keyCode === 32) {
+					this.toggleExpandedState_(event.delegateTarget);
+					event.stopPropagation();
+				}
+			}
+		}, {
+			key: 'handleRightArrow_',
+			value: function handleRightArrow_(path, obj) {
+				if (obj.expanded) {
+					path.push(0);
+					return Treeview.NODE_REF_PREFIX + path.join('-');
+				} else if (obj.children) {
+					obj.expanded = true;
+					this.nodes = this.nodes;
+				}
+			}
+		}, {
+			key: 'toggleExpandedState_',
+			value: function toggleExpandedState_(node) {
+				var nodeObj = this.getNodeObj(this.getPath_(node));
+				nodeObj.expanded = !nodeObj.expanded;
 				this.nodes = this.nodes;
 			}
-		};
-
-		Treeview.prototype.toggleExpandedState_ = function toggleExpandedState_(node) {
-			var nodeObj = this.getNodeObj(this.getPath_(node));
-			nodeObj.expanded = !nodeObj.expanded;
-			this.nodes = this.nodes;
-		};
+		}]);
 
 		return Treeview;
 	}(_component2.default);

@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
         }
     }
 
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }
+
+        return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) defineProperties(Constructor, staticProps);
+            return Constructor;
+        };
+    }();
+
     function _possibleConstructorReturn(self, call) {
         if (!self) {
             throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,47 +73,55 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
         function Rating() {
             _classCallCheck(this, Rating);
 
-            return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+            return _possibleConstructorReturn(this, (Rating.__proto__ || Object.getPrototypeOf(Rating)).apply(this, arguments));
         }
 
-        Rating.prototype.created = function created() {
-            this.ratingClicked_ = this.value;
-        };
-
-        Rating.prototype.handleClickEvent = function handleClickEvent(event) {
-            if (!this.disabled) {
-                var index = parseInt(event.delegateTarget.getAttribute('data-index'), 10);
-
-                if (index === this.ratingClicked_ && this.canReset) {
-                    this.reset();
-                } else {
-                    this.value = index;
-                }
-
+        _createClass(Rating, [{
+            key: 'created',
+            value: function created() {
                 this.ratingClicked_ = this.value;
             }
-        };
+        }, {
+            key: 'handleClickEvent',
+            value: function handleClickEvent(event) {
+                if (!this.disabled) {
+                    var index = parseInt(event.delegateTarget.getAttribute('data-index'), 10);
 
-        Rating.prototype.handleMouseLeaveEvent = function handleMouseLeaveEvent() {
-            this.setPreviousRate_();
-        };
+                    if (index === this.ratingClicked_ && this.canReset) {
+                        this.reset();
+                    } else {
+                        this.value = index;
+                    }
 
-        Rating.prototype.handleMouseOverEvent = function handleMouseOverEvent(event) {
-            if (!this.disabled) {
-                var index = Number.parseInt(event.delegateTarget.getAttribute('data-index'), 10);
-
-                this.value = index;
+                    this.ratingClicked_ = this.value;
+                }
             }
-        };
+        }, {
+            key: 'handleMouseLeaveEvent',
+            value: function handleMouseLeaveEvent() {
+                this.setPreviousRate_();
+            }
+        }, {
+            key: 'handleMouseOverEvent',
+            value: function handleMouseOverEvent(event) {
+                if (!this.disabled) {
+                    var index = Number.parseInt(event.delegateTarget.getAttribute('data-index'), 10);
 
-        Rating.prototype.reset = function reset() {
-            this.value = -1;
-            this.ratingClicked_ = -1;
-        };
-
-        Rating.prototype.setPreviousRate_ = function setPreviousRate_() {
-            this.value = this.ratingClicked_;
-        };
+                    this.value = index;
+                }
+            }
+        }, {
+            key: 'reset',
+            value: function reset() {
+                this.value = -1;
+                this.ratingClicked_ = -1;
+            }
+        }, {
+            key: 'setPreviousRate_',
+            value: function setPreviousRate_() {
+                this.value = this.ratingClicked_;
+            }
+        }]);
 
         return Rating;
     }(_component2.default);

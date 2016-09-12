@@ -932,7 +932,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     function _class(opt_message) {
       _classCallCheck(this, _class);
 
-      var _this = _possibleConstructorReturn(this, _Error.call(this, opt_message));
+      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, opt_message));
 
       if (opt_message) {
         _this.message = opt_message;

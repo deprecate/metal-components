@@ -11,6 +11,24 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -18,6 +36,31 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -53,7 +96,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		function State(opt_config, opt_obj, opt_context, opt_commonOpts) {
 			_classCallCheck(this, State);
 
-			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
+			var _this = _possibleConstructorReturn(this, (State.__proto__ || Object.getPrototypeOf(State)).call(this));
 
 			/**
     * Common option values to be used by all this instance's state properties.
@@ -113,339 +156,379 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
    */
 
 
-		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
-			this.buildKeyInfo_(name, config, initialValue, arguments.length > 2);
-			Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
-			this.validateInitialValue_(name);
-			this.assertGivenIfRequired_(name);
-		};
-
-		State.prototype.addToState = function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
-			if (_metal.core.isString(configsOrName)) {
-				return this.addKeyToState.apply(this, arguments);
-			}
-
-			var initialValues = opt_initialValuesOrConfig || {};
-			var names = Object.keys(configsOrName);
-
-			var props = {};
-			for (var i = 0; i < names.length; i++) {
-				var name = names[i];
-				this.buildKeyInfo_(name, configsOrName[name], initialValues[name], initialValues.hasOwnProperty(name));
-				props[name] = this.buildKeyPropertyDef_(name, opt_contextOrInitialValue);
+		_createClass(State, [{
+			key: 'addKeyToState',
+			value: function addKeyToState(name, config, initialValue) {
+				this.buildKeyInfo_(name, config, initialValue, arguments.length > 2);
+				Object.defineProperty(this.obj_, name, this.buildKeyPropertyDef_(name));
+				this.validateInitialValue_(name);
 				this.assertGivenIfRequired_(name);
 			}
+		}, {
+			key: 'addToState',
+			value: function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
+				if (_metal.core.isString(configsOrName)) {
+					return this.addKeyToState.apply(this, arguments);
+				}
 
-			if (opt_contextOrInitialValue !== false) {
-				Object.defineProperties(opt_contextOrInitialValue || this.obj_, props);
-			}
+				var initialValues = opt_initialValuesOrConfig || {};
+				var names = Object.keys(configsOrName);
 
-			// Validate initial values after all properties have been defined, otherwise
-			// it won't be possible to access those properties within validators.
-			for (var _i = 0; _i < names.length; _i++) {
-				this.validateInitialValue_(names[_i]);
-			}
-		};
+				var props = {};
+				for (var i = 0; i < names.length; i++) {
+					var name = names[i];
+					this.buildKeyInfo_(name, configsOrName[name], initialValues[name], initialValues.hasOwnProperty(name));
+					props[name] = this.buildKeyPropertyDef_(name, opt_contextOrInitialValue);
+					this.assertGivenIfRequired_(name);
+				}
 
-		State.prototype.addToStateFromStaticHint_ = function addToStateFromStaticHint_(opt_config) {
-			var ctor = this.constructor;
-			var defineContext;
-			var merged = State.mergeStateStatic(ctor);
-			if (this.obj_ === this) {
-				defineContext = merged ? ctor.prototype : false;
-			}
-			this.addToState(ctor.STATE_MERGED, opt_config, defineContext);
-		};
+				if (opt_contextOrInitialValue !== false) {
+					Object.defineProperties(opt_contextOrInitialValue || this.obj_, props);
+				}
 
-		State.prototype.assertGivenIfRequired_ = function assertGivenIfRequired_(name) {
-			var info = this.stateInfo_[name];
-			if (info.config.required) {
-				var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
-				if (!_metal.core.isDefAndNotNull(value)) {
-					console.error('The property called "' + name + '" is required but didn\n\'t ' + 'receive a value.');
+				// Validate initial values after all properties have been defined, otherwise
+				// it won't be possible to access those properties within validators.
+				for (var _i = 0; _i < names.length; _i++) {
+					this.validateInitialValue_(names[_i]);
 				}
 			}
-		};
-
-		State.prototype.assertValidStateKeyName_ = function assertValidStateKeyName_(name) {
-			if (this.constructor.INVALID_KEYS_MERGED[name] || this.keysBlacklist_[name]) {
-				throw new Error('It\'s not allowed to create a state key with the name "' + name + '".');
-			}
-		};
-
-		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue, hasInitialValue) {
-			this.assertValidStateKeyName_(name);
-			config = config && config.config ? config.config : config || {};
-			if (this.commonOpts_) {
-				config = _metal.object.mixin({}, config, this.commonOpts_);
-			}
-			this.stateInfo_[name] = {
-				config: config,
-				state: State.KeyStates.UNINITIALIZED
-			};
-			if (hasInitialValue) {
-				this.stateInfo_[name].initialValue = initialValue;
-			}
-		};
-
-		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name, opt_context) {
-			var stateObj = opt_context === this.constructor.prototype ? null : this;
-			return {
-				configurable: true,
-				enumerable: true,
-				get: function get() {
-					return (stateObj || this).getStateKeyValue_(name);
-				},
-				set: function set(val) {
-					(stateObj || this).setStateKeyValue_(name, val);
+		}, {
+			key: 'addToStateFromStaticHint_',
+			value: function addToStateFromStaticHint_(opt_config) {
+				var ctor = this.constructor;
+				var defineContext;
+				var merged = State.mergeStateStatic(ctor);
+				if (this.obj_ === this) {
+					defineContext = merged ? ctor.prototype : false;
 				}
-			};
-		};
-
-		State.prototype.callFunction_ = function callFunction_(fn, args) {
-			if (_metal.core.isString(fn)) {
-				return this.context_[fn].apply(this.context_, args);
-			} else if (_metal.core.isFunction(fn)) {
-				return fn.apply(this.context_, args);
+				this.addToState(ctor.STATE_MERGED, opt_config, defineContext);
 			}
-		};
-
-		State.prototype.callSetter_ = function callSetter_(name, value, currentValue) {
-			var info = this.stateInfo_[name];
-			var config = info.config;
-			if (config.setter) {
-				value = this.callFunction_(config.setter, [value, currentValue]);
-			}
-			return value;
-		};
-
-		State.prototype.callValidator_ = function callValidator_(name, value) {
-			var info = this.stateInfo_[name];
-			var config = info.config;
-			if (config.validator) {
-				var validatorReturn = this.callFunction_(config.validator, [value, name, this.context_]);
-
-				if (validatorReturn instanceof Error) {
-					console.error('Warning: ' + validatorReturn);
-				}
-				return validatorReturn;
-			}
-			return true;
-		};
-
-		State.prototype.canSetState = function canSetState(name) {
-			var info = this.stateInfo_[name];
-			return !info.config.writeOnce || !info.written;
-		};
-
-		State.prototype.disposeInternal = function disposeInternal() {
-			_EventEmitter.prototype.disposeInternal.call(this);
-			this.stateInfo_ = null;
-			this.scheduledBatchData_ = null;
-		};
-
-		State.prototype.emitBatchEvent_ = function emitBatchEvent_() {
-			if (!this.isDisposed()) {
-				var data = this.scheduledBatchData_;
-				this.scheduledBatchData_ = null;
-				this.emit('stateChanged', data);
-			}
-		};
-
-		State.prototype.get = function get(name) {
-			return this.obj_[name];
-		};
-
-		State.prototype.getState = function getState(opt_names) {
-			var state = {};
-			var names = opt_names || this.getStateKeys();
-
-			for (var i = 0; i < names.length; i++) {
-				state[names[i]] = this.get(names[i]);
-			}
-
-			return state;
-		};
-
-		State.prototype.getStateKeyConfig = function getStateKeyConfig(name) {
-			return (this.stateInfo_[name] || {}).config;
-		};
-
-		State.prototype.getStateKeys = function getStateKeys() {
-			return this.stateInfo_ ? Object.keys(this.stateInfo_) : [];
-		};
-
-		State.prototype.getStateKeyValue_ = function getStateKeyValue_(name) {
-			if (!this.warnIfDisposed_(name)) {
-				this.initStateKey_(name);
-				return this.stateInfo_[name].value;
-			}
-		};
-
-		State.prototype.hasBeenSet = function hasBeenSet(name) {
-			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED || this.hasInitialValue_(name);
-		};
-
-		State.prototype.hasInitialValue_ = function hasInitialValue_(name) {
-			return this.stateInfo_[name].hasOwnProperty('initialValue');
-		};
-
-		State.prototype.hasStateKey = function hasStateKey(key) {
-			if (!this.warnIfDisposed_(key)) {
-				return !!this.stateInfo_[key];
-			}
-		};
-
-		State.prototype.informChange_ = function informChange_(name, prevVal) {
-			if (this.shouldInformChange_(name, prevVal)) {
-				var data = {
-					key: name,
-					newVal: this.get(name),
-					prevVal: prevVal
-				};
-				this.emit(name + 'Changed', data);
-				this.emit('stateKeyChanged', data);
-				this.scheduleBatchEvent_(data);
-			}
-		};
-
-		State.prototype.initStateKey_ = function initStateKey_(name) {
-			var info = this.stateInfo_[name];
-			if (info.state !== State.KeyStates.UNINITIALIZED) {
-				return;
-			}
-
-			info.state = State.KeyStates.INITIALIZING;
-			this.setInitialValue_(name);
-			if (!info.written) {
-				this.setDefaultValue(name);
-			}
-			info.state = State.KeyStates.INITIALIZED;
-		};
-
-		State.mergeState = function mergeState(values) {
-			return _metal.object.mixin.apply(null, [{}].concat(values.reverse()));
-		};
-
-		State.mergeStateStatic = function mergeStateStatic(ctor) {
-			return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
-		};
-
-		State.prototype.mergeInvalidKeys_ = function mergeInvalidKeys_() {
-			_metal.core.mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
-				return _metal.array.flatten(values).reduce(function (merged, val) {
-					if (val) {
-						merged[val] = true;
-					}
-					return merged;
-				}, {});
-			});
-		};
-
-		State.prototype.removeStateKey = function removeStateKey(name) {
-			this.stateInfo_[name] = null;
-			delete this.obj_[name];
-		};
-
-		State.prototype.scheduleBatchEvent_ = function scheduleBatchEvent_(changeData) {
-			if (!this.scheduledBatchData_) {
-				_metal.async.nextTick(this.emitBatchEvent_, this);
-				this.scheduledBatchData_ = {
-					changes: {}
-				};
-			}
-
-			var name = changeData.key;
-			var changes = this.scheduledBatchData_.changes;
-			if (changes[name]) {
-				changes[name].newVal = changeData.newVal;
-			} else {
-				changes[name] = changeData;
-			}
-		};
-
-		State.prototype.set = function set(name, value) {
-			if (this.hasStateKey(name)) {
-				this.obj_[name] = value;
-			}
-		};
-
-		State.prototype.setDefaultValue = function setDefaultValue(name) {
-			var config = this.stateInfo_[name].config;
-
-			if (config.value !== undefined) {
-				this.set(name, config.value);
-			} else {
-				this.set(name, this.callFunction_(config.valueFn));
-			}
-		};
-
-		State.prototype.setInitialValue_ = function setInitialValue_(name) {
-			if (this.hasInitialValue_(name)) {
+		}, {
+			key: 'assertGivenIfRequired_',
+			value: function assertGivenIfRequired_(name) {
 				var info = this.stateInfo_[name];
-				this.set(name, info.initialValue);
-				info.initialValue = undefined;
+				if (info.config.required) {
+					var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
+					if (!_metal.core.isDefAndNotNull(value)) {
+						console.error('The property called "' + name + '" is required but didn\n\'t ' + 'receive a value.');
+					}
+				}
 			}
-		};
-
-		State.prototype.setKeysBlacklist_ = function setKeysBlacklist_(blacklist) {
-			this.keysBlacklist_ = blacklist;
-		};
-
-		State.prototype.setState = function setState(values, opt_callback) {
-			var _this2 = this;
-
-			Object.keys(values).forEach(function (name) {
-				return _this2.set(name, values[name]);
-			});
-			if (opt_callback && this.scheduledBatchData_) {
-				this.once('stateChanged', opt_callback);
+		}, {
+			key: 'assertValidStateKeyName_',
+			value: function assertValidStateKeyName_(name) {
+				if (this.constructor.INVALID_KEYS_MERGED[name] || this.keysBlacklist_[name]) {
+					throw new Error('It\'s not allowed to create a state key with the name "' + name + '".');
+				}
 			}
-		};
-
-		State.prototype.setStateKeyValue_ = function setStateKeyValue_(name, value) {
-			if (this.warnIfDisposed_(name) || !this.canSetState(name) || !this.validateKeyValue_(name, value)) {
-				return;
+		}, {
+			key: 'buildKeyInfo_',
+			value: function buildKeyInfo_(name, config, initialValue, hasInitialValue) {
+				this.assertValidStateKeyName_(name);
+				config = config && config.config ? config.config : config || {};
+				if (this.commonOpts_) {
+					config = _metal.object.mixin({}, config, this.commonOpts_);
+				}
+				this.stateInfo_[name] = {
+					config: config,
+					state: State.KeyStates.UNINITIALIZED
+				};
+				if (hasInitialValue) {
+					this.stateInfo_[name].initialValue = initialValue;
+				}
 			}
+		}, {
+			key: 'buildKeyPropertyDef_',
+			value: function buildKeyPropertyDef_(name, opt_context) {
+				var stateObj = opt_context === this.constructor.prototype ? null : this;
+				return {
+					configurable: true,
+					enumerable: true,
+					get: function get() {
+						return (stateObj || this).getStateKeyValue_(name);
+					},
+					set: function set(val) {
+						(stateObj || this).setStateKeyValue_(name, val);
+					}
+				};
+			}
+		}, {
+			key: 'callFunction_',
+			value: function callFunction_(fn, args) {
+				if (_metal.core.isString(fn)) {
+					return this.context_[fn].apply(this.context_, args);
+				} else if (_metal.core.isFunction(fn)) {
+					return fn.apply(this.context_, args);
+				}
+			}
+		}, {
+			key: 'callSetter_',
+			value: function callSetter_(name, value, currentValue) {
+				var info = this.stateInfo_[name];
+				var config = info.config;
+				if (config.setter) {
+					value = this.callFunction_(config.setter, [value, currentValue]);
+				}
+				return value;
+			}
+		}, {
+			key: 'callValidator_',
+			value: function callValidator_(name, value) {
+				var info = this.stateInfo_[name];
+				var config = info.config;
+				if (config.validator) {
+					var validatorReturn = this.callFunction_(config.validator, [value, name, this.context_]);
 
-			var info = this.stateInfo_[name];
-			if (!this.hasInitialValue_(name) && info.state === State.KeyStates.UNINITIALIZED) {
+					if (validatorReturn instanceof Error) {
+						console.error('Warning: ' + validatorReturn);
+					}
+					return validatorReturn;
+				}
+				return true;
+			}
+		}, {
+			key: 'canSetState',
+			value: function canSetState(name) {
+				var info = this.stateInfo_[name];
+				return !info.config.writeOnce || !info.written;
+			}
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				_get(State.prototype.__proto__ || Object.getPrototypeOf(State.prototype), 'disposeInternal', this).call(this);
+				this.stateInfo_ = null;
+				this.scheduledBatchData_ = null;
+			}
+		}, {
+			key: 'emitBatchEvent_',
+			value: function emitBatchEvent_() {
+				if (!this.isDisposed()) {
+					var data = this.scheduledBatchData_;
+					this.scheduledBatchData_ = null;
+					this.emit('stateChanged', data);
+				}
+			}
+		}, {
+			key: 'get',
+			value: function get(name) {
+				return this.obj_[name];
+			}
+		}, {
+			key: 'getState',
+			value: function getState(opt_names) {
+				var state = {};
+				var names = opt_names || this.getStateKeys();
+
+				for (var i = 0; i < names.length; i++) {
+					state[names[i]] = this.get(names[i]);
+				}
+
+				return state;
+			}
+		}, {
+			key: 'getStateKeyConfig',
+			value: function getStateKeyConfig(name) {
+				return (this.stateInfo_[name] || {}).config;
+			}
+		}, {
+			key: 'getStateKeys',
+			value: function getStateKeys() {
+				return this.stateInfo_ ? Object.keys(this.stateInfo_) : [];
+			}
+		}, {
+			key: 'getStateKeyValue_',
+			value: function getStateKeyValue_(name) {
+				if (!this.warnIfDisposed_(name)) {
+					this.initStateKey_(name);
+					return this.stateInfo_[name].value;
+				}
+			}
+		}, {
+			key: 'hasBeenSet',
+			value: function hasBeenSet(name) {
+				var info = this.stateInfo_[name];
+				return info.state === State.KeyStates.INITIALIZED || this.hasInitialValue_(name);
+			}
+		}, {
+			key: 'hasInitialValue_',
+			value: function hasInitialValue_(name) {
+				return this.stateInfo_[name].hasOwnProperty('initialValue');
+			}
+		}, {
+			key: 'hasStateKey',
+			value: function hasStateKey(key) {
+				if (!this.warnIfDisposed_(key)) {
+					return !!this.stateInfo_[key];
+				}
+			}
+		}, {
+			key: 'informChange_',
+			value: function informChange_(name, prevVal) {
+				if (this.shouldInformChange_(name, prevVal)) {
+					var data = {
+						key: name,
+						newVal: this.get(name),
+						prevVal: prevVal
+					};
+					this.emit(name + 'Changed', data);
+					this.emit('stateKeyChanged', data);
+					this.scheduleBatchEvent_(data);
+				}
+			}
+		}, {
+			key: 'initStateKey_',
+			value: function initStateKey_(name) {
+				var info = this.stateInfo_[name];
+				if (info.state !== State.KeyStates.UNINITIALIZED) {
+					return;
+				}
+
+				info.state = State.KeyStates.INITIALIZING;
+				this.setInitialValue_(name);
+				if (!info.written) {
+					this.setDefaultValue(name);
+				}
 				info.state = State.KeyStates.INITIALIZED;
 			}
-
-			var prevVal = this.get(name);
-			info.value = this.callSetter_(name, value, prevVal);
-			this.assertGivenIfRequired_(name);
-			info.written = true;
-			this.informChange_(name, prevVal);
-		};
-
-		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
-			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this.get(name));
-		};
-
-		State.prototype.validateInitialValue_ = function validateInitialValue_(name) {
-			var info = this.stateInfo_[name];
-			if (this.hasInitialValue_(name) && !this.callValidator_(name, info.initialValue)) {
-				delete info.initialValue;
+		}, {
+			key: 'mergeInvalidKeys_',
+			value: function mergeInvalidKeys_() {
+				_metal.core.mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
+					return _metal.array.flatten(values).reduce(function (merged, val) {
+						if (val) {
+							merged[val] = true;
+						}
+						return merged;
+					}, {});
+				});
 			}
-		};
-
-		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {
-			var info = this.stateInfo_[name];
-
-			return info.state === State.KeyStates.INITIALIZING || this.callValidator_(name, value);
-		};
-
-		State.prototype.warnIfDisposed_ = function warnIfDisposed_(name) {
-			var disposed = this.isDisposed();
-			if (disposed) {
-				console.warn('Error. Trying to access property "' + name + '" on disposed instance');
+		}, {
+			key: 'removeStateKey',
+			value: function removeStateKey(name) {
+				this.stateInfo_[name] = null;
+				delete this.obj_[name];
 			}
-			return disposed;
-		};
+		}, {
+			key: 'scheduleBatchEvent_',
+			value: function scheduleBatchEvent_(changeData) {
+				if (!this.scheduledBatchData_) {
+					_metal.async.nextTick(this.emitBatchEvent_, this);
+					this.scheduledBatchData_ = {
+						changes: {}
+					};
+				}
+
+				var name = changeData.key;
+				var changes = this.scheduledBatchData_.changes;
+				if (changes[name]) {
+					changes[name].newVal = changeData.newVal;
+				} else {
+					changes[name] = changeData;
+				}
+			}
+		}, {
+			key: 'set',
+			value: function set(name, value) {
+				if (this.hasStateKey(name)) {
+					this.obj_[name] = value;
+				}
+			}
+		}, {
+			key: 'setDefaultValue',
+			value: function setDefaultValue(name) {
+				var config = this.stateInfo_[name].config;
+
+				if (config.value !== undefined) {
+					this.set(name, config.value);
+				} else {
+					this.set(name, this.callFunction_(config.valueFn));
+				}
+			}
+		}, {
+			key: 'setInitialValue_',
+			value: function setInitialValue_(name) {
+				if (this.hasInitialValue_(name)) {
+					var info = this.stateInfo_[name];
+					this.set(name, info.initialValue);
+					info.initialValue = undefined;
+				}
+			}
+		}, {
+			key: 'setKeysBlacklist_',
+			value: function setKeysBlacklist_(blacklist) {
+				this.keysBlacklist_ = blacklist;
+			}
+		}, {
+			key: 'setState',
+			value: function setState(values, opt_callback) {
+				var _this2 = this;
+
+				Object.keys(values).forEach(function (name) {
+					return _this2.set(name, values[name]);
+				});
+				if (opt_callback && this.scheduledBatchData_) {
+					this.once('stateChanged', opt_callback);
+				}
+			}
+		}, {
+			key: 'setStateKeyValue_',
+			value: function setStateKeyValue_(name, value) {
+				if (this.warnIfDisposed_(name) || !this.canSetState(name) || !this.validateKeyValue_(name, value)) {
+					return;
+				}
+
+				var info = this.stateInfo_[name];
+				if (!this.hasInitialValue_(name) && info.state === State.KeyStates.UNINITIALIZED) {
+					info.state = State.KeyStates.INITIALIZED;
+				}
+
+				var prevVal = this.get(name);
+				info.value = this.callSetter_(name, value, prevVal);
+				this.assertGivenIfRequired_(name);
+				info.written = true;
+				this.informChange_(name, prevVal);
+			}
+		}, {
+			key: 'shouldInformChange_',
+			value: function shouldInformChange_(name, prevVal) {
+				var info = this.stateInfo_[name];
+				return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this.get(name));
+			}
+		}, {
+			key: 'validateInitialValue_',
+			value: function validateInitialValue_(name) {
+				var info = this.stateInfo_[name];
+				if (this.hasInitialValue_(name) && !this.callValidator_(name, info.initialValue)) {
+					delete info.initialValue;
+				}
+			}
+		}, {
+			key: 'validateKeyValue_',
+			value: function validateKeyValue_(name, value) {
+				var info = this.stateInfo_[name];
+
+				return info.state === State.KeyStates.INITIALIZING || this.callValidator_(name, value);
+			}
+		}, {
+			key: 'warnIfDisposed_',
+			value: function warnIfDisposed_(name) {
+				var disposed = this.isDisposed();
+				if (disposed) {
+					console.warn('Error. Trying to access property "' + name + '" on disposed instance');
+				}
+				return disposed;
+			}
+		}], [{
+			key: 'mergeState',
+			value: function mergeState(values) {
+				return _metal.object.mixin.apply(null, [{}].concat(values.reverse()));
+			}
+		}, {
+			key: 'mergeStateStatic',
+			value: function mergeStateStatic(ctor) {
+				return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
+			}
+		}]);
 
 		return State;
 	}(_events.EventEmitter);

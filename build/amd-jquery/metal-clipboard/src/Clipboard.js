@@ -19,11 +19,54 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		};
 	}
 
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
+
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
 		}
 	}
+
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
 
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
@@ -58,7 +101,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		function Clipboard(opt_config) {
 			_classCallCheck(this, Clipboard);
 
-			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, (Clipboard.__proto__ || Object.getPrototypeOf(Clipboard)).call(this, opt_config));
 
 			_this.listener_ = _dom2.default.on(_this.selector, 'click', function (e) {
 				return _this.initialize(e);
@@ -71,28 +114,32 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
    */
 
 
-		Clipboard.prototype.disposeInternal = function disposeInternal() {
-			this.listener_.dispose();
-			this.listener_ = null;
-			if (this.clipboardAction_) {
-				this.clipboardAction_.dispose();
-				this.clipboardAction_ = null;
+		_createClass(Clipboard, [{
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.listener_.dispose();
+				this.listener_ = null;
+				if (this.clipboardAction_) {
+					this.clipboardAction_.dispose();
+					this.clipboardAction_ = null;
+				}
 			}
-		};
+		}, {
+			key: 'initialize',
+			value: function initialize(e) {
+				if (this.clipboardAction_) {
+					this.clipboardAction_ = null;
+				}
 
-		Clipboard.prototype.initialize = function initialize(e) {
-			if (this.clipboardAction_) {
-				this.clipboardAction_ = null;
+				this.clipboardAction_ = new ClipboardAction({
+					host: this,
+					action: this.action(e.delegateTarget),
+					target: this.target(e.delegateTarget),
+					text: this.text(e.delegateTarget),
+					trigger: e.delegateTarget
+				});
 			}
-
-			this.clipboardAction_ = new ClipboardAction({
-				host: this,
-				action: this.action(e.delegateTarget),
-				target: this.target(e.delegateTarget),
-				text: this.text(e.delegateTarget),
-				trigger: e.delegateTarget
-			});
-		};
+		}]);
 
 		return Clipboard;
 	}(_state2.default);
@@ -161,7 +208,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
 		function ClipboardAction(opt_config) {
 			_classCallCheck(this, ClipboardAction);
 
-			var _this2 = _possibleConstructorReturn(this, _State2.call(this, opt_config));
+			var _this2 = _possibleConstructorReturn(this, (ClipboardAction.__proto__ || Object.getPrototypeOf(ClipboardAction)).call(this, opt_config));
 
 			if (_this2.text) {
 				_this2.selectValue();
@@ -176,90 +223,99 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-state/src/
    */
 
 
-		ClipboardAction.prototype.clearSelection = function clearSelection() {
-			if (this.target) {
-				this.target.blur();
+		_createClass(ClipboardAction, [{
+			key: 'clearSelection',
+			value: function clearSelection() {
+				if (this.target) {
+					this.target.blur();
+				}
+
+				window.getSelection().removeAllRanges();
 			}
+		}, {
+			key: 'copyText',
+			value: function copyText() {
+				var succeeded = void 0;
 
-			window.getSelection().removeAllRanges();
-		};
+				try {
+					succeeded = document.execCommand(this.action);
+				} catch (err) {
+					succeeded = false;
+				}
 
-		ClipboardAction.prototype.copyText = function copyText() {
-			var succeeded = void 0;
-
-			try {
-				succeeded = document.execCommand(this.action);
-			} catch (err) {
-				succeeded = false;
+				this.handleResult(succeeded);
 			}
-
-			this.handleResult(succeeded);
-		};
-
-		ClipboardAction.prototype.disposeInternal = function disposeInternal() {
-			this.removeFakeElement();
-			_State2.prototype.disposeInternal.call(this);
-		};
-
-		ClipboardAction.prototype.handleResult = function handleResult(succeeded) {
-			if (succeeded) {
-				this.host.emit('success', {
-					action: this.action,
-					text: this.selectedText,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
-			} else {
-				this.host.emit('error', {
-					action: this.action,
-					trigger: this.trigger,
-					clearSelection: this.clearSelection.bind(this)
-				});
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.removeFakeElement();
+				_get(ClipboardAction.prototype.__proto__ || Object.getPrototypeOf(ClipboardAction.prototype), 'disposeInternal', this).call(this);
 			}
-		};
-
-		ClipboardAction.prototype.removeFakeElement = function removeFakeElement() {
-			if (this.fake) {
-				_dom2.default.exitDocument(this.fake);
+		}, {
+			key: 'handleResult',
+			value: function handleResult(succeeded) {
+				if (succeeded) {
+					this.host.emit('success', {
+						action: this.action,
+						text: this.selectedText,
+						trigger: this.trigger,
+						clearSelection: this.clearSelection.bind(this)
+					});
+				} else {
+					this.host.emit('error', {
+						action: this.action,
+						trigger: this.trigger,
+						clearSelection: this.clearSelection.bind(this)
+					});
+				}
 			}
+		}, {
+			key: 'removeFakeElement',
+			value: function removeFakeElement() {
+				if (this.fake) {
+					_dom2.default.exitDocument(this.fake);
+				}
 
-			if (this.removeFakeHandler) {
-				this.removeFakeHandler.removeListener();
+				if (this.removeFakeHandler) {
+					this.removeFakeHandler.removeListener();
+				}
 			}
-		};
+		}, {
+			key: 'selectTarget',
+			value: function selectTarget() {
+				if (this.target.nodeName === 'INPUT' || this.target.nodeName === 'TEXTAREA') {
+					this.target.select();
+					this.selectedText = this.target.value;
+				} else {
+					var range = document.createRange();
+					var selection = window.getSelection();
 
-		ClipboardAction.prototype.selectTarget = function selectTarget() {
-			if (this.target.nodeName === 'INPUT' || this.target.nodeName === 'TEXTAREA') {
-				this.target.select();
-				this.selectedText = this.target.value;
-			} else {
-				var range = document.createRange();
-				var selection = window.getSelection();
+					range.selectNodeContents(this.target);
+					selection.addRange(range);
+					this.selectedText = selection.toString();
+				}
 
-				range.selectNodeContents(this.target);
-				selection.addRange(range);
-				this.selectedText = selection.toString();
+				this.copyText();
 			}
+		}, {
+			key: 'selectValue',
+			value: function selectValue() {
+				this.removeFakeElement();
+				this.removeFakeHandler = _dom2.default.once(document, 'click', this.removeFakeElement.bind(this));
 
-			this.copyText();
-		};
+				this.fake = document.createElement('textarea');
+				this.fake.style.position = 'fixed';
+				this.fake.style.left = '-9999px';
+				this.fake.setAttribute('readonly', '');
+				this.fake.value = this.text;
+				this.selectedText = this.text;
 
-		ClipboardAction.prototype.selectValue = function selectValue() {
-			this.removeFakeElement();
-			this.removeFakeHandler = _dom2.default.once(document, 'click', this.removeFakeElement.bind(this));
+				_dom2.default.enterDocument(this.fake);
 
-			this.fake = document.createElement('textarea');
-			this.fake.style.position = 'fixed';
-			this.fake.style.left = '-9999px';
-			this.fake.setAttribute('readonly', '');
-			this.fake.value = this.text;
-			this.selectedText = this.text;
-
-			_dom2.default.enterDocument(this.fake);
-
-			this.fake.select();
-			this.copyText();
-		};
+				this.fake.select();
+				this.copyText();
+			}
+		}]);
 
 		return ClipboardAction;
 	}(_state2.default);

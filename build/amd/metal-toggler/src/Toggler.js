@@ -23,6 +23,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -30,6 +48,31 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -56,7 +99,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 		function Toggler(opt_config) {
 			_classCallCheck(this, Toggler);
 
-			var _this = _possibleConstructorReturn(this, _State.call(this, opt_config));
+			var _this = _possibleConstructorReturn(this, (Toggler.__proto__ || Object.getPrototypeOf(Toggler)).call(this, opt_config));
 
 			_this.headerEventHandler_ = new _events.EventHandler();
 
@@ -70,64 +113,72 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
    */
 
 
-		Toggler.prototype.disposeInternal = function disposeInternal() {
-			_State.prototype.disposeInternal.call(this);
-			this.headerEventHandler_.removeAllListeners();
-		};
-
-		Toggler.prototype.getContentElement_ = function getContentElement_(header) {
-			if (_metal2.default.isElement(this.content)) {
-				return this.content;
+		_createClass(Toggler, [{
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				_get(Toggler.prototype.__proto__ || Object.getPrototypeOf(Toggler.prototype), 'disposeInternal', this).call(this);
+				this.headerEventHandler_.removeAllListeners();
 			}
+		}, {
+			key: 'getContentElement_',
+			value: function getContentElement_(header) {
+				if (_metal2.default.isElement(this.content)) {
+					return this.content;
+				}
 
-			var content = _dom2.default.next(header, this.content);
-			if (content) {
-				return content;
+				var content = _dom2.default.next(header, this.content);
+				if (content) {
+					return content;
+				}
+
+				content = header.querySelector(this.content);
+				if (content) {
+					return content;
+				}
+
+				return this.container.querySelector(this.content);
 			}
-
-			content = header.querySelector(this.content);
-			if (content) {
-				return content;
-			}
-
-			return this.container.querySelector(this.content);
-		};
-
-		Toggler.prototype.handleClick_ = function handleClick_(event) {
-			this.toggle(event.delegateTarget || event.currentTarget);
-		};
-
-		Toggler.prototype.handleKeydown_ = function handleKeydown_(event) {
-			if (event.keyCode === 13 || event.keyCode === 32) {
+		}, {
+			key: 'handleClick_',
+			value: function handleClick_(event) {
 				this.toggle(event.delegateTarget || event.currentTarget);
-				event.preventDefault();
 			}
-		};
-
-		Toggler.prototype.syncHeader = function syncHeader() {
-			this.headerEventHandler_.removeAllListeners();
-			if (this.header) {
-				if (_metal2.default.isString(this.header)) {
-					this.headerEventHandler_.add(_dom2.default.delegate(this.container, 'click', this.header, this.handleClick_.bind(this)), _dom2.default.delegate(this.container, 'keydown', this.header, this.handleKeydown_.bind(this)));
-				} else {
-					this.headerEventHandler_.add(_dom2.default.on(this.header, 'click', this.handleClick_.bind(this)), _dom2.default.on(this.header, 'keydown', this.handleKeydown_.bind(this)));
+		}, {
+			key: 'handleKeydown_',
+			value: function handleKeydown_(event) {
+				if (event.keyCode === 13 || event.keyCode === 32) {
+					this.toggle(event.delegateTarget || event.currentTarget);
+					event.preventDefault();
 				}
 			}
-		};
-
-		Toggler.prototype.toggle = function toggle(header) {
-			var content = this.getContentElement_(header);
-			_dom2.default.toggleClasses(content, Toggler.CSS_EXPANDED);
-			_dom2.default.toggleClasses(content, Toggler.CSS_COLLAPSED);
-
-			if (_dom2.default.hasClass(content, Toggler.CSS_EXPANDED)) {
-				_dom2.default.addClasses(header, Toggler.CSS_HEADER_EXPANDED);
-				_dom2.default.removeClasses(header, Toggler.CSS_HEADER_COLLAPSED);
-			} else {
-				_dom2.default.removeClasses(header, Toggler.CSS_HEADER_EXPANDED);
-				_dom2.default.addClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+		}, {
+			key: 'syncHeader',
+			value: function syncHeader() {
+				this.headerEventHandler_.removeAllListeners();
+				if (this.header) {
+					if (_metal2.default.isString(this.header)) {
+						this.headerEventHandler_.add(_dom2.default.delegate(this.container, 'click', this.header, this.handleClick_.bind(this)), _dom2.default.delegate(this.container, 'keydown', this.header, this.handleKeydown_.bind(this)));
+					} else {
+						this.headerEventHandler_.add(_dom2.default.on(this.header, 'click', this.handleClick_.bind(this)), _dom2.default.on(this.header, 'keydown', this.handleKeydown_.bind(this)));
+					}
+				}
 			}
-		};
+		}, {
+			key: 'toggle',
+			value: function toggle(header) {
+				var content = this.getContentElement_(header);
+				_dom2.default.toggleClasses(content, Toggler.CSS_EXPANDED);
+				_dom2.default.toggleClasses(content, Toggler.CSS_COLLAPSED);
+
+				if (_dom2.default.hasClass(content, Toggler.CSS_EXPANDED)) {
+					_dom2.default.addClasses(header, Toggler.CSS_HEADER_EXPANDED);
+					_dom2.default.removeClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+				} else {
+					_dom2.default.removeClasses(header, Toggler.CSS_HEADER_EXPANDED);
+					_dom2.default.addClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+				}
+			}
+		}]);
 
 		return Toggler;
 	}(_state2.default);

@@ -27,6 +27,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -57,95 +75,106 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		function Select() {
 			_classCallCheck(this, Select);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Select.__proto__ || Object.getPrototypeOf(Select)).apply(this, arguments));
 		}
 
-		Select.prototype.findItemIndex_ = function findItemIndex_(element) {
-			var items = this.element.querySelectorAll('li');
-			for (var i = 0; i < items.length; i++) {
-				if (items.item(i) === element) {
-					return i;
+		_createClass(Select, [{
+			key: 'findItemIndex_',
+			value: function findItemIndex_(element) {
+				var items = this.element.querySelectorAll('li');
+				for (var i = 0; i < items.length; i++) {
+					if (items.item(i) === element) {
+						return i;
+					}
 				}
 			}
-		};
-
-		Select.prototype.focusIndex_ = function focusIndex_(index) {
-			var option = this.element.querySelector('.select-option:nth-child(' + (index + 1) + ') a');
-			if (option) {
-				this.focusedIndex_ = index;
-				option.focus();
+		}, {
+			key: 'focusIndex_',
+			value: function focusIndex_(index) {
+				var option = this.element.querySelector('.select-option:nth-child(' + (index + 1) + ') a');
+				if (option) {
+					this.focusedIndex_ = index;
+					option.focus();
+				}
 			}
-		};
-
-		Select.prototype.getDropdown = function getDropdown() {
-			return this.components.dropdown;
-		};
-
-		Select.prototype.handleDropdownStateSynced_ = function handleDropdownStateSynced_(data) {
-			if (this.openedWithKeyboard_) {
-				// This is done on `stateSynced` because the items need to have already
-				// been made visible before we try focusing them.
-				this.focusIndex_(0);
-				this.openedWithKeyboard_ = false;
-			} else if (this.closedWithKeyboard_) {
-				this.element.querySelector('.dropdown-select').focus();
-				this.closedWithKeyboard_ = false;
-			} else if (data.changes.expanded) {
-				this.focusedIndex_ = null;
+		}, {
+			key: 'getDropdown',
+			value: function getDropdown() {
+				return this.components.dropdown;
 			}
+		}, {
+			key: 'handleDropdownStateSynced_',
+			value: function handleDropdownStateSynced_(data) {
+				if (this.openedWithKeyboard_) {
+					// This is done on `stateSynced` because the items need to have already
+					// been made visible before we try focusing them.
+					this.focusIndex_(0);
+					this.openedWithKeyboard_ = false;
+				} else if (this.closedWithKeyboard_) {
+					this.element.querySelector('.dropdown-select').focus();
+					this.closedWithKeyboard_ = false;
+				} else if (data.changes.expanded) {
+					this.focusedIndex_ = null;
+				}
 
-			this.expanded_ = this.getDropdown().expanded;
-		};
-
-		Select.prototype.handleItemClick_ = function handleItemClick_(event) {
-			this.selectItem_(event.delegateTarget);
-			event.preventDefault();
-		};
-
-		Select.prototype.handleItemKeyDown_ = function handleItemKeyDown_(event) {
-			if (event.keyCode === 13 || event.keyCode === 32) {
-				this.closedWithKeyboard_ = true;
+				this.expanded_ = this.getDropdown().expanded;
+			}
+		}, {
+			key: 'handleItemClick_',
+			value: function handleItemClick_(event) {
 				this.selectItem_(event.delegateTarget);
 				event.preventDefault();
 			}
-		};
-
-		Select.prototype.handleKeyDown_ = function handleKeyDown_(event) {
-			if (this.expanded_) {
-				switch (event.keyCode) {
-					case 27:
-						this.closedWithKeyboard_ = true;
-						this.expanded_ = false;
-						break;
-					case 38:
-						this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
-						this.focusIndex_(this.focusedIndex_ === 0 ? this.items.length - 1 : this.focusedIndex_ - 1);
-						event.preventDefault();
-						break;
-					case 40:
-						this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
-						this.focusIndex_(this.focusedIndex_ === this.items.length - 1 ? 0 : this.focusedIndex_ + 1);
-						event.preventDefault();
-						break;
+		}, {
+			key: 'handleItemKeyDown_',
+			value: function handleItemKeyDown_(event) {
+				if (event.keyCode === 13 || event.keyCode === 32) {
+					this.closedWithKeyboard_ = true;
+					this.selectItem_(event.delegateTarget);
+					event.preventDefault();
 				}
-			} else if ((event.keyCode === 13 || event.keyCode === 32) && _dom2.default.hasClass(event.target, 'dropdown-select')) {
-				this.openedWithKeyboard_ = true;
-				this.expanded_ = true;
-				event.preventDefault();
-				return;
 			}
-		};
-
-		Select.prototype.selectItem_ = function selectItem_(itemElement) {
-			this.selectedIndex = this.findItemIndex_(itemElement);
-			this.expanded_ = false;
-		};
-
-		Select.prototype.setItems_ = function setItems_(items) {
-			return items.map(function (item) {
-				return _Soy2.default.toIncDom(item);
-			});
-		};
+		}, {
+			key: 'handleKeyDown_',
+			value: function handleKeyDown_(event) {
+				if (this.expanded_) {
+					switch (event.keyCode) {
+						case 27:
+							this.closedWithKeyboard_ = true;
+							this.expanded_ = false;
+							break;
+						case 38:
+							this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : 1;
+							this.focusIndex_(this.focusedIndex_ === 0 ? this.items.length - 1 : this.focusedIndex_ - 1);
+							event.preventDefault();
+							break;
+						case 40:
+							this.focusedIndex_ = _metal2.default.isDefAndNotNull(this.focusedIndex_) ? this.focusedIndex_ : -1;
+							this.focusIndex_(this.focusedIndex_ === this.items.length - 1 ? 0 : this.focusedIndex_ + 1);
+							event.preventDefault();
+							break;
+					}
+				} else if ((event.keyCode === 13 || event.keyCode === 32) && _dom2.default.hasClass(event.target, 'dropdown-select')) {
+					this.openedWithKeyboard_ = true;
+					this.expanded_ = true;
+					event.preventDefault();
+					return;
+				}
+			}
+		}, {
+			key: 'selectItem_',
+			value: function selectItem_(itemElement) {
+				this.selectedIndex = this.findItemIndex_(itemElement);
+				this.expanded_ = false;
+			}
+		}, {
+			key: 'setItems_',
+			value: function setItems_(items) {
+				return items.map(function (item) {
+					return _Soy2.default.toIncDom(item);
+				});
+			}
+		}]);
 
 		return Select;
 	}(_component2.default);

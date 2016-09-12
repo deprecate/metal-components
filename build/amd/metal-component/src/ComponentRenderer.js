@@ -26,6 +26,24 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -61,7 +79,7 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		function ComponentRenderer(component) {
 			_classCallCheck(this, ComponentRenderer);
 
-			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
+			var _this = _possibleConstructorReturn(this, (ComponentRenderer.__proto__ || Object.getPrototypeOf(ComponentRenderer)).call(this));
 
 			_this.component_ = component;
 
@@ -77,58 +95,70 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
    */
 
 
-		ComponentRenderer.prototype.disposeInternal = function disposeInternal() {
-			this.componentRendererEvents_.removeAllListeners();
-			this.componentRendererEvents_ = null;
-		};
-
-		ComponentRenderer.prototype.handleDataManagerCreated_ = function handleDataManagerCreated_() {
-			var manager = this.component_.getDataManager();
-			if (this.component_.constructor.SYNC_UPDATES_MERGED) {
-				this.componentRendererEvents_.add(manager.on('dataPropChanged', this.handleManagerDataPropChanged_.bind(this)));
-			} else {
-				this.componentRendererEvents_.add(manager.on('dataChanged', this.handleManagerDataChanged_.bind(this)));
+		_createClass(ComponentRenderer, [{
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.componentRendererEvents_.removeAllListeners();
+				this.componentRendererEvents_ = null;
 			}
-		};
-
-		ComponentRenderer.prototype.handleManagerDataChanged_ = function handleManagerDataChanged_(changes) {
-			if (this.shouldRerender_()) {
-				this.update(changes);
+		}, {
+			key: 'handleDataManagerCreated_',
+			value: function handleDataManagerCreated_() {
+				var manager = this.component_.getDataManager();
+				if (this.component_.constructor.SYNC_UPDATES_MERGED) {
+					this.componentRendererEvents_.add(manager.on('dataPropChanged', this.handleManagerDataPropChanged_.bind(this)));
+				} else {
+					this.componentRendererEvents_.add(manager.on('dataChanged', this.handleManagerDataChanged_.bind(this)));
+				}
 			}
-		};
-
-		ComponentRenderer.prototype.handleManagerDataPropChanged_ = function handleManagerDataPropChanged_(data) {
-			if (this.shouldRerender_()) {
-				this.update({
-					changes: _defineProperty({}, data.key, data)
-				});
+		}, {
+			key: 'handleManagerDataChanged_',
+			value: function handleManagerDataChanged_(changes) {
+				if (this.shouldRerender_()) {
+					this.update(changes);
+				}
 			}
-		};
-
-		ComponentRenderer.prototype.handleRendered_ = function handleRendered_() {
-			this.isRendered_ = true;
-		};
-
-		ComponentRenderer.prototype.render = function render() {
-			if (!this.component_.element) {
-				this.component_.element = document.createElement('div');
+		}, {
+			key: 'handleManagerDataPropChanged_',
+			value: function handleManagerDataPropChanged_(data) {
+				if (this.shouldRerender_()) {
+					this.update({
+						changes: _defineProperty({}, data.key, data)
+					});
+				}
 			}
-			this.emit('rendered', !this.isRendered_);
-		};
-
-		ComponentRenderer.prototype.shouldRerender_ = function shouldRerender_() {
-			return this.isRendered_ && !this.skipUpdates_;
-		};
-
-		ComponentRenderer.prototype.startSkipUpdates = function startSkipUpdates() {
-			this.skipUpdates_ = true;
-		};
-
-		ComponentRenderer.prototype.stopSkipUpdates = function stopSkipUpdates() {
-			this.skipUpdates_ = false;
-		};
-
-		ComponentRenderer.prototype.update = function update() {};
+		}, {
+			key: 'handleRendered_',
+			value: function handleRendered_() {
+				this.isRendered_ = true;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				if (!this.component_.element) {
+					this.component_.element = document.createElement('div');
+				}
+				this.emit('rendered', !this.isRendered_);
+			}
+		}, {
+			key: 'shouldRerender_',
+			value: function shouldRerender_() {
+				return this.isRendered_ && !this.skipUpdates_;
+			}
+		}, {
+			key: 'startSkipUpdates',
+			value: function startSkipUpdates() {
+				this.skipUpdates_ = true;
+			}
+		}, {
+			key: 'stopSkipUpdates',
+			value: function stopSkipUpdates() {
+				this.skipUpdates_ = false;
+			}
+		}, {
+			key: 'update',
+			value: function update() {}
+		}]);
 
 		return ComponentRenderer;
 	}(_events.EventEmitter);

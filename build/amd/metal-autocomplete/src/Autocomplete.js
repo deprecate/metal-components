@@ -29,6 +29,24 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -36,6 +54,31 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -59,109 +102,122 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		function Autocomplete() {
 			_classCallCheck(this, Autocomplete);
 
-			return _possibleConstructorReturn(this, _AutocompleteBase.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Autocomplete.__proto__ || Object.getPrototypeOf(Autocomplete)).apply(this, arguments));
 		}
 
-		Autocomplete.prototype.attached = function attached() {
-			_AutocompleteBase.prototype.attached.call(this);
-			this.eventHandler_.add(_dom2.default.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
-			this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
-			this.eventHandler_.add(_dom2.default.on(window, 'resize', (0, _debounce2.default)(this.handleWindowResize_.bind(this), 100)));
-			if (this.visible) {
-				this.align();
-			}
-		};
-
-		Autocomplete.prototype.align = function align() {
-			this.element.style.width = this.inputElement.offsetWidth + 'px';
-			var position = _position.Align.align(this.element, this.inputElement, _position.Align.Bottom);
-
-			_dom2.default.removeClasses(this.element, this.positionCss_);
-			switch (position) {
-				case _position.Align.Top:
-				case _position.Align.TopLeft:
-				case _position.Align.TopRight:
-					this.positionCss_ = 'autocomplete-top';
-					break;
-				case _position.Align.Bottom:
-				case _position.Align.BottomLeft:
-				case _position.Align.BottomRight:
-					this.positionCss_ = 'autocomplete-bottom';
-					break;
-				default:
-					this.positionCss_ = null;
-
-			}
-			_dom2.default.addClasses(this.element, this.positionCss_);
-		};
-
-		Autocomplete.prototype.getList = function getList() {
-			return this.components.list;
-		};
-
-		Autocomplete.prototype.handleClick_ = function handleClick_(event) {
-			event.stopPropagation();
-		};
-
-		Autocomplete.prototype.handleDocClick_ = function handleDocClick_() {
-			if (document.activeElement === this.inputElement) {
-				return;
-			}
-			this.visible = false;
-		};
-
-		Autocomplete.prototype.handleInputFocus_ = function handleInputFocus_() {
-			this.request(this.inputElement.value);
-		};
-
-		Autocomplete.prototype.handleWindowResize_ = function handleWindowResize_() {
-			if (this.visible) {
-				this.align();
-			}
-		};
-
-		Autocomplete.prototype.request = function request(query) {
-			if (this.autocompleteClosing_) {
-				// While closing the input element will be focused, causing another
-				// request. This request should be ignored though, since we wish to close
-				// the dropdown list, not open it again.
-				return;
-			}
-
-			var self = this;
-			return _AutocompleteBase.prototype.request.call(this, query).then(function (data) {
-				if (data) {
-					data.forEach(self.assertItemObjectStructure_);
-					self.getList().items = data;
+		_createClass(Autocomplete, [{
+			key: 'attached',
+			value: function attached() {
+				_get(Autocomplete.prototype.__proto__ || Object.getPrototypeOf(Autocomplete.prototype), 'attached', this).call(this);
+				this.eventHandler_.add(_dom2.default.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
+				this.eventHandler_.add(_dom2.default.on(document, 'click', this.handleDocClick_.bind(this)));
+				this.eventHandler_.add(_dom2.default.on(window, 'resize', (0, _debounce2.default)(this.handleWindowResize_.bind(this), 100)));
+				if (this.visible) {
+					this.align();
 				}
-				self.visible = !!(data && data.length > 0);
-			});
-		};
-
-		Autocomplete.prototype.onListItemSelected_ = function onListItemSelected_(item) {
-			var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
-			this.autocompleteClosing_ = true;
-			this.emit('select', this.getList().items[selectedIndex]);
-			this.visible = false;
-			this.autocompleteClosing_ = false;
-		};
-
-		Autocomplete.prototype.syncVisible = function syncVisible(visible) {
-			_AutocompleteBase.prototype.syncVisible.call(this, visible);
-
-			if (visible) {
-				this.align();
 			}
-		};
+		}, {
+			key: 'align',
+			value: function align() {
+				this.element.style.width = this.inputElement.offsetWidth + 'px';
+				var position = _position.Align.align(this.element, this.inputElement, _position.Align.Bottom);
 
-		Autocomplete.prototype.assertItemObjectStructure_ = function assertItemObjectStructure_(item) {
-			if (!_metal2.default.isObject(item)) {
-				throw new _Promise.CancellablePromise.CancellationError('Autocomplete item must be an object');
+				_dom2.default.removeClasses(this.element, this.positionCss_);
+				switch (position) {
+					case _position.Align.Top:
+					case _position.Align.TopLeft:
+					case _position.Align.TopRight:
+						this.positionCss_ = 'autocomplete-top';
+						break;
+					case _position.Align.Bottom:
+					case _position.Align.BottomLeft:
+					case _position.Align.BottomRight:
+						this.positionCss_ = 'autocomplete-bottom';
+						break;
+					default:
+						this.positionCss_ = null;
+
+				}
+				_dom2.default.addClasses(this.element, this.positionCss_);
 			}
-			if (!item.hasOwnProperty('textPrimary')) {
-				throw new _Promise.CancellablePromise.CancellationError('Autocomplete item must be an object with \'textPrimary\' key');
+		}, {
+			key: 'getList',
+			value: function getList() {
+				return this.components.list;
 			}
-		};
+		}, {
+			key: 'handleClick_',
+			value: function handleClick_(event) {
+				event.stopPropagation();
+			}
+		}, {
+			key: 'handleDocClick_',
+			value: function handleDocClick_() {
+				if (document.activeElement === this.inputElement) {
+					return;
+				}
+				this.visible = false;
+			}
+		}, {
+			key: 'handleInputFocus_',
+			value: function handleInputFocus_() {
+				this.request(this.inputElement.value);
+			}
+		}, {
+			key: 'handleWindowResize_',
+			value: function handleWindowResize_() {
+				if (this.visible) {
+					this.align();
+				}
+			}
+		}, {
+			key: 'request',
+			value: function request(query) {
+				if (this.autocompleteClosing_) {
+					// While closing the input element will be focused, causing another
+					// request. This request should be ignored though, since we wish to close
+					// the dropdown list, not open it again.
+					return;
+				}
+
+				var self = this;
+				return _get(Autocomplete.prototype.__proto__ || Object.getPrototypeOf(Autocomplete.prototype), 'request', this).call(this, query).then(function (data) {
+					if (data) {
+						data.forEach(self.assertItemObjectStructure_);
+						self.getList().items = data;
+					}
+					self.visible = !!(data && data.length > 0);
+				});
+			}
+		}, {
+			key: 'onListItemSelected_',
+			value: function onListItemSelected_(item) {
+				var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+				this.autocompleteClosing_ = true;
+				this.emit('select', this.getList().items[selectedIndex]);
+				this.visible = false;
+				this.autocompleteClosing_ = false;
+			}
+		}, {
+			key: 'syncVisible',
+			value: function syncVisible(visible) {
+				_get(Autocomplete.prototype.__proto__ || Object.getPrototypeOf(Autocomplete.prototype), 'syncVisible', this).call(this, visible);
+
+				if (visible) {
+					this.align();
+				}
+			}
+		}, {
+			key: 'assertItemObjectStructure_',
+			value: function assertItemObjectStructure_(item) {
+				if (!_metal2.default.isObject(item)) {
+					throw new _Promise.CancellablePromise.CancellationError('Autocomplete item must be an object');
+				}
+				if (!item.hasOwnProperty('textPrimary')) {
+					throw new _Promise.CancellablePromise.CancellationError('Autocomplete item must be an object with \'textPrimary\' key');
+				}
+			}
+		}]);
 
 		return Autocomplete;
 	}(_AutocompleteBase3.default);
