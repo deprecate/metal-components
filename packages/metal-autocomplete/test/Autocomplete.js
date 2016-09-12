@@ -101,14 +101,14 @@ describe('Autocomplete', function() {
 		});
 	});
 
-	it('should hide element when select item', function(done) {
+	it('should close dropdown list when item is selected', function(done) {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
 		});
 
 		input.setAttribute('value', 'a');
-		input.focus();
+		dom.triggerEvent(input, 'input');
 		async.nextTick(function() {
 			async.nextTick(function() {
 				component.once('select', function(value) {
