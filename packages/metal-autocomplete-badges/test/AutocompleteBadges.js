@@ -5,7 +5,6 @@ import AutocompleteBadges from '../src/AutocompleteBadges';
 import dom from 'metal-dom';
 
 var component;
-var input;
 
 var elements = ['Alabama', 'Arizona', 'California', 'Colorado', 'Florida', 'Indiana'];
 
@@ -19,51 +18,61 @@ describe('AutocompleteBadges', function() {
 
 	it('should check display component', function() {
 		component = new AutocompleteBadges({
-			elements: elements
+			dataItems: elements
 		});
 
 		assert.ok(component.visible);
 	});
 
-	it('should check elements length greater than zero with valid query', function() {
+	it('should check autocomplete is visible with valid query', function(done) {
 		component = new AutocompleteBadges({
-			elements: elements
+			dataItems: elements
 		});
 
-		assert.ok(component.getFilteredElements_('a').length > 0);
+		component.getAutocomplete().request('a').then(function() {
+			component.getAutocomplete().getList().once('rendered', function() {
+				assert.ok(component.getAutocomplete().visible);				
+				done();
+			});
+		});
 	});
 
-	it('should check elements length equals zero with invalid query', function() {
+	it('should check autocomplete is not visible with invalid query', function(done) {
 		component = new AutocompleteBadges({
-			elements: elements
+			dataItems: elements
 		});
 
-		assert.ok(component.getFilteredElements_('sadaswqee').length === 0);
+		component.getAutocomplete().request('sadaswqee').then(function() {
+			async.nextTick(function() {
+				assert.ok(!component.getAutocomplete().visible);				
+				done();
+			});
+		});		
 	});
 
 	it('should process valid query', function(done) {
 		component = new AutocompleteBadges({
-			elements: elements
+			dataItems: elements
 		});
 
-		component.autocomplete_.request('a').then(function() {
+		component.getAutocomplete().request('a').then(function() {
 			async.nextTick(function() {
-				assert.ok(component.autocomplete_.visible);
-				assert.strictEqual(6, component.autocomplete_.element.querySelectorAll('li').length);
+				assert.ok(component.getAutocomplete().visible);
+				assert.strictEqual(6, component.getAutocomplete().element.querySelectorAll('li').length);
 				done();
 			});
-		})
+		});
 	});
 
 	it('should process query null data and hide autocomplete', function(done) {
 		component = new AutocompleteBadges({
-			elements: null
+			dataItems: null
 		});
 
-		component.autocomplete_.request('asparagus').then(function() {
+		component.getAutocomplete().request('asparagus').then(function() {
 			async.nextTick(function() {
-				assert.ok(!component.autocomplete_.visible);
-				assert.strictEqual(0, component.autocomplete_.element.querySelectorAll('li').length);
+				assert.ok(!component.getAutocomplete().visible);
+				assert.strictEqual(0, component.getAutocomplete().element.querySelectorAll('li').length);
 				done();
 			});
 		});
@@ -71,45 +80,45 @@ describe('AutocompleteBadges', function() {
 
 	it('should hide autocomplete when select item and check badges length it is equal to 1', function(done) {		
 		component = new AutocompleteBadges({
-			elements: elements
+			dataItems: elements
 		});
 
-		component.inputElement.value = 'a';
-		dom.triggerEvent(component.inputElement, 'input');
+		component.getInput().value = 'a';
+		dom.triggerEvent(component.getInput(), 'input');
 
-		component.autocomplete_.getList().once('rendered', function() {
-			component.autocomplete_.once('select', function(value) {
+		component.getAutocomplete().getList().once('rendered', function() {
+			component.getAutocomplete().once('select', function(value) {
 				assert.strictEqual('Alabama', value.text);								
 				component.once('rendered', function() {						
-					assert.ok(!component.autocomplete_.visible);				
+					assert.ok(!component.getAutocomplete().visible);				
 					assert.strictEqual(1, component.element.querySelectorAll('.autocomplete-badges--list li').length);
 					done();	
-				})				
+				});				
 			});
-			dom.triggerEvent(component.autocomplete_.element.querySelectorAll('li')[0], 'click');
+			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
 		});
 	});
 
 	it('should remove badge item and check if badges length it is equal to 0', function(done) {		
 		component = new AutocompleteBadges({
-			elements: elements
+			dataItems: elements
 		});
 
-		component.inputElement.value = 'a';
-		dom.triggerEvent(component.inputElement, 'input');
+		component.getInput().value = 'a';
+		dom.triggerEvent(component.getInput(), 'input');
 
-		component.autocomplete_.getList().once('rendered', function() {
-			component.autocomplete_.once('select', function(value) {									
+		component.getAutocomplete().getList().once('rendered', function() {
+			component.getAutocomplete().once('select', function() {									
 				component.once('rendered', function() {									
 					component.once('rendered', function() {									
 						assert.strictEqual(0, component.element.querySelectorAll('.autocomplete-badges--list li').length);
 						done();	
 					});
-					var badge = component.element.querySelectorAll('.autocomplete-badges--list li')[0]			
+					var badge = component.element.querySelectorAll('.autocomplete-badges--list li')[0];			
 					dom.triggerEvent(badge.querySelector('.remove') , 'click');																			
-				})				
+				});				
 			});
-			dom.triggerEvent(component.autocomplete_.element.querySelectorAll('li')[0], 'click');
+			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
 		});
 	});
 

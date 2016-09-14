@@ -11,26 +11,40 @@ class AutocompleteBadges extends Component {
 	 * @inheritDoc
 	 */
 	attached() {
-		this.inputElement = this.element.querySelector('.autocomplete-field');
-		this.listBadgesElement = this.element.querySelector('.autocomplete-badges--list');
-
 		this.autocomplete_ = new Autocomplete({
-			inputElement: this.inputElement,
+			inputElement: this.refs.input,
 			data: this.getFilteredElements_.bind(this)
 		});		
 
 		this.autocomplete_.on('select', this.onListItemSelected_.bind(this));
-
-		this.element.style.width = this.inputElement.offsetWidth + 'px';
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	rendered() {
-		if(this.listBadgesElement) {			
-			this.inputElement.style.paddingLeft = this.getFullWidthListBadges_() + 'px';	
+		if(this.refs.listBadges) {
+			const fullWith = this.getFullWidthListBadges_();
+			if(fullWith > 0) {
+				this.refs.input.style.paddingLeft = fullWith + 'px';
+			}
 		}
+	}
+
+	/**
+	 * Returns the `input` element being used to insert data.
+	 * @return {!DOMElement}
+	 */
+	getInput() {
+		return this.refs.input;
+	}
+
+	 /**
+	 * Returns the `Autocomplete` component being used to render the matched items in a list.
+	 * @return {!Autocomplete}
+	 */
+	getAutocomplete() {
+		return this.autocomplete_;
 	}
 
 	/**
@@ -39,9 +53,9 @@ class AutocompleteBadges extends Component {
 	 * @protected
 	 */
 	getFullWidthListBadges_() {
-		return this.listBadgesElement.offsetWidth + this.listBadgesElement.style.marginLeft +
-				this.listBadgesElement.style.marginRight + this.listBadgesElement.style.paddingLeft + 
-				this.listBadgesElement.style.paddingRight;
+		return this.refs.listBadges.offsetWidth + this.refs.listBadges.style.marginLeft +
+				this.refs.listBadges.style.marginRight + this.refs.listBadges.style.paddingLeft + 
+				this.refs.listBadges.style.paddingRight;
 	}
 
 	/**
@@ -60,7 +74,7 @@ class AutocompleteBadges extends Component {
 	 * @protected
 	 */
 	getFilteredElements_(query) {
-		return this.elements.filter(function(item) {
+		return this.dataItems.filter(function(item) {
 			return query && item.toLowerCase().includes(query.toLowerCase());
 		}).sort();
 	}
@@ -70,20 +84,16 @@ class AutocompleteBadges extends Component {
 	 * @param {!Element} item The list selected item.
 	 * @protected
 	 */
-	onListItemSelected_(item) {
-		let index,
-			element;
+	onListItemSelected_(item) {		
+		const index = this.dataItems.indexOf(item.text);
 
-		index = this.elements.indexOf(item.text);
-		element = this.elements[index];
-		
 		this.badges.push(item);
 		this.badges = this.badges;
 
-		this.elements.splice(index, 1);
-		this.elements = this.elements;
+		this.dataItems.splice(index, 1);
+		this.dataItems = this.dataItems;
 
-		this.element.querySelector('.autocomplete-field').value = "";		
+		this.refs.input.value = '';		
 	}
 
 	/**
@@ -91,17 +101,12 @@ class AutocompleteBadges extends Component {
 	 * @param {!Event} event
 	 * @protected
 	 */
-	onBadgeItemClicked_(event) {
-		let index,
-			elementDOM,
-			badge;
+	onBadgeItemClicked_(event) {		
+		const elementDOM = event.delegateTarget;
+		const badge = this.badges[elementDOM.getAttribute('data-index')];
 
-		elementDOM = event.delegateTarget;
-
-		badge = this.badges[elementDOM.getAttribute('data-index')]
-
-		this.elements.push(badge.text);		
-		this.elements = this.elements;
+		this.dataItems.push(badge.text);		
+		this.dataItems = this.dataItems;
 
 		this.badges.splice(this.badges.indexOf(badge), 1);		
 		this.badges = this.badges;
@@ -110,27 +115,19 @@ class AutocompleteBadges extends Component {
 Soy.register(AutocompleteBadges, templates);
 
 AutocompleteBadges.STATE = {	
-	/**	 
-	 * @type {DOMElement|string}
-	 */
-	 inputElement: {
-	 },
-	/**	
-	 * @type {DOMElement|string}
-	 */
-	 listBadgesElement: {
-	 },
-	/**	  
+	/**
+	 * The list items of text tha will be filtered by input data. 
 	 * @type {!Array<!Object>}
 	 * @default []
 	 */
-	elements: {
+	dataItems: {
 		validator: Array.isArray,
 		valueFn: function() {
 			return [];
 		}
 	},
-	/**	  
+	/**	
+	 * The list to store the values selected in 'dataItems' list. 	  
 	 * @type {!Array<!Object>}
 	 * @default []
 	 */

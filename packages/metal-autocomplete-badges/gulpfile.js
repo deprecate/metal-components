@@ -5,9 +5,8 @@ var metal = require('gulp-metal');
 metal.registerTasks({
 	bundleCssFileName: 'autocompleteBadges.css',
 	bundleFileName: 'autocompleteBadges.js',
-	moduleName: 'metal-autocompleteBadges',
-	testNodeSrc: [
-		'env/test/node.js',
+	moduleName: 'metal-autocomplete-badges',
+	testNodeSrc: [		
 		'test/**/*.js'
 	]
 });

@@ -3,12 +3,13 @@
 /**
  * This renders the component's whole content.
  * @param? badges
+ * @param? elementClasses
  */
 {template .render}
 
-	<div class="autocomplete-badges">
-		<textarea autocomplete="off" class="autocomplete-field form-control" wrap="off" style="height: 30px; resize: none;"></textarea>		
-		<ul class="autocomplete-badges--list">
+	<div class="autocomplete-badges {$elementClasses ?: ''}">
+		<textarea ref="input" autocomplete="off" class="autocomplete-field form-control" wrap="off"></textarea>
+		<ul ref="listBadges" class="autocomplete-badges--list">
 			{foreach $badge in $badges}
 				<li class="badge">
 					<span>{$badge.text}</span>					

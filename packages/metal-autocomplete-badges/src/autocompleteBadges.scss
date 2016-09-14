@@ -1,13 +1,18 @@
 .autocomplete-badges {
 	position: relative;
 	
+	textarea {
+		height: 30px; 
+		resize: none;
+	}
+
 	&--list {
 		position: absolute;
 		top: 0;
 		padding: 0;
+		padding-left: 12px;
 		
 		li {
-			
 			margin-top: 5px;			
 			margin-right: 4px;
 
