@@ -395,7 +395,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function Datatable() {
       _classCallCheck(this, Datatable);
 
-      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+      return _possibleConstructorReturn(this, (Datatable.__proto__ || Object.getPrototypeOf(Datatable)).apply(this, arguments));
     }
 
     return Datatable;

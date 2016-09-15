@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,24 +73,27 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		function ListItem() {
 			_classCallCheck(this, ListItem);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (ListItem.__proto__ || Object.getPrototypeOf(ListItem)).apply(this, arguments));
 		}
 
-		ListItem.prototype.setterItemFn_ = function setterItemFn_(item) {
-			if (item.textPrimary && _metal2.default.isString(item.textPrimary)) {
-				item.textPrimary = _Soy2.default.toIncDom(item.textPrimary);
+		_createClass(ListItem, [{
+			key: 'setterItemFn_',
+			value: function setterItemFn_(item) {
+				if (item.textPrimary && _metal2.default.isString(item.textPrimary)) {
+					item.textPrimary = _Soy2.default.toIncDom(item.textPrimary);
+				}
+				if (item.textSecondary && _metal2.default.isString(item.textSecondary)) {
+					item.textSecondary = _Soy2.default.toIncDom(item.textSecondary);
+				}
+				if (item.avatar && item.avatar.content && _metal2.default.isString(item.avatar.content)) {
+					item.avatar.content = _Soy2.default.toIncDom(item.avatar.content);
+				}
+				if (Array.isArray(item.iconsHtml)) {
+					item.iconsHtml = item.iconsHtml.map(_Soy2.default.toIncDom);
+				}
+				return item;
 			}
-			if (item.textSecondary && _metal2.default.isString(item.textSecondary)) {
-				item.textSecondary = _Soy2.default.toIncDom(item.textSecondary);
-			}
-			if (item.avatar && item.avatar.content && _metal2.default.isString(item.avatar.content)) {
-				item.avatar.content = _Soy2.default.toIncDom(item.avatar.content);
-			}
-			if (Array.isArray(item.iconsHtml)) {
-				item.iconsHtml = item.iconsHtml.map(_Soy2.default.toIncDom);
-			}
-			return item;
-		};
+		}]);
 
 		return ListItem;
 	}(_component2.default);

@@ -2189,7 +2189,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
       goog.global['COMPILED'] = COMPILED;
     }
 
-    goog.string = {};
+    goog.provide('goog.string');
 
     /**
      * Does simple python-style string substitution.
@@ -4060,19 +4060,25 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
        *     additional mappings.
        */
       soy.$$augmentMap = function (baseMap, additionalMap) {
+        return soy.$$assignDefaults(soy.$$assignDefaults({}, additionalMap), baseMap);
+      };
 
-        // Create a new map whose '__proto__' field is set to baseMap.
-        /** @constructor */
-        function TempCtor() {}
-        TempCtor.prototype = baseMap;
-        var augmentedMap = new TempCtor();
-
-        // Add the additional mappings to the new map.
-        for (var key in additionalMap) {
-          augmentedMap[key] = additionalMap[key];
+      /**
+       * Copies extra properties into an object if they do not already exist. The
+       * destination object is mutated in the process.
+       *
+       * @param {!Object} obj The destination object to update.
+       * @param {!Object} defaults An object with default properties to apply.
+       * @return {!Object} The destination object for convenience.
+       */
+      soy.$$assignDefaults = function (obj, defaults) {
+        for (var key in defaults) {
+          if (!(key in obj)) {
+            obj[key] = defaults[key];
+          }
         }
 
-        return augmentedMap;
+        return obj;
       };
 
       /**

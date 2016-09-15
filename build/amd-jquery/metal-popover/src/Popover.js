@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -32,6 +50,31 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -55,24 +98,28 @@ define(['exports', 'metal/src/metal', 'metal-soy/src/Soy', 'metal-tooltip/src/To
 		function Popover() {
 			_classCallCheck(this, Popover);
 
-			return _possibleConstructorReturn(this, _TooltipBase.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Popover.__proto__ || Object.getPrototypeOf(Popover)).apply(this, arguments));
 		}
 
-		Popover.prototype.syncAlignElement = function syncAlignElement(alignElement) {
-			_TooltipBase.prototype.syncAlignElement.call(this, alignElement);
+		_createClass(Popover, [{
+			key: 'syncAlignElement',
+			value: function syncAlignElement(alignElement) {
+				_get(Popover.prototype.__proto__ || Object.getPrototypeOf(Popover.prototype), 'syncAlignElement', this).call(this, alignElement);
 
-			if (alignElement) {
-				var dataContent = alignElement.getAttribute('data-content');
-				if (dataContent) {
-					this.content = dataContent;
+				if (alignElement) {
+					var dataContent = alignElement.getAttribute('data-content');
+					if (dataContent) {
+						this.content = dataContent;
+					}
 				}
 			}
-		};
-
-		Popover.prototype.syncVisible = function syncVisible(visible) {
-			this.element.style.display = visible ? 'block' : '';
-			_TooltipBase.prototype.syncVisible.call(this, visible);
-		};
+		}, {
+			key: 'syncVisible',
+			value: function syncVisible(visible) {
+				this.element.style.display = visible ? 'block' : '';
+				_get(Popover.prototype.__proto__ || Object.getPrototypeOf(Popover.prototype), 'syncVisible', this).call(this, visible);
+			}
+		}]);
 
 		return Popover;
 	}(_Tooltip.TooltipBase);

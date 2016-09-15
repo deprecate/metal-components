@@ -131,7 +131,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function Dropdown() {
       _classCallCheck(this, Dropdown);
 
-      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+      return _possibleConstructorReturn(this, (Dropdown.__proto__ || Object.getPrototypeOf(Dropdown)).apply(this, arguments));
     }
 
     return Dropdown;

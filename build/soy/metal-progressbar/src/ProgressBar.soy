@@ -4,12 +4,12 @@
  * This renders the main element.
  * @param? barClass
  * @param? elementClasses
- * @param? label
  * @param? max
  * @param? min
  * @param? value
  */
 {template .render}
+	{@param? label: html|string}
 	{let $curMax: $max ? $max : 100 /}
 	{let $curMin: $min ? $min : 0 /}
 	{let $curValue: $value ? $value : 0 /}

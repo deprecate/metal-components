@@ -25,6 +25,24 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component',
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,19 +73,22 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-component/src/all/component',
 		function List() {
 			_classCallCheck(this, List);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (List.__proto__ || Object.getPrototypeOf(List)).apply(this, arguments));
 		}
 
-		List.prototype.handleClick = function handleClick(event) {
-			var target = event.target;
-			while (target) {
-				if (_dom2.default.match(target, '.listitem')) {
-					break;
+		_createClass(List, [{
+			key: 'handleClick',
+			value: function handleClick(event) {
+				var target = event.target;
+				while (target) {
+					if (_dom2.default.match(target, '.listitem')) {
+						break;
+					}
+					target = target.parentNode;
 				}
-				target = target.parentNode;
+				this.emit('itemSelected', target);
 			}
-			this.emit('itemSelected', target);
-		};
+		}]);
 
 		return List;
 	}(_component2.default);

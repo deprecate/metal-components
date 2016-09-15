@@ -19,6 +19,24 @@ define(['exports', './unescape'], function (exports, _unescape) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var parser_;
 
 	var HTML2IncDom = function () {
@@ -26,40 +44,46 @@ define(['exports', './unescape'], function (exports, _unescape) {
 			_classCallCheck(this, HTML2IncDom);
 		}
 
-		HTML2IncDom.buildFn = function buildFn(html) {
-			return function () {
-				return HTML2IncDom.run(html);
-			};
-		};
+		_createClass(HTML2IncDom, null, [{
+			key: 'buildFn',
+			value: function buildFn(html) {
+				return function () {
+					return HTML2IncDom.run(html);
+				};
+			}
+		}, {
+			key: 'getParser',
+			value: function getParser() {
+				return parser_ || window.HTMLParser;
+			}
+		}, {
+			key: 'run',
+			value: function run(html) {
+				HTML2IncDom.getParser()(html, {
+					start: function start(tag, attrs, unary) {
+						var fn = unary ? IncrementalDOM.elementVoid : IncrementalDOM.elementOpen;
+						var args = [tag, null, []];
+						for (var i = 0; i < attrs.length; i++) {
+							args.push(attrs[i].name, attrs[i].value);
+						}
+						fn.apply(null, args);
+					},
 
-		HTML2IncDom.getParser = function getParser() {
-			return parser_ || window.HTMLParser;
-		};
+					end: function end(tag) {
+						IncrementalDOM.elementClose(tag);
+					},
 
-		HTML2IncDom.run = function run(html) {
-			HTML2IncDom.getParser()(html, {
-				start: function start(tag, attrs, unary) {
-					var fn = unary ? IncrementalDOM.elementVoid : IncrementalDOM.elementOpen;
-					var args = [tag, null, []];
-					for (var i = 0; i < attrs.length; i++) {
-						args.push(attrs[i].name, attrs[i].value);
+					chars: function chars(text) {
+						IncrementalDOM.text(text, _unescape2.default);
 					}
-					fn.apply(null, args);
-				},
-
-				end: function end(tag) {
-					IncrementalDOM.elementClose(tag);
-				},
-
-				chars: function chars(text) {
-					IncrementalDOM.text(text, _unescape2.default);
-				}
-			});
-		};
-
-		HTML2IncDom.setParser = function setParser(newParser) {
-			parser_ = newParser;
-		};
+				});
+			}
+		}, {
+			key: 'setParser',
+			value: function setParser(newParser) {
+				parser_ = newParser;
+			}
+		}]);
 
 		return HTML2IncDom;
 	}();

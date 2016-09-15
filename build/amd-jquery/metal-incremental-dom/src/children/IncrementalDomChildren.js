@@ -38,54 +38,76 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var IncrementalDomChildren = function () {
 		function IncrementalDomChildren() {
 			_classCallCheck(this, IncrementalDomChildren);
 		}
 
-		IncrementalDomChildren.capture = function capture(renderer, callback) {
-			renderer_ = renderer;
-			callback_ = callback;
-			tree_ = {
-				config: {
-					children: []
-				}
-			};
-			currentParent_ = tree_;
-			isCapturing_ = true;
-			_IncrementalDomAop2.default.startInterception({
-				elementClose: handleInterceptedCloseCall_,
-				elementOpen: handleInterceptedOpenCall_,
-				text: handleInterceptedTextCall_
-			});
-		};
-
-		IncrementalDomChildren.render = function render(tree, opt_skipNode) {
-			if (isCapturing_) {
-				// If capturing, just add the node directly to the captured tree.
-				addChildToTree(tree);
-				return;
-			}
-
-			if (opt_skipNode && opt_skipNode(tree)) {
-				return;
-			}
-
-			if (_metal2.default.isDef(tree.text)) {
-				var args = tree.args ? tree.args : [];
-				args[0] = tree.text;
-				IncrementalDOM.text.apply(null, args);
-			} else {
-				var _args = _IncrementalDomUtils2.default.buildCallFromConfig(tree.tag, tree.config);
-				IncrementalDOM.elementOpen.apply(null, _args);
-				if (tree.config.children) {
-					for (var i = 0; i < tree.config.children.length; i++) {
-						IncrementalDomChildren.render(tree.config.children[i], opt_skipNode);
+		_createClass(IncrementalDomChildren, null, [{
+			key: 'capture',
+			value: function capture(renderer, callback) {
+				renderer_ = renderer;
+				callback_ = callback;
+				tree_ = {
+					config: {
+						children: []
 					}
-				}
-				IncrementalDOM.elementClose(tree.tag);
+				};
+				currentParent_ = tree_;
+				isCapturing_ = true;
+				_IncrementalDomAop2.default.startInterception({
+					elementClose: handleInterceptedCloseCall_,
+					elementOpen: handleInterceptedOpenCall_,
+					text: handleInterceptedTextCall_
+				});
 			}
-		};
+		}, {
+			key: 'render',
+			value: function render(tree, opt_skipNode) {
+				if (isCapturing_) {
+					// If capturing, just add the node directly to the captured tree.
+					addChildToTree(tree);
+					return;
+				}
+
+				if (opt_skipNode && opt_skipNode(tree)) {
+					return;
+				}
+
+				if (_metal2.default.isDef(tree.text)) {
+					var args = tree.args ? tree.args : [];
+					args[0] = tree.text;
+					IncrementalDOM.text.apply(null, args);
+				} else {
+					var _args = _IncrementalDomUtils2.default.buildCallFromConfig(tree.tag, tree.config);
+					IncrementalDOM.elementOpen.apply(null, _args);
+					if (tree.config.children) {
+						for (var i = 0; i < tree.config.children.length; i++) {
+							IncrementalDomChildren.render(tree.config.children[i], opt_skipNode);
+						}
+					}
+					IncrementalDOM.elementClose(tree.tag);
+				}
+			}
+		}]);
 
 		return IncrementalDomChildren;
 	}();

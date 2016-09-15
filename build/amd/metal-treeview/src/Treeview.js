@@ -23,6 +23,24 @@ define(['exports', './Treeview.soy.js', 'metal-component/src/all/component', 'me
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -53,33 +71,39 @@ define(['exports', './Treeview.soy.js', 'metal-component/src/all/component', 'me
 		function Treeview() {
 			_classCallCheck(this, Treeview);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Treeview.__proto__ || Object.getPrototypeOf(Treeview)).apply(this, arguments));
 		}
 
-		Treeview.prototype.getNodeObj = function getNodeObj(path) {
-			var obj = this.nodes[path[0]];
-			for (var i = 1; i < path.length; i++) {
-				obj = obj.children[path[i]];
+		_createClass(Treeview, [{
+			key: 'getNodeObj',
+			value: function getNodeObj(path) {
+				var obj = this.nodes[path[0]];
+				for (var i = 1; i < path.length; i++) {
+					obj = obj.children[path[i]];
+				}
+				return obj;
 			}
-			return obj;
-		};
-
-		Treeview.prototype.handleNodeClicked_ = function handleNodeClicked_(event) {
-			this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
-		};
-
-		Treeview.prototype.handleNodeKeyUp_ = function handleNodeKeyUp_(event) {
-			if (event.keyCode === 13 || event.keyCode === 32) {
+		}, {
+			key: 'handleNodeClicked_',
+			value: function handleNodeClicked_(event) {
 				this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
 			}
-		};
-
-		Treeview.prototype.toggleExpandedState_ = function toggleExpandedState_(node) {
-			var path = node.getAttribute('data-treeview-path').split('-');
-			var nodeObj = this.getNodeObj(path);
-			nodeObj.expanded = !nodeObj.expanded;
-			this.nodes = this.nodes;
-		};
+		}, {
+			key: 'handleNodeKeyUp_',
+			value: function handleNodeKeyUp_(event) {
+				if (event.keyCode === 13 || event.keyCode === 32) {
+					this.toggleExpandedState_(event.delegateTarget.parentNode.parentNode);
+				}
+			}
+		}, {
+			key: 'toggleExpandedState_',
+			value: function toggleExpandedState_(node) {
+				var path = node.getAttribute('data-treeview-path').split('-');
+				var nodeObj = this.getNodeObj(path);
+				nodeObj.expanded = !nodeObj.expanded;
+				this.nodes = this.nodes;
+			}
+		}]);
 
 		return Treeview;
 	}(_component2.default);

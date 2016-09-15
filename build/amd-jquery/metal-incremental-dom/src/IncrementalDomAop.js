@@ -11,33 +11,56 @@ define(['exports', 'metal/src/metal', './incremental-dom'], function (exports, _
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var IncrementalDomAop = function () {
 		function IncrementalDomAop() {
 			_classCallCheck(this, IncrementalDomAop);
 		}
 
-		IncrementalDomAop.getOriginalFns = function getOriginalFns() {
-			return fnStack[0];
-		};
-
-		IncrementalDomAop.startInterception = function startInterception(fns) {
-			var originals = IncrementalDomAop.getOriginalFns();
-			fns = _metal.object.map(fns, function (name, value) {
-				return value.bind(null, originals[name]);
-			});
-			fnStack.push(_metal.object.mixin({}, originals, fns, {
-				attr: fnAttr,
-				elementOpenEnd: fnOpenEnd,
-				elementOpenStart: fnOpenStart,
-				elementVoid: fnVoid
-			}));
-		};
-
-		IncrementalDomAop.stopInterception = function stopInterception() {
-			if (fnStack.length > 1) {
-				fnStack.pop();
+		_createClass(IncrementalDomAop, null, [{
+			key: 'getOriginalFns',
+			value: function getOriginalFns() {
+				return fnStack[0];
 			}
-		};
+		}, {
+			key: 'startInterception',
+			value: function startInterception(fns) {
+				var originals = IncrementalDomAop.getOriginalFns();
+				fns = _metal.object.map(fns, function (name, value) {
+					return value.bind(null, originals[name]);
+				});
+				fnStack.push(_metal.object.mixin({}, originals, fns, {
+					attr: fnAttr,
+					elementOpenEnd: fnOpenEnd,
+					elementOpenStart: fnOpenStart,
+					elementVoid: fnVoid
+				}));
+			}
+		}, {
+			key: 'stopInterception',
+			value: function stopInterception() {
+				if (fnStack.length > 1) {
+					fnStack.pop();
+				}
+			}
+		}]);
 
 		return IncrementalDomAop;
 	}();

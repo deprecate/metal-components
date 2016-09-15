@@ -123,7 +123,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function Alert() {
       _classCallCheck(this, Alert);
 
-      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+      return _possibleConstructorReturn(this, (Alert.__proto__ || Object.getPrototypeOf(Alert)).apply(this, arguments));
     }
 
     return Alert;

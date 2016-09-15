@@ -136,7 +136,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function Popover() {
       _classCallCheck(this, Popover);
 
-      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+      return _possibleConstructorReturn(this, (Popover.__proto__ || Object.getPrototypeOf(Popover)).apply(this, arguments));
     }
 
     return Popover;

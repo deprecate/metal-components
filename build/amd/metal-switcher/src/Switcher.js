@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', './Switcher.soy.js', 'metal-component/src/
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,12 +73,15 @@ define(['exports', 'metal/src/metal', './Switcher.soy.js', 'metal-component/src/
 		function Switcher() {
 			_classCallCheck(this, Switcher);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Switcher.__proto__ || Object.getPrototypeOf(Switcher)).apply(this, arguments));
 		}
 
-		Switcher.prototype.handleClick = function handleClick() {
-			this.checked = !this.checked;
-		};
+		_createClass(Switcher, [{
+			key: 'handleClick',
+			value: function handleClick() {
+				this.checked = !this.checked;
+			}
+		}]);
 
 		return Switcher;
 	}(_component2.default);

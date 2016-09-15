@@ -145,7 +145,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function ButtonGroup() {
       _classCallCheck(this, ButtonGroup);
 
-      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+      return _possibleConstructorReturn(this, (ButtonGroup.__proto__ || Object.getPrototypeOf(ButtonGroup)).apply(this, arguments));
     }
 
     return ButtonGroup;

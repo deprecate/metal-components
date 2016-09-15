@@ -25,6 +25,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,59 +73,67 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		function AutocompleteBase() {
 			_classCallCheck(this, AutocompleteBase);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (AutocompleteBase.__proto__ || Object.getPrototypeOf(AutocompleteBase)).apply(this, arguments));
 		}
 
-		AutocompleteBase.prototype.created = function created() {
-			this.eventHandler_ = new _events.EventHandler();
-			this.on('select', this.select);
-		};
-
-		AutocompleteBase.prototype.attached = function attached() {
-			if (this.inputElement) {
-				this.eventHandler_.add(_dom2.default.on(this.inputElement, 'input', this.handleUserInput_.bind(this)));
+		_createClass(AutocompleteBase, [{
+			key: 'created',
+			value: function created() {
+				this.eventHandler_ = new _events.EventHandler();
+				this.on('select', this.select);
 			}
-		};
-
-		AutocompleteBase.prototype.detached = function detached() {
-			this.eventHandler_.removeAllListeners();
-		};
-
-		AutocompleteBase.prototype.handleUserInput_ = function handleUserInput_() {
-			this.request(this.inputElement.value);
-		};
-
-		AutocompleteBase.prototype.request = function request(query) {
-			var self = this;
-
-			if (this.pendingRequest) {
-				this.pendingRequest.cancel('Cancelled by another request');
-			}
-
-			var deferredData = self.data(query);
-			if (!_metal2.default.isPromise(deferredData)) {
-				deferredData = _Promise2.default.resolve(deferredData);
-			}
-
-			this.pendingRequest = deferredData.then(function (data) {
-				if (Array.isArray(data)) {
-					return data.map(self.format.bind(self)).filter(function (val) {
-						return _metal2.default.isDefAndNotNull(val);
-					});
+		}, {
+			key: 'attached',
+			value: function attached() {
+				if (this.inputElement) {
+					this.eventHandler_.add(_dom2.default.on(this.inputElement, 'input', this.handleUserInput_.bind(this)));
 				}
-			});
-
-			return this.pendingRequest;
-		};
-
-		AutocompleteBase.prototype.setData_ = function setData_(val) {
-			if (!_metal2.default.isFunction(val)) {
-				return function () {
-					return val;
-				};
 			}
-			return val;
-		};
+		}, {
+			key: 'detached',
+			value: function detached() {
+				this.eventHandler_.removeAllListeners();
+			}
+		}, {
+			key: 'handleUserInput_',
+			value: function handleUserInput_() {
+				this.request(this.inputElement.value);
+			}
+		}, {
+			key: 'request',
+			value: function request(query) {
+				var self = this;
+
+				if (this.pendingRequest) {
+					this.pendingRequest.cancel('Cancelled by another request');
+				}
+
+				var deferredData = self.data(query);
+				if (!_metal2.default.isPromise(deferredData)) {
+					deferredData = _Promise2.default.resolve(deferredData);
+				}
+
+				this.pendingRequest = deferredData.then(function (data) {
+					if (Array.isArray(data)) {
+						return data.map(self.format.bind(self)).filter(function (val) {
+							return _metal2.default.isDefAndNotNull(val);
+						});
+					}
+				});
+
+				return this.pendingRequest;
+			}
+		}, {
+			key: 'setData_',
+			value: function setData_(val) {
+				if (!_metal2.default.isFunction(val)) {
+					return function () {
+						return val;
+					};
+				}
+				return val;
+			}
+		}]);
 
 		return AutocompleteBase;
 	}(_component2.default);

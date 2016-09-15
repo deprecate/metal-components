@@ -64,9 +64,13 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
+    /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
-    goog.require('goog.asserts');
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -77,7 +81,14 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    barClass: (?),
+     *    elementClasses: (?),
+     *    max: (?),
+     *    min: (?),
+     *    value: (?),
+     *    label: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
@@ -85,13 +96,16 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof goog.soy.data.SanitizedContent || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       var curMax__soy3 = opt_data.max ? opt_data.max : 100;
       var curMin__soy4 = opt_data.min ? opt_data.min : 0;
       var curValue__soy5 = opt_data.value ? opt_data.value : 0;
       ie_open('div', null, null, 'class', 'progress ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'progressbar', 'aria-valuemax', curMax__soy3, 'aria-valuemin', curMin__soy4, 'aria-valuenow', curValue__soy5, 'tabindex', '0');
       var percentage__soy15 = Math.floor((curValue__soy5 - curMin__soy4) * 100 / (curMax__soy3 - curMin__soy4));
       ie_open('div', null, null, 'class', 'progress-bar' + (opt_data.barClass ? ' ' + opt_data.barClass : ''), 'style', 'width: ' + percentage__soy15 + '%');
-      itext((goog.asserts.assert((opt_data.label ? opt_data.label : '') != null), opt_data.label ? opt_data.label : ''));
+      var dyn0 = label ? label : '';
+      if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('div');
       ie_close('div');
     }
@@ -100,8 +114,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $render.soyTemplateName = 'ProgressBar.render';
     }
 
-    exports.render.params = ["barClass", "elementClasses", "label", "max", "min", "value"];
-    exports.render.types = { "barClass": "any", "elementClasses": "any", "label": "any", "max": "any", "min": "any", "value": "any" };
+    exports.render.params = ["label", "barClass", "elementClasses", "max", "min", "value"];
+    exports.render.types = { "label": "html|string", "barClass": "any", "elementClasses": "any", "max": "any", "min": "any", "value": "any" };
     exports.templates = templates = exports;
     return exports;
   });
@@ -112,7 +126,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     function ProgressBar() {
       _classCallCheck(this, ProgressBar);
 
-      return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+      return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).apply(this, arguments));
     }
 
     return ProgressBar;

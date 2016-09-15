@@ -11,6 +11,24 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -18,6 +36,31 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -41,7 +84,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		function State(opt_config) {
 			_classCallCheck(this, State);
 
-			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
+			var _this = _possibleConstructorReturn(this, (State.__proto__ || Object.getPrototypeOf(State)).call(this));
 
 			/**
     * Object with information about the batch event that is currently
@@ -73,286 +116,321 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
    */
 
 
-		State.prototype.addKeyToState = function addKeyToState(name, config, initialValue) {
-			this.buildKeyInfo_(name, config, initialValue);
-			Object.defineProperty(this, name, this.buildKeyPropertyDef_(name));
-		};
-
-		State.prototype.addToState = function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
-			if (_metal.core.isString(configsOrName)) {
-				return this.addKeyToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue);
+		_createClass(State, [{
+			key: 'addKeyToState',
+			value: function addKeyToState(name, config, initialValue) {
+				this.buildKeyInfo_(name, config, initialValue);
+				Object.defineProperty(this, name, this.buildKeyPropertyDef_(name));
 			}
-
-			var initialValues = opt_initialValuesOrConfig || {};
-			var names = Object.keys(configsOrName);
-
-			var props = {};
-			for (var i = 0; i < names.length; i++) {
-				var name = names[i];
-				this.buildKeyInfo_(name, configsOrName[name], initialValues[name]);
-				props[name] = this.buildKeyPropertyDef_(name);
-			}
-
-			if (opt_contextOrInitialValue !== false) {
-				Object.defineProperties(opt_contextOrInitialValue || this, props);
-			}
-		};
-
-		State.prototype.addToStateFromStaticHint_ = function addToStateFromStaticHint_(opt_config) {
-			var ctor = this.constructor;
-			var defineContext = false;
-			if (State.mergeStateStatic(ctor)) {
-				defineContext = ctor.prototype;
-			}
-			this.addToState(ctor.STATE_MERGED, opt_config, defineContext);
-		};
-
-		State.prototype.assertValidStateKeyName_ = function assertValidStateKeyName_(name) {
-			if (this.constructor.INVALID_KEYS_MERGED[name]) {
-				throw new Error('It\'s not allowed to create a state key with the name "' + name + '".');
-			}
-		};
-
-		State.prototype.buildKeyInfo_ = function buildKeyInfo_(name, config, initialValue) {
-			this.assertValidStateKeyName_(name);
-
-			this.stateInfo_[name] = {
-				config: config || {},
-				initialValue: initialValue,
-				state: State.KeyStates.UNINITIALIZED
-			};
-		};
-
-		State.prototype.buildKeyPropertyDef_ = function buildKeyPropertyDef_(name) {
-			return {
-				configurable: true,
-				enumerable: true,
-				get: function get() {
-					return this.getStateKeyValue_(name);
-				},
-				set: function set(val) {
-					this.setStateKeyValue_(name, val);
+		}, {
+			key: 'addToState',
+			value: function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
+				if (_metal.core.isString(configsOrName)) {
+					return this.addKeyToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue);
 				}
-			};
-		};
 
-		State.prototype.callFunction_ = function callFunction_(fn, args) {
-			if (_metal.core.isString(fn)) {
-				return this[fn].apply(this, args);
-			} else if (_metal.core.isFunction(fn)) {
-				return fn.apply(this, args);
-			}
-		};
+				var initialValues = opt_initialValuesOrConfig || {};
+				var names = Object.keys(configsOrName);
 
-		State.prototype.callSetter_ = function callSetter_(name, value, currentValue) {
-			var info = this.stateInfo_[name];
-			var config = info.config;
-			if (config.setter) {
-				value = this.callFunction_(config.setter, [value, currentValue]);
-			}
-			return value;
-		};
-
-		State.prototype.callValidator_ = function callValidator_(name, value) {
-			var info = this.stateInfo_[name];
-			var config = info.config;
-			if (config.validator) {
-				var validatorReturn = this.callFunction_(config.validator, [value, name, this]);
-
-				if (validatorReturn instanceof Error) {
-					console.error('Warning: ' + validatorReturn);
+				var props = {};
+				for (var i = 0; i < names.length; i++) {
+					var name = names[i];
+					this.buildKeyInfo_(name, configsOrName[name], initialValues[name]);
+					props[name] = this.buildKeyPropertyDef_(name);
 				}
-				return validatorReturn;
+
+				if (opt_contextOrInitialValue !== false) {
+					Object.defineProperties(opt_contextOrInitialValue || this, props);
+				}
 			}
-			return true;
-		};
-
-		State.prototype.canSetState = function canSetState(name) {
-			var info = this.stateInfo_[name];
-			return !info.config.writeOnce || !info.written;
-		};
-
-		State.prototype.disposeInternal = function disposeInternal() {
-			_EventEmitter.prototype.disposeInternal.call(this);
-			this.stateInfo_ = null;
-			this.scheduledBatchData_ = null;
-		};
-
-		State.prototype.emitBatchEvent_ = function emitBatchEvent_() {
-			if (!this.isDisposed()) {
-				var data = this.scheduledBatchData_;
-				this.scheduledBatchData_ = null;
-				this.emit('stateChanged', data);
+		}, {
+			key: 'addToStateFromStaticHint_',
+			value: function addToStateFromStaticHint_(opt_config) {
+				var ctor = this.constructor;
+				var defineContext = false;
+				if (State.mergeStateStatic(ctor)) {
+					defineContext = ctor.prototype;
+				}
+				this.addToState(ctor.STATE_MERGED, opt_config, defineContext);
 			}
-		};
-
-		State.prototype.get = function get(name) {
-			return this[name];
-		};
-
-		State.prototype.getState = function getState(opt_names) {
-			var state = {};
-			var names = opt_names || this.getStateKeys();
-
-			for (var i = 0; i < names.length; i++) {
-				state[names[i]] = this[names[i]];
+		}, {
+			key: 'assertValidStateKeyName_',
+			value: function assertValidStateKeyName_(name) {
+				if (this.constructor.INVALID_KEYS_MERGED[name]) {
+					throw new Error('It\'s not allowed to create a state key with the name "' + name + '".');
+				}
 			}
+		}, {
+			key: 'buildKeyInfo_',
+			value: function buildKeyInfo_(name, config, initialValue) {
+				this.assertValidStateKeyName_(name);
 
-			return state;
-		};
-
-		State.prototype.getStateKeyConfig = function getStateKeyConfig(name) {
-			return (this.stateInfo_[name] || {}).config;
-		};
-
-		State.prototype.getStateKeys = function getStateKeys() {
-			return Object.keys(this.stateInfo_);
-		};
-
-		State.prototype.getStateKeyValue_ = function getStateKeyValue_(name) {
-			this.initStateKey_(name);
-			return this.stateInfo_[name].value;
-		};
-
-		State.prototype.hasBeenSet = function hasBeenSet(name) {
-			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED || info.initialValue;
-		};
-
-		State.prototype.hasStateKey = function hasStateKey(key) {
-			return !!this.stateInfo_[key];
-		};
-
-		State.prototype.informChange_ = function informChange_(name, prevVal) {
-			if (this.shouldInformChange_(name, prevVal)) {
-				var data = {
-					key: name,
-					newVal: this[name],
-					prevVal: prevVal
+				this.stateInfo_[name] = {
+					config: config || {},
+					initialValue: initialValue,
+					state: State.KeyStates.UNINITIALIZED
 				};
-				this.emit(name + 'Changed', data);
-				this.emit('stateKeyChanged', data);
-				this.scheduleBatchEvent_(data);
 			}
-		};
-
-		State.prototype.initStateKey_ = function initStateKey_(name) {
-			var info = this.stateInfo_[name];
-			if (info.state !== State.KeyStates.UNINITIALIZED) {
-				return;
-			}
-
-			info.state = State.KeyStates.INITIALIZING;
-			this.setInitialValue_(name);
-			if (!info.written) {
-				info.state = State.KeyStates.INITIALIZING_DEFAULT;
-				this.setDefaultValue_(name);
-			}
-			info.state = State.KeyStates.INITIALIZED;
-		};
-
-		State.mergeState_ = function mergeState_(values) {
-			return _metal.object.mixin.apply(null, [{}].concat(values.reverse()));
-		};
-
-		State.mergeStateStatic = function mergeStateStatic(ctor) {
-			return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState_);
-		};
-
-		State.prototype.mergeInvalidKeys_ = function mergeInvalidKeys_() {
-			_metal.core.mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
-				return _metal.array.flatten(values).reduce(function (merged, val) {
-					if (val) {
-						merged[val] = true;
+		}, {
+			key: 'buildKeyPropertyDef_',
+			value: function buildKeyPropertyDef_(name) {
+				return {
+					configurable: true,
+					enumerable: true,
+					get: function get() {
+						return this.getStateKeyValue_(name);
+					},
+					set: function set(val) {
+						this.setStateKeyValue_(name, val);
 					}
-					return merged;
-				}, {});
-			});
-		};
-
-		State.prototype.removeStateKey = function removeStateKey(name) {
-			this.stateInfo_[name] = null;
-			delete this[name];
-		};
-
-		State.prototype.scheduleBatchEvent_ = function scheduleBatchEvent_(changeData) {
-			if (!this.scheduledBatchData_) {
-				_metal.async.nextTick(this.emitBatchEvent_, this);
-				this.scheduledBatchData_ = {
-					changes: {}
 				};
 			}
-
-			var name = changeData.key;
-			var changes = this.scheduledBatchData_.changes;
-			if (changes[name]) {
-				changes[name].newVal = changeData.newVal;
-			} else {
-				changes[name] = changeData;
+		}, {
+			key: 'callFunction_',
+			value: function callFunction_(fn, args) {
+				if (_metal.core.isString(fn)) {
+					return this[fn].apply(this, args);
+				} else if (_metal.core.isFunction(fn)) {
+					return fn.apply(this, args);
+				}
 			}
-		};
-
-		State.prototype.set = function set(name, value) {
-			if (this.hasStateKey(name)) {
-				this[name] = value;
+		}, {
+			key: 'callSetter_',
+			value: function callSetter_(name, value, currentValue) {
+				var info = this.stateInfo_[name];
+				var config = info.config;
+				if (config.setter) {
+					value = this.callFunction_(config.setter, [value, currentValue]);
+				}
+				return value;
 			}
-		};
+		}, {
+			key: 'callValidator_',
+			value: function callValidator_(name, value) {
+				var info = this.stateInfo_[name];
+				var config = info.config;
+				if (config.validator) {
+					var validatorReturn = this.callFunction_(config.validator, [value, name, this]);
 
-		State.prototype.setDefaultValue_ = function setDefaultValue_(name) {
-			var config = this.stateInfo_[name].config;
-
-			if (config.value !== undefined) {
-				this[name] = config.value;
-			} else {
-				this[name] = this.callFunction_(config.valueFn);
+					if (validatorReturn instanceof Error) {
+						console.error('Warning: ' + validatorReturn);
+					}
+					return validatorReturn;
+				}
+				return true;
 			}
-		};
-
-		State.prototype.setInitialValue_ = function setInitialValue_(name) {
-			var info = this.stateInfo_[name];
-			if (info.initialValue !== undefined) {
-				this[name] = info.initialValue;
-				info.initialValue = undefined;
+		}, {
+			key: 'canSetState',
+			value: function canSetState(name) {
+				var info = this.stateInfo_[name];
+				return !info.config.writeOnce || !info.written;
 			}
-		};
-
-		State.prototype.setState = function setState(values, opt_callback) {
-			var _this2 = this;
-
-			Object.keys(values).forEach(function (name) {
-				return _this2.set(name, values[name]);
-			});
-			if (opt_callback && this.scheduledBatchData_) {
-				this.once('stateChanged', opt_callback);
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				_get(State.prototype.__proto__ || Object.getPrototypeOf(State.prototype), 'disposeInternal', this).call(this);
+				this.stateInfo_ = null;
+				this.scheduledBatchData_ = null;
 			}
-		};
-
-		State.prototype.setStateKeyValue_ = function setStateKeyValue_(name, value) {
-			if (!this.canSetState(name) || !this.validateKeyValue_(name, value)) {
-				return;
+		}, {
+			key: 'emitBatchEvent_',
+			value: function emitBatchEvent_() {
+				if (!this.isDisposed()) {
+					var data = this.scheduledBatchData_;
+					this.scheduledBatchData_ = null;
+					this.emit('stateChanged', data);
+				}
 			}
+		}, {
+			key: 'get',
+			value: function get(name) {
+				return this[name];
+			}
+		}, {
+			key: 'getState',
+			value: function getState(opt_names) {
+				var state = {};
+				var names = opt_names || this.getStateKeys();
 
-			var info = this.stateInfo_[name];
-			if (info.initialValue === undefined && info.state === State.KeyStates.UNINITIALIZED) {
+				for (var i = 0; i < names.length; i++) {
+					state[names[i]] = this[names[i]];
+				}
+
+				return state;
+			}
+		}, {
+			key: 'getStateKeyConfig',
+			value: function getStateKeyConfig(name) {
+				return (this.stateInfo_[name] || {}).config;
+			}
+		}, {
+			key: 'getStateKeys',
+			value: function getStateKeys() {
+				return Object.keys(this.stateInfo_);
+			}
+		}, {
+			key: 'getStateKeyValue_',
+			value: function getStateKeyValue_(name) {
+				this.initStateKey_(name);
+				return this.stateInfo_[name].value;
+			}
+		}, {
+			key: 'hasBeenSet',
+			value: function hasBeenSet(name) {
+				var info = this.stateInfo_[name];
+				return info.state === State.KeyStates.INITIALIZED || info.initialValue;
+			}
+		}, {
+			key: 'hasStateKey',
+			value: function hasStateKey(key) {
+				return !!this.stateInfo_[key];
+			}
+		}, {
+			key: 'informChange_',
+			value: function informChange_(name, prevVal) {
+				if (this.shouldInformChange_(name, prevVal)) {
+					var data = {
+						key: name,
+						newVal: this[name],
+						prevVal: prevVal
+					};
+					this.emit(name + 'Changed', data);
+					this.emit('stateKeyChanged', data);
+					this.scheduleBatchEvent_(data);
+				}
+			}
+		}, {
+			key: 'initStateKey_',
+			value: function initStateKey_(name) {
+				var info = this.stateInfo_[name];
+				if (info.state !== State.KeyStates.UNINITIALIZED) {
+					return;
+				}
+
+				info.state = State.KeyStates.INITIALIZING;
+				this.setInitialValue_(name);
+				if (!info.written) {
+					info.state = State.KeyStates.INITIALIZING_DEFAULT;
+					this.setDefaultValue_(name);
+				}
 				info.state = State.KeyStates.INITIALIZED;
 			}
+		}, {
+			key: 'mergeInvalidKeys_',
+			value: function mergeInvalidKeys_() {
+				_metal.core.mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
+					return _metal.array.flatten(values).reduce(function (merged, val) {
+						if (val) {
+							merged[val] = true;
+						}
+						return merged;
+					}, {});
+				});
+			}
+		}, {
+			key: 'removeStateKey',
+			value: function removeStateKey(name) {
+				this.stateInfo_[name] = null;
+				delete this[name];
+			}
+		}, {
+			key: 'scheduleBatchEvent_',
+			value: function scheduleBatchEvent_(changeData) {
+				if (!this.scheduledBatchData_) {
+					_metal.async.nextTick(this.emitBatchEvent_, this);
+					this.scheduledBatchData_ = {
+						changes: {}
+					};
+				}
 
-			var prevVal = this[name];
-			info.value = this.callSetter_(name, value, prevVal);
-			info.written = true;
-			this.informChange_(name, prevVal);
-		};
+				var name = changeData.key;
+				var changes = this.scheduledBatchData_.changes;
+				if (changes[name]) {
+					changes[name].newVal = changeData.newVal;
+				} else {
+					changes[name] = changeData;
+				}
+			}
+		}, {
+			key: 'set',
+			value: function set(name, value) {
+				if (this.hasStateKey(name)) {
+					this[name] = value;
+				}
+			}
+		}, {
+			key: 'setDefaultValue_',
+			value: function setDefaultValue_(name) {
+				var config = this.stateInfo_[name].config;
 
-		State.prototype.shouldInformChange_ = function shouldInformChange_(name, prevVal) {
-			var info = this.stateInfo_[name];
-			return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this[name]);
-		};
+				if (config.value !== undefined) {
+					this[name] = config.value;
+				} else {
+					this[name] = this.callFunction_(config.valueFn);
+				}
+			}
+		}, {
+			key: 'setInitialValue_',
+			value: function setInitialValue_(name) {
+				var info = this.stateInfo_[name];
+				if (info.initialValue !== undefined) {
+					this[name] = info.initialValue;
+					info.initialValue = undefined;
+				}
+			}
+		}, {
+			key: 'setState',
+			value: function setState(values, opt_callback) {
+				var _this2 = this;
 
-		State.prototype.validateKeyValue_ = function validateKeyValue_(name, value) {
-			var info = this.stateInfo_[name];
+				Object.keys(values).forEach(function (name) {
+					return _this2.set(name, values[name]);
+				});
+				if (opt_callback && this.scheduledBatchData_) {
+					this.once('stateChanged', opt_callback);
+				}
+			}
+		}, {
+			key: 'setStateKeyValue_',
+			value: function setStateKeyValue_(name, value) {
+				if (!this.canSetState(name) || !this.validateKeyValue_(name, value)) {
+					return;
+				}
 
-			return info.state === State.KeyStates.INITIALIZING_DEFAULT || this.callValidator_(name, value);
-		};
+				var info = this.stateInfo_[name];
+				if (info.initialValue === undefined && info.state === State.KeyStates.UNINITIALIZED) {
+					info.state = State.KeyStates.INITIALIZED;
+				}
+
+				var prevVal = this[name];
+				info.value = this.callSetter_(name, value, prevVal);
+				info.written = true;
+				this.informChange_(name, prevVal);
+			}
+		}, {
+			key: 'shouldInformChange_',
+			value: function shouldInformChange_(name, prevVal) {
+				var info = this.stateInfo_[name];
+				return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this[name]);
+			}
+		}, {
+			key: 'validateKeyValue_',
+			value: function validateKeyValue_(name, value) {
+				var info = this.stateInfo_[name];
+
+				return info.state === State.KeyStates.INITIALIZING_DEFAULT || this.callValidator_(name, value);
+			}
+		}], [{
+			key: 'mergeState_',
+			value: function mergeState_(values) {
+				return _metal.object.mixin.apply(null, [{}].concat(values.reverse()));
+			}
+		}, {
+			key: 'mergeStateStatic',
+			value: function mergeStateStatic(ctor) {
+				return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState_);
+			}
+		}]);
 
 		return State;
 	}(_events.EventEmitter);

@@ -27,6 +27,24 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -57,95 +75,107 @@ define(['exports', 'metal/src/metal', './Pagination.soy.js', 'metal-component/sr
 		function Pagination() {
 			_classCallCheck(this, Pagination);
 
-			return _possibleConstructorReturn(this, _Component.apply(this, arguments));
+			return _possibleConstructorReturn(this, (Pagination.__proto__ || Object.getPrototypeOf(Pagination)).apply(this, arguments));
 		}
 
-		Pagination.prototype.created = function created() {
-			/**
-    * Contains the previous page value
-    * @type {Object}
-    * @default {page: this.page}
-    */
-			this.lastState_ = {
-				page: this.page
-			};
+		_createClass(Pagination, [{
+			key: 'created',
+			value: function created() {
+				/**
+     * Contains the previous page value
+     * @type {Object}
+     * @default {page: this.page}
+     */
+				this.lastState_ = {
+					page: this.page
+				};
 
-			this.on(Pagination.Events.CHANGE_REQUEST, this.defaultChangeRequestFn_, true);
-		};
-
-		Pagination.prototype.defaultChangeRequestFn_ = function defaultChangeRequestFn_(event) {
-			this.setState_(event.state);
-		};
-
-		Pagination.prototype.dispatchRequest_ = function dispatchRequest_(state) {
-			this.emit(Pagination.Events.CHANGE_REQUEST, {
-				lastState: this.lastState_,
-				offset: this.offset,
-				state: state,
-				total: this.total
-			});
-		};
-
-		Pagination.prototype.getOffsetPageNumber = function getOffsetPageNumber() {
-			return this.offset + this.page;
-		};
-
-		Pagination.prototype.getOffsetTotalPages = function getOffsetTotalPages() {
-			return this.offset + this.total;
-		};
-
-		Pagination.prototype.next = function next() {
-			var page = this.page,
-			    total = this.total;
-
-			this.dispatchRequest_({
-				page: this.circular && page === total - 1 ? 0 : Math.min(total, ++page)
-			});
-		};
-
-		Pagination.prototype.onClickItem = function onClickItem(event) {
-			var item = event.delegateTarget;
-
-			event.preventDefault();
-
-			var index = parseInt(item.getAttribute('data-index'));
-
-			this.dispatchRequest_({
-				page: index
-			});
-		};
-
-		Pagination.prototype.onClickControls = function onClickControls(event) {
-			var control = event.delegateTarget;
-
-			event.preventDefault();
-
-			var index = parseInt(control.getAttribute('data-control-index'));
-
-			switch (index) {
-				case 0:
-					this.prev();
-					break;
-				case 1:
-					this.next();
-					break;
+				this.on(Pagination.Events.CHANGE_REQUEST, this.defaultChangeRequestFn_, true);
 			}
-		};
+		}, {
+			key: 'defaultChangeRequestFn_',
+			value: function defaultChangeRequestFn_(event) {
+				this.setState_(event.state);
+			}
+		}, {
+			key: 'dispatchRequest_',
+			value: function dispatchRequest_(state) {
+				this.emit(Pagination.Events.CHANGE_REQUEST, {
+					lastState: this.lastState_,
+					offset: this.offset,
+					state: state,
+					total: this.total
+				});
+			}
+		}, {
+			key: 'getOffsetPageNumber',
+			value: function getOffsetPageNumber() {
+				return this.offset + this.page;
+			}
+		}, {
+			key: 'getOffsetTotalPages',
+			value: function getOffsetTotalPages() {
+				return this.offset + this.total;
+			}
+		}, {
+			key: 'next',
+			value: function next() {
+				var page = this.page,
+				    total = this.total;
 
-		Pagination.prototype.prev = function prev() {
-			var page = this.page,
-			    total = this.total;
+				this.dispatchRequest_({
+					page: this.circular && page === total - 1 ? 0 : Math.min(total, ++page)
+				});
+			}
+		}, {
+			key: 'onClickItem',
+			value: function onClickItem(event) {
+				var item = event.delegateTarget;
 
-			this.dispatchRequest_({
-				page: this.circular && page === 0 ? total - 1 : Math.max(0, --page)
-			});
-		};
+				event.preventDefault();
 
-		Pagination.prototype.setState_ = function setState_(state) {
-			this.page = state.page;
+				var index = parseInt(item.getAttribute('data-index'));
 
-			this.lastState_ = state;
-		};
+				this.dispatchRequest_({
+					page: index
+				});
+			}
+		}, {
+			key: 'onClickControls',
+			value: function onClickControls(event) {
+				var control = event.delegateTarget;
+
+				event.preventDefault();
+
+				var index = parseInt(control.getAttribute('data-control-index'));
+
+				switch (index) {
+					case 0:
+						this.prev();
+						break;
+					case 1:
+						this.next();
+						break;
+				}
+			}
+		}, {
+			key: 'prev',
+			value: function prev() {
+				var page = this.page,
+				    total = this.total;
+
+				this.dispatchRequest_({
+					page: this.circular && page === 0 ? total - 1 : Math.max(0, --page)
+				});
+			}
+		}, {
+			key: 'setState_',
+			value: function setState_(state) {
+				this.page = state.page;
+
+				this.lastState_ = state;
+			}
+		}]);
 
 		return Pagination;
 	}(_component2.default);
