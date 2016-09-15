@@ -8,15 +8,17 @@
 {template .render}
 
 	<div class="autocomplete-badges {$elementClasses ?: ''}">
-		<textarea ref="input" autocomplete="off" class="autocomplete-field form-control" wrap="off"></textarea>
-		<ul ref="listBadges" class="autocomplete-badges--list">
+		<ul class="autocomplete-badges--list">
 			{foreach $badge in $badges}
 				<li class="badge">
-					<span>{$badge.text}</span>					
+					<span>{$badge.text}</span>
 					<span class="glyphicon glyphicon-remove remove" data-index="{index($badge)}" data-onclick="onBadgeItemClicked_"></span>
 				</li>
-			{/foreach}		
-		</ul>		
+			{/foreach}
+		</ul>
+		<span class="autocomplete-field-wrapper">
+			<input ref="input" autocomplete="off" class="autocomplete-field form-control"></input>
+		</span>	
 	</div>
 
 {/template}

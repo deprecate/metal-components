@@ -33,7 +33,7 @@
 	    "metal-debounce": "^2.0.0",
 	    "metal-dom": "^2.0.0",
 	    "metal-events": "^2.0.0",
-	    "metal-list": "^2.0.0",				
+	    "metal-list": "^2.0.0",	
 		"metal-soy": "^2.0.0"
 	},
 	"devDependencies": {

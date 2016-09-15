@@ -1,20 +1,25 @@
 .autocomplete-badges {
-	position: relative;
-	
-	textarea {
-		height: 30px; 
-		resize: none;
-	}
+	border: 1px solid #ccc;
+    overflow: hidden;
+
+    .autocomplete-field {
+        border: none;
+        box-shadow: none;
+    }
+
+    .autocomplete-field-wrapper {
+        display: block;
+        overflow: hidden;
+    }
 
 	&--list {
-		position: absolute;
-		top: 0;
+		float: left;
 		padding: 0;
-		padding-left: 12px;
+		margin: 0;
 		
 		li {
-			margin-top: 5px;			
-			margin-right: 4px;
+			margin-top: 6px;
+			margin-left: 4px;
 
 			span:first-child {
 				margin-right: 8px;
@@ -26,4 +31,3 @@
 		}
 	}
 }
-

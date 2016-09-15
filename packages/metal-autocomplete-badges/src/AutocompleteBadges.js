@@ -14,21 +14,9 @@ class AutocompleteBadges extends Component {
 		this.autocomplete_ = new Autocomplete({
 			inputElement: this.refs.input,
 			data: this.getFilteredElements_.bind(this)
-		});		
+		});
 
 		this.autocomplete_.on('select', this.onListItemSelected_.bind(this));
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	rendered() {
-		if(this.refs.listBadges) {
-			const fullWith = this.getFullWidthListBadges_();
-			if(fullWith > 0) {
-				this.refs.input.style.paddingLeft = fullWith + 'px';
-			}
-		}
 	}
 
 	/**
@@ -39,30 +27,19 @@ class AutocompleteBadges extends Component {
 		return this.refs.input;
 	}
 
-	 /**
-	 * Returns the `Autocomplete` component being used to render the matched items in a list.
-	 * @return {!Autocomplete}
-	 */
+	/**
+	* Returns the `Autocomplete` component being used to render the matched items in a list.
+	* @return {!Autocomplete}
+	*/
 	getAutocomplete() {
 		return this.autocomplete_;
-	}
-
-	/**
-	 * Recover a full width of basges list	
-	 * @return {Number} returns the width
-	 * @protected
-	 */
-	getFullWidthListBadges_() {
-		return this.refs.listBadges.offsetWidth + this.refs.listBadges.style.marginLeft +
-				this.refs.listBadges.style.marginRight + this.refs.listBadges.style.paddingLeft + 
-				this.refs.listBadges.style.paddingRight;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	disposed() {
-		if(this.autocomplete_) {
+		if (this.autocomplete_) {
 			this.autocomplete_.dispose();
 		}
 	}
@@ -84,7 +61,7 @@ class AutocompleteBadges extends Component {
 	 * @param {!Element} item The list selected item.
 	 * @protected
 	 */
-	onListItemSelected_(item) {		
+	onListItemSelected_(item) {
 		const index = this.dataItems.indexOf(item.text);
 
 		this.badges.push(item);
@@ -93,7 +70,7 @@ class AutocompleteBadges extends Component {
 		this.dataItems.splice(index, 1);
 		this.dataItems = this.dataItems;
 
-		this.refs.input.value = '';		
+		this.refs.input.value = '';
 	}
 
 	/**
@@ -101,20 +78,20 @@ class AutocompleteBadges extends Component {
 	 * @param {!Event} event
 	 * @protected
 	 */
-	onBadgeItemClicked_(event) {		
+	onBadgeItemClicked_(event) {
 		const elementDOM = event.delegateTarget;
 		const badge = this.badges[elementDOM.getAttribute('data-index')];
 
-		this.dataItems.push(badge.text);		
+		this.dataItems.push(badge.text);
 		this.dataItems = this.dataItems;
 
-		this.badges.splice(this.badges.indexOf(badge), 1);		
+		this.badges.splice(this.badges.indexOf(badge), 1);
 		this.badges = this.badges;
 	}
 }
 Soy.register(AutocompleteBadges, templates);
 
-AutocompleteBadges.STATE = {	
+AutocompleteBadges.STATE = {
 	/**
 	 * The list items of text tha will be filtered by input data. 
 	 * @type {!Array<!Object>}
@@ -137,6 +114,6 @@ AutocompleteBadges.STATE = {
 			return [];
 		}
 	},
-};	
+};
 
 export default AutocompleteBadges;

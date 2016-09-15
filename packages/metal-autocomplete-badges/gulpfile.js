@@ -6,7 +6,7 @@ metal.registerTasks({
 	bundleCssFileName: 'autocompleteBadges.css',
 	bundleFileName: 'autocompleteBadges.js',
 	moduleName: 'metal-autocomplete-badges',
-	testNodeSrc: [		
+	testNodeSrc: [
 		'test/**/*.js'
 	]
 });
