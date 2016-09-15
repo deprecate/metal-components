@@ -1,6 +1,6 @@
 {
 	"name": "metal-autocomplete-badges",
-	"version": "2.0.0",
+	"version": "0.1.0",
 	"description": "An autocomplete component that renders badges for selected options",
 	"license": "BSD",
 	"repository": "metal/metal-autocomplete-badges",
@@ -33,7 +33,7 @@
 	    "metal-debounce": "^2.0.0",
 	    "metal-dom": "^2.0.0",
 	    "metal-events": "^2.0.0",
-	    "metal-list": "^2.0.0",	
+	    "metal-list": "^2.0.0",
 		"metal-soy": "^2.0.0"
 	},
 	"devDependencies": {
