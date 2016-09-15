@@ -3,7 +3,7 @@
 	"version": "2.0.0",
 	"description": "An autocomplete component that renders badges for selected options",
 	"license": "BSD",
-	"repository": "diogo-lins/metal-autocomplete-badges",
+	"repository": "metal/metal-autocomplete-badges",
 	"engines": {
 		"node": ">=0.12.0",
 		"npm": ">=3.0.0"
