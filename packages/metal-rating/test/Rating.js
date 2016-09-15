@@ -11,12 +11,19 @@ describe('Rating', function() {
     rating.dispose();
   });
 
-  it('should render with default attributes.', function() {
+  it('should render with default attributes', function() {
     rating = new Rating();
     assert.strictEqual('', rating.element.style.display);
   });
 
-  it('should render specified label.', function() {
+  it('should render specified label via an incremental dom function', function() {
+    rating = new Rating({
+      label: () => IncrementalDOM.text('This is an awesome Metal Component')
+    });
+    assert.strictEqual('This is an awesome Metal Component', rating.element.textContent);
+  });
+
+  it('should render specified label', function() {
     rating = new Rating({
       label: 'This is an awesome Metal Component'
     });
@@ -112,7 +119,7 @@ describe('Rating', function() {
     });
   });
 
-  it('should not reset the rating value if the canReset attribute is false.', function(done) {
+  it('should not reset the rating value if the canReset attribute is false', function(done) {
     rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');
@@ -129,7 +136,7 @@ describe('Rating', function() {
     });
   });
 
-  it('should reset startup attributes to its initial values.', function(done) {
+  it('should reset startup attributes to its initial values', function(done) {
     rating = new Rating();
 
     var elements = rating.element.querySelectorAll('.rating-item');

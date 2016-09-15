@@ -119,15 +119,15 @@ Rating.STATE = {
     },
 
     /**
-     * Label to be displayed with the Rating elements.
-     *
+     * Label to be displayed with the Rating elements. Can be either a string
+     * or an incremental dom function.
      * @attribute label
      * @type {string}
      * @default ''
      */
     label: {
         value: '',
-        validator: core.isString
+        validator: val => core.isString(val) || core.isFunction(val)
     },
 
     /**
