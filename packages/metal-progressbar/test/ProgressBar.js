@@ -18,6 +18,13 @@ describe('ProgressBar', function() {
 			assert.strictEqual('My Label', progressBar.element.textContent);
 		});
 
+		it('should render specified label via incremental dom function', function() {
+			progressBar = new ProgressBar({
+				label: () => IncrementalDOM.text('My Label')
+			});
+			assert.strictEqual('My Label', progressBar.element.textContent);
+		});
+
 		it('should not render any text if no label is specified', function() {
 			progressBar = new ProgressBar();
 			assert.strictEqual('', progressBar.element.textContent);
