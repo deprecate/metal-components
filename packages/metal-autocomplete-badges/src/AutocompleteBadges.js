@@ -20,11 +20,12 @@ class AutocompleteBadges extends Component {
 	}
 
 	/**
-	 * Returns the `input` element being used to insert data.
-	 * @return {!DOMElement}
+	 * @inheritDoc
 	 */
-	getInput() {
-		return this.refs.input;
+	disposed() {
+		if (this.autocomplete_) {
+			this.autocomplete_.dispose();
+		}
 	}
 
 	/**
@@ -33,15 +34,6 @@ class AutocompleteBadges extends Component {
 	*/
 	getAutocomplete() {
 		return this.autocomplete_;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	disposed() {
-		if (this.autocomplete_) {
-			this.autocomplete_.dispose();
-		}
 	}
 
 	/**
@@ -57,7 +49,31 @@ class AutocompleteBadges extends Component {
 	}
 
 	/**
-	 * Remove element from the list and add in badges list	 
+	 * Returns the `input` element being used to insert data.
+	 * @return {!Element}
+	 */
+	getInput() {
+		return this.refs.input;
+	}
+
+	/**
+	 * Remove element from the badges list and add in element list
+	 * @param {!Event} event
+	 * @protected
+	 */
+	onBadgeItemClicked_(event) {
+		const elementDOM = event.delegateTarget;
+		const badge = this.badges[elementDOM.getAttribute('data-index')];
+
+		this.dataItems.push(badge.text);
+		this.dataItems = this.dataItems;
+
+		this.badges.splice(this.badges.indexOf(badge), 1);
+		this.badges = this.badges;
+	}
+
+	/**
+	 * Remove element from the list and add in badges list
 	 * @param {!Element} item The list selected item.
 	 * @protected
 	 */
@@ -72,39 +88,12 @@ class AutocompleteBadges extends Component {
 
 		this.refs.input.value = '';
 	}
-
-	/**
-	 * Remove element from the badges list and add in element list	 
-	 * @param {!Event} event
-	 * @protected
-	 */
-	onBadgeItemClicked_(event) {
-		const elementDOM = event.delegateTarget;
-		const badge = this.badges[elementDOM.getAttribute('data-index')];
-
-		this.dataItems.push(badge.text);
-		this.dataItems = this.dataItems;
-
-		this.badges.splice(this.badges.indexOf(badge), 1);
-		this.badges = this.badges;
-	}
 }
 Soy.register(AutocompleteBadges, templates);
 
 AutocompleteBadges.STATE = {
 	/**
-	 * The list items of text tha will be filtered by input data. 
-	 * @type {!Array<!Object>}
-	 * @default []
-	 */
-	dataItems: {
-		validator: Array.isArray,
-		valueFn: function() {
-			return [];
-		}
-	},
-	/**	
-	 * The list to store the values selected in 'dataItems' list. 	  
+	 * The list to store the values selected in 'dataItems' list.
 	 * @type {!Array<!Object>}
 	 * @default []
 	 */
@@ -114,6 +103,18 @@ AutocompleteBadges.STATE = {
 			return [];
 		}
 	},
+
+	/**
+	 * The list items of text tha will be filtered by input data.
+	 * @type {!Array<!Object>}
+	 * @default []
+	 */
+	dataItems: {
+		validator: Array.isArray,
+		valueFn: function() {
+			return [];
+		}
+	}
 };
 
 export default AutocompleteBadges;
