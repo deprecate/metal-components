@@ -63,12 +63,15 @@ ProgressBar.STATE = {
 	},
 
 	/**
-	 * An optional label to be rendered inside the progress bar.
-	 * @type {string}
+	 * An optional label to be rendered inside the progress bar. Can be either
+	 * a string (with raw text or html) or an incremental dom function.
+	 * @type {function()|string?}
 	 */
 	label: {
 		validator: label => {
-			return !core.isDefAndNotNull(label) || core.isString(label);
+			return !core.isDefAndNotNull(label) ||
+				core.isString(label) ||
+				core.isFunction(label);
 		}
 	},
 
