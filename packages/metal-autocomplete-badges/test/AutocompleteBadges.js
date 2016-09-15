@@ -122,4 +122,10 @@ describe('AutocompleteBadges', function() {
 		});
 	});
 
+	it('should not throw error if disposed before rendered', function() {
+		component = new AutocompleteBadges({
+			dataItems: elements
+		}, false);
+		assert.doesNotThrow(() => component.dispose());
+	});
 });
