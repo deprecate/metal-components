@@ -111,6 +111,11 @@ describe('Slider', function() {
 		assert.strictEqual(slider.element, slider.getDrag().container);
 	});
 
+	it.only('should not update the drag container when element changes to null', function() {
+		slider = new Slider();
+		slider.element = null;
+	});
+
 	it('should update the drag constrain element when element changes', function() {
 		slider = new Slider();
 		assert.strictEqual(slider.element, slider.getDrag().container);

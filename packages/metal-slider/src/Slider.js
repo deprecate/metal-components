@@ -65,8 +65,10 @@ class Slider extends Component {
 	 * @protected
 	 */
 	handleElementChanged_(data) {
-		this.drag_.container = data.newVal;
-		this.drag_.constrain = data.newVal.querySelector('.rail');
+		if (data.newVal) {
+			this.drag_.container = data.newVal;
+			this.drag_.constrain = data.newVal.querySelector('.rail');
+		}
 	}
 
 	/**
