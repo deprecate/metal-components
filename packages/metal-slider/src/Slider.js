@@ -24,7 +24,7 @@ class Slider extends Component {
 		 */
 		this.drag_ = new Drag({
 			axis: 'x',
-			constrain: this.element.querySelector('.rail'),
+			constrain: this.constrainToRail_.bind(this),
 			container: this.element,
 			handles: '.handle',
 			sources: '.rail-handle'
@@ -41,6 +41,25 @@ class Slider extends Component {
 	attachDragEvents_() {
 		this.drag_.on(Drag.Events.DRAG, this.updateValueFromDragData_.bind(this));
 		this.drag_.on(Drag.Events.END, this.updateValueFromDragData_.bind(this));
+	}
+
+	/**
+	 * Constrains the given region to be inside the rail. This is being used
+	 * instead of `Drag`'s default behavior, because `Drag` would require the
+	 * whole handle to be inside the rail element, while we just want to make sure
+	 * that the left side of the handle is inside it.
+	 * @param {!Object} region
+	 * @protected
+	 */
+	constrainToRail_(region) {
+		const rail = this.element.querySelector('.rail');
+		const constrain = Position.getRegion(rail, true);
+		if (region.left < constrain.left) {
+			region.left = constrain.left;
+		} else if (region.left > constrain.right) {
+			region.left -= region.left - constrain.right;
+		}
+		region.right = region.left + region.width;
 	}
 
 	/**
@@ -68,7 +87,6 @@ class Slider extends Component {
 	handleElementChanged_(data) {
 		if (data.newVal) {
 			this.drag_.container = data.newVal;
-			this.drag_.constrain = data.newVal.querySelector('.rail');
 		}
 	}
 
