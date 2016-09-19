@@ -2,7 +2,6 @@
 
 /**
  * This renders the main element.
- * @param? label
  * @param cssClasses
  * @param disabled
  * @param inputHiddenName
@@ -10,6 +9,7 @@
  * @param value
  */
 {template .render}
+	{@param? label: html|string}
   <div
     aria-valuemin="{$options[0].value}"
     aria-valuemax="{$options[$options.length -1].value}"
@@ -25,7 +25,7 @@
       {for $option in range($options.length)}
         <button
           aria-disabled="{$disabled}"
-          aria-pressed="{$option <= $value ? true : false}"
+          aria-pressed="{$option <= $value ? 'true' : 'false'}"
           aria-label="{$options[$option].title ? $options[$option].title : $option}"
           class="btn rating-item {$option <= $value ? $cssClasses.on : $cssClasses.off}"
           data-index="{$option}"

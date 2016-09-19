@@ -175,15 +175,17 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
         },
 
         /**
-         * Label to be displayed with the Rating elements.
-         *
+         * Label to be displayed with the Rating elements. Can be either a string
+         * or an incremental dom function.
          * @attribute label
          * @type {string}
          * @default ''
          */
         label: {
             value: '',
-            validator: _metal2.default.isString
+            validator: function validator(val) {
+                return _metal2.default.isString(val) || _metal2.default.isFunction(val);
+            }
         },
 
         /**

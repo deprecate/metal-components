@@ -64,9 +64,13 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
+    /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
-    goog.require('goog.asserts');
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -77,23 +81,33 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    cssClasses: (?),
+     *    disabled: (?),
+     *    inputHiddenName: (?),
+     *    options: (?),
+     *    value: (?),
+     *    label: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof goog.soy.data.SanitizedContent || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       ie_open('div', null, null, 'aria-valuemin', opt_data.options[0].value, 'aria-valuemax', opt_data.options[opt_data.options.length - 1].value, 'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '', 'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '', 'class', 'rating', 'data-onmouseleave', 'handleMouseLeaveEvent');
-      if (opt_data.label) {
+      if (label) {
         ie_open('label', null, null, 'class', 'rate-label');
-        itext((goog.asserts.assert(opt_data.label != null), opt_data.label));
+        var dyn0 = label;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('label');
       }
       ie_open('div', null, null, 'class', 'rating-items');
       var optionLimit18 = opt_data.options.length;
       for (var option18 = 0; option18 < optionLimit18; option18++) {
-        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title ? opt_data.options[option18].title : option18, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
+        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? 'true' : 'false', 'aria-label', opt_data.options[option18].title ? opt_data.options[option18].title : option18, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
       }
       ie_close('div');
       ie_open('input', null, null, 'type', 'hidden', 'aria-hidden', 'true', 'name', opt_data.inputHiddenName, 'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
@@ -106,7 +120,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     }
 
     exports.render.params = ["label", "cssClasses", "disabled", "inputHiddenName", "options", "value"];
-    exports.render.types = { "label": "any", "cssClasses": "any", "disabled": "any", "inputHiddenName": "any", "options": "any", "value": "any" };
+    exports.render.types = { "label": "html|string", "cssClasses": "any", "disabled": "any", "inputHiddenName": "any", "options": "any", "value": "any" };
     exports.templates = templates = exports;
     return exports;
   });

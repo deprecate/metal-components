@@ -459,9 +459,17 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				});
 			}
 		}, {
+			key: 'isMatch_',
+			value: function isMatch_(comp, Ctor) {
+				if (!comp || comp.constructor !== Ctor || comp.isDisposed()) {
+					return false;
+				}
+				return comp.getRenderer().getOwner() === this.component_;
+			}
+		}, {
 			key: 'match_',
 			value: function match_(comp, Ctor, config) {
-				if (!comp || comp.constructor !== Ctor) {
+				if (!this.isMatch_(comp, Ctor)) {
 					comp = new Ctor(config, false);
 				}
 				if (comp.wasRendered) {
@@ -493,9 +501,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				} else {
 					var element = this.component_.element;
 					IncrementalDOM.patchOuter(element, this.renderInsidePatchDontSkip_);
-					if (!this.component_.element) {
-						_dom2.default.exitDocument(element);
-					}
 				}
 			}
 		}, {
@@ -582,9 +587,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				var renderer = comp.getRenderer();
 				if (renderer instanceof IncrementalDomRenderer) {
 					var parentComp = IncrementalDomRenderer.getComponentBeingRendered();
-					parentComp.getRenderer().childComponents_.push(comp);
+					var parentRenderer = parentComp.getRenderer();
+					parentRenderer.childComponents_.push(comp);
 					renderer.parent_ = parentComp;
 					renderer.owner_ = this.component_;
+					if (!config.key && !parentRenderer.rootElementReached_) {
+						config.key = parentRenderer.config_.key;
+					}
 					renderer.renderInsidePatch();
 				} else {
 					console.warn('IncrementalDomRenderer doesn\'t support rendering sub components ' + 'that don\'t use IncrementalDomRenderer as well, like:', comp);

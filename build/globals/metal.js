@@ -9243,8 +9243,22 @@ babelHelpers;
     */
 
 		}, {
-			key: 'match_',
+			key: 'isMatch_',
 
+
+			/**
+    * Checks if the given component can be a match for a constructor.
+    * @param {!Component} comp
+    * @param {!function()} Ctor
+    * @return {boolean}
+    * @protected
+    */
+			value: function isMatch_(comp, Ctor) {
+				if (!comp || comp.constructor !== Ctor || comp.isDisposed()) {
+					return false;
+				}
+				return comp.getRenderer().getOwner() === this.component_;
+			}
 
 			/**
     * Returns the given component if it matches the specified constructor
@@ -9256,8 +9270,11 @@ babelHelpers;
     * @return {!Component}
     * @protected
     */
+
+		}, {
+			key: 'match_',
 			value: function match_(comp, Ctor, config) {
-				if (!comp || comp.constructor !== Ctor) {
+				if (!this.isMatch_(comp, Ctor)) {
 					comp = new Ctor(config, false);
 				}
 				if (comp.wasRendered) {
@@ -9295,9 +9312,6 @@ babelHelpers;
 				} else {
 					var element = this.component_.element;
 					IncrementalDOM.patchOuter(element, this.renderInsidePatchDontSkip_);
-					if (!this.component_.element) {
-						dom.exitDocument(element);
-					}
 				}
 			}
 
@@ -9463,9 +9477,13 @@ babelHelpers;
 				var renderer = comp.getRenderer();
 				if (renderer instanceof IncrementalDomRenderer) {
 					var parentComp = IncrementalDomRenderer.getComponentBeingRendered();
-					parentComp.getRenderer().childComponents_.push(comp);
+					var parentRenderer = parentComp.getRenderer();
+					parentRenderer.childComponents_.push(comp);
 					renderer.parent_ = parentComp;
 					renderer.owner_ = this.component_;
+					if (!config.key && !parentRenderer.rootElementReached_) {
+						config.key = parentRenderer.config_.key;
+					}
 					renderer.renderInsidePatch();
 				} else {
 					console.warn('IncrementalDomRenderer doesn\'t support rendering sub components ' + 'that don\'t use IncrementalDomRenderer as well, like:', comp);
@@ -19596,6 +19614,8 @@ babelHelpers;
     goog.require('soy.asserts');
     /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -19623,15 +19643,15 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
-      soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.body == null || opt_data.body instanceof Function || opt_data.body instanceof goog.soy.data.SanitizedContent || opt_data.body instanceof soydata.UnsanitizedText || goog.isString(opt_data.body), 'body', opt_data.body, '?soydata.SanitizedHtml|string|undefined');
       var body = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.body;
       soy.asserts.assertType(opt_data.bodyId == null || opt_data.bodyId instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.bodyId), 'bodyId', opt_data.bodyId, 'null|string|undefined');
       var bodyId = /** @type {null|string|undefined} */opt_data.bodyId;
       soy.asserts.assertType(opt_data.elementClasses == null || opt_data.elementClasses instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.elementClasses), 'elementClasses', opt_data.elementClasses, 'null|string|undefined');
       var elementClasses = /** @type {null|string|undefined} */opt_data.elementClasses;
-      soy.asserts.assertType(opt_data.footer == null || opt_data.footer instanceof Function || opt_data.footer instanceof soydata.UnsanitizedText || goog.isString(opt_data.footer), 'footer', opt_data.footer, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.footer == null || opt_data.footer instanceof Function || opt_data.footer instanceof goog.soy.data.SanitizedContent || opt_data.footer instanceof soydata.UnsanitizedText || goog.isString(opt_data.footer), 'footer', opt_data.footer, '?soydata.SanitizedHtml|string|undefined');
       var footer = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.footer;
-      soy.asserts.assertType(opt_data.header == null || opt_data.header instanceof Function || opt_data.header instanceof soydata.UnsanitizedText || goog.isString(opt_data.header), 'header', opt_data.header, '?soydata.SanitizedHtml|string|undefined');
+      soy.asserts.assertType(opt_data.header == null || opt_data.header instanceof Function || opt_data.header instanceof goog.soy.data.SanitizedContent || opt_data.header instanceof soydata.UnsanitizedText || goog.isString(opt_data.header), 'header', opt_data.header, '?soydata.SanitizedHtml|string|undefined');
       var header = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.header;
       soy.asserts.assertType(opt_data.headerId == null || opt_data.headerId instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.headerId), 'headerId', opt_data.headerId, 'null|string|undefined');
       var headerId = /** @type {null|string|undefined} */opt_data.headerId;
@@ -19652,18 +19672,21 @@ babelHelpers;
           ie_close('button');
         }
         ie_open('div', null, null, 'id', headerId);
-        header();
+        var dyn0 = header;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('div');
       }
       ie_close('header');
       ie_open('section', null, null, 'class', 'modal-body', 'id', bodyId, 'role', 'document', 'tabindex', '0');
       if (body) {
-        body();
+        var dyn1 = body;
+        if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
       }
       ie_close('section');
       ie_open('footer', null, null, 'class', 'modal-footer');
       if (footer) {
-        footer();
+        var dyn2 = footer;
+        if (typeof dyn2 == 'function') dyn2();else if (dyn2 != null) itext(dyn2);
       }
       ie_close('footer');
       ie_close('div');
@@ -19676,7 +19699,7 @@ babelHelpers;
     }
 
     exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role"];
-    exports.render.types = { "body": "html", "bodyId": "string", "elementClasses": "string", "footer": "html", "header": "html", "headerId": "string", "noCloseButton": "bool", "role": "string" };
+    exports.render.types = { "body": "html|string", "bodyId": "string", "elementClasses": "string", "footer": "html|string", "header": "html|string", "headerId": "string", "noCloseButton": "bool", "role": "string" };
     templates = exports;
     return exports;
   });
@@ -21219,9 +21242,13 @@ babelHelpers;
     /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
+    /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
-    goog.require('goog.asserts');
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -21232,7 +21259,14 @@ babelHelpers;
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    barClass: (?),
+     *    elementClasses: (?),
+     *    max: (?),
+     *    min: (?),
+     *    value: (?),
+     *    label: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
@@ -21240,13 +21274,16 @@ babelHelpers;
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
       opt_data = opt_data || {};
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof goog.soy.data.SanitizedContent || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       var curMax__soy3 = opt_data.max ? opt_data.max : 100;
       var curMin__soy4 = opt_data.min ? opt_data.min : 0;
       var curValue__soy5 = opt_data.value ? opt_data.value : 0;
       ie_open('div', null, null, 'class', 'progress ' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'role', 'progressbar', 'aria-valuemax', curMax__soy3, 'aria-valuemin', curMin__soy4, 'aria-valuenow', curValue__soy5, 'tabindex', '0');
       var percentage__soy15 = Math.floor((curValue__soy5 - curMin__soy4) * 100 / (curMax__soy3 - curMin__soy4));
       ie_open('div', null, null, 'class', 'progress-bar' + (opt_data.barClass ? ' ' + opt_data.barClass : ''), 'style', 'width: ' + percentage__soy15 + '%');
-      itext((goog.asserts.assert((opt_data.label ? opt_data.label : '') != null), opt_data.label ? opt_data.label : ''));
+      var dyn0 = label ? label : '';
+      if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('div');
       ie_close('div');
     }
@@ -21255,8 +21292,8 @@ babelHelpers;
       $render.soyTemplateName = 'ProgressBar.render';
     }
 
-    exports.render.params = ["barClass", "elementClasses", "label", "max", "min", "value"];
-    exports.render.types = { "barClass": "any", "elementClasses": "any", "label": "any", "max": "any", "min": "any", "value": "any" };
+    exports.render.params = ["label", "barClass", "elementClasses", "max", "min", "value"];
+    exports.render.types = { "label": "html|string", "barClass": "any", "elementClasses": "any", "max": "any", "min": "any", "value": "any" };
     templates = exports;
     return exports;
   });
@@ -21366,12 +21403,13 @@ babelHelpers;
 		},
 
 		/**
-   * An optional label to be rendered inside the progress bar.
-   * @type {string}
+   * An optional label to be rendered inside the progress bar. Can be either
+   * a string (with raw text or html) or an incremental dom function.
+   * @type {function()|string?}
    */
 		label: {
 			validator: function validator(label) {
-				return !core.isDefAndNotNull(label) || core.isString(label);
+				return !core.isDefAndNotNull(label) || core.isString(label) || core.isFunction(label);
 			}
 		},
 
@@ -21434,9 +21472,13 @@ babelHelpers;
     /** @suppress {extraRequire} */
     var soydata = goog.require('soydata');
     /** @suppress {extraRequire} */
+    goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('soy.asserts');
+    /** @suppress {extraRequire} */
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
-    goog.require('goog.asserts');
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -21447,23 +21489,33 @@ babelHelpers;
     var iattr = IncrementalDom.attr;
 
     /**
-     * @param {Object<string, *>=} opt_data
+     * @param {{
+     *    cssClasses: (?),
+     *    disabled: (?),
+     *    inputHiddenName: (?),
+     *    options: (?),
+     *    value: (?),
+     *    label: (?soydata.SanitizedHtml|string|undefined)
+     * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
      * @return {void}
      * @suppress {checkTypes}
      */
     function $render(opt_data, opt_ignored, opt_ijData) {
+      soy.asserts.assertType(opt_data.label == null || opt_data.label instanceof Function || opt_data.label instanceof goog.soy.data.SanitizedContent || opt_data.label instanceof soydata.UnsanitizedText || goog.isString(opt_data.label), 'label', opt_data.label, '?soydata.SanitizedHtml|string|undefined');
+      var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       ie_open('div', null, null, 'aria-valuemin', opt_data.options[0].value, 'aria-valuemax', opt_data.options[opt_data.options.length - 1].value, 'aria-valuenow', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : '', 'aria-valuetext', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].title : '', 'class', 'rating', 'data-onmouseleave', 'handleMouseLeaveEvent');
-      if (opt_data.label) {
+      if (label) {
         ie_open('label', null, null, 'class', 'rate-label');
-        itext((goog.asserts.assert(opt_data.label != null), opt_data.label));
+        var dyn0 = label;
+        if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
         ie_close('label');
       }
       ie_open('div', null, null, 'class', 'rating-items');
       var optionLimit18 = opt_data.options.length;
       for (var option18 = 0; option18 < optionLimit18; option18++) {
-        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? true : false, 'aria-label', opt_data.options[option18].title ? opt_data.options[option18].title : option18, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
+        ie_void('button', null, null, 'aria-disabled', opt_data.disabled, 'aria-pressed', option18 <= opt_data.value ? 'true' : 'false', 'aria-label', opt_data.options[option18].title ? opt_data.options[option18].title : option18, 'class', 'btn rating-item ' + (option18 <= opt_data.value ? opt_data.cssClasses.on : opt_data.cssClasses.off), 'data-index', option18, 'data-onclick', 'handleClickEvent', 'data-onmouseover', 'handleMouseOverEvent', 'disabled', opt_data.disabled, 'title', opt_data.options[option18].title, 'type', 'button');
       }
       ie_close('div');
       ie_open('input', null, null, 'type', 'hidden', 'aria-hidden', 'true', 'name', opt_data.inputHiddenName, 'value', opt_data.options[opt_data.value] ? opt_data.options[opt_data.value].value : opt_data.value);
@@ -21476,7 +21528,7 @@ babelHelpers;
     }
 
     exports.render.params = ["label", "cssClasses", "disabled", "inputHiddenName", "options", "value"];
-    exports.render.types = { "label": "any", "cssClasses": "any", "disabled": "any", "inputHiddenName": "any", "options": "any", "value": "any" };
+    exports.render.types = { "label": "html|string", "cssClasses": "any", "disabled": "any", "inputHiddenName": "any", "options": "any", "value": "any" };
     templates = exports;
     return exports;
   });
@@ -21647,15 +21699,17 @@ babelHelpers;
         },
 
         /**
-         * Label to be displayed with the Rating elements.
-         *
+         * Label to be displayed with the Rating elements. Can be either a string
+         * or an incremental dom function.
          * @attribute label
          * @type {string}
          * @default ''
          */
         label: {
             value: '',
-            validator: core.isString
+            validator: function validator(val) {
+                return core.isString(val) || core.isFunction(val);
+            }
         },
 
         /**
@@ -23126,9 +23180,9 @@ babelHelpers;
 		}, {
 			key: 'constrain_',
 			value: function constrain_(region) {
-				this.constrainToAxis_(region);
 				this.constrainToSteps_(region);
 				this.constrainToRegion_(region);
+				this.constrainToAxis_(region);
 			}
 
 			/**
@@ -24183,6 +24237,8 @@ babelHelpers;
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -24209,12 +24265,13 @@ babelHelpers;
       ie_open('input', null, null, 'name', ($$temp = opt_data.inputName) == null ? '' : $$temp, 'type', 'hidden', 'value', valueNumber__soy5);
       ie_close('input');
       ie_open('span');
-      itext((goog.asserts.assert(valueNumber__soy5 != null), valueNumber__soy5));
+      var dyn0 = valueNumber__soy5;
+      if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('span');
       var percentage__soy15 = 100 * (valueNumber__soy5 - minNumber__soy4) / (maxNumber__soy3 - minNumber__soy4) + '%';
       ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
       ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy15);
-      ie_open('div', null, null, 'class', 'rail-handle');
+      ie_open('div', null, null, 'class', 'rail-handle', 'style', 'left: ' + percentage__soy15);
       ie_void('div', null, null, 'class', 'handle', 'tabindex', '0', 'role', 'slider', 'aria-valuemin', minNumber__soy4, 'aria-valuemax', maxNumber__soy3, 'aria-valuenow', valueNumber__soy5);
       ie_close('div');
       ie_close('div');
@@ -24285,7 +24342,8 @@ babelHelpers;
      * @protected
      */
 				this.drag_ = new Drag({
-					constrain: this.element.querySelector('.rail'),
+					axis: 'x',
+					constrain: this.constrainToRail_.bind(this),
 					container: this.element,
 					handles: '.handle',
 					sources: '.rail-handle'
@@ -24305,6 +24363,28 @@ babelHelpers;
 			value: function attachDragEvents_() {
 				this.drag_.on(Drag.Events.DRAG, this.updateValueFromDragData_.bind(this));
 				this.drag_.on(Drag.Events.END, this.updateValueFromDragData_.bind(this));
+			}
+
+			/**
+    * Constrains the given region to be inside the rail. This is being used
+    * instead of `Drag`'s default behavior, because `Drag` would require the
+    * whole handle to be inside the rail element, while we just want to make sure
+    * that the left side of the handle is inside it.
+    * @param {!Object} region
+    * @protected
+    */
+
+		}, {
+			key: 'constrainToRail_',
+			value: function constrainToRail_(region) {
+				var rail = this.element.querySelector('.rail');
+				var constrain = Position.getRegion(rail, true);
+				if (region.left < constrain.left) {
+					region.left = constrain.left;
+				} else if (region.left > constrain.right) {
+					region.left -= region.left - constrain.right;
+				}
+				region.right = region.left + region.width;
 			}
 
 			/**
@@ -24339,8 +24419,9 @@ babelHelpers;
 		}, {
 			key: 'handleElementChanged_',
 			value: function handleElementChanged_(data) {
-				this.drag_.container = data.newVal;
-				this.drag_.constrain = data.newVal.querySelector('.rail');
+				if (data.newVal) {
+					this.drag_.container = data.newVal;
+				}
 			}
 
 			/**
@@ -24353,7 +24434,16 @@ babelHelpers;
 			key: 'onRailMouseDown_',
 			value: function onRailMouseDown_(event) {
 				if (dom.hasClass(event.target, 'rail') || dom.hasClass(event.target, 'rail-active')) {
-					this.updateValue_(event.offsetX, 0);
+					var prevValue = this.value;
+					this.updateValue_(event.offsetX, 0, true);
+					if (prevValue === this.value) {
+						var handleRegion = Position.getRegion(this.element.querySelector('.handle'));
+						if (event.offsetX < handleRegion.left) {
+							this.value -= 1;
+						} else {
+							this.value += 1;
+						}
+					}
 				}
 			}
 
@@ -24367,8 +24457,6 @@ babelHelpers;
 			value: function syncMax(newVal) {
 				if (newVal < this.value) {
 					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
 				}
 			}
 
@@ -24382,33 +24470,6 @@ babelHelpers;
 			value: function syncMin(newVal) {
 				if (newVal > this.value) {
 					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
-				}
-			}
-
-			/**
-    * Synchronizes the slider UI with the value attribute.
-    * @param {number} newVal The new value of the attribute.
-    */
-
-		}, {
-			key: 'syncValue',
-			value: function syncValue() {
-				this.updateHandlePosition_();
-			}
-
-			/**
-    * Updates the handle position and active region to reflect the current slider value.
-    * @protected
-    */
-
-		}, {
-			key: 'updateHandlePosition_',
-			value: function updateHandlePosition_() {
-				if (!this.drag_ || !this.drag_.isDragging()) {
-					var positionValue = 100 * (this.value - this.min) / (this.max - this.min) + '%';
-					this.element.querySelector('.rail-handle').style.left = positionValue;
 				}
 			}
 
@@ -24416,13 +24477,18 @@ babelHelpers;
     * Updates the slider value based on the UI state of the handle element.
     * @param {number} handlePosition Position of the handle in px.
     * @param {number} offset Offset to be added to normalize relative inputs.
+    * @param {boolean=} opt_relative If the given position is relative to the
+    *     rail or not.
     * @protected
     */
 
 		}, {
 			key: 'updateValue_',
-			value: function updateValue_(handlePosition, offset) {
+			value: function updateValue_(handlePosition, offset, opt_relative) {
 				var region = Position.getRegion(this.element);
+				if (!opt_relative) {
+					handlePosition -= region.left;
+				}
 				this.value = Math.round(offset + handlePosition / region.width * (this.max - this.min));
 			}
 
@@ -24434,8 +24500,9 @@ babelHelpers;
 
 		}, {
 			key: 'updateValueFromDragData_',
-			value: function updateValueFromDragData_(data) {
-				this.updateValue_(data.relativeX, this.min);
+			value: function updateValueFromDragData_(data, event) {
+				this.updateValue_(data.x, this.min);
+				event.preventDefault();
 			}
 		}]);
 		return Slider;

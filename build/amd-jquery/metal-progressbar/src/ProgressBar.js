@@ -124,12 +124,13 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'meta
 		},
 
 		/**
-   * An optional label to be rendered inside the progress bar.
-   * @type {string}
+   * An optional label to be rendered inside the progress bar. Can be either
+   * a string (with raw text or html) or an incremental dom function.
+   * @type {function()|string?}
    */
 		label: {
 			validator: function validator(label) {
-				return !_metal2.default.isDefAndNotNull(label) || _metal2.default.isString(label);
+				return !_metal2.default.isDefAndNotNull(label) || _metal2.default.isString(label) || _metal2.default.isFunction(label);
 			}
 		},
 
