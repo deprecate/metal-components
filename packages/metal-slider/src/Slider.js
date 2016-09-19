@@ -23,6 +23,7 @@ class Slider extends Component {
 		 * @protected
 		 */
 		this.drag_ = new Drag({
+			axis: 'x',
 			constrain: this.element.querySelector('.rail'),
 			container: this.element,
 			handles: '.handle',
