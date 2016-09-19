@@ -50,15 +50,16 @@ describe('Slider', function() {
 			max: 100
 		});
 
+		const rail = Position.getRegion(slider.element, true);
 		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
-			offsetX: 0.9 * Position.getRegion(slider.element).width
+			offsetX: rail.left + 0.9 * rail.width
 		});
 
 		async.nextTick(function() {
 			assert.strictEqual(90, slider.value);
 
 			dom.triggerEvent(slider.element.querySelector('.rail-active'), 'mousedown', {
-				offsetX: 0.1 * Position.getRegion(slider.element).width
+				offsetX: rail.left + 0.1 * rail.width
 			});
 
 			async.nextTick(function() {
@@ -75,13 +76,52 @@ describe('Slider', function() {
 			max: 100
 		});
 
+		var rail = Position.getRegion(slider.element, true);
 		var handle = slider.element.querySelector('.handle');
 
 		DragTestHelper.triggerMouseEvent(handle, 'mousedown', 0, 0);
-		DragTestHelper.triggerMouseEvent(document, 'mousemove', 0.5 * document.body.clientWidth, 0);
+		DragTestHelper.triggerMouseEvent(document, 'mousemove', rail.width / 2, 0);
 
 		async.nextTick(function() {
 			assert.strictEqual(50, slider.value);
+			done();
+		});
+	});
+
+	it('should update the position percentage to 0% when dragged to before beginning of rail', function(done) {
+		slider = new Slider({
+			min: 0,
+			value: 50,
+			max: 100
+		});
+
+		var rail = Position.getRegion(slider.element, true);
+		var handle = slider.element.querySelector('.handle');
+
+		DragTestHelper.triggerMouseEvent(handle, 'mousedown', rail.width / 2, 0);
+		DragTestHelper.triggerMouseEvent(document, 'mousemove', -10, 0);
+
+		async.nextTick(function() {
+			assert.strictEqual('0%', slider.element.querySelector('.rail-handle').style.left);
+			done();
+		});
+	});
+
+	it('should update the position percentage to 100% when dragged to after end of rail', function(done) {
+		slider = new Slider({
+			min: 0,
+			value: 0,
+			max: 100
+		});
+
+		var rail = Position.getRegion(slider.element, true);
+		var handle = slider.element.querySelector('.handle');
+
+		DragTestHelper.triggerMouseEvent(handle, 'mousedown', 0, 0);
+		DragTestHelper.triggerMouseEvent(document, 'mousemove', rail.right + 10, 0);
+
+		async.nextTick(function() {
+			assert.strictEqual('100%', slider.element.querySelector('.rail-handle').style.left);
 			done();
 		});
 	});
@@ -116,14 +156,14 @@ describe('Slider', function() {
 		slider.element = null;
 	});
 
-	it('should update the drag constrain element when element changes', function() {
+	it('should update the drag container element when element changes', function() {
 		slider = new Slider();
 		assert.strictEqual(slider.element, slider.getDrag().container);
 
 		var element = document.createElement('div');
 		dom.append(element, '<div class="rail"></div>');
 		slider.element = element;
-		assert.strictEqual(element.querySelector('.rail'), slider.getDrag().constrain);
+		assert.strictEqual(element, slider.getDrag().container);
 	});
 
 	it('shouldnt update value if its smaller than min', function() {

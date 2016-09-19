@@ -138,10 +138,8 @@ class Slider extends Component {
 	 * @protected
 	 */
 	updateHandlePosition_() {
-		if (!this.drag_ || !this.drag_.isDragging()) {
-			let positionValue = (100 * (this.value - this.min) / (this.max - this.min)) + '%';
-			this.element.querySelector('.rail-handle').style.left = positionValue;
-		}
+		let positionValue = (100 * (this.value - this.min) / (this.max - this.min)) + '%';
+		this.element.querySelector('.rail-handle').style.left = positionValue;
 	}
 
 	/**
@@ -152,7 +150,7 @@ class Slider extends Component {
 	 */
 	updateValue_(handlePosition, offset) {
 		var region = Position.getRegion(this.element);
-		this.value = Math.round(offset + (handlePosition / region.width) * (this.max - this.min));
+		this.value = Math.round(offset + ((handlePosition - region.left) / region.width) * (this.max - this.min));
 	}
 
 	/**
@@ -160,8 +158,9 @@ class Slider extends Component {
 	 * @param {!Object} data
 	 * @protected
 	 */
-	updateValueFromDragData_(data) {
-		this.updateValue_(data.relativeX, this.min);
+	updateValueFromDragData_(data, event) {
+		this.updateValue_(data.x, this.min);
+		event.preventDefault();
 	}
 }
 Soy.register(Slider, templates);
