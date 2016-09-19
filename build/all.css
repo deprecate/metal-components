@@ -14,27 +14,29 @@
 
 .slider {
   color: #777777;
+  margin-left: 15px;
   position: relative;
   text-align: center; }
   .slider .rail {
     border: solid 1px #777777;
-    border-radius: 10px;
-    height: 20px;
+    border-radius: 7.5px;
+    height: 15px;
     position: relative; }
     .slider .rail .rail-handle {
       position: absolute;
       top: -1px; }
     .slider .rail .rail-active {
       background-color: #eeeeee;
-      border-radius: 10px 0 0 10px;
+      border-radius: 7.5px 0 0 7.5px;
       height: 100%;
       position: relative; }
     .slider .rail .handle {
       background-color: #337ab7;
-      border-radius: 10px;
-      margin-left: -10px;
-      height: 20px;
-      width: 20px; }
+      border-radius: 15px;
+      margin-top: -10px;
+      margin-left: -15px;
+      height: 30px;
+      width: 30px; }
 
 /* Switcher - Off
 	 ========================================================================== */

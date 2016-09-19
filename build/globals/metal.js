@@ -21302,9 +21302,9 @@ babelHelpers;
 		}, {
 			key: 'constrain_',
 			value: function constrain_(region) {
-				this.constrainToAxis_(region);
 				this.constrainToSteps_(region);
 				this.constrainToRegion_(region);
+				this.constrainToAxis_(region);
 			}
 
 			/**
@@ -22359,6 +22359,8 @@ babelHelpers;
     goog.require('goog.i18n.bidi');
     /** @suppress {extraRequire} */
     goog.require('goog.asserts');
+    /** @suppress {extraRequire} */
+    goog.require('goog.string');
     var IncrementalDom = goog.require('incrementaldom');
     var ie_open = IncrementalDom.elementOpen;
     var ie_close = IncrementalDom.elementClose;
@@ -22385,13 +22387,14 @@ babelHelpers;
       ie_open('input', null, null, 'name', ($$temp = opt_data.inputName) == null ? '' : $$temp, 'type', 'hidden', 'value', valueNumber__soy5);
       ie_close('input');
       ie_open('span');
-      itext((goog.asserts.assert(valueNumber__soy5 != null), valueNumber__soy5));
+      var dyn0 = valueNumber__soy5;
+      if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('span');
       var percentage__soy15 = 100 * (valueNumber__soy5 - minNumber__soy4) / (maxNumber__soy3 - minNumber__soy4) + '%';
       ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
       ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy15);
-      ie_open('div', null, null, 'class', 'rail-handle');
-      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0');
+      ie_open('div', null, null, 'class', 'rail-handle', 'style', 'left: ' + percentage__soy15);
+      ie_void('div', null, null, 'class', 'handle', 'tabindex', '0', 'role', 'slider', 'aria-valuemin', minNumber__soy4, 'aria-valuemax', maxNumber__soy3, 'aria-valuenow', valueNumber__soy5);
       ie_close('div');
       ie_close('div');
       ie_close('div');
@@ -22461,7 +22464,8 @@ babelHelpers;
      * @protected
      */
 				this.drag_ = new Drag({
-					constrain: this.element.querySelector('.rail'),
+					axis: 'x',
+					constrain: this.constrainToRail_.bind(this),
 					container: this.element,
 					handles: '.handle',
 					sources: '.rail-handle'
@@ -22481,6 +22485,28 @@ babelHelpers;
 			value: function attachDragEvents_() {
 				this.drag_.on(Drag.Events.DRAG, this.updateValueFromDragData_.bind(this));
 				this.drag_.on(Drag.Events.END, this.updateValueFromDragData_.bind(this));
+			}
+
+			/**
+    * Constrains the given region to be inside the rail. This is being used
+    * instead of `Drag`'s default behavior, because `Drag` would require the
+    * whole handle to be inside the rail element, while we just want to make sure
+    * that the left side of the handle is inside it.
+    * @param {!Object} region
+    * @protected
+    */
+
+		}, {
+			key: 'constrainToRail_',
+			value: function constrainToRail_(region) {
+				var rail = this.element.querySelector('.rail');
+				var constrain = Position.getRegion(rail, true);
+				if (region.left < constrain.left) {
+					region.left = constrain.left;
+				} else if (region.left > constrain.right) {
+					region.left -= region.left - constrain.right;
+				}
+				region.right = region.left + region.width;
 			}
 
 			/**
@@ -22515,8 +22541,9 @@ babelHelpers;
 		}, {
 			key: 'handleElementChanged_',
 			value: function handleElementChanged_(data) {
-				this.drag_.container = data.newVal;
-				this.drag_.constrain = data.newVal.querySelector('.rail');
+				if (data.newVal) {
+					this.drag_.container = data.newVal;
+				}
 			}
 
 			/**
@@ -22529,7 +22556,16 @@ babelHelpers;
 			key: 'onRailMouseDown_',
 			value: function onRailMouseDown_(event) {
 				if (dom.hasClass(event.target, 'rail') || dom.hasClass(event.target, 'rail-active')) {
-					this.updateValue_(event.offsetX, 0);
+					var prevValue = this.value;
+					this.updateValue_(event.offsetX, 0, true);
+					if (prevValue === this.value) {
+						var handleRegion = Position.getRegion(this.element.querySelector('.handle'));
+						if (event.offsetX < handleRegion.left) {
+							this.value -= 1;
+						} else {
+							this.value += 1;
+						}
+					}
 				}
 			}
 
@@ -22543,8 +22579,6 @@ babelHelpers;
 			value: function syncMax(newVal) {
 				if (newVal < this.value) {
 					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
 				}
 			}
 
@@ -22558,33 +22592,6 @@ babelHelpers;
 			value: function syncMin(newVal) {
 				if (newVal > this.value) {
 					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
-				}
-			}
-
-			/**
-    * Synchronizes the slider UI with the value attribute.
-    * @param {number} newVal The new value of the attribute.
-    */
-
-		}, {
-			key: 'syncValue',
-			value: function syncValue() {
-				this.updateHandlePosition_();
-			}
-
-			/**
-    * Updates the handle position and active region to reflect the current slider value.
-    * @protected
-    */
-
-		}, {
-			key: 'updateHandlePosition_',
-			value: function updateHandlePosition_() {
-				if (!this.drag_ || !this.drag_.isDragging()) {
-					var positionValue = 100 * (this.value - this.min) / (this.max - this.min) + '%';
-					this.element.querySelector('.rail-handle').style.left = positionValue;
 				}
 			}
 
@@ -22592,13 +22599,18 @@ babelHelpers;
     * Updates the slider value based on the UI state of the handle element.
     * @param {number} handlePosition Position of the handle in px.
     * @param {number} offset Offset to be added to normalize relative inputs.
+    * @param {boolean=} opt_relative If the given position is relative to the
+    *     rail or not.
     * @protected
     */
 
 		}, {
 			key: 'updateValue_',
-			value: function updateValue_(handlePosition, offset) {
+			value: function updateValue_(handlePosition, offset, opt_relative) {
 				var region = Position.getRegion(this.element);
+				if (!opt_relative) {
+					handlePosition -= region.left;
+				}
 				this.value = Math.round(offset + handlePosition / region.width * (this.max - this.min));
 			}
 
@@ -22610,8 +22622,9 @@ babelHelpers;
 
 		}, {
 			key: 'updateValueFromDragData_',
-			value: function updateValueFromDragData_(data) {
-				this.updateValue_(data.relativeX, this.min);
+			value: function updateValueFromDragData_(data, event) {
+				this.updateValue_(data.x, this.min);
+				event.preventDefault();
 			}
 		}]);
 		return Slider;

@@ -114,7 +114,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
      * @protected
      */
 				this.drag_ = new _drag.Drag({
-					constrain: this.element.querySelector('.rail'),
+					axis: 'x',
+					constrain: this.constrainToRail_.bind(this),
 					container: this.element,
 					handles: '.handle',
 					sources: '.rail-handle'
@@ -130,6 +131,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				this.drag_.on(_drag.Drag.Events.END, this.updateValueFromDragData_.bind(this));
 			}
 		}, {
+			key: 'constrainToRail_',
+			value: function constrainToRail_(region) {
+				var rail = this.element.querySelector('.rail');
+				var constrain = _position2.default.getRegion(rail, true);
+				if (region.left < constrain.left) {
+					region.left = constrain.left;
+				} else if (region.left > constrain.right) {
+					region.left -= region.left - constrain.right;
+				}
+				region.right = region.left + region.width;
+			}
+		}, {
 			key: 'disposeInternal',
 			value: function disposeInternal() {
 				_get(Slider.prototype.__proto__ || Object.getPrototypeOf(Slider.prototype), 'disposeInternal', this).call(this);
@@ -143,14 +156,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		}, {
 			key: 'handleElementChanged_',
 			value: function handleElementChanged_(data) {
-				this.drag_.container = data.newVal;
-				this.drag_.constrain = data.newVal.querySelector('.rail');
+				if (data.newVal) {
+					this.drag_.container = data.newVal;
+				}
 			}
 		}, {
 			key: 'onRailMouseDown_',
 			value: function onRailMouseDown_(event) {
 				if (_dom2.default.hasClass(event.target, 'rail') || _dom2.default.hasClass(event.target, 'rail-active')) {
-					this.updateValue_(event.offsetX, 0);
+					var prevValue = this.value;
+					this.updateValue_(event.offsetX, 0, true);
+					if (prevValue === this.value) {
+						var handleRegion = _position2.default.getRegion(this.element.querySelector('.handle'));
+						if (event.offsetX < handleRegion.left) {
+							this.value -= 1;
+						} else {
+							this.value += 1;
+						}
+					}
 				}
 			}
 		}, {
@@ -158,8 +181,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			value: function syncMax(newVal) {
 				if (newVal < this.value) {
 					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
 				}
 			}
 		}, {
@@ -167,33 +188,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			value: function syncMin(newVal) {
 				if (newVal > this.value) {
 					this.value = newVal;
-				} else {
-					this.updateHandlePosition_();
-				}
-			}
-		}, {
-			key: 'syncValue',
-			value: function syncValue() {
-				this.updateHandlePosition_();
-			}
-		}, {
-			key: 'updateHandlePosition_',
-			value: function updateHandlePosition_() {
-				if (!this.drag_ || !this.drag_.isDragging()) {
-					var positionValue = 100 * (this.value - this.min) / (this.max - this.min) + '%';
-					this.element.querySelector('.rail-handle').style.left = positionValue;
 				}
 			}
 		}, {
 			key: 'updateValue_',
-			value: function updateValue_(handlePosition, offset) {
+			value: function updateValue_(handlePosition, offset, opt_relative) {
 				var region = _position2.default.getRegion(this.element);
+				if (!opt_relative) {
+					handlePosition -= region.left;
+				}
 				this.value = Math.round(offset + handlePosition / region.width * (this.max - this.min));
 			}
 		}, {
 			key: 'updateValueFromDragData_',
-			value: function updateValueFromDragData_(data) {
-				this.updateValue_(data.relativeX, this.min);
+			value: function updateValueFromDragData_(data, event) {
+				this.updateValue_(data.x, this.min);
+				event.preventDefault();
 			}
 		}]);
 

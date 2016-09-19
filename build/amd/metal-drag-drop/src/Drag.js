@@ -290,9 +290,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './helpers/DragAu
 		}, {
 			key: 'constrain_',
 			value: function constrain_(region) {
-				this.constrainToAxis_(region);
 				this.constrainToSteps_(region);
 				this.constrainToRegion_(region);
+				this.constrainToAxis_(region);
 			}
 		}, {
 			key: 'constrainToAxis_',
