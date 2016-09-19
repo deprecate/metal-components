@@ -18,7 +18,7 @@
 		{let $percentage: (100 * ($valueNumber - $minNumber) / ($maxNumber - $minNumber)) + '%' /}
 		<div class="rail" data-onmousedown="onRailMouseDown_">
 			<div class="rail-active" style="width: {$percentage}"></div>
-			<div class="rail-handle">
+			<div class="rail-handle" style="left: {$percentage}">
 				<div
 					class="handle"
 					tabindex="0"

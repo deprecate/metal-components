@@ -117,8 +117,6 @@ class Slider extends Component {
 	syncMax(newVal) {
 		if (newVal < this.value) {
 			this.value = newVal;
-		} else {
-			this.updateHandlePosition_();
 		}
 	}
 
@@ -129,26 +127,7 @@ class Slider extends Component {
 	syncMin(newVal) {
 		if (newVal > this.value) {
 			this.value = newVal;
-		} else {
-			this.updateHandlePosition_();
 		}
-	}
-
-	/**
-	 * Synchronizes the slider UI with the value attribute.
-	 * @param {number} newVal The new value of the attribute.
-	 */
-	syncValue() {
-		this.updateHandlePosition_();
-	}
-
-	/**
-	 * Updates the handle position and active region to reflect the current slider value.
-	 * @protected
-	 */
-	updateHandlePosition_() {
-		let positionValue = (100 * (this.value - this.min) / (this.max - this.min)) + '%';
-		this.element.querySelector('.rail-handle').style.left = positionValue;
 	}
 
 	/**
