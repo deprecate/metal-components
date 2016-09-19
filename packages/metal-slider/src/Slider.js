@@ -97,7 +97,16 @@ class Slider extends Component {
 	 */
 	onRailMouseDown_(event) {
 		if (dom.hasClass(event.target, 'rail') || dom.hasClass(event.target, 'rail-active')) {
-			this.updateValue_(event.offsetX, 0);
+			const prevValue = this.value;
+			this.updateValue_(event.offsetX, 0, true);
+			if (prevValue === this.value) {
+				const handleRegion = Position.getRegion(this.element.querySelector('.handle'));
+				if (event.offsetX < handleRegion.left) {
+					this.value -= 1;
+				} else {
+					this.value += 1;
+				}
+			}
 		}
 	}
 
@@ -146,11 +155,16 @@ class Slider extends Component {
 	 * Updates the slider value based on the UI state of the handle element.
 	 * @param {number} handlePosition Position of the handle in px.
 	 * @param {number} offset Offset to be added to normalize relative inputs.
+	 * @param {boolean=} opt_relative If the given position is relative to the
+	 *     rail or not.
 	 * @protected
 	 */
-	updateValue_(handlePosition, offset) {
+	updateValue_(handlePosition, offset, opt_relative) {
 		var region = Position.getRegion(this.element);
-		this.value = Math.round(offset + ((handlePosition - region.left) / region.width) * (this.max - this.min));
+		if (!opt_relative) {
+			handlePosition -= region.left;
+		}
+		this.value = Math.round(offset + (handlePosition / region.width) * (this.max - this.min));
 	}
 
 	/**

@@ -52,20 +52,58 @@ describe('Slider', function() {
 
 		const rail = Position.getRegion(slider.element, true);
 		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
-			offsetX: rail.left + 0.9 * rail.width
+			offsetX: 0.9 * rail.width
 		});
 
 		async.nextTick(function() {
 			assert.strictEqual(90, slider.value);
 
 			dom.triggerEvent(slider.element.querySelector('.rail-active'), 'mousedown', {
-				offsetX: rail.left + 0.1 * rail.width
+				offsetX: 0.1 * rail.width
 			});
 
 			async.nextTick(function() {
 				assert.strictEqual(10, slider.value);
 				done();
 			});
+		});
+	});
+
+	it('should update the position percentage to next value if clicking close to the right of the handle', function(done) {
+		slider = new Slider({
+			min: 0,
+			value: 1,
+			max: 2
+		});
+
+		var rail = Position.getRegion(slider.element, true);
+		var handle = Position.getRegion(slider.element.querySelector('.handle'), true);
+		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
+			offsetX: rail.width / 2 + handle.width
+		});
+
+		async.nextTick(function() {
+			assert.strictEqual('100%', slider.element.querySelector('.rail-handle').style.left);
+			done();
+		});
+	});
+
+	it('should update the position percentage to previous value if clicking close to the left of the handle', function(done) {
+		slider = new Slider({
+			min: 0,
+			value: 1,
+			max: 2
+		});
+
+		var rail = Position.getRegion(slider.element, true);
+		var handle = Position.getRegion(slider.element.querySelector('.handle'), true);
+		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
+			offsetX: rail.width / 2 - handle.width
+		});
+
+		async.nextTick(function() {
+			assert.strictEqual('0%', slider.element.querySelector('.rail-handle').style.left);
+			done();
 		});
 	});
 
