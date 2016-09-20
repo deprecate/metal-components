@@ -36,7 +36,7 @@
 				{/foreach}
 			{/param}
 			{param events: ['stateSynced': $handleDropdownStateSynced_] /}
-			{param expanded: $expanded_ /}
+			{param expanded: $disabled ? false : $expanded_ /}
 			{param header kind="html"}
 				<button
 					class="{$buttonClass ? $buttonClass : ''} dropdown-select"
