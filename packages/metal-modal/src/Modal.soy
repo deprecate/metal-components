@@ -12,7 +12,10 @@
 	{@param? headerId: string}
 	{@param? noCloseButton: bool}
 	{@param? role: string}
-	<div class="modal{$elementClasses ? ' ' + $elementClasses : ''}">
+	{@param? visible: bool}
+	<div
+		class="modal{$elementClasses ? ' ' + $elementClasses : ''}"
+		style="display: {$visible ? 'block' : 'none'}">
 		<div
 			class="modal-dialog"
 			tabindex="0"

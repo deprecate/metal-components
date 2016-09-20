@@ -139,10 +139,8 @@ class Modal extends Component {
 
 	/**
 	 * Syncs the component according to the value of the `visible` state key.
-	 * @param {boolean} visible
 	 */
-	syncVisible(visible) {
-		this.element.style.display = visible ? 'block' : '';
+	syncVisible() {
 		this.syncOverlay(this.overlay);
 		if (this.visible) {
 			this.lastFocusedElement_ = this.lastFocusedElement_ || document.activeElement;

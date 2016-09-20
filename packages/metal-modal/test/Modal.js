@@ -96,7 +96,7 @@ describe('Modal', function() {
 		modal = new Modal();
 		modal.visible = false;
 		async.nextTick(function() {
-			assert.strictEqual('', modal.element.style.display);
+			assert.strictEqual('none', modal.element.style.display);
 
 			modal.visible = true;
 			async.nextTick(function() {
