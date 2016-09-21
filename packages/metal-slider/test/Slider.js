@@ -51,14 +51,14 @@ describe('Slider', function() {
 		});
 
 		const rail = Position.getRegion(slider.element, true);
-		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
+		dom.triggerEvent(slider.element.querySelector('.rail'), 'click', {
 			offsetX: 0.9 * rail.width
 		});
 
 		async.nextTick(function() {
 			assert.strictEqual(90, slider.value);
 
-			dom.triggerEvent(slider.element.querySelector('.rail-active'), 'mousedown', {
+			dom.triggerEvent(slider.element.querySelector('.rail-active'), 'click', {
 				offsetX: 0.1 * rail.width
 			});
 
@@ -78,7 +78,7 @@ describe('Slider', function() {
 
 		var rail = Position.getRegion(slider.element, true);
 		var handle = Position.getRegion(slider.element.querySelector('.handle'), true);
-		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
+		dom.triggerEvent(slider.element.querySelector('.rail'), 'click', {
 			offsetX: rail.width / 2 + handle.width
 		});
 
@@ -97,12 +97,29 @@ describe('Slider', function() {
 
 		var rail = Position.getRegion(slider.element, true);
 		var handle = Position.getRegion(slider.element.querySelector('.handle'), true);
-		dom.triggerEvent(slider.element.querySelector('.rail'), 'mousedown', {
+		dom.triggerEvent(slider.element.querySelector('.rail'), 'click', {
 			offsetX: rail.width / 2 - handle.width
 		});
 
 		async.nextTick(function() {
 			assert.strictEqual('0%', slider.element.querySelector('.rail-handle').style.left);
+			done();
+		});
+	});
+
+	it('should not update the value if clicking on handle', function(done) {
+		slider = new Slider({
+			min: 0,
+			value: 1,
+			max: 2
+		});
+
+		const railHandleEl = slider.element.querySelector('.rail-handle');
+		assert.strictEqual('50%', railHandleEl.style.left);
+
+		dom.triggerEvent(slider.element.querySelector('.handle'), 'click');
+		async.nextTick(function() {
+			assert.strictEqual('50%', railHandleEl.style.left);
 			done();
 		});
 	});

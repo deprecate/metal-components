@@ -95,7 +95,7 @@ class Slider extends Component {
 	 * @param {!Event} event
 	 * @protected
 	 */
-	onRailMouseDown_(event) {
+	onRailClick_(event) {
 		if (dom.hasClass(event.target, 'rail') || dom.hasClass(event.target, 'rail-active')) {
 			const prevValue = this.value;
 			this.updateValue_(event.offsetX, 0, true);
