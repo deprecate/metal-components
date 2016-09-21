@@ -52,8 +52,7 @@ class Slider extends Component {
 	 * @protected
 	 */
 	constrainToRail_(region) {
-		const rail = this.element.querySelector('.rail');
-		const constrain = Position.getRegion(rail, true);
+		const constrain = Position.getRegion(this.refs.rail, true);
 		if (region.left < constrain.left) {
 			region.left = constrain.left;
 		} else if (region.left > constrain.right) {
@@ -100,7 +99,7 @@ class Slider extends Component {
 			const prevValue = this.value;
 			this.updateValue_(event.offsetX, 0, true);
 			if (prevValue === this.value) {
-				const handleRegion = Position.getRegion(this.element.querySelector('.handle'));
+				const handleRegion = Position.getRegion(this.refs.handle);
 				if (event.offsetX < handleRegion.left) {
 					this.value -= 1;
 				} else {

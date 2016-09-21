@@ -16,11 +16,12 @@
 		<input name="{$inputName ?: ''}" type="hidden" value="{$valueNumber}">
 		<span>{$valueNumber}</span>
 		{let $percentage: (100 * ($valueNumber - $minNumber) / ($maxNumber - $minNumber)) + '%' /}
-		<div class="rail" data-onclick="onRailClick_">
+		<div class="rail" data-onclick="onRailClick_" ref="rail">
 			<div class="rail-active" style="width: {$percentage}"></div>
 			<div class="rail-handle" style="left: {$percentage}">
 				<div
 					class="handle"
+					ref="handle"
 					tabindex="0"
 					role="slider"
 					aria-valuemin="{$minNumber}"
