@@ -161,8 +161,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				}
 			}
 		}, {
-			key: 'onRailMouseDown_',
-			value: function onRailMouseDown_(event) {
+			key: 'onRailClick_',
+			value: function onRailClick_(event) {
 				if (_dom2.default.hasClass(event.target, 'rail') || _dom2.default.hasClass(event.target, 'rail-active')) {
 					var prevValue = this.value;
 					this.updateValue_(event.offsetX, 0, true);

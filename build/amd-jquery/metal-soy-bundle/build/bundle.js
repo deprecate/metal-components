@@ -2271,6 +2271,126 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
     goog.string.ALL_RE_ = goog.string.DETECT_DOUBLE_ESCAPING ? /[\x00&<>"'e]/ : /[\x00&<>"']/;
 
     /**
+     * Unescapes an HTML string.
+     *
+     * @param {string} str The string to unescape.
+     * @return {string} An unescaped copy of {@code str}.
+     */
+    goog.string.unescapeEntities = function (str) {
+      if (goog.string.contains(str, '&')) {
+        // We are careful not to use a DOM if we do not have one or we explicitly
+        // requested non-DOM html unescaping.
+        if (!goog.string.FORCE_NON_DOM_HTML_UNESCAPING && 'document' in goog.global) {
+          return goog.string.unescapeEntitiesUsingDom_(str);
+        } else {
+          // Fall back on pure XML entities
+          return goog.string.unescapePureXmlEntities_(str);
+        }
+      }
+      return str;
+    };
+
+    /**
+     * Unescapes an HTML string using a DOM to resolve non-XML, non-numeric
+     * entities. This function is XSS-safe and whitespace-preserving.
+     * @private
+     * @param {string} str The string to unescape.
+     * @param {Document=} opt_document An optional document to use for creating
+     *     elements. If this is not specified then the default window.document
+     *     will be used.
+     * @return {string} The unescaped {@code str} string.
+     */
+    goog.string.unescapeEntitiesUsingDom_ = function (str, opt_document) {
+      /** @type {!Object<string, string>} */
+      var seen = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"' };
+      var div;
+      if (opt_document) {
+        div = opt_document.createElement('div');
+      } else {
+        div = goog.global.document.createElement('div');
+      }
+      // Match as many valid entity characters as possible. If the actual entity
+      // happens to be shorter, it will still work as innerHTML will return the
+      // trailing characters unchanged. Since the entity characters do not include
+      // open angle bracket, there is no chance of XSS from the innerHTML use.
+      // Since no whitespace is passed to innerHTML, whitespace is preserved.
+      return str.replace(goog.string.HTML_ENTITY_PATTERN_, function (s, entity) {
+        // Check for cached entity.
+        var value = seen[s];
+        if (value) {
+          return value;
+        }
+        // Check for numeric entity.
+        if (entity.charAt(0) == '#') {
+          // Prefix with 0 so that hex entities (e.g. &#x10) parse as hex numbers.
+          var n = Number('0' + entity.substr(1));
+          if (!isNaN(n)) {
+            value = String.fromCharCode(n);
+          }
+        }
+        // Fall back to innerHTML otherwise.
+        if (!value) {
+          // Append a non-entity character to avoid a bug in Webkit that parses
+          // an invalid entity at the end of innerHTML text as the empty string.
+          div.innerHTML = s + ' ';
+          // Then remove the trailing character from the result.
+          value = div.firstChild.nodeValue.slice(0, -1);
+        }
+        // Cache and return.
+        return seen[s] = value;
+      });
+    };
+
+    /**
+     * Unescapes XML entities.
+     * @private
+     * @param {string} str The string to unescape.
+     * @return {string} An unescaped copy of {@code str}.
+     */
+    goog.string.unescapePureXmlEntities_ = function (str) {
+      return str.replace(/&([^;]+);/g, function (s, entity) {
+        switch (entity) {
+          case 'amp':
+            return '&';
+          case 'lt':
+            return '<';
+          case 'gt':
+            return '>';
+          case 'quot':
+            return '"';
+          default:
+            if (entity.charAt(0) == '#') {
+              // Prefix with 0 so that hex entities (e.g. &#x10) parse as hex.
+              var n = Number('0' + entity.substr(1));
+              if (!isNaN(n)) {
+                return String.fromCharCode(n);
+              }
+            }
+            // For invalid entities we just return the entity
+            return s;
+        }
+      });
+    };
+
+    /**
+     * Regular expression that matches an HTML entity.
+     * See also HTML5: Tokenization / Tokenizing character references.
+     * @private
+     * @type {!RegExp}
+     */
+    goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
+
+    /**
+     * Determines whether a string contains a substring.
+     * @param {string} str The string to search.
+     * @param {string} subString The substring to search for.
+     * @return {boolean} Whether {@code str} contains {@code subString}.
+     */
+    goog.string.contains = function (str, subString) {
+      return str.indexOf(subString) != -1;
+    };
+
+    /**
      * Escapes double quote '"' and single quote '\'' characters in addition to
      * '&', '<', and '>' so that a string can be included in an HTML tag attribute
      * value within double or single quotes.

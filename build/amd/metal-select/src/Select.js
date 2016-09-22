@@ -207,10 +207,23 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		},
 
 		/**
+   * Block or unblock the component behaviours.
+   * @type {boolean}
+   * @default false
+   */
+		disabled: {
+			validator: _metal2.default.isBoolean,
+			value: false
+		},
+
+		/**
    * Flag indicating if the select dropdown is currently expanded.
    * @type {boolean}
    */
 		expanded_: {
+			setter: function setter(value) {
+				return !this.disabled ? value : false;
+			},
 			validator: _metal2.default.isBoolean,
 			value: false,
 			internal: true

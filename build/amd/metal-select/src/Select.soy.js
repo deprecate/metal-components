@@ -85,6 +85,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
     /**
      * @param {{
      *    arrowClass: (?),
+     *    disabled: (?),
      *    buttonClass: (?),
      *    elementClasses: (?),
      *    expanded_: (?),
@@ -108,23 +109,23 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       ie_open('div', null, null, 'class', 'select' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onkeydown', 'handleKeyDown_');
       var currSelectedIndex__soy6 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
-      ie_open('input', null, null, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
+      ie_open('input', null, null, 'disabled', opt_data.disabled, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
       ie_close('input');
-      var param12 = function param12() {
-        var itemList22 = opt_data.items;
-        var itemListLen22 = itemList22.length;
-        for (var itemIndex22 = 0; itemIndex22 < itemListLen22; itemIndex22++) {
-          var itemData22 = itemList22[itemIndex22];
-          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'data-onkeydown', ($$temp = opt_data.handleItemKeyDown_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex22 ? ' selected' : ''));
+      var param14 = function param14() {
+        var itemList24 = opt_data.items;
+        var itemListLen24 = itemList24.length;
+        for (var itemIndex24 = 0; itemIndex24 < itemListLen24; itemIndex24++) {
+          var itemData24 = itemList24[itemIndex24];
+          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'data-onkeydown', ($$temp = opt_data.handleItemKeyDown_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex24 ? ' selected' : ''));
           ie_open('a', null, null, 'href', 'javascript:;');
-          var dyn0 = itemData22;
+          var dyn0 = itemData24;
           if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
           ie_close('a');
           ie_close('li');
         }
       };
-      var param26 = function param26() {
-        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle', 'aria-haspopup', 'true', 'aria-expanded', opt_data.expanded_ ? 'true' : 'false');
+      var param28 = function param28() {
+        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'disabled', opt_data.disabled, 'type', 'button', 'data-onclick', 'toggle', 'aria-haspopup', 'true', 'aria-expanded', opt_data.expanded_ ? 'true' : 'false');
         if (currSelectedIndex__soy6 == -1) {
           var dyn1 = label;
           if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
@@ -136,7 +137,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
         ie_void('span', null, null, 'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
         ie_close('button');
       };
-      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, expanded: opt_data.expanded_, header: param26, ref: 'dropdown' }, null, opt_ijData);
+      $templateAlias1({ body: param14, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, expanded: opt_data.disabled ? false : opt_data.expanded_, header: param28, ref: 'dropdown' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -144,8 +145,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $render.soyTemplateName = 'Select.render';
     }
 
-    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "expanded_", "handleDropdownStateSynced_", "handleItemClick_", "handleItemKeyDown_", "hiddenInputName", "items", "values", "selectedIndex"];
-    exports.render.types = { "label": "html|string", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "expanded_": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "handleItemKeyDown_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
+    exports.render.params = ["label", "arrowClass", "disabled", "buttonClass", "elementClasses", "expanded_", "handleDropdownStateSynced_", "handleItemClick_", "handleItemKeyDown_", "hiddenInputName", "items", "values", "selectedIndex"];
+    exports.render.types = { "label": "html|string", "arrowClass": "any", "disabled": "any", "buttonClass": "any", "elementClasses": "any", "expanded_": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "handleItemKeyDown_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
     exports.templates = templates = exports;
     return exports;
   });

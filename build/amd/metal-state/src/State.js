@@ -210,7 +210,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 				if (info.config.required) {
 					var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
 					if (!_metal.core.isDefAndNotNull(value)) {
-						console.error('The property called "' + name + '" is required but didn\n\'t ' + 'receive a value.');
+						console.error('The property called "' + name + '" is required but didn\'t ' + 'receive a value.');
 					}
 				}
 			}

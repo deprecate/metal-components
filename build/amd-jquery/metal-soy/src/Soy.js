@@ -250,6 +250,8 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		return Soy;
 	}(_IncrementalDomRenderer2.default);
 
+	Soy.RENDERER_NAME = 'soy';
+
 	exports.default = Soy;
 	exports.Soy = Soy;
 	exports.SoyAop = _SoyAop2.default;

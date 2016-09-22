@@ -81,6 +81,11 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 				});
 			}
 		}, {
+			key: 'getOwner',
+			value: function getOwner(node) {
+				return node[IncrementalDomChildren.CHILD_OWNER];
+			}
+		}, {
 			key: 'render',
 			value: function render(tree, opt_skipNode) {
 				if (isCapturing_) {

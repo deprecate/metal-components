@@ -194,8 +194,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-events/src
 			}
 		}, {
 			key: 'syncVisible',
-			value: function syncVisible(visible) {
-				this.element.style.display = visible ? 'block' : '';
+			value: function syncVisible() {
 				this.syncOverlay(this.overlay);
 				if (this.visible) {
 					this.lastFocusedElement_ = this.lastFocusedElement_ || document.activeElement;

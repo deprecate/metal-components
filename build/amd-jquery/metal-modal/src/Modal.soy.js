@@ -89,7 +89,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
      *    header: (?soydata.SanitizedHtml|string|undefined),
      *    headerId: (null|string|undefined),
      *    noCloseButton: (boolean|null|undefined),
-     *    role: (null|string|undefined)
+     *    role: (null|string|undefined),
+     *    visible: (boolean|null|undefined)
      * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
@@ -114,7 +115,9 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       var noCloseButton = /** @type {boolean|null|undefined} */opt_data.noCloseButton;
       soy.asserts.assertType(opt_data.role == null || opt_data.role instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.role), 'role', opt_data.role, 'null|string|undefined');
       var role = /** @type {null|string|undefined} */opt_data.role;
-      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''));
+      soy.asserts.assertType(opt_data.visible == null || goog.isBoolean(opt_data.visible) || opt_data.visible === 1 || opt_data.visible === 0, 'visible', opt_data.visible, 'boolean|null|undefined');
+      var visible = /** @type {boolean|null|undefined} */opt_data.visible;
+      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''), 'style', 'display: ' + (visible ? 'block' : 'none'));
       ie_open('div', null, null, 'class', 'modal-dialog', 'tabindex', '0', 'role', role ? role : 'dialog', 'aria-labelledby', headerId, 'aria-describedby', bodyId);
       ie_open('div', null, null, 'class', 'modal-content');
       ie_open('header', null, null, 'class', 'modal-header');
@@ -153,8 +156,8 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       $render.soyTemplateName = 'Modal.render';
     }
 
-    exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role"];
-    exports.render.types = { "body": "html|string", "bodyId": "string", "elementClasses": "string", "footer": "html|string", "header": "html|string", "headerId": "string", "noCloseButton": "bool", "role": "string" };
+    exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role", "visible"];
+    exports.render.types = { "body": "html|string", "bodyId": "string", "elementClasses": "string", "footer": "html|string", "header": "html|string", "headerId": "string", "noCloseButton": "bool", "role": "string", "visible": "bool" };
     exports.templates = templates = exports;
     return exports;
   });

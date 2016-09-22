@@ -16,7 +16,7 @@
 		<input name="{$inputName ?: ''}" type="hidden" value="{$valueNumber}">
 		<span>{$valueNumber}</span>
 		{let $percentage: (100 * ($valueNumber - $minNumber) / ($maxNumber - $minNumber)) + '%' /}
-		<div class="rail" data-onmousedown="onRailMouseDown_">
+		<div class="rail" data-onclick="onRailClick_">
 			<div class="rail-active" style="width: {$percentage}"></div>
 			<div class="rail-handle" style="left: {$percentage}">
 				<div

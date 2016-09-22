@@ -249,19 +249,34 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				return this.parent_;
 			}
 		}, {
+			key: 'getRef_',
+			value: function getRef_(config) {
+				var compatData = _metal.core.getCompatibilityModeData();
+				if (compatData) {
+					var renderers = compatData.renderers;
+					var useKey = !renderers || renderers.indexOf(this.constructor) !== -1 || renderers.indexOf(this.constructor.RENDERER_NAME) !== -1;
+					if (useKey && config.key && !config.ref) {
+						return config.key;
+					}
+				}
+				return config.ref;
+			}
+		}, {
 			key: 'getSubComponent_',
-			value: function getSubComponent_(tagOrCtor, config) {
+			value: function getSubComponent_(tagOrCtor, config, opt_owner) {
 				var Ctor = tagOrCtor;
 				if (_metal.core.isString(Ctor)) {
 					Ctor = _component.ComponentRegistry.getConstructor(tagOrCtor);
 				}
 
+				var ref = this.getRef_(config);
 				var data = IncrementalDomRenderer.getCurrentData();
 				var comp;
-				if (_metal.core.isDef(config.ref)) {
-					comp = this.match_(this.component_.components[config.ref], Ctor, config);
-					this.component_.addSubComponent(config.ref, comp);
-					this.component_.refs[config.ref] = comp;
+				if (_metal.core.isDef(ref)) {
+					var owner = opt_owner || this.component_;
+					comp = this.match_(owner.components[ref], Ctor, config);
+					owner.addSubComponent(ref, comp);
+					owner.refs[ref] = comp;
 				} else if (_metal.core.isDef(config.key)) {
 					comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
 					data.currComps.keys[config.key] = comp;
@@ -308,7 +323,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			value: function handleChildRender_(node) {
 				if (node.tag && _IncrementalDomUtils2.default.isComponentTag(node.tag)) {
 					node.props.children = this.buildChildren_(node.props.children);
-					this.renderFromTag_(node.tag, node.props);
+					var owner = _IncrementalDomChildren2.default.getOwner(node);
+					this.renderFromTag_(node.tag, node.props, owner && owner.getComponent());
 					return true;
 				}
 			}
@@ -531,9 +547,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		}, {
 			key: 'renderFromTag_',
-			value: function renderFromTag_(tag, config) {
+			value: function renderFromTag_(tag, config, opt_owner) {
 				if (_metal.core.isString(tag) || tag.prototype.getRenderer) {
-					var comp = this.renderSubComponent_(tag, config);
+					var comp = this.renderSubComponent_(tag, config, opt_owner);
 					this.updateElementIfNotReached_(comp.element);
 					return comp.element;
 				} else {
@@ -581,8 +597,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		}, {
 			key: 'renderSubComponent_',
-			value: function renderSubComponent_(tagOrCtor, config) {
-				var comp = this.getSubComponent_(tagOrCtor, config);
+			value: function renderSubComponent_(tagOrCtor, config, opt_owner) {
+				var comp = this.getSubComponent_(tagOrCtor, config, opt_owner);
 				this.updateContext_(comp);
 				var renderer = comp.getRenderer();
 				if (renderer instanceof IncrementalDomRenderer) {
@@ -590,7 +606,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 					var parentRenderer = parentComp.getRenderer();
 					parentRenderer.childComponents_.push(comp);
 					renderer.parent_ = parentComp;
-					renderer.owner_ = this.component_;
+					renderer.owner_ = opt_owner || this.component_;
 					if (!config.key && !parentRenderer.rootElementReached_) {
 						config.key = parentRenderer.config_.key;
 					}
@@ -760,6 +776,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 
 	// Regex pattern used to find inline listeners.
 	IncrementalDomRenderer.LISTENER_REGEX = /^(?:on([A-Z]\w+))|(?:data-on(\w+))$/;
+
+	// Name of this renderer. Renderers should provide this as a way to identify
+	// them via a simple string (when calling core.enableCompatibilityMode to
+	// add support to old features for specific renderers for example).
+	IncrementalDomRenderer.RENDERER_NAME = 'incremental-dom';
 
 	exports.default = IncrementalDomRenderer;
 });

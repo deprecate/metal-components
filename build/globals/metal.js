@@ -109,12 +109,14 @@ babelHelpers.toConsumableArray = function (arr) {
 babelHelpers;
 'use strict';
 
-/**
- * A collection of core utility functions.
- * @const
- */
-
 (function () {
+	var compatibilityModeData_ = void 0;
+
+	/**
+  * A collection of core utility functions.
+  * @const
+  */
+
 	var core = function () {
 		function core() {
 			babelHelpers.classCallCheck(this, core);
@@ -156,6 +158,59 @@ babelHelpers;
 					propertyValues.push(constructor[propertyName]);
 				}
 				return propertyValues;
+			}
+
+			/**
+    * Disables Metal.js's compatibility mode.
+    */
+
+		}, {
+			key: 'disableCompatibilityMode',
+			value: function disableCompatibilityMode() {
+				compatibilityModeData_ = null;
+			}
+
+			/**
+    * Enables Metal.js's compatibility mode with the following features from rc
+    * and 1.x versions:
+    *     - Using "key" to reference component instances. In the current version
+    *       this should be done via "ref" instead. This allows old code still
+    *       using "key" to keep working like before. NOTE: this may cause
+    *       problems, since "key" is meant to be used differently. Only use this
+    *       if it's not possible to upgrade the code to use "ref" instead.
+    * @param {Object=} opt_data Optional object with data to specify more
+    *     details, such as:
+    *         - renderers {Array} the template renderers that should be in
+    *           compatibility mode, either their constructors or strings
+    *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
+    *           that extend from IncrementalDomRenderer.
+    * @type {Object}
+    */
+
+		}, {
+			key: 'enableCompatibilityMode',
+			value: function enableCompatibilityMode() {
+				var opt_data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+				compatibilityModeData_ = opt_data;
+			}
+
+			/**
+    * Returns the data used for compatibility mode, or nothing if it hasn't been
+    * enabled.
+    * @return {Object}
+    */
+
+		}, {
+			key: 'getCompatibilityModeData',
+			value: function getCompatibilityModeData() {
+				// Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
+				if (!compatibilityModeData_) {
+					if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
+						core.enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
+					}
+				}
+				return compatibilityModeData_;
 			}
 
 			/**
@@ -3978,7 +4033,7 @@ babelHelpers;
 				if (info.config.required) {
 					var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
 					if (!core.isDefAndNotNull(value)) {
-						console.error('The property called "' + name + '" is required but didn\n\'t ' + 'receive a value.');
+						console.error('The property called "' + name + '" is required but didn\'t ' + 'receive a value.');
 					}
 				}
 			}
@@ -5860,6 +5915,17 @@ babelHelpers;
 			value: function disposeInternal() {
 				this.componentRendererEvents_.removeAllListeners();
 				this.componentRendererEvents_ = null;
+			}
+
+			/**
+    * Returns this renderer's component.
+    * @return {!Component}
+    */
+
+		}, {
+			key: 'getComponent',
+			value: function getComponent() {
+				return this.component_;
 			}
 
 			/**
@@ -8468,6 +8534,18 @@ babelHelpers;
 			}
 
 			/**
+    * Gets the node's original owner's renderer.
+    * @param {!Object} node
+    * @return {ComponentRenderer}
+    */
+
+		}, {
+			key: 'getOwner',
+			value: function getOwner(node) {
+				return node[IncrementalDomChildren.CHILD_OWNER];
+			}
+
+			/**
     * Renders a children tree through incremental dom.
     * @param {!{args: Array, children: !Array, isText: ?boolean}}
     * @param {function()=} opt_skipNode Optional function that is called for
@@ -8901,28 +8979,53 @@ babelHelpers;
 			}
 
 			/**
+    * Returns the "ref" to be used for a component. Uses "key" as "ref" when
+    * compatibility mode is on for the current renderer.
+    * @param {!Object} config
+    * @param {?string} ref
+    * @protected
+    */
+
+		}, {
+			key: 'getRef_',
+			value: function getRef_(config) {
+				var compatData = core.getCompatibilityModeData();
+				if (compatData) {
+					var renderers = compatData.renderers;
+					var useKey = !renderers || renderers.indexOf(this.constructor) !== -1 || renderers.indexOf(this.constructor.RENDERER_NAME) !== -1;
+					if (useKey && config.key && !config.ref) {
+						return config.key;
+					}
+				}
+				return config.ref;
+			}
+
+			/**
     * Gets the sub component referenced by the given tag and config data,
     * creating it if it doesn't yet exist.
     * @param {string|!Function} tagOrCtor The tag name.
     * @param {!Object} config The config object for the sub component.
+    * @param {Component=} opt_owner
     * @return {!Component} The sub component.
     * @protected
     */
 
 		}, {
 			key: 'getSubComponent_',
-			value: function getSubComponent_(tagOrCtor, config) {
+			value: function getSubComponent_(tagOrCtor, config, opt_owner) {
 				var Ctor = tagOrCtor;
 				if (core.isString(Ctor)) {
 					Ctor = ComponentRegistry.getConstructor(tagOrCtor);
 				}
 
+				var ref = this.getRef_(config);
 				var data = IncrementalDomRenderer.getCurrentData();
 				var comp;
-				if (core.isDef(config.ref)) {
-					comp = this.match_(this.component_.components[config.ref], Ctor, config);
-					this.component_.addSubComponent(config.ref, comp);
-					this.component_.refs[config.ref] = comp;
+				if (core.isDef(ref)) {
+					var owner = opt_owner || this.component_;
+					comp = this.match_(owner.components[ref], Ctor, config);
+					owner.addSubComponent(ref, comp);
+					owner.refs[ref] = comp;
 				} else if (core.isDef(config.key)) {
 					comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
 					data.currComps.keys[config.key] = comp;
@@ -9002,7 +9105,8 @@ babelHelpers;
 			value: function handleChildRender_(node) {
 				if (node.tag && IncrementalDomUtils.isComponentTag(node.tag)) {
 					node.props.children = this.buildChildren_(node.props.children);
-					this.renderFromTag_(node.tag, node.props);
+					var owner = IncrementalDomChildren.getOwner(node);
+					this.renderFromTag_(node.tag, node.props, owner && owner.getComponent());
 					return true;
 				}
 			}
@@ -9383,14 +9487,15 @@ babelHelpers;
     * Renders the contents for the given tag.
     * @param {!function()|string} tag
     * @param {!Object} config
+    * @param {Component=} opt_owner
     * @protected
     */
 
 		}, {
 			key: 'renderFromTag_',
-			value: function renderFromTag_(tag, config) {
+			value: function renderFromTag_(tag, config, opt_owner) {
 				if (core.isString(tag) || tag.prototype.getRenderer) {
-					var comp = this.renderSubComponent_(tag, config);
+					var comp = this.renderSubComponent_(tag, config, opt_owner);
 					this.updateElementIfNotReached_(comp.element);
 					return comp.element;
 				} else {
@@ -9465,14 +9570,15 @@ babelHelpers;
     * updated instead.
     * @param {string|!function()} tagOrCtor The tag name or constructor function.
     * @param {!Object} config The config object for the sub component.
+    * @param {Component=} opt_owner
     * @return {!Component} The updated sub component.
     * @protected
     */
 
 		}, {
 			key: 'renderSubComponent_',
-			value: function renderSubComponent_(tagOrCtor, config) {
-				var comp = this.getSubComponent_(tagOrCtor, config);
+			value: function renderSubComponent_(tagOrCtor, config, opt_owner) {
+				var comp = this.getSubComponent_(tagOrCtor, config, opt_owner);
 				this.updateContext_(comp);
 				var renderer = comp.getRenderer();
 				if (renderer instanceof IncrementalDomRenderer) {
@@ -9480,7 +9586,7 @@ babelHelpers;
 					var parentRenderer = parentComp.getRenderer();
 					parentRenderer.childComponents_.push(comp);
 					renderer.parent_ = parentComp;
-					renderer.owner_ = this.component_;
+					renderer.owner_ = opt_owner || this.component_;
 					if (!config.key && !parentRenderer.rootElementReached_) {
 						config.key = parentRenderer.config_.key;
 					}
@@ -9717,6 +9823,11 @@ babelHelpers;
 
 	// Regex pattern used to find inline listeners.
 	IncrementalDomRenderer.LISTENER_REGEX = /^(?:on([A-Z]\w+))|(?:data-on(\w+))$/;
+
+	// Name of this renderer. Renderers should provide this as a way to identify
+	// them via a simple string (when calling core.enableCompatibilityMode to
+	// add support to old features for specific renderers for example).
+	IncrementalDomRenderer.RENDERER_NAME = 'incremental-dom';
 
 	this.metal.IncrementalDomRenderer = IncrementalDomRenderer;
 }).call(this);
@@ -11986,6 +12097,126 @@ babelHelpers;
      * @private
      */
     goog.string.ALL_RE_ = goog.string.DETECT_DOUBLE_ESCAPING ? /[\x00&<>"'e]/ : /[\x00&<>"']/;
+
+    /**
+     * Unescapes an HTML string.
+     *
+     * @param {string} str The string to unescape.
+     * @return {string} An unescaped copy of {@code str}.
+     */
+    goog.string.unescapeEntities = function (str) {
+      if (goog.string.contains(str, '&')) {
+        // We are careful not to use a DOM if we do not have one or we explicitly
+        // requested non-DOM html unescaping.
+        if (!goog.string.FORCE_NON_DOM_HTML_UNESCAPING && 'document' in goog.global) {
+          return goog.string.unescapeEntitiesUsingDom_(str);
+        } else {
+          // Fall back on pure XML entities
+          return goog.string.unescapePureXmlEntities_(str);
+        }
+      }
+      return str;
+    };
+
+    /**
+     * Unescapes an HTML string using a DOM to resolve non-XML, non-numeric
+     * entities. This function is XSS-safe and whitespace-preserving.
+     * @private
+     * @param {string} str The string to unescape.
+     * @param {Document=} opt_document An optional document to use for creating
+     *     elements. If this is not specified then the default window.document
+     *     will be used.
+     * @return {string} The unescaped {@code str} string.
+     */
+    goog.string.unescapeEntitiesUsingDom_ = function (str, opt_document) {
+      /** @type {!Object<string, string>} */
+      var seen = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"' };
+      var div;
+      if (opt_document) {
+        div = opt_document.createElement('div');
+      } else {
+        div = goog.global.document.createElement('div');
+      }
+      // Match as many valid entity characters as possible. If the actual entity
+      // happens to be shorter, it will still work as innerHTML will return the
+      // trailing characters unchanged. Since the entity characters do not include
+      // open angle bracket, there is no chance of XSS from the innerHTML use.
+      // Since no whitespace is passed to innerHTML, whitespace is preserved.
+      return str.replace(goog.string.HTML_ENTITY_PATTERN_, function (s, entity) {
+        // Check for cached entity.
+        var value = seen[s];
+        if (value) {
+          return value;
+        }
+        // Check for numeric entity.
+        if (entity.charAt(0) == '#') {
+          // Prefix with 0 so that hex entities (e.g. &#x10) parse as hex numbers.
+          var n = Number('0' + entity.substr(1));
+          if (!isNaN(n)) {
+            value = String.fromCharCode(n);
+          }
+        }
+        // Fall back to innerHTML otherwise.
+        if (!value) {
+          // Append a non-entity character to avoid a bug in Webkit that parses
+          // an invalid entity at the end of innerHTML text as the empty string.
+          div.innerHTML = s + ' ';
+          // Then remove the trailing character from the result.
+          value = div.firstChild.nodeValue.slice(0, -1);
+        }
+        // Cache and return.
+        return seen[s] = value;
+      });
+    };
+
+    /**
+     * Unescapes XML entities.
+     * @private
+     * @param {string} str The string to unescape.
+     * @return {string} An unescaped copy of {@code str}.
+     */
+    goog.string.unescapePureXmlEntities_ = function (str) {
+      return str.replace(/&([^;]+);/g, function (s, entity) {
+        switch (entity) {
+          case 'amp':
+            return '&';
+          case 'lt':
+            return '<';
+          case 'gt':
+            return '>';
+          case 'quot':
+            return '"';
+          default:
+            if (entity.charAt(0) == '#') {
+              // Prefix with 0 so that hex entities (e.g. &#x10) parse as hex.
+              var n = Number('0' + entity.substr(1));
+              if (!isNaN(n)) {
+                return String.fromCharCode(n);
+              }
+            }
+            // For invalid entities we just return the entity
+            return s;
+        }
+      });
+    };
+
+    /**
+     * Regular expression that matches an HTML entity.
+     * See also HTML5: Tokenization / Tokenizing character references.
+     * @private
+     * @type {!RegExp}
+     */
+    goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
+
+    /**
+     * Determines whether a string contains a substring.
+     * @param {string} str The string to search.
+     * @param {string} subString The substring to search for.
+     * @return {boolean} Whether {@code str} contains {@code subString}.
+     */
+    goog.string.contains = function (str, subString) {
+      return str.indexOf(subString) != -1;
+    };
 
     /**
      * Escapes double quote '"' and single quote '\'' characters in addition to
@@ -14872,6 +15103,8 @@ babelHelpers;
 		}]);
 		return Soy;
 	}(IncrementalDomRenderer);
+
+	Soy.RENDERER_NAME = 'soy';
 
 	this.metal.Soy = Soy;
 	this.metalNamed.Soy = this.metalNamed.Soy || {};
@@ -19634,7 +19867,8 @@ babelHelpers;
      *    header: (?soydata.SanitizedHtml|string|undefined),
      *    headerId: (null|string|undefined),
      *    noCloseButton: (boolean|null|undefined),
-     *    role: (null|string|undefined)
+     *    role: (null|string|undefined),
+     *    visible: (boolean|null|undefined)
      * }} opt_data
      * @param {(null|undefined)=} opt_ignored
      * @param {Object<string, *>=} opt_ijData
@@ -19659,7 +19893,9 @@ babelHelpers;
       var noCloseButton = /** @type {boolean|null|undefined} */opt_data.noCloseButton;
       soy.asserts.assertType(opt_data.role == null || opt_data.role instanceof goog.soy.data.SanitizedContent || goog.isString(opt_data.role), 'role', opt_data.role, 'null|string|undefined');
       var role = /** @type {null|string|undefined} */opt_data.role;
-      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''));
+      soy.asserts.assertType(opt_data.visible == null || goog.isBoolean(opt_data.visible) || opt_data.visible === 1 || opt_data.visible === 0, 'visible', opt_data.visible, 'boolean|null|undefined');
+      var visible = /** @type {boolean|null|undefined} */opt_data.visible;
+      ie_open('div', null, null, 'class', 'modal' + (elementClasses ? ' ' + elementClasses : ''), 'style', 'display: ' + (visible ? 'block' : 'none'));
       ie_open('div', null, null, 'class', 'modal-dialog', 'tabindex', '0', 'role', role ? role : 'dialog', 'aria-labelledby', headerId, 'aria-describedby', bodyId);
       ie_open('div', null, null, 'class', 'modal-content');
       ie_open('header', null, null, 'class', 'modal-header');
@@ -19698,8 +19934,8 @@ babelHelpers;
       $render.soyTemplateName = 'Modal.render';
     }
 
-    exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role"];
-    exports.render.types = { "body": "html|string", "bodyId": "string", "elementClasses": "string", "footer": "html|string", "header": "html|string", "headerId": "string", "noCloseButton": "bool", "role": "string" };
+    exports.render.params = ["body", "bodyId", "elementClasses", "footer", "header", "headerId", "noCloseButton", "role", "visible"];
+    exports.render.types = { "body": "html|string", "bodyId": "string", "elementClasses": "string", "footer": "html|string", "header": "html|string", "headerId": "string", "noCloseButton": "bool", "role": "string", "visible": "bool" };
     templates = exports;
     return exports;
   });
@@ -19911,13 +20147,11 @@ babelHelpers;
 
 			/**
     * Syncs the component according to the value of the `visible` state key.
-    * @param {boolean} visible
     */
 
 		}, {
 			key: 'syncVisible',
-			value: function syncVisible(visible) {
-				this.element.style.display = visible ? 'block' : '';
+			value: function syncVisible() {
 				this.syncOverlay(this.overlay);
 				if (this.visible) {
 					this.lastFocusedElement_ = this.lastFocusedElement_ || document.activeElement;
@@ -22136,6 +22370,7 @@ babelHelpers;
     /**
      * @param {{
      *    arrowClass: (?),
+     *    disabled: (?),
      *    buttonClass: (?),
      *    elementClasses: (?),
      *    expanded_: (?),
@@ -22159,23 +22394,23 @@ babelHelpers;
       var label = /** @type {?soydata.SanitizedHtml|string|undefined} */opt_data.label;
       ie_open('div', null, null, 'class', 'select' + (opt_data.elementClasses ? ' ' + opt_data.elementClasses : ''), 'data-onkeydown', 'handleKeyDown_');
       var currSelectedIndex__soy6 = opt_data.selectedIndex != null ? opt_data.selectedIndex : label || opt_data.items.length == 0 ? -1 : 0;
-      ie_open('input', null, null, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
+      ie_open('input', null, null, 'disabled', opt_data.disabled, 'type', 'hidden', 'name', opt_data.hiddenInputName ? opt_data.hiddenInputName : '', 'value', currSelectedIndex__soy6 == -1 ? '' : opt_data.values ? opt_data.values[currSelectedIndex__soy6] : '');
       ie_close('input');
-      var param12 = function param12() {
-        var itemList22 = opt_data.items;
-        var itemListLen22 = itemList22.length;
-        for (var itemIndex22 = 0; itemIndex22 < itemListLen22; itemIndex22++) {
-          var itemData22 = itemList22[itemIndex22];
-          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'data-onkeydown', ($$temp = opt_data.handleItemKeyDown_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex22 ? ' selected' : ''));
+      var param14 = function param14() {
+        var itemList24 = opt_data.items;
+        var itemListLen24 = itemList24.length;
+        for (var itemIndex24 = 0; itemIndex24 < itemListLen24; itemIndex24++) {
+          var itemData24 = itemList24[itemIndex24];
+          ie_open('li', null, null, 'data-onclick', ($$temp = opt_data.handleItemClick_) == null ? '' : $$temp, 'data-onkeydown', ($$temp = opt_data.handleItemKeyDown_) == null ? '' : $$temp, 'class', 'select-option' + (currSelectedIndex__soy6 == itemIndex24 ? ' selected' : ''));
           ie_open('a', null, null, 'href', 'javascript:;');
-          var dyn0 = itemData22;
+          var dyn0 = itemData24;
           if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
           ie_close('a');
           ie_close('li');
         }
       };
-      var param26 = function param26() {
-        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'type', 'button', 'data-onclick', 'toggle', 'aria-haspopup', 'true', 'aria-expanded', opt_data.expanded_ ? 'true' : 'false');
+      var param28 = function param28() {
+        ie_open('button', null, null, 'class', (opt_data.buttonClass ? opt_data.buttonClass : '') + ' dropdown-select', 'disabled', opt_data.disabled, 'type', 'button', 'data-onclick', 'toggle', 'aria-haspopup', 'true', 'aria-expanded', opt_data.expanded_ ? 'true' : 'false');
         if (currSelectedIndex__soy6 == -1) {
           var dyn1 = label;
           if (typeof dyn1 == 'function') dyn1();else if (dyn1 != null) itext(dyn1);
@@ -22187,7 +22422,7 @@ babelHelpers;
         ie_void('span', null, null, 'class', opt_data.arrowClass ? opt_data.arrowClass : 'caret');
         ie_close('button');
       };
-      $templateAlias1({ body: param12, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, expanded: opt_data.expanded_, header: param26, ref: 'dropdown' }, null, opt_ijData);
+      $templateAlias1({ body: param14, events: { stateSynced: opt_data.handleDropdownStateSynced_ }, expanded: opt_data.disabled ? false : opt_data.expanded_, header: param28, ref: 'dropdown' }, null, opt_ijData);
       ie_close('div');
     }
     exports.render = $render;
@@ -22195,8 +22430,8 @@ babelHelpers;
       $render.soyTemplateName = 'Select.render';
     }
 
-    exports.render.params = ["label", "arrowClass", "buttonClass", "elementClasses", "expanded_", "handleDropdownStateSynced_", "handleItemClick_", "handleItemKeyDown_", "hiddenInputName", "items", "values", "selectedIndex"];
-    exports.render.types = { "label": "html|string", "arrowClass": "any", "buttonClass": "any", "elementClasses": "any", "expanded_": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "handleItemKeyDown_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
+    exports.render.params = ["label", "arrowClass", "disabled", "buttonClass", "elementClasses", "expanded_", "handleDropdownStateSynced_", "handleItemClick_", "handleItemKeyDown_", "hiddenInputName", "items", "values", "selectedIndex"];
+    exports.render.types = { "label": "html|string", "arrowClass": "any", "disabled": "any", "buttonClass": "any", "elementClasses": "any", "expanded_": "any", "handleDropdownStateSynced_": "any", "handleItemClick_": "any", "handleItemKeyDown_": "any", "hiddenInputName": "any", "items": "any", "values": "any", "selectedIndex": "any" };
     templates = exports;
     return exports;
   });
@@ -22433,10 +22668,23 @@ babelHelpers;
 		},
 
 		/**
+   * Block or unblock the component behaviours.
+   * @type {boolean}
+   * @default false
+   */
+		disabled: {
+			validator: core.isBoolean,
+			value: false
+		},
+
+		/**
    * Flag indicating if the select dropdown is currently expanded.
    * @type {boolean}
    */
 		expanded_: {
+			setter: function setter(value) {
+				return !this.disabled ? value : false;
+			},
 			validator: core.isBoolean,
 			value: false,
 			internal: true
@@ -24269,7 +24517,7 @@ babelHelpers;
       if (typeof dyn0 == 'function') dyn0();else if (dyn0 != null) itext(dyn0);
       ie_close('span');
       var percentage__soy15 = 100 * (valueNumber__soy5 - minNumber__soy4) / (maxNumber__soy3 - minNumber__soy4) + '%';
-      ie_open('div', null, null, 'class', 'rail', 'data-onmousedown', 'onRailMouseDown_');
+      ie_open('div', null, null, 'class', 'rail', 'data-onclick', 'onRailClick_');
       ie_void('div', null, null, 'class', 'rail-active', 'style', 'width: ' + percentage__soy15);
       ie_open('div', null, null, 'class', 'rail-handle', 'style', 'left: ' + percentage__soy15);
       ie_void('div', null, null, 'class', 'handle', 'tabindex', '0', 'role', 'slider', 'aria-valuemin', minNumber__soy4, 'aria-valuemax', maxNumber__soy3, 'aria-valuenow', valueNumber__soy5);
@@ -24431,8 +24679,8 @@ babelHelpers;
     */
 
 		}, {
-			key: 'onRailMouseDown_',
-			value: function onRailMouseDown_(event) {
+			key: 'onRailClick_',
+			value: function onRailClick_(event) {
 				if (dom.hasClass(event.target, 'rail') || dom.hasClass(event.target, 'rail-active')) {
 					var prevValue = this.value;
 					this.updateValue_(event.offsetX, 0, true);

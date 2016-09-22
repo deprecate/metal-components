@@ -1,11 +1,6 @@
 define(['exports'], function (exports) {
 	'use strict';
 
-	/**
-  * A collection of core utility functions.
-  * @const
-  */
-
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -40,6 +35,13 @@ define(['exports'], function (exports) {
 		};
 	}();
 
+	var compatibilityModeData_ = void 0;
+
+	/**
+  * A collection of core utility functions.
+  * @const
+  */
+
 	var core = function () {
 		function core() {
 			_classCallCheck(this, core);
@@ -59,6 +61,29 @@ define(['exports'], function (exports) {
 					propertyValues.push(constructor[propertyName]);
 				}
 				return propertyValues;
+			}
+		}, {
+			key: 'disableCompatibilityMode',
+			value: function disableCompatibilityMode() {
+				compatibilityModeData_ = null;
+			}
+		}, {
+			key: 'enableCompatibilityMode',
+			value: function enableCompatibilityMode() {
+				var opt_data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+				compatibilityModeData_ = opt_data;
+			}
+		}, {
+			key: 'getCompatibilityModeData',
+			value: function getCompatibilityModeData() {
+				// Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
+				if (!compatibilityModeData_) {
+					if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
+						core.enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
+					}
+				}
+				return compatibilityModeData_;
 			}
 		}, {
 			key: 'getFunctionName',

@@ -102,6 +102,11 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 				this.componentRendererEvents_ = null;
 			}
 		}, {
+			key: 'getComponent',
+			value: function getComponent() {
+				return this.component_;
+			}
+		}, {
 			key: 'handleDataManagerCreated_',
 			value: function handleDataManagerCreated_() {
 				var manager = this.component_.getDataManager();
