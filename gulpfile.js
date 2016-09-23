@@ -1,13 +1,10 @@
 'use strict';
 
-var gulp = require('gulp');
 var karma = require('karma');
-var liferay = require('liferay-gulp-tasks');
+var gulp = require('liferay-gulp-tasks')(require('gulp'));
 var metal = require('gulp-metal');
 var runSequence = require('run-sequence');
 var utils = require('./utils');
-
-liferay.registerTasks();
 
 metal.registerTasks({
 	buildSrc: utils.getComponentPaths('src'),

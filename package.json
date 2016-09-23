@@ -59,7 +59,7 @@
     "karma-scss-preprocessor": "^1.0.0",
     "karma-sinon": "^1.0.4",
     "karma-source-map-support": "^1.1.0",
-    "liferay-gulp-tasks": "^0.2.1",
+    "liferay-gulp-tasks": "^0.4.1",
     "merge": "^1.2.0",
     "mocha": "^2.3.4",
     "run-sequence": "^1.1.5",
