@@ -131,31 +131,31 @@ babelHelpers;
    */
   var UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
-  this['metalNamed']['core'] = this['metalNamed']['core'] || {};
-  this['metalNamed']['core']['UID_PROPERTY'] = UID_PROPERTY; /**
-                                                              * When defining a class Foo with an abstract method bar(), you can do:
-                                                              * Foo.prototype.bar = abstractMethod
-                                                              *
-                                                              * Now if a subclass of Foo fails to override bar(), an error will be thrown
-                                                              * when bar() is invoked.
-                                                              *
-                                                              * @type {!Function}
-                                                              * @throws {Error} when invoked to indicate the method should be overridden.
-                                                              */
+  this['metalNamed']['coreNamed'] = this['metalNamed']['coreNamed'] || {};
+  this['metalNamed']['coreNamed']['UID_PROPERTY'] = UID_PROPERTY; /**
+                                                                   * When defining a class Foo with an abstract method bar(), you can do:
+                                                                   * Foo.prototype.bar = abstractMethod
+                                                                   *
+                                                                   * Now if a subclass of Foo fails to override bar(), an error will be thrown
+                                                                   * when bar() is invoked.
+                                                                   *
+                                                                   * @type {!Function}
+                                                                   * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                   */
 
   function abstractMethod() {
     throw Error('Unimplemented abstract method');
   }
 
-  this['metalNamed']['core']['abstractMethod'] = abstractMethod; /**
-                                                                  * Loops constructor super classes collecting its properties values. If
-                                                                  * property is not available on the super class `undefined` will be
-                                                                  * collected as value for the class hierarchy position.
-                                                                  * @param {!function()} constructor Class constructor.
-                                                                  * @param {string} propertyName Property name to be collected.
-                                                                  * @return {Array.<*>} Array of collected values.
-                                                                  * TODO(*): Rethink superclass loop.
-                                                                  */
+  this['metalNamed']['coreNamed']['abstractMethod'] = abstractMethod; /**
+                                                                       * Loops constructor super classes collecting its properties values. If
+                                                                       * property is not available on the super class `undefined` will be
+                                                                       * collected as value for the class hierarchy position.
+                                                                       * @param {!function()} constructor Class constructor.
+                                                                       * @param {string} propertyName Property name to be collected.
+                                                                       * @return {Array.<*>} Array of collected values.
+                                                                       * TODO(*): Rethink superclass loop.
+                                                                       */
 
   function collectSuperClassesProperty(constructor, propertyName) {
     var propertyValues = [constructor[propertyName]];
@@ -166,30 +166,30 @@ babelHelpers;
     return propertyValues;
   }
 
-  this['metalNamed']['core']['collectSuperClassesProperty'] = collectSuperClassesProperty; /**
-                                                                                            * Disables Metal.js's compatibility mode.
-                                                                                            */
+  this['metalNamed']['coreNamed']['collectSuperClassesProperty'] = collectSuperClassesProperty; /**
+                                                                                                 * Disables Metal.js's compatibility mode.
+                                                                                                 */
 
   function disableCompatibilityMode() {
     compatibilityModeData_ = null;
   }
 
-  this['metalNamed']['core']['disableCompatibilityMode'] = disableCompatibilityMode; /**
-                                                                                      * Enables Metal.js's compatibility mode with the following features from rc
-                                                                                      * and 1.x versions:
-                                                                                      *     - Using "key" to reference component instances. In the current version
-                                                                                      *       this should be done via "ref" instead. This allows old code still
-                                                                                      *       using "key" to keep working like before. NOTE: this may cause
-                                                                                      *       problems, since "key" is meant to be used differently. Only use this
-                                                                                      *       if it's not possible to upgrade the code to use "ref" instead.
-                                                                                      * @param {Object=} opt_data Optional object with data to specify more
-                                                                                      *     details, such as:
-                                                                                      *         - renderers {Array} the template renderers that should be in
-                                                                                      *           compatibility mode, either their constructors or strings
-                                                                                      *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
-                                                                                      *           that extend from IncrementalDomRenderer.
-                                                                                      * @type {Object}
-                                                                                      */
+  this['metalNamed']['coreNamed']['disableCompatibilityMode'] = disableCompatibilityMode; /**
+                                                                                           * Enables Metal.js's compatibility mode with the following features from rc
+                                                                                           * and 1.x versions:
+                                                                                           *     - Using "key" to reference component instances. In the current version
+                                                                                           *       this should be done via "ref" instead. This allows old code still
+                                                                                           *       using "key" to keep working like before. NOTE: this may cause
+                                                                                           *       problems, since "key" is meant to be used differently. Only use this
+                                                                                           *       if it's not possible to upgrade the code to use "ref" instead.
+                                                                                           * @param {Object=} opt_data Optional object with data to specify more
+                                                                                           *     details, such as:
+                                                                                           *         - renderers {Array} the template renderers that should be in
+                                                                                           *           compatibility mode, either their constructors or strings
+                                                                                           *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
+                                                                                           *           that extend from IncrementalDomRenderer.
+                                                                                           * @type {Object}
+                                                                                           */
 
   function enableCompatibilityMode() {
     var opt_data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -197,11 +197,11 @@ babelHelpers;
     compatibilityModeData_ = opt_data;
   }
 
-  this['metalNamed']['core']['enableCompatibilityMode'] = enableCompatibilityMode; /**
-                                                                                    * Returns the data used for compatibility mode, or nothing if it hasn't been
-                                                                                    * enabled.
-                                                                                    * @return {Object}
-                                                                                    */
+  this['metalNamed']['coreNamed']['enableCompatibilityMode'] = enableCompatibilityMode; /**
+                                                                                         * Returns the data used for compatibility mode, or nothing if it hasn't been
+                                                                                         * enabled.
+                                                                                         * @return {Object}
+                                                                                         */
 
   function getCompatibilityModeData() {
     // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
@@ -213,13 +213,13 @@ babelHelpers;
     return compatibilityModeData_;
   }
 
-  this['metalNamed']['core']['getCompatibilityModeData'] = getCompatibilityModeData; /**
-                                                                                      * Gets the name of the given function. If the current browser doesn't
-                                                                                      * support the `name` property, this will calculate it from the function's
-                                                                                      * content string.
-                                                                                      * @param {!function()} fn
-                                                                                      * @return {string}
-                                                                                      */
+  this['metalNamed']['coreNamed']['getCompatibilityModeData'] = getCompatibilityModeData; /**
+                                                                                           * Gets the name of the given function. If the current browser doesn't
+                                                                                           * support the `name` property, this will calculate it from the function's
+                                                                                           * content string.
+                                                                                           * @param {!function()} fn
+                                                                                           * @return {string}
+                                                                                           */
 
   function getFunctionName(fn) {
     if (!fn.name) {
@@ -229,17 +229,17 @@ babelHelpers;
     return fn.name;
   }
 
-  this['metalNamed']['core']['getFunctionName'] = getFunctionName; /**
-                                                                    * Gets an unique id. If `opt_object` argument is passed, the object is
-                                                                    * mutated with an unique id. Consecutive calls with the same object
-                                                                    * reference won't mutate the object again, instead the current object uid
-                                                                    * returns. See {@link UID_PROPERTY}.
-                                                                    * @param {Object=} opt_object Optional object to be mutated with the uid. If
-                                                                    *     not specified this method only returns the uid.
-                                                                    * @param {boolean=} opt_noInheritance Optional flag indicating if this
-                                                                    *     object's uid property can be inherited from parents or not.
-                                                                    * @throws {Error} when invoked to indicate the method should be overridden.
-                                                                    */
+  this['metalNamed']['coreNamed']['getFunctionName'] = getFunctionName; /**
+                                                                         * Gets an unique id. If `opt_object` argument is passed, the object is
+                                                                         * mutated with an unique id. Consecutive calls with the same object
+                                                                         * reference won't mutate the object again, instead the current object uid
+                                                                         * returns. See {@link UID_PROPERTY}.
+                                                                         * @param {Object=} opt_object Optional object to be mutated with the uid. If
+                                                                         *     not specified this method only returns the uid.
+                                                                         * @param {boolean=} opt_noInheritance Optional flag indicating if this
+                                                                         *     object's uid property can be inherited from parents or not.
+                                                                         * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                         */
 
   function getUid(opt_object, opt_noInheritance) {
     if (opt_object) {
@@ -252,150 +252,150 @@ babelHelpers;
     return uniqueIdCounter_++;
   }
 
-  this['metalNamed']['core']['getUid'] = getUid; /**
-                                                  * The identity function. Returns its first argument.
-                                                  * @param {*=} opt_returnValue The single value that will be returned.
-                                                  * @return {?} The first argument.
-                                                  */
+  this['metalNamed']['coreNamed']['getUid'] = getUid; /**
+                                                       * The identity function. Returns its first argument.
+                                                       * @param {*=} opt_returnValue The single value that will be returned.
+                                                       * @return {?} The first argument.
+                                                       */
 
   function identityFunction(opt_returnValue) {
     return opt_returnValue;
   }
 
-  this['metalNamed']['core']['identityFunction'] = identityFunction; /**
-                                                                      * Returns true if the specified value is a boolean.
-                                                                      * @param {?} val Variable to test.
-                                                                      * @return {boolean} Whether variable is boolean.
-                                                                      */
+  this['metalNamed']['coreNamed']['identityFunction'] = identityFunction; /**
+                                                                           * Returns true if the specified value is a boolean.
+                                                                           * @param {?} val Variable to test.
+                                                                           * @return {boolean} Whether variable is boolean.
+                                                                           */
 
   function isBoolean(val) {
     return typeof val === 'boolean';
   }
 
-  this['metalNamed']['core']['isBoolean'] = isBoolean; /**
-                                                        * Returns true if the specified value is not undefined.
-                                                        * @param {?} val Variable to test.
-                                                        * @return {boolean} Whether variable is defined.
-                                                        */
+  this['metalNamed']['coreNamed']['isBoolean'] = isBoolean; /**
+                                                             * Returns true if the specified value is not undefined.
+                                                             * @param {?} val Variable to test.
+                                                             * @return {boolean} Whether variable is defined.
+                                                             */
 
   function isDef(val) {
     return val !== undefined;
   }
 
-  this['metalNamed']['core']['isDef'] = isDef; /**
-                                                * Returns true if value is not undefined or null.
-                                                * @param {*} val
-                                                * @return {boolean}
-                                                */
+  this['metalNamed']['coreNamed']['isDef'] = isDef; /**
+                                                     * Returns true if value is not undefined or null.
+                                                     * @param {*} val
+                                                     * @return {boolean}
+                                                     */
 
   function isDefAndNotNull(val) {
     return isDef(val) && !isNull(val);
   }
 
-  this['metalNamed']['core']['isDefAndNotNull'] = isDefAndNotNull; /**
-                                                                    * Returns true if value is a document.
-                                                                    * @param {*} val
-                                                                    * @return {boolean}
-                                                                    */
+  this['metalNamed']['coreNamed']['isDefAndNotNull'] = isDefAndNotNull; /**
+                                                                         * Returns true if value is a document.
+                                                                         * @param {*} val
+                                                                         * @return {boolean}
+                                                                         */
 
   function isDocument(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 9;
   }
 
-  this['metalNamed']['core']['isDocument'] = isDocument; /**
-                                                          * Returns true if value is a dom element.
-                                                          * @param {*} val
-                                                          * @return {boolean}
-                                                          */
+  this['metalNamed']['coreNamed']['isDocument'] = isDocument; /**
+                                                               * Returns true if value is a dom element.
+                                                               * @param {*} val
+                                                               * @return {boolean}
+                                                               */
 
   function isElement(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
   }
 
-  this['metalNamed']['core']['isElement'] = isElement; /**
-                                                        * Returns true if the specified value is a function.
-                                                        * @param {?} val Variable to test.
-                                                        * @return {boolean} Whether variable is a function.
-                                                        */
+  this['metalNamed']['coreNamed']['isElement'] = isElement; /**
+                                                             * Returns true if the specified value is a function.
+                                                             * @param {?} val Variable to test.
+                                                             * @return {boolean} Whether variable is a function.
+                                                             */
 
   function isFunction(val) {
     return typeof val === 'function';
   }
 
-  this['metalNamed']['core']['isFunction'] = isFunction; /**
-                                                          * Returns true if value is null.
-                                                          * @param {*} val
-                                                          * @return {boolean}
-                                                          */
+  this['metalNamed']['coreNamed']['isFunction'] = isFunction; /**
+                                                               * Returns true if value is null.
+                                                               * @param {*} val
+                                                               * @return {boolean}
+                                                               */
 
   function isNull(val) {
     return val === null;
   }
 
-  this['metalNamed']['core']['isNull'] = isNull; /**
-                                                  * Returns true if the specified value is a number.
-                                                  * @param {?} val Variable to test.
-                                                  * @return {boolean} Whether variable is a number.
-                                                  */
+  this['metalNamed']['coreNamed']['isNull'] = isNull; /**
+                                                       * Returns true if the specified value is a number.
+                                                       * @param {?} val Variable to test.
+                                                       * @return {boolean} Whether variable is a number.
+                                                       */
 
   function isNumber(val) {
     return typeof val === 'number';
   }
 
-  this['metalNamed']['core']['isNumber'] = isNumber; /**
-                                                      * Returns true if value is a window.
-                                                      * @param {*} val
-                                                      * @return {boolean}
-                                                      */
+  this['metalNamed']['coreNamed']['isNumber'] = isNumber; /**
+                                                           * Returns true if value is a window.
+                                                           * @param {*} val
+                                                           * @return {boolean}
+                                                           */
 
   function isWindow(val) {
     return val !== null && val === val.window;
   }
 
-  this['metalNamed']['core']['isWindow'] = isWindow; /**
-                                                      * Returns true if the specified value is an object. This includes arrays
-                                                      * and functions.
-                                                      * @param {?} val Variable to test.
-                                                      * @return {boolean} Whether variable is an object.
-                                                      */
+  this['metalNamed']['coreNamed']['isWindow'] = isWindow; /**
+                                                           * Returns true if the specified value is an object. This includes arrays
+                                                           * and functions.
+                                                           * @param {?} val Variable to test.
+                                                           * @return {boolean} Whether variable is an object.
+                                                           */
 
   function isObject(val) {
     var type = typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val);
     return type === 'object' && val !== null || type === 'function';
   }
 
-  this['metalNamed']['core']['isObject'] = isObject; /**
-                                                      * Returns true if value is a Promise.
-                                                      * @param {*} val
-                                                      * @return {boolean}
-                                                      */
+  this['metalNamed']['coreNamed']['isObject'] = isObject; /**
+                                                           * Returns true if value is a Promise.
+                                                           * @param {*} val
+                                                           * @return {boolean}
+                                                           */
 
   function isPromise(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
   }
 
-  this['metalNamed']['core']['isPromise'] = isPromise; /**
-                                                        * Returns true if value is a string.
-                                                        * @param {*} val
-                                                        * @return {boolean}
-                                                        */
+  this['metalNamed']['coreNamed']['isPromise'] = isPromise; /**
+                                                             * Returns true if value is a string.
+                                                             * @param {*} val
+                                                             * @return {boolean}
+                                                             */
 
   function isString(val) {
     return typeof val === 'string' || val instanceof String;
   }
 
-  this['metalNamed']['core']['isString'] = isString; /**
-                                                      * Merges the values of a export function property a class with the values of that
-                                                      * property for all its super classes, and stores it as a new static
-                                                      * property of that class. If the export function property already existed, it won't
-                                                      * be recalculated.
-                                                      * @param {!function()} constructor Class constructor.
-                                                      * @param {string} propertyName Property name to be collected.
-                                                      * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
-                                                      *   with the values of the property for the current class and all its super classes.
-                                                      *   Should return the merged value to be stored on the current class.
-                                                      * @return {boolean} Returns true if merge happens, false otherwise.
-                                                      */
+  this['metalNamed']['coreNamed']['isString'] = isString; /**
+                                                           * Merges the values of a export function property a class with the values of that
+                                                           * property for all its super classes, and stores it as a new static
+                                                           * property of that class. If the export function property already existed, it won't
+                                                           * be recalculated.
+                                                           * @param {!function()} constructor Class constructor.
+                                                           * @param {string} propertyName Property name to be collected.
+                                                           * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
+                                                           *   with the values of the property for the current class and all its super classes.
+                                                           *   Should return the merged value to be stored on the current class.
+                                                           * @return {boolean} Returns true if merge happens, false otherwise.
+                                                           */
 
   function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
     var mergedName = propertyName + '_MERGED';
@@ -411,13 +411,29 @@ babelHelpers;
     return true;
   }
 
-  this['metalNamed']['core']['mergeSuperClassesProperty'] = mergeSuperClassesProperty; /**
-                                                                                        * Null function used for default values of callbacks, etc.
-                                                                                        * @return {void} Nothing.
-                                                                                        */
+  this['metalNamed']['coreNamed']['mergeSuperClassesProperty'] = mergeSuperClassesProperty; /**
+                                                                                             * Null function used for default values of callbacks, etc.
+                                                                                             * @return {void} Nothing.
+                                                                                             */
 
   function nullFunction() {}
-  this['metalNamed']['core']['nullFunction'] = nullFunction;
+  this['metalNamed']['coreNamed']['nullFunction'] = nullFunction;
+}).call(this);
+'use strict';
+
+// This file exists just for backwards compatibility, making sure that old
+// default imports for this file still work. It's best to use the named exports
+// for each function instead though, since that allows bundlers like Rollup to
+// reduce the bundle size by removing unused code.
+
+(function () {
+  var core = this['metalNamed']['coreNamed'];
+  this['metal']['core'] = core;
+  this['metalNamed']['core'] = this['metalNamed']['core'] || {};
+  this['metalNamed']['core']['core'] = core;
+  Object.keys(this['metalNamed']['coreNamed']).forEach(function (key) {
+    this['metalNamed']['core'][key] = this['metalNamed']['coreNamed'][key];
+  });
 }).call(this);
 'use strict';
 
@@ -1035,7 +1051,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-  var core = this['metalNamed']['core'];
+  var core = this['metal']['core'];
   var array = this['metal']['array'];
   var async = this['metal']['async'];
   var Disposable = this['metal']['Disposable'];
@@ -1050,14 +1066,7 @@ babelHelpers;
   this['metalNamed']['metal']['Disposable'] = Disposable;
   this['metalNamed']['metal']['object'] = object;
   this['metalNamed']['metal']['string'] = string;
-
-  // This is for backwards compatibility, making sure that old imports for the
-  // "core" object still work. It's best to use the named exports for each
-  // function instead though, since that allows bundlers like Rollup to reduce the
-  // bundle size by removing unused code.
-
   this['metal']['metal'] = core;
-  this['metalNamed']['metal']['core'] = core;
 }).call(this);
 'use strict';
 
@@ -2046,8 +2055,8 @@ babelHelpers;
 	var elementsByTag_ = {};
 	var customEvents = {};
 
-	this['metalNamed']['dom'] = this['metalNamed']['dom'] || {};
-	this['metalNamed']['dom']['customEvents'] = customEvents;
+	this['metalNamed']['domNamed'] = this['metalNamed']['domNamed'] || {};
+	this['metalNamed']['domNamed']['customEvents'] = customEvents;
 	var NEXT_TARGET = '__metal_next_target__';
 	var USE_CAPTURE = {
 		blur: true,
@@ -2081,12 +2090,12 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['addClasses'] = addClasses; /**
-                                                        * Adds the requested CSS classes to an element using classList.
-                                                        * @param {!Element} element The element to add CSS classes to.
-                                                        * @param {string} classes CSS classes to add.
-                                                        * @private
-                                                        */
+	this['metalNamed']['domNamed']['addClasses'] = addClasses; /**
+                                                             * Adds the requested CSS classes to an element using classList.
+                                                             * @param {!Element} element The element to add CSS classes to.
+                                                             * @param {string} classes CSS classes to add.
+                                                             * @private
+                                                             */
 
 	function addClassesWithNative_(element, classes) {
 		classes.split(' ').forEach(function (className) {
@@ -2192,14 +2201,14 @@ babelHelpers;
 		return element;
 	}
 
-	this['metalNamed']['dom']['closest'] = closest; /**
-                                                  * Appends a child node with text or other nodes to a parent node. If
-                                                  * child is a HTML string it will be automatically converted to a document
-                                                  * fragment before appending it to the parent.
-                                                  * @param {!Element} parent The node to append nodes to.
-                                                  * @param {!(Element|NodeList|string)} child The thing to append to the parent.
-                                                  * @return {!Element} The appended child.
-                                                  */
+	this['metalNamed']['domNamed']['closest'] = closest; /**
+                                                       * Appends a child node with text or other nodes to a parent node. If
+                                                       * child is a HTML string it will be automatically converted to a document
+                                                       * fragment before appending it to the parent.
+                                                       * @param {!Element} parent The node to append nodes to.
+                                                       * @param {!(Element|NodeList|string)} child The thing to append to the parent.
+                                                       * @return {!Element} The appended child.
+                                                       */
 
 	function append(parent, child) {
 		if (isString(child)) {
@@ -2216,11 +2225,11 @@ babelHelpers;
 		return child;
 	}
 
-	this['metalNamed']['dom']['append'] = append; /**
-                                                * Helper for converting a HTML string into a document fragment.
-                                                * @param {string} htmlString The HTML string to convert.
-                                                * @return {!Element} The resulting document fragment.
-                                                */
+	this['metalNamed']['domNamed']['append'] = append; /**
+                                                     * Helper for converting a HTML string into a document fragment.
+                                                     * @param {string} htmlString The HTML string to convert.
+                                                     * @return {!Element} The resulting document fragment.
+                                                     */
 
 	function buildFragment(htmlString) {
 		var tempDiv = document.createElement('div');
@@ -2234,12 +2243,12 @@ babelHelpers;
 		return fragment;
 	}
 
-	this['metalNamed']['dom']['buildFragment'] = buildFragment; /**
-                                                              * Checks if the first element contains the second one.
-                                                              * @param {!Element} element1
-                                                              * @param {!Element} element2
-                                                              * @return {boolean}
-                                                              */
+	this['metalNamed']['domNamed']['buildFragment'] = buildFragment; /**
+                                                                   * Checks if the first element contains the second one.
+                                                                   * @param {!Element} element1
+                                                                   * @param {!Element} element2
+                                                                   * @return {boolean}
+                                                                   */
 
 	function contains(element1, element2) {
 		if (isDocument(element1)) {
@@ -2250,22 +2259,22 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['contains'] = contains; /**
-                                                    * Listens to the specified event on the given DOM element, but only calls the
-                                                    * given callback listener when it's triggered by elements that match the
-                                                    * given selector or target element.
-                                                    * @param {!Element} element The DOM element the event should be listened on.
-                                                    * @param {string} eventName The name of the event to listen to.
-                                                    * @param {!Element|string} selectorOrTarget Either an element or css selector
-                                                    *     that should match the event for the listener to be triggered.
-                                                    * @param {!function(!Object)} callback Function to be called when the event
-                                                    *     is triggered. It will receive the normalized event object.
-                                                    * @param {boolean=} opt_default Optional flag indicating if this is a default
-                                                    *     listener. That means that it would only be executed after all non
-                                                    *     default listeners, and only if the event isn't prevented via
-                                                    *     `preventDefault`.
-                                                    * @return {!EventHandle} Can be used to remove the listener.
-                                                    */
+	this['metalNamed']['domNamed']['contains'] = contains; /**
+                                                         * Listens to the specified event on the given DOM element, but only calls the
+                                                         * given callback listener when it's triggered by elements that match the
+                                                         * given selector or target element.
+                                                         * @param {!Element} element The DOM element the event should be listened on.
+                                                         * @param {string} eventName The name of the event to listen to.
+                                                         * @param {!Element|string} selectorOrTarget Either an element or css selector
+                                                         *     that should match the event for the listener to be triggered.
+                                                         * @param {!function(!Object)} callback Function to be called when the event
+                                                         *     is triggered. It will receive the normalized event object.
+                                                         * @param {boolean=} opt_default Optional flag indicating if this is a default
+                                                         *     listener. That means that it would only be executed after all non
+                                                         *     default listeners, and only if the event isn't prevented via
+                                                         *     `preventDefault`.
+                                                         * @return {!EventHandle} Can be used to remove the listener.
+                                                         */
 
 	function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
 		var customConfig = customEvents[eventName];
@@ -2290,31 +2299,27 @@ babelHelpers;
 		return new DomDelegatedEventHandle(isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, isString(selectorOrTarget) ? selectorOrTarget : null);
 	}
 
-	this['metalNamed']['dom']['delegate'] = delegate; /**
-                                                    * Verifies if the element is able to trigger the Click event,
-                                                    * simulating browsers behaviour, avoiding event listeners to be called by triggerEvent method.
-                                                    * @param {Element} node Element to be checked.
-                                                    * @param {string} eventName The event name.
-                                                    * @private
-                                                    */
+	this['metalNamed']['domNamed']['delegate'] = delegate; /**
+                                                         * Verifies if the element is able to trigger the Click event,
+                                                         * simulating browsers behaviour, avoiding event listeners to be called by triggerEvent method.
+                                                         * @param {Element} node Element to be checked.
+                                                         * @param {string} eventName The event name.
+                                                         * @private
+                                                         */
 
-	function isAbleToInteractWith_(node, eventName) {
-		var currElement = node;
-		var isAble = true;
-		var matchesSelector = 'button, input, select, textarea, fieldset';
-
-		if (eventName === 'click') {
-			while (currElement) {
-				if (currElement.disabled && match(currElement, matchesSelector)) {
-					isAble = false;
-					break;
-				}
-
-				currElement = currElement.parentNode;
-			}
+	function isAbleToInteractWith_(node, eventName, opt_eventObj) {
+		if (opt_eventObj && eventName === 'click' && opt_eventObj.button === 2) {
+			// Firefox triggers "click" events on the document for right clicks. This
+			// causes our delegate logic to trigger it for regular elements too, which
+			// shouldn't happen. Ignoring them here.
+			return false;
 		}
 
-		return isAble;
+		var matchesSelector = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'FIELDSET'];
+		if (eventName === 'click' && matchesSelector.indexOf(node.tagName) > -1) {
+			return !(node.disabled || parent(node, 'fieldset[disabled]'));
+		}
+		return true;
 	}
 
 	/**
@@ -2325,10 +2330,10 @@ babelHelpers;
 		node && append(document.body, node);
 	}
 
-	this['metalNamed']['dom']['enterDocument'] = enterDocument; /**
-                                                              * Removes node from document.
-                                                              * @param {Element} node Element to remove children from.
-                                                              */
+	this['metalNamed']['domNamed']['enterDocument'] = enterDocument; /**
+                                                                   * Removes node from document.
+                                                                   * @param {Element} node Element to remove children from.
+                                                                   */
 
 	function exitDocument(node) {
 		if (node && node.parentNode) {
@@ -2336,15 +2341,15 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['exitDocument'] = exitDocument; /**
-                                                            * This is called when an event is triggered by a delegate listener. All
-                                                            * matching listeners of this event type from `target` to `currentTarget` will
-                                                            * be triggered.
-                                                            * @param {!Event} event The event payload.
-                                                            * @return {boolean} False if at least one of the triggered callbacks returns
-                                                            *     false, or true otherwise.
-                                                            * @private
-                                                            */
+	this['metalNamed']['domNamed']['exitDocument'] = exitDocument; /**
+                                                                 * This is called when an event is triggered by a delegate listener. All
+                                                                 * matching listeners of this event type from `target` to `currentTarget` will
+                                                                 * be triggered.
+                                                                 * @param {!Event} event The event payload.
+                                                                 * @return {boolean} False if at least one of the triggered callbacks returns
+                                                                 *     false, or true otherwise.
+                                                                 * @private
+                                                                 */
 
 	function handleDelegateEvent_(event) {
 		normalizeDelegateEvent_(event);
@@ -2354,16 +2359,8 @@ babelHelpers;
 		var limit = event.currentTarget.parentNode;
 		var defFns = [];
 
-		while (currElement && currElement !== limit && !event.stopped) {
-			event.delegateTarget = currElement;
-			ret &= triggerMatchedListeners_(container, currElement, event, defFns);
-			currElement = currElement.parentNode;
-		}
-
-		for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
-			event.delegateTarget = defFns[i].element;
-			ret &= defFns[i].fn(event);
-		}
+		ret &= triggerDelegatedListeners_(container, currElement, event, limit, defFns);
+		ret &= triggerDefaultDelegatedListeners_(defFns, event);
 
 		event.delegateTarget = null;
 		event[NEXT_TARGET] = limit;
@@ -2384,13 +2381,13 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['hasClass'] = hasClass; /**
-                                                    * Checks if the given element has the requested css class using classList.
-                                                    * @param {!Element} element
-                                                    * @param {string} className
-                                                    * @return {boolean}
-                                                    * @private
-                                                    */
+	this['metalNamed']['domNamed']['hasClass'] = hasClass; /**
+                                                         * Checks if the given element has the requested css class using classList.
+                                                         * @param {!Element} element
+                                                         * @param {string} className
+                                                         * @return {boolean}
+                                                         * @private
+                                                         */
 
 	function hasClassWithNative_(element, className) {
 		return element.classList.contains(className);
@@ -2416,12 +2413,12 @@ babelHelpers;
 		return element.childNodes.length === 0;
 	}
 
-	this['metalNamed']['dom']['isEmpty'] = isEmpty; /**
-                                                  * Check if an element matches a given selector.
-                                                  * @param {Element} element
-                                                  * @param {string} selector
-                                                  * @return {boolean}
-                                                  */
+	this['metalNamed']['domNamed']['isEmpty'] = isEmpty; /**
+                                                       * Check if an element matches a given selector.
+                                                       * @param {Element} element
+                                                       * @param {string} selector
+                                                       * @return {boolean}
+                                                       */
 
 	function match(element, selector) {
 		if (!element || element.nodeType !== 1) {
@@ -2437,14 +2434,14 @@ babelHelpers;
 		return matchFallback_(element, selector);
 	}
 
-	this['metalNamed']['dom']['match'] = match; /**
-                                              * Check if an element matches a given selector, using an internal implementation
-                                              * instead of calling existing javascript functions.
-                                              * @param {Element} element
-                                              * @param {string} selector
-                                              * @return {boolean}
-                                              * @private
-                                              */
+	this['metalNamed']['domNamed']['match'] = match; /**
+                                                   * Check if an element matches a given selector, using an internal implementation
+                                                   * instead of calling existing javascript functions.
+                                                   * @param {Element} element
+                                                   * @param {string} selector
+                                                   * @return {boolean}
+                                                   * @private
+                                                   */
 
 	function matchFallback_(element, selector) {
 		var nodes = document.querySelectorAll(selector, element.parentNode);
@@ -2472,11 +2469,11 @@ babelHelpers;
 		return null;
 	}
 
-	this['metalNamed']['dom']['next'] = next; /**
-                                            * Normalizes the event payload for delegate listeners.
-                                            * @param {!Event} event
-                                            * @private
-                                            */
+	this['metalNamed']['domNamed']['next'] = next; /**
+                                                 * Normalizes the event payload for delegate listeners.
+                                                 * @param {!Event} event
+                                                 * @private
+                                                 */
 
 	function normalizeDelegateEvent_(event) {
 		event.stopPropagation = stopPropagation_;
@@ -2509,16 +2506,16 @@ babelHelpers;
 		return new DomEventHandle(element, eventName, callback, opt_capture);
 	}
 
-	this['metalNamed']['dom']['on'] = on; /**
-                                        * Listens to the specified event on the given DOM element once. This
-                                        * function normalizes DOM event payloads and functions so they'll work the
-                                        * same way on all supported browsers.
-                                        * @param {!Element} element The DOM element to listen to the event on.
-                                        * @param {string} eventName The name of the event to listen to.
-                                        * @param {!function(!Object)} callback Function to be called when the event
-                                        *   is triggered. It will receive the normalized event object.
-                                        * @return {!DomEventHandle} Can be used to remove the listener.
-                                        */
+	this['metalNamed']['domNamed']['on'] = on; /**
+                                             * Listens to the specified event on the given DOM element once. This
+                                             * function normalizes DOM event payloads and functions so they'll work the
+                                             * same way on all supported browsers.
+                                             * @param {!Element} element The DOM element to listen to the event on.
+                                             * @param {string} eventName The name of the event to listen to.
+                                             * @param {!function(!Object)} callback Function to be called when the event
+                                             *   is triggered. It will receive the normalized event object.
+                                             * @return {!DomEventHandle} Can be used to remove the listener.
+                                             */
 
 	function once(element, eventName, callback) {
 		var domEventHandle = on(element, eventName, function () {
@@ -2528,33 +2525,33 @@ babelHelpers;
 		return domEventHandle;
 	}
 
-	this['metalNamed']['dom']['once'] = once; /**
-                                            * Gets the first parent from the given element that matches the specified
-                                            * selector, or null if none match.
-                                            * @param {!Element} element
-                                            * @param {string} selector
-                                            * @return {Element}
-                                            */
+	this['metalNamed']['domNamed']['once'] = once; /**
+                                                 * Gets the first parent from the given element that matches the specified
+                                                 * selector, or null if none match.
+                                                 * @param {!Element} element
+                                                 * @param {string} selector
+                                                 * @return {Element}
+                                                 */
 
 	function parent(element, selector) {
 		return closest(element.parentNode, selector);
 	}
 
-	this['metalNamed']['dom']['parent'] = parent; /**
-                                                * Registers a custom event.
-                                                * @param {string} eventName The name of the custom event.
-                                                * @param {!Object} customConfig An object with information about how the event
-                                                *   should be handled.
-                                                */
+	this['metalNamed']['domNamed']['parent'] = parent; /**
+                                                     * Registers a custom event.
+                                                     * @param {string} eventName The name of the custom event.
+                                                     * @param {!Object} customConfig An object with information about how the event
+                                                     *   should be handled.
+                                                     */
 
 	function registerCustomEvent(eventName, customConfig) {
 		customEvents[eventName] = customConfig;
 	}
 
-	this['metalNamed']['dom']['registerCustomEvent'] = registerCustomEvent; /**
-                                                                          * Removes all the child nodes on a DOM node.
-                                                                          * @param {Element} node Element to remove children from.
-                                                                          */
+	this['metalNamed']['domNamed']['registerCustomEvent'] = registerCustomEvent; /**
+                                                                               * Removes all the child nodes on a DOM node.
+                                                                               * @param {Element} node Element to remove children from.
+                                                                               */
 
 	function removeChildren(node) {
 		var child;
@@ -2563,11 +2560,11 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['removeChildren'] = removeChildren; /**
-                                                                * Removes the requested CSS classes from an element.
-                                                                * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
-                                                                * @param {string} classes CSS classes to remove.
-                                                                */
+	this['metalNamed']['domNamed']['removeChildren'] = removeChildren; /**
+                                                                     * Removes the requested CSS classes from an element.
+                                                                     * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
+                                                                     * @param {string} classes CSS classes to remove.
+                                                                     */
 
 	function removeClasses(elements, classes) {
 		if (!isObject(elements) || !isString(classes)) {
@@ -2587,12 +2584,12 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['removeClasses'] = removeClasses; /**
-                                                              * Removes the requested CSS classes from an element using classList.
-                                                              * @param {!Element} element The element to remove CSS classes from.
-                                                              * @param {string} classes CSS classes to remove.
-                                                              * @private
-                                                              */
+	this['metalNamed']['domNamed']['removeClasses'] = removeClasses; /**
+                                                                   * Removes the requested CSS classes from an element using classList.
+                                                                   * @param {!Element} element The element to remove CSS classes from.
+                                                                   * @param {string} classes CSS classes to remove.
+                                                                   * @private
+                                                                   */
 
 	function removeClassesWithNative_(element, classes) {
 		classes.split(' ').forEach(function (className) {
@@ -2632,10 +2629,10 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['replace'] = replace; /**
-                                                  * The function that replaces `stopImmediatePropagation_` for events.
-                                                  * @private
-                                                  */
+	this['metalNamed']['domNamed']['replace'] = replace; /**
+                                                       * The function that replaces `stopImmediatePropagation_` for events.
+                                                       * @private
+                                                       */
 
 	function stopImmediatePropagation_() {
 		var event = this; // jshint ignore:line
@@ -2674,14 +2671,60 @@ babelHelpers;
 		return 'on' + eventName in element;
 	}
 
-	this['metalNamed']['dom']['supportsEvent'] = supportsEvent; /**
-                                                              * Converts the given argument to a DOM element. Strings are assumed to
-                                                              * be selectors, and so a matched element will be returned. If the arg
-                                                              * is already a DOM element it will be the return value.
-                                                              * @param {string|Element|Document} selectorOrElement
-                                                              * @return {Element} The converted element, or null if none was found.
-                                                              */
+	this['metalNamed']['domNamed']['supportsEvent'] = supportsEvent; /**
+                                                                   * This triggers all default matched delegated listeners of a given event type.
+                                                                   * @param {!Array} defaultFns Array to collect default listeners in, instead
+                                                                   * @param {!Event} event
+                                                                   * @return {boolean} False if at least one of the triggered callbacks returns
+                                                                   *     false, or true otherwise.
+                                                                   * @private
+                                                                   */
 
+	function triggerDefaultDelegatedListeners_(defFns, event) {
+		var ret = true;
+
+		for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
+			event.delegateTarget = defFns[i].element;
+			ret &= defFns[i].fn(event);
+		}
+
+		return ret;
+	}
+
+	/**
+  * This triggers all matched delegated listeners of a given event type when its
+  * delegated target is able to interact.
+  * @param {!Element} container
+  * @param {!Element} currElement
+  * @param {!Event} event
+  * @param {!Element} limit the fartest parent of the given element
+  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  *     of running them.
+  * @return {boolean} False if at least one of the triggered callbacks returns
+  *     false, or true otherwise.
+  * @private
+  */
+	function triggerDelegatedListeners_(container, currElement, event, limit, defaultFns) {
+		var ret = true;
+
+		while (currElement && currElement !== limit && !event.stopped) {
+			if (isAbleToInteractWith_(currElement, event.type, event)) {
+				event.delegateTarget = currElement;
+				ret &= triggerMatchedListeners_(container, currElement, event, defaultFns);
+			}
+			currElement = currElement.parentNode;
+		}
+
+		return ret;
+	}
+
+	/**
+  * Converts the given argument to a DOM element. Strings are assumed to
+  * be selectors, and so a matched element will be returned. If the arg
+  * is already a DOM element it will be the return value.
+  * @param {string|Element|Document} selectorOrElement
+  * @return {Element} The converted element, or null if none was found.
+  */
 	function toElement(selectorOrElement) {
 		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
 			return selectorOrElement;
@@ -2696,12 +2739,12 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['toElement'] = toElement; /**
-                                                      * Adds or removes one or more classes from an element. If any of the classes
-                                                      * is present, it will be removed from the element, or added otherwise.
-                                                      * @param {!Element} element The element which classes will be toggled.
-                                                      * @param {string} classes The classes which have to added or removed from the element.
-                                                      */
+	this['metalNamed']['domNamed']['toElement'] = toElement; /**
+                                                           * Adds or removes one or more classes from an element. If any of the classes
+                                                           * is present, it will be removed from the element, or added otherwise.
+                                                           * @param {!Element} element The element which classes will be toggled.
+                                                           * @param {string} classes The classes which have to added or removed from the element.
+                                                           */
 
 	function toggleClasses(element, classes) {
 		if (!isObject(element) || !isString(classes)) {
@@ -2715,14 +2758,14 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['toggleClasses'] = toggleClasses; /**
-                                                              * Adds or removes one or more classes from an element using classList.
-                                                              * If any of the classes is present, it will be removed from the element,
-                                                              * or added otherwise.
-                                                              * @param {!Element} element The element which classes will be toggled.
-                                                              * @param {string} classes The classes which have to added or removed from the element.
-                                                              * @private
-                                                              */
+	this['metalNamed']['domNamed']['toggleClasses'] = toggleClasses; /**
+                                                                   * Adds or removes one or more classes from an element using classList.
+                                                                   * If any of the classes is present, it will be removed from the element,
+                                                                   * or added otherwise.
+                                                                   * @param {!Element} element The element which classes will be toggled.
+                                                                   * @param {string} classes The classes which have to added or removed from the element.
+                                                                   * @private
+                                                                   */
 
 	function toggleClassesWithNative_(element, classes) {
 		classes.split(' ').forEach(function (className) {
@@ -2766,7 +2809,7 @@ babelHelpers;
   *   triggered event's payload.
   */
 	function triggerEvent(element, eventName, opt_eventObj) {
-		if (isAbleToInteractWith_(element, eventName)) {
+		if (isAbleToInteractWith_(element, eventName, opt_eventObj)) {
 			var eventObj = document.createEvent('HTMLEvents');
 			eventObj.initEvent(eventName, true, true);
 			object.mixin(eventObj, opt_eventObj);
@@ -2774,17 +2817,17 @@ babelHelpers;
 		}
 	}
 
-	this['metalNamed']['dom']['triggerEvent'] = triggerEvent; /**
-                                                            * Triggers the given listeners array.
-                                                            * @param {Array<!function()>} listeners
-                                                            * @param {!Event} event
-                                                            * @param {!Element} element
-                                                            * @param {!Array} defaultFns Array to collect default listeners in, instead
-                                                            *     of running them.
-                                                            * @return {boolean} False if at least one of the triggered callbacks returns
-                                                            *     false, or true otherwise.
-                                                            * @private
-                                                            */
+	this['metalNamed']['domNamed']['triggerEvent'] = triggerEvent; /**
+                                                                 * Triggers the given listeners array.
+                                                                 * @param {Array<!function()>} listeners
+                                                                 * @param {!Event} event
+                                                                 * @param {!Element} element
+                                                                 * @param {!Array} defaultFns Array to collect default listeners in, instead
+                                                                 *     of running them.
+                                                                 * @return {boolean} False if at least one of the triggered callbacks returns
+                                                                 *     false, or true otherwise.
+                                                                 * @private
+                                                                 */
 
 	function triggerListeners_(listeners, event, element, defaultFns) {
 		var ret = true;
@@ -2815,13 +2858,6 @@ babelHelpers;
   * @private
   */
 	function triggerMatchedListeners_(container, element, event, defaultFns) {
-		if (event.type === 'click' && event.button === 2) {
-			// Firefox triggers "click" events on the document for right clicks. This
-			// causes our delegate logic to trigger it for regular elements too, which
-			// shouldn't happen. Ignoring them here.
-			return;
-		}
-
 		var data = domData.get(element);
 		var listeners = data.listeners[event.type];
 		var ret = triggerListeners_(listeners, event, element, defaultFns);
@@ -2837,6 +2873,22 @@ babelHelpers;
 
 		return ret;
 	}
+}).call(this);
+'use strict';
+
+// This file exists just for backwards compatibility, making sure that old
+// default imports for this file still work. It's best to use the named exports
+// for each function instead though, since that allows bundlers like Rollup to
+// reduce the bundle size by removing unused code.
+
+(function () {
+  var dom = this['metalNamed']['domNamed'];
+  this['metal']['dom'] = dom;
+  this['metalNamed']['dom'] = this['metalNamed']['dom'] || {};
+  this['metalNamed']['dom']['dom'] = dom;
+  Object.keys(this['metalNamed']['domNamed']).forEach(function (key) {
+    this['metalNamed']['dom'][key] = this['metalNamed']['domNamed'][key];
+  });
 }).call(this);
 'use strict';
 
@@ -3336,7 +3388,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-  var dom = this['metalNamed']['dom'];
+  var dom = this['metal']['dom'];
   var domData = this['metal']['domData'];
   var DomEventEmitterProxy = this['metal']['DomEventEmitterProxy'];
   var DomEventHandle = this['metal']['DomEventHandle'];
@@ -3353,14 +3405,7 @@ babelHelpers;
   this['metalNamed']['dom']['features'] = features;
   this['metalNamed']['dom']['globalEval'] = globalEval;
   this['metalNamed']['dom']['globalEvalStyles'] = globalEvalStyles;
-
-  // This is for backwards compatibility, making sure that old imports for the
-  // "dom" object still work. It's best to use the named exports for each function
-  // instead though, since that allows bundlers like Rollup to reduce the bundle
-  // size by removing unused code.
-
   this['metal']['dom'] = dom;
-  this['metalNamed']['dom']['dom'] = dom;
 }).call(this);
 'use strict';
 
