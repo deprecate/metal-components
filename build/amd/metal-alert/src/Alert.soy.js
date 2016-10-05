@@ -103,7 +103,7 @@ define(['exports', 'metal-component/src/all/component', 'metal-soy/src/Soy'], fu
       if (opt_data.dismissible) {
         ie_open('button', null, null, 'type', 'button', 'class', 'close', 'aria-label', 'Close', 'data-onclick', 'toggle');
         ie_open('span', null, null, 'aria-hidden', 'true');
-        itext('×');
+        itext('\xD7');
         ie_close('span');
         ie_close('button');
       }

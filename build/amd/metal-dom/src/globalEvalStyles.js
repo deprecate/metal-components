@@ -5,14 +5,6 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 		value: true
 	});
 
-	var _dom2 = _interopRequireDefault(_dom);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -77,8 +69,8 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 				if (style.tagName === 'STYLE') {
 					_metal.async.nextTick(callback);
 				} else {
-					_dom2.default.once(style, 'load', callback);
-					_dom2.default.once(style, 'error', callback);
+					(0, _dom.once)(style, 'load', callback);
+					(0, _dom.once)(style, 'error', callback);
 				}
 
 				if (opt_appendFn) {

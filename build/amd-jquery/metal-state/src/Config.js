@@ -38,7 +38,7 @@ define(['exports', 'metal/src/metal', './validators'], function (exports, _metal
   */
 	var Config = {
 		required: function required() {
-			var _required = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+			var _required = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
 			return mergeConfig(this, { required: _required });
 		},

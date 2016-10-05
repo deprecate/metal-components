@@ -5,14 +5,6 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 		value: true
 	});
 
-	var _dom2 = _interopRequireDefault(_dom);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -103,9 +95,9 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 						var index = event.indexOf(':', 9);
 						var eventName = event.substring(9, index);
 						var selector = event.substring(index + 1);
-						return _dom2.default.delegate(this.originEmitter_, eventName, selector, listener);
+						return (0, _dom.delegate)(this.originEmitter_, eventName, selector, listener);
 					} else {
-						return _dom2.default.on(this.originEmitter_, event, listener);
+						return (0, _dom.on)(this.originEmitter_, event, listener);
 					}
 				} else {
 					return _get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'addListener_', this).call(this, event, listener);
@@ -122,7 +114,7 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 				if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
 					return true;
 				}
-				return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || _dom2.default.supportsEvent(this.originEmitter_, event);
+				return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || (0, _dom.supportsEvent)(this.originEmitter_, event);
 			}
 		}, {
 			key: 'shouldProxyEvent_',

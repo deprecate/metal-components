@@ -5,14 +5,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		value: true
 	});
 
-	var _metal2 = _interopRequireDefault(_metal);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -70,7 +62,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}, {
 			key: 'isComponentTag',
 			value: function isComponentTag(tag) {
-				return !_metal2.default.isString(tag) || tag[0] === tag[0].toUpperCase();
+				return !(0, _metal.isString)(tag) || tag[0] === tag[0].toUpperCase();
 			}
 		}]);
 

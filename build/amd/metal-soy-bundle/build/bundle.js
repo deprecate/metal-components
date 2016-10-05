@@ -4,7 +4,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
   } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
 
   (function () {
@@ -2653,15 +2653,15 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
      */
     goog.i18n.bidi.Format = {
       /** Unicode "Left-To-Right Embedding" (LRE) character. */
-      LRE: '‪',
+      LRE: '\u202A',
       /** Unicode "Right-To-Left Embedding" (RLE) character. */
-      RLE: '‫',
+      RLE: '\u202B',
       /** Unicode "Pop Directional Formatting" (PDF) character. */
-      PDF: '‬',
+      PDF: '\u202C',
       /** Unicode "Left-To-Right Mark" (LRM) character. */
-      LRM: '‎',
+      LRM: '\u200E',
       /** Unicode "Right-To-Left Mark" (RLM) character. */
-      RLM: '‏'
+      RLM: '\u200F'
     };
 
     /**
@@ -2745,7 +2745,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
      * @type {string}
      * @private
      */
-    goog.i18n.bidi.ltrChars_ = 'A-Za-zÀ-ÖØ-öø-ʸ̀-֐ࠀ-῿' + '‎Ⰰ-﬜︀-﹯﻽-￿';
+    goog.i18n.bidi.ltrChars_ = 'A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\u02B8\u0300-\u0590\u0800-\u1FFF' + '\u200E\u2C00-\uFB1C\uFE00-\uFE6F\uFEFD-\uFFFF';
 
     /**
      * A practical pattern to identify strong RTL character. This pattern is not
@@ -2754,7 +2754,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
      * @type {string}
      * @private
      */
-    goog.i18n.bidi.rtlChars_ = '֑-ۯۺ-߿‏יִ-﷿ﹰ-ﻼ';
+    goog.i18n.bidi.rtlChars_ = '\u0591-\u06EF\u06FA-\u07FF\u200F\uFB1D-\uFDFF\uFE70-\uFEFC';
 
     /**
      * Simplified regular expression for an HTML tag (opening or closing) or an HTML
@@ -3196,7 +3196,7 @@ define(['metal-incremental-dom/src/IncrementalDomRenderer'], function () {
      * @return {string} Processed string with double/single quote replaced.
      */
     goog.i18n.bidi.normalizeHebrewQuote = function (str) {
-      return str.replace(goog.i18n.bidi.doubleQuoteSubstituteRe_, '$1״').replace(goog.i18n.bidi.singleQuoteSubstituteRe_, '$1׳');
+      return str.replace(goog.i18n.bidi.doubleQuoteSubstituteRe_, '$1\u05F4').replace(goog.i18n.bidi.singleQuoteSubstituteRe_, '$1\u05F3');
     };
 
     /**

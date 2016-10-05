@@ -5,14 +5,6 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 		value: true
 	});
 
-	var _dom2 = _interopRequireDefault(_dom);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -72,7 +64,7 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 				if (features.attrOrderChange_ === undefined) {
 					var originalContent = '<div data-component="" data-ref=""></div>';
 					var element = document.createElement('div');
-					_dom2.default.append(element, originalContent);
+					(0, _dom.append)(element, originalContent);
 					features.attrOrderChange_ = originalContent !== element.innerHTML;
 				}
 				return features.attrOrderChange_;

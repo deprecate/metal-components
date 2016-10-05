@@ -1,214 +1,321 @@
 define(['exports'], function (exports) {
-	'use strict';
+  'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
+  /**
+   * A collection of core utility functions.
+   * @const
+   */
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-		return typeof obj;
-	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
-	};
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.abstractMethod = abstractMethod;
+  exports.collectSuperClassesProperty = collectSuperClassesProperty;
+  exports.disableCompatibilityMode = disableCompatibilityMode;
+  exports.enableCompatibilityMode = enableCompatibilityMode;
+  exports.getCompatibilityModeData = getCompatibilityModeData;
+  exports.getFunctionName = getFunctionName;
+  exports.getUid = getUid;
+  exports.identityFunction = identityFunction;
+  exports.isBoolean = isBoolean;
+  exports.isDef = isDef;
+  exports.isDefAndNotNull = isDefAndNotNull;
+  exports.isDocument = isDocument;
+  exports.isElement = isElement;
+  exports.isFunction = isFunction;
+  exports.isNull = isNull;
+  exports.isNumber = isNumber;
+  exports.isWindow = isWindow;
+  exports.isObject = isObject;
+  exports.isPromise = isPromise;
+  exports.isString = isString;
+  exports.mergeSuperClassesProperty = mergeSuperClassesProperty;
+  exports.nullFunction = nullFunction;
 
-	function _classCallCheck(instance, Constructor) {
-		if (!(instance instanceof Constructor)) {
-			throw new TypeError("Cannot call a class as a function");
-		}
-	}
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
 
-	var _createClass = function () {
-		function defineProperties(target, props) {
-			for (var i = 0; i < props.length; i++) {
-				var descriptor = props[i];
-				descriptor.enumerable = descriptor.enumerable || false;
-				descriptor.configurable = true;
-				if ("value" in descriptor) descriptor.writable = true;
-				Object.defineProperty(target, descriptor.key, descriptor);
-			}
-		}
+  var compatibilityModeData_ = void 0;
 
-		return function (Constructor, protoProps, staticProps) {
-			if (protoProps) defineProperties(Constructor.prototype, protoProps);
-			if (staticProps) defineProperties(Constructor, staticProps);
-			return Constructor;
-		};
-	}();
+  /**
+   * Counter for unique id.
+   * @type {Number}
+   * @private
+   */
+  var uniqueIdCounter_ = 1;
 
-	var compatibilityModeData_ = void 0;
+  /**
+   * Unique id property prefix.
+   * @type {String}
+   * @protected
+   */
+  var UID_PROPERTY = exports.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
-	/**
-  * A collection of core utility functions.
-  * @const
-  */
+  /**
+   * When defining a class Foo with an abstract method bar(), you can do:
+   * Foo.prototype.bar = abstractMethod
+   *
+   * Now if a subclass of Foo fails to override bar(), an error will be thrown
+   * when bar() is invoked.
+   *
+   * @type {!Function}
+   * @throws {Error} when invoked to indicate the method should be overridden.
+   */
+  function abstractMethod() {
+    throw Error('Unimplemented abstract method');
+  }
 
-	var core = function () {
-		function core() {
-			_classCallCheck(this, core);
-		}
+  /**
+   * Loops constructor super classes collecting its properties values. If
+   * property is not available on the super class `undefined` will be
+   * collected as value for the class hierarchy position.
+   * @param {!function()} constructor Class constructor.
+   * @param {string} propertyName Property name to be collected.
+   * @return {Array.<*>} Array of collected values.
+   * TODO(*): Rethink superclass loop.
+   */
+  function collectSuperClassesProperty(constructor, propertyName) {
+    var propertyValues = [constructor[propertyName]];
+    while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
+      constructor = constructor.__proto__;
+      propertyValues.push(constructor[propertyName]);
+    }
+    return propertyValues;
+  }
 
-		_createClass(core, null, [{
-			key: 'abstractMethod',
-			value: function abstractMethod() {
-				throw Error('Unimplemented abstract method');
-			}
-		}, {
-			key: 'collectSuperClassesProperty',
-			value: function collectSuperClassesProperty(constructor, propertyName) {
-				var propertyValues = [constructor[propertyName]];
-				while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
-					constructor = constructor.__proto__;
-					propertyValues.push(constructor[propertyName]);
-				}
-				return propertyValues;
-			}
-		}, {
-			key: 'disableCompatibilityMode',
-			value: function disableCompatibilityMode() {
-				compatibilityModeData_ = null;
-			}
-		}, {
-			key: 'enableCompatibilityMode',
-			value: function enableCompatibilityMode() {
-				var opt_data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  /**
+   * Disables Metal.js's compatibility mode.
+   */
+  function disableCompatibilityMode() {
+    compatibilityModeData_ = null;
+  }
 
-				compatibilityModeData_ = opt_data;
-			}
-		}, {
-			key: 'getCompatibilityModeData',
-			value: function getCompatibilityModeData() {
-				// Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
-				if (!compatibilityModeData_) {
-					if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
-						core.enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
-					}
-				}
-				return compatibilityModeData_;
-			}
-		}, {
-			key: 'getFunctionName',
-			value: function getFunctionName(fn) {
-				if (!fn.name) {
-					var str = fn.toString();
-					fn.name = str.substring(9, str.indexOf('('));
-				}
-				return fn.name;
-			}
-		}, {
-			key: 'getUid',
-			value: function getUid(opt_object, opt_noInheritance) {
-				if (opt_object) {
-					var id = opt_object[core.UID_PROPERTY];
-					if (opt_noInheritance && !opt_object.hasOwnProperty(core.UID_PROPERTY)) {
-						id = null;
-					}
-					return id || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
-				}
-				return core.uniqueIdCounter_++;
-			}
-		}, {
-			key: 'identityFunction',
-			value: function identityFunction(opt_returnValue) {
-				return opt_returnValue;
-			}
-		}, {
-			key: 'isBoolean',
-			value: function isBoolean(val) {
-				return typeof val === 'boolean';
-			}
-		}, {
-			key: 'isDef',
-			value: function isDef(val) {
-				return val !== undefined;
-			}
-		}, {
-			key: 'isDefAndNotNull',
-			value: function isDefAndNotNull(val) {
-				return core.isDef(val) && !core.isNull(val);
-			}
-		}, {
-			key: 'isDocument',
-			value: function isDocument(val) {
-				return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 9;
-			}
-		}, {
-			key: 'isElement',
-			value: function isElement(val) {
-				return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 1;
-			}
-		}, {
-			key: 'isFunction',
-			value: function isFunction(val) {
-				return typeof val === 'function';
-			}
-		}, {
-			key: 'isNull',
-			value: function isNull(val) {
-				return val === null;
-			}
-		}, {
-			key: 'isNumber',
-			value: function isNumber(val) {
-				return typeof val === 'number';
-			}
-		}, {
-			key: 'isWindow',
-			value: function isWindow(val) {
-				return val !== null && val === val.window;
-			}
-		}, {
-			key: 'isObject',
-			value: function isObject(val) {
-				var type = typeof val === 'undefined' ? 'undefined' : _typeof(val);
-				return type === 'object' && val !== null || type === 'function';
-			}
-		}, {
-			key: 'isPromise',
-			value: function isPromise(val) {
-				return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && typeof val.then === 'function';
-			}
-		}, {
-			key: 'isString',
-			value: function isString(val) {
-				return typeof val === 'string' || val instanceof String;
-			}
-		}, {
-			key: 'mergeSuperClassesProperty',
-			value: function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
-				var mergedName = propertyName + '_MERGED';
-				if (constructor.hasOwnProperty(mergedName)) {
-					return false;
-				}
+  /**
+   * Enables Metal.js's compatibility mode with the following features from rc
+   * and 1.x versions:
+   *     - Using "key" to reference component instances. In the current version
+   *       this should be done via "ref" instead. This allows old code still
+   *       using "key" to keep working like before. NOTE: this may cause
+   *       problems, since "key" is meant to be used differently. Only use this
+   *       if it's not possible to upgrade the code to use "ref" instead.
+   * @param {Object=} opt_data Optional object with data to specify more
+   *     details, such as:
+   *         - renderers {Array} the template renderers that should be in
+   *           compatibility mode, either their constructors or strings
+   *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
+   *           that extend from IncrementalDomRenderer.
+   * @type {Object}
+   */
+  function enableCompatibilityMode() {
+    var opt_data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-				var merged = core.collectSuperClassesProperty(constructor, propertyName);
-				if (opt_mergeFn) {
-					merged = opt_mergeFn(merged);
-				}
-				constructor[mergedName] = merged;
-				return true;
-			}
-		}, {
-			key: 'nullFunction',
-			value: function nullFunction() {}
-		}]);
+    compatibilityModeData_ = opt_data;
+  }
 
-		return core;
-	}();
+  /**
+   * Returns the data used for compatibility mode, or nothing if it hasn't been
+   * enabled.
+   * @return {Object}
+   */
+  function getCompatibilityModeData() {
+    // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
+    if (!compatibilityModeData_) {
+      if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
+        enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
+      }
+    }
+    return compatibilityModeData_;
+  }
 
-	/**
-  * Unique id property prefix.
-  * @type {String}
-  * @protected
-  */
-	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
+  /**
+   * Gets the name of the given function. If the current browser doesn't
+   * support the `name` property, this will calculate it from the function's
+   * content string.
+   * @param {!function()} fn
+   * @return {string}
+   */
+  function getFunctionName(fn) {
+    if (!fn.name) {
+      var str = fn.toString();
+      fn.name = str.substring(9, str.indexOf('('));
+    }
+    return fn.name;
+  }
 
-	/**
-  * Counter for unique id.
-  * @type {Number}
-  * @private
-  */
-	core.uniqueIdCounter_ = 1;
+  /**
+   * Gets an unique id. If `opt_object` argument is passed, the object is
+   * mutated with an unique id. Consecutive calls with the same object
+   * reference won't mutate the object again, instead the current object uid
+   * returns. See {@link UID_PROPERTY}.
+   * @param {Object=} opt_object Optional object to be mutated with the uid. If
+   *     not specified this method only returns the uid.
+   * @param {boolean=} opt_noInheritance Optional flag indicating if this
+   *     object's uid property can be inherited from parents or not.
+   * @throws {Error} when invoked to indicate the method should be overridden.
+   */
+  function getUid(opt_object, opt_noInheritance) {
+    if (opt_object) {
+      var id = opt_object[UID_PROPERTY];
+      if (opt_noInheritance && !opt_object.hasOwnProperty(UID_PROPERTY)) {
+        id = null;
+      }
+      return id || (opt_object[UID_PROPERTY] = uniqueIdCounter_++);
+    }
+    return uniqueIdCounter_++;
+  }
 
-	exports.default = core;
+  /**
+   * The identity function. Returns its first argument.
+   * @param {*=} opt_returnValue The single value that will be returned.
+   * @return {?} The first argument.
+   */
+  function identityFunction(opt_returnValue) {
+    return opt_returnValue;
+  }
+
+  /**
+   * Returns true if the specified value is a boolean.
+   * @param {?} val Variable to test.
+   * @return {boolean} Whether variable is boolean.
+   */
+  function isBoolean(val) {
+    return typeof val === 'boolean';
+  }
+
+  /**
+   * Returns true if the specified value is not undefined.
+   * @param {?} val Variable to test.
+   * @return {boolean} Whether variable is defined.
+   */
+  function isDef(val) {
+    return val !== undefined;
+  }
+
+  /**
+   * Returns true if value is not undefined or null.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isDefAndNotNull(val) {
+    return isDef(val) && !isNull(val);
+  }
+
+  /**
+   * Returns true if value is a document.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isDocument(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 9;
+  }
+
+  /**
+   * Returns true if value is a dom element.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isElement(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 1;
+  }
+
+  /**
+   * Returns true if the specified value is a function.
+   * @param {?} val Variable to test.
+   * @return {boolean} Whether variable is a function.
+   */
+  function isFunction(val) {
+    return typeof val === 'function';
+  }
+
+  /**
+   * Returns true if value is null.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isNull(val) {
+    return val === null;
+  }
+
+  /**
+   * Returns true if the specified value is a number.
+   * @param {?} val Variable to test.
+   * @return {boolean} Whether variable is a number.
+   */
+  function isNumber(val) {
+    return typeof val === 'number';
+  }
+
+  /**
+   * Returns true if value is a window.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isWindow(val) {
+    return val !== null && val === val.window;
+  }
+
+  /**
+   * Returns true if the specified value is an object. This includes arrays
+   * and functions.
+   * @param {?} val Variable to test.
+   * @return {boolean} Whether variable is an object.
+   */
+  function isObject(val) {
+    var type = typeof val === 'undefined' ? 'undefined' : _typeof(val);
+    return type === 'object' && val !== null || type === 'function';
+  }
+
+  /**
+   * Returns true if value is a Promise.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isPromise(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && typeof val.then === 'function';
+  }
+
+  /**
+   * Returns true if value is a string.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isString(val) {
+    return typeof val === 'string' || val instanceof String;
+  }
+
+  /**
+   * Merges the values of a export function property a class with the values of that
+   * property for all its super classes, and stores it as a new static
+   * property of that class. If the export function property already existed, it won't
+   * be recalculated.
+   * @param {!function()} constructor Class constructor.
+   * @param {string} propertyName Property name to be collected.
+   * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
+   *   with the values of the property for the current class and all its super classes.
+   *   Should return the merged value to be stored on the current class.
+   * @return {boolean} Returns true if merge happens, false otherwise.
+   */
+  function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
+    var mergedName = propertyName + '_MERGED';
+    if (constructor.hasOwnProperty(mergedName)) {
+      return false;
+    }
+
+    var merged = collectSuperClassesProperty(constructor, propertyName);
+    if (opt_mergeFn) {
+      merged = opt_mergeFn(merged);
+    }
+    constructor[mergedName] = merged;
+    return true;
+  }
+
+  /**
+   * Null function used for default values of callbacks, etc.
+   * @return {void} Nothing.
+   */
+  function nullFunction() {}
 });
 //# sourceMappingURL=core.js.map

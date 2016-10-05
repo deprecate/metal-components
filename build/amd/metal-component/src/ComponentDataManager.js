@@ -101,7 +101,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events', 'metal-state/sr
 
 			_this.component_ = component;
 
-			_metal.core.mergeSuperClassesProperty(_this.constructor, 'BLACKLIST', _metal.array.firstDefinedValue);
+			(0, _metal.mergeSuperClassesProperty)(_this.constructor, 'BLACKLIST', _metal.array.firstDefinedValue);
 			_state2.default.mergeStateStatic(_this.component_.constructor);
 
 			_this.createState_(data, _this.component_);

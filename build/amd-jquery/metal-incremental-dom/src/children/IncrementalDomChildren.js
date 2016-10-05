@@ -5,8 +5,6 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 		value: true
 	});
 
-	var _metal2 = _interopRequireDefault(_metal);
-
 	var _IncrementalDomAop2 = _interopRequireDefault(_IncrementalDomAop);
 
 	var _IncrementalDomUtils2 = _interopRequireDefault(_IncrementalDomUtils);
@@ -81,6 +79,11 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 				});
 			}
 		}, {
+			key: 'getCurrentOwner',
+			value: function getCurrentOwner() {
+				return currNodeOwner_;
+			}
+		}, {
 			key: 'getOwner',
 			value: function getOwner(node) {
 				return node[IncrementalDomChildren.CHILD_OWNER];
@@ -94,11 +97,13 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 					return;
 				}
 
+				currNodeOwner_ = IncrementalDomChildren.getOwner(tree);
 				if (opt_skipNode && opt_skipNode(tree)) {
+					currNodeOwner_ = null;
 					return;
 				}
 
-				if (_metal2.default.isDef(tree.text)) {
+				if ((0, _metal.isDef)(tree.text)) {
 					var args = tree.args ? tree.args : [];
 					args[0] = tree.text;
 					IncrementalDOM.text.apply(null, args);
@@ -112,6 +117,7 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 					}
 					IncrementalDOM.elementClose(tree.tag);
 				}
+				currNodeOwner_ = null;
 			}
 		}]);
 
@@ -119,6 +125,7 @@ define(['exports', 'metal/src/metal', '../IncrementalDomAop', '../utils/Incremen
 	}();
 
 	var callback_;
+	var currNodeOwner_;
 	var currentParent_;
 	var isCapturing_ = false;
 	var renderer_;

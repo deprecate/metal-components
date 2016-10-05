@@ -162,8 +162,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
     */
 			_this.DEFAULT_ELEMENT_PARENT = document.body;
 
-			_metal.core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
-			_metal.core.mergeSuperClassesProperty(_this.constructor, 'SYNC_UPDATES', _metal.array.firstDefinedValue);
+			(0, _metal.mergeSuperClassesProperty)(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
+			(0, _metal.mergeSuperClassesProperty)(_this.constructor, 'SYNC_UPDATES', _metal.array.firstDefinedValue);
 
 			_this.element = _this.initialConfig_.element;
 
@@ -238,13 +238,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 		}, {
 			key: 'createDataManager',
 			value: function createDataManager() {
-				_metal.core.mergeSuperClassesProperty(this.constructor, 'DATA_MANAGER', _metal.array.firstDefinedValue);
+				(0, _metal.mergeSuperClassesProperty)(this.constructor, 'DATA_MANAGER', _metal.array.firstDefinedValue);
 				return new this.constructor.DATA_MANAGER_MERGED(this, Component.DATA);
 			}
 		}, {
 			key: 'createRenderer',
 			value: function createRenderer() {
-				_metal.core.mergeSuperClassesProperty(this.constructor, 'RENDERER', _metal.array.firstDefinedValue);
+				(0, _metal.mergeSuperClassesProperty)(this.constructor, 'RENDERER', _metal.array.firstDefinedValue);
 				return new this.constructor.RENDERER_MERGED(this);
 			}
 		}, {
@@ -312,11 +312,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 				var info = {
 					fn: value
 				};
-				if (_metal.core.isObject(value) && !_metal.core.isFunction(value)) {
+				if ((0, _metal.isObject)(value) && !(0, _metal.isFunction)(value)) {
 					info.selector = value.selector;
 					info.fn = value.fn;
 				}
-				if (_metal.core.isString(info.fn)) {
+				if ((0, _metal.isString)(info.fn)) {
 					info.fn = this.getListenerFn(info.fn);
 				}
 				return info;
@@ -334,10 +334,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 		}, {
 			key: 'getListenerFn',
 			value: function getListenerFn(fnName) {
-				if (_metal.core.isFunction(this[fnName])) {
+				if ((0, _metal.isFunction)(this[fnName])) {
 					return this[fnName].bind(this);
 				} else {
-					console.error('No function named "' + fnName + '" was found in the ' + 'component "' + _metal.core.getFunctionName(this.constructor) + '". Make ' + 'sure that you specify valid function names when adding inline listeners.');
+					console.error('No function named "' + fnName + '" was found in the ' + 'component "' + (0, _metal.getFunctionName)(this.constructor) + '". Make ' + 'sure that you specify valid function names when adding inline listeners.');
 				}
 			}
 		}, {
@@ -354,7 +354,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 			key: 'fireStateKeyChange_',
 			value: function fireStateKeyChange_(key, opt_change) {
 				var fn = this['sync' + key.charAt(0).toUpperCase() + key.slice(1)];
-				if (_metal.core.isFunction(fn)) {
+				if ((0, _metal.isFunction)(fn)) {
 					if (!opt_change) {
 						var manager = this.getDataManager();
 						opt_change = {
@@ -436,8 +436,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 			value: function renderElement_(opt_parentElement, opt_siblingElement) {
 				var element = this.element;
 				if (element && (opt_siblingElement || !element.parentNode)) {
-					var parent = _dom.dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
-					parent.insertBefore(element, _dom.dom.toElement(opt_siblingElement));
+					var parent = (0, _dom.toElement)(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
+					parent.insertBefore(element, (0, _dom.toElement)(opt_siblingElement));
 				}
 			}
 		}, {
@@ -497,7 +497,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 		}, {
 			key: 'validatorEventsFn_',
 			value: function validatorEventsFn_(val) {
-				return !_metal.core.isDefAndNotNull(val) || _metal.core.isObject(val);
+				return !(0, _metal.isDefAndNotNull)(val) || (0, _metal.isObject)(val);
 			}
 		}, {
 			key: 'element',
@@ -505,12 +505,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 				return this.elementVal_;
 			},
 			set: function set(val) {
-				if (!_metal.core.isElement(val) && !_metal.core.isString(val) && _metal.core.isDefAndNotNull(val)) {
+				if (!(0, _metal.isElement)(val) && !(0, _metal.isString)(val) && (0, _metal.isDefAndNotNull)(val)) {
 					return;
 				}
 
 				if (val) {
-					val = _dom.dom.toElement(val) || this.elementVal_;
+					val = (0, _dom.toElement)(val) || this.elementVal_;
 				}
 
 				if (this.elementVal_ !== val) {
@@ -534,7 +534,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
 			value: function render(Ctor, opt_configOrElement, opt_element) {
 				var config = opt_configOrElement;
 				var element = opt_element;
-				if (_metal.core.isElement(opt_configOrElement)) {
+				if ((0, _metal.isElement)(opt_configOrElement)) {
 					config = null;
 					element = opt_configOrElement;
 				}
@@ -559,7 +559,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
    */
 		elementClasses: {
 			setter: 'setterElementClassesFn_',
-			validator: _metal.core.isString,
+			validator: _metal.isString,
 			value: ''
 		},
 
@@ -579,7 +579,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', './ComponentDataM
    * @type {boolean}
    */
 		visible: {
-			validator: _metal.core.isBoolean,
+			validator: _metal.isBoolean,
 			value: true
 		}
 	};

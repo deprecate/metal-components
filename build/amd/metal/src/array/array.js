@@ -5,14 +5,6 @@ define(['exports', '../core'], function (exports, _core) {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -96,7 +88,7 @@ define(['exports', '../core'], function (exports, _core) {
 			key: 'slice',
 			value: function slice(arr, start, opt_end) {
 				var sliced = [];
-				var end = _core2.default.isDef(opt_end) ? opt_end : arr.length;
+				var end = (0, _core.isDef)(opt_end) ? opt_end : arr.length;
 				for (var i = start; i < end; i++) {
 					sliced.push(arr[i]);
 				}

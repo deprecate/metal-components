@@ -8,7 +8,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
 		return typeof obj;
 	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 	};
 
 	/**
@@ -146,7 +146,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 						required = validator.config.required;
 						validator = validator.config.validator;
 					}
-					if (required && !_metal.core.isDefAndNotNull(value[key]) || isInvalid(validator(value[key]))) {
+					if (required && !(0, _metal.isDefAndNotNull)(value[key]) || isInvalid(validator(value[key]))) {
 						return composeError('Expected object with a specific shape', name, context);
 					}
 				}
@@ -164,10 +164,10 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
   * @return {!Error} Instance of Error class.
   */
 	function composeError(error, name, context) {
-		var compName = context ? _metal.core.getFunctionName(context.constructor) : null;
+		var compName = context ? (0, _metal.getFunctionName)(context.constructor) : null;
 		var renderer = context && context.getRenderer && context.getRenderer();
 		var parent = renderer && renderer.getParent ? context.getRenderer().getParent() : null;
-		var parentName = parent ? _metal.core.getFunctionName(parent.constructor) : null;
+		var parentName = parent ? (0, _metal.getFunctionName)(parent.constructor) : null;
 		var location = parentName ? 'Check render method of \'' + parentName + '\'.' : '';
 		return new Error('Warning: Invalid state passed to \'' + name + '\'. ' + (error + ' Passed to \'' + compName + '\'. ' + location));
 	}
@@ -202,7 +202,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
   */
 	function maybe(typeValidator) {
 		return function (value, name, context) {
-			if (!_metal.core.isDef(value) || _metal.core.isNull(value)) {
+			if (!(0, _metal.isDef)(value) || (0, _metal.isNull)(value)) {
 				return true;
 			}
 			return typeValidator(value, name, context);

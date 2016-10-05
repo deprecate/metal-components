@@ -167,7 +167,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		}, {
 			key: 'addToState',
 			value: function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
-				if (_metal.core.isString(configsOrName)) {
+				if ((0, _metal.isString)(configsOrName)) {
 					return this.addKeyToState.apply(this, arguments);
 				}
 
@@ -209,7 +209,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 				var info = this.stateInfo_[name];
 				if (info.config.required) {
 					var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
-					if (!_metal.core.isDefAndNotNull(value)) {
+					if (!(0, _metal.isDefAndNotNull)(value)) {
 						console.error('The property called "' + name + '" is required but didn\'t ' + 'receive a value.');
 					}
 				}
@@ -255,9 +255,9 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		}, {
 			key: 'callFunction_',
 			value: function callFunction_(fn, args) {
-				if (_metal.core.isString(fn)) {
+				if ((0, _metal.isString)(fn)) {
 					return this.context_[fn].apply(this.context_, args);
-				} else if (_metal.core.isFunction(fn)) {
+				} else if ((0, _metal.isFunction)(fn)) {
 					return fn.apply(this.context_, args);
 				}
 			}
@@ -393,7 +393,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		}, {
 			key: 'mergeInvalidKeys_',
 			value: function mergeInvalidKeys_() {
-				_metal.core.mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
+				(0, _metal.mergeSuperClassesProperty)(this.constructor, 'INVALID_KEYS', function (values) {
 					return _metal.array.flatten(values).reduce(function (merged, val) {
 						if (val) {
 							merged[val] = true;
@@ -492,7 +492,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 			key: 'shouldInformChange_',
 			value: function shouldInformChange_(name, prevVal) {
 				var info = this.stateInfo_[name];
-				return info.state === State.KeyStates.INITIALIZED && (_metal.core.isObject(prevVal) || prevVal !== this.get(name));
+				return info.state === State.KeyStates.INITIALIZED && ((0, _metal.isObject)(prevVal) || prevVal !== this.get(name));
 			}
 		}, {
 			key: 'validateInitialValue_',
@@ -526,7 +526,7 @@ define(['exports', 'metal/src/metal', 'metal-events/src/events'], function (expo
 		}, {
 			key: 'mergeStateStatic',
 			value: function mergeStateStatic(ctor) {
-				return _metal.core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
+				return (0, _metal.mergeSuperClassesProperty)(ctor, 'STATE', State.mergeState);
 			}
 		}]);
 

@@ -51,7 +51,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 					if (constructorFn.hasOwnProperty('NAME')) {
 						name = constructorFn.NAME;
 					} else {
-						name = _metal.core.getFunctionName(constructorFn);
+						name = (0, _metal.getFunctionName)(constructorFn);
 					}
 				}
 				constructorFn.NAME = name;

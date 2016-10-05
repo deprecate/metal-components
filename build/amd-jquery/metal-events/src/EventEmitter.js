@@ -229,7 +229,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'normalizeEvents_',
 			value: function normalizeEvents_(events) {
-				return _metal.core.isString(events) ? [events] : events;
+				return (0, _metal.isString)(events) ? [events] : events;
 			}
 		}, {
 			key: 'off',
@@ -296,7 +296,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'validateListener_',
 			value: function validateListener_(listener) {
-				if (!_metal.core.isFunction(listener)) {
+				if (!(0, _metal.isFunction)(listener)) {
 					throw new TypeError('Listener must be a function');
 				}
 			}

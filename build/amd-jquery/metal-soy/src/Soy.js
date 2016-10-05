@@ -107,7 +107,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			key: 'addMissingStateKeys_',
 			value: function addMissingStateKeys_() {
 				var elementTemplate = this.component_.constructor.TEMPLATE;
-				if (!_metal.core.isFunction(elementTemplate)) {
+				if (!(0, _metal.isFunction)(elementTemplate)) {
 					return;
 				}
 
@@ -138,7 +138,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 					data[key] = value;
 				});
 				for (var i = 0; i < params.length; i++) {
-					if (!data[params[i]] && _metal.core.isFunction(component[params[i]])) {
+					if (!data[params[i]] && (0, _metal.isFunction)(component[params[i]])) {
 						data[params[i]] = component[params[i]].bind(component);
 					}
 				}
@@ -164,7 +164,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 			key: 'renderIncDom',
 			value: function renderIncDom() {
 				var elementTemplate = this.component_.constructor.TEMPLATE;
-				if (_metal.core.isFunction(elementTemplate) && !this.component_.render) {
+				if ((0, _metal.isFunction)(elementTemplate) && !this.component_.render) {
 					elementTemplate = _SoyAop2.default.getOriginalFn(elementTemplate);
 					_SoyAop2.default.startInterception(Soy.handleInterceptedCall_);
 					elementTemplate(this.buildTemplateData_(elementTemplate.params || []), null, ijData);
@@ -203,7 +203,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		}, {
 			key: 'handleInterceptedCall_',
 			value: function handleInterceptedCall_(originalFn) {
-				var opt_data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+				var opt_data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 				var args = [originalFn.componentCtor, null, []];
 				for (var key in opt_data) {
@@ -214,7 +214,7 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		}, {
 			key: 'register',
 			value: function register(componentCtor, templates) {
-				var mainTemplate = arguments.length <= 2 || arguments[2] === undefined ? 'render' : arguments[2];
+				var mainTemplate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'render';
 
 				componentCtor.RENDERER = Soy;
 				componentCtor.TEMPLATE = _SoyAop2.default.getOriginalFn(templates[mainTemplate]);
@@ -237,10 +237,10 @@ define(['exports', 'metal/src/metal', 'metal-component/src/all/component', 'html
 		}, {
 			key: 'toIncDom',
 			value: function toIncDom(value) {
-				if (_metal.core.isObject(value) && _metal.core.isString(value.content) && value.contentKind === 'HTML') {
+				if ((0, _metal.isObject)(value) && (0, _metal.isString)(value.content) && value.contentKind === 'HTML') {
 					value = value.content;
 				}
-				if (_metal.core.isString(value)) {
+				if ((0, _metal.isString)(value)) {
 					value = _withParser2.default.buildFn(value);
 				}
 				return value;

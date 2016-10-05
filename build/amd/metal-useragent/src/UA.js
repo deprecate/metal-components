@@ -78,7 +78,10 @@ define(['exports'], function (exports) {
 			}
 		}, {
 			key: 'testUserAgent',
-			value: function testUserAgent(userAgent, platform) {
+			value: function testUserAgent() {
+				var userAgent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+				var platform = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
 				/**
      * Holds the user agent value extracted from browser native user agent.
      * @type {string}

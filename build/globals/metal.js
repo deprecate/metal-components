@@ -5,7 +5,7 @@ var babelHelpers = {};
 babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
 
 babelHelpers.classCallCheck = function (instance, Constructor) {
@@ -109,374 +109,320 @@ babelHelpers.toConsumableArray = function (arr) {
 babelHelpers;
 'use strict';
 
+/**
+ * A collection of core utility functions.
+ * @const
+ */
+
 (function () {
-	var compatibilityModeData_ = void 0;
+  var compatibilityModeData_ = void 0;
 
-	/**
-  * A collection of core utility functions.
-  * @const
-  */
+  /**
+   * Counter for unique id.
+   * @type {Number}
+   * @private
+   */
+  var uniqueIdCounter_ = 1;
 
-	var core = function () {
-		function core() {
-			babelHelpers.classCallCheck(this, core);
-		}
+  /**
+   * Unique id property prefix.
+   * @type {String}
+   * @protected
+   */
+  var UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
-		babelHelpers.createClass(core, null, [{
-			key: 'abstractMethod',
+  this['metalNamed']['core'] = this['metalNamed']['core'] || {};
+  this['metalNamed']['core']['UID_PROPERTY'] = UID_PROPERTY; /**
+                                                              * When defining a class Foo with an abstract method bar(), you can do:
+                                                              * Foo.prototype.bar = abstractMethod
+                                                              *
+                                                              * Now if a subclass of Foo fails to override bar(), an error will be thrown
+                                                              * when bar() is invoked.
+                                                              *
+                                                              * @type {!Function}
+                                                              * @throws {Error} when invoked to indicate the method should be overridden.
+                                                              */
 
-			/**
-    * When defining a class Foo with an abstract method bar(), you can do:
-    * Foo.prototype.bar = core.abstractMethod
-    *
-    * Now if a subclass of Foo fails to override bar(), an error will be thrown
-    * when bar() is invoked.
-    *
-    * @type {!Function}
-    * @throws {Error} when invoked to indicate the method should be overridden.
-    */
-			value: function abstractMethod() {
-				throw Error('Unimplemented abstract method');
-			}
+  function abstractMethod() {
+    throw Error('Unimplemented abstract method');
+  }
 
-			/**
-    * Loops constructor super classes collecting its properties values. If
-    * property is not available on the super class `undefined` will be
-    * collected as value for the class hierarchy position.
-    * @param {!function()} constructor Class constructor.
-    * @param {string} propertyName Property name to be collected.
-    * @return {Array.<*>} Array of collected values.
-    * TODO(*): Rethink superclass loop.
-    */
+  this['metalNamed']['core']['abstractMethod'] = abstractMethod; /**
+                                                                  * Loops constructor super classes collecting its properties values. If
+                                                                  * property is not available on the super class `undefined` will be
+                                                                  * collected as value for the class hierarchy position.
+                                                                  * @param {!function()} constructor Class constructor.
+                                                                  * @param {string} propertyName Property name to be collected.
+                                                                  * @return {Array.<*>} Array of collected values.
+                                                                  * TODO(*): Rethink superclass loop.
+                                                                  */
 
-		}, {
-			key: 'collectSuperClassesProperty',
-			value: function collectSuperClassesProperty(constructor, propertyName) {
-				var propertyValues = [constructor[propertyName]];
-				while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
-					constructor = constructor.__proto__;
-					propertyValues.push(constructor[propertyName]);
-				}
-				return propertyValues;
-			}
+  function collectSuperClassesProperty(constructor, propertyName) {
+    var propertyValues = [constructor[propertyName]];
+    while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
+      constructor = constructor.__proto__;
+      propertyValues.push(constructor[propertyName]);
+    }
+    return propertyValues;
+  }
 
-			/**
-    * Disables Metal.js's compatibility mode.
-    */
+  this['metalNamed']['core']['collectSuperClassesProperty'] = collectSuperClassesProperty; /**
+                                                                                            * Disables Metal.js's compatibility mode.
+                                                                                            */
 
-		}, {
-			key: 'disableCompatibilityMode',
-			value: function disableCompatibilityMode() {
-				compatibilityModeData_ = null;
-			}
+  function disableCompatibilityMode() {
+    compatibilityModeData_ = null;
+  }
 
-			/**
-    * Enables Metal.js's compatibility mode with the following features from rc
-    * and 1.x versions:
-    *     - Using "key" to reference component instances. In the current version
-    *       this should be done via "ref" instead. This allows old code still
-    *       using "key" to keep working like before. NOTE: this may cause
-    *       problems, since "key" is meant to be used differently. Only use this
-    *       if it's not possible to upgrade the code to use "ref" instead.
-    * @param {Object=} opt_data Optional object with data to specify more
-    *     details, such as:
-    *         - renderers {Array} the template renderers that should be in
-    *           compatibility mode, either their constructors or strings
-    *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
-    *           that extend from IncrementalDomRenderer.
-    * @type {Object}
-    */
+  this['metalNamed']['core']['disableCompatibilityMode'] = disableCompatibilityMode; /**
+                                                                                      * Enables Metal.js's compatibility mode with the following features from rc
+                                                                                      * and 1.x versions:
+                                                                                      *     - Using "key" to reference component instances. In the current version
+                                                                                      *       this should be done via "ref" instead. This allows old code still
+                                                                                      *       using "key" to keep working like before. NOTE: this may cause
+                                                                                      *       problems, since "key" is meant to be used differently. Only use this
+                                                                                      *       if it's not possible to upgrade the code to use "ref" instead.
+                                                                                      * @param {Object=} opt_data Optional object with data to specify more
+                                                                                      *     details, such as:
+                                                                                      *         - renderers {Array} the template renderers that should be in
+                                                                                      *           compatibility mode, either their constructors or strings
+                                                                                      *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
+                                                                                      *           that extend from IncrementalDomRenderer.
+                                                                                      * @type {Object}
+                                                                                      */
 
-		}, {
-			key: 'enableCompatibilityMode',
-			value: function enableCompatibilityMode() {
-				var opt_data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  function enableCompatibilityMode() {
+    var opt_data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-				compatibilityModeData_ = opt_data;
-			}
+    compatibilityModeData_ = opt_data;
+  }
 
-			/**
-    * Returns the data used for compatibility mode, or nothing if it hasn't been
-    * enabled.
-    * @return {Object}
-    */
+  this['metalNamed']['core']['enableCompatibilityMode'] = enableCompatibilityMode; /**
+                                                                                    * Returns the data used for compatibility mode, or nothing if it hasn't been
+                                                                                    * enabled.
+                                                                                    * @return {Object}
+                                                                                    */
 
-		}, {
-			key: 'getCompatibilityModeData',
-			value: function getCompatibilityModeData() {
-				// Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
-				if (!compatibilityModeData_) {
-					if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
-						core.enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
-					}
-				}
-				return compatibilityModeData_;
-			}
+  function getCompatibilityModeData() {
+    // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
+    if (!compatibilityModeData_) {
+      if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
+        enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
+      }
+    }
+    return compatibilityModeData_;
+  }
 
-			/**
-    * Gets the name of the given function. If the current browser doesn't
-    * support the `name` property, this will calculate it from the function's
-    * content string.
-    * @param {!function()} fn
-    * @return {string}
-    */
+  this['metalNamed']['core']['getCompatibilityModeData'] = getCompatibilityModeData; /**
+                                                                                      * Gets the name of the given function. If the current browser doesn't
+                                                                                      * support the `name` property, this will calculate it from the function's
+                                                                                      * content string.
+                                                                                      * @param {!function()} fn
+                                                                                      * @return {string}
+                                                                                      */
 
-		}, {
-			key: 'getFunctionName',
-			value: function getFunctionName(fn) {
-				if (!fn.name) {
-					var str = fn.toString();
-					fn.name = str.substring(9, str.indexOf('('));
-				}
-				return fn.name;
-			}
+  function getFunctionName(fn) {
+    if (!fn.name) {
+      var str = fn.toString();
+      fn.name = str.substring(9, str.indexOf('('));
+    }
+    return fn.name;
+  }
 
-			/**
-    * Gets an unique id. If `opt_object` argument is passed, the object is
-    * mutated with an unique id. Consecutive calls with the same object
-    * reference won't mutate the object again, instead the current object uid
-    * returns. See {@link core.UID_PROPERTY}.
-    * @param {Object=} opt_object Optional object to be mutated with the uid. If
-    *     not specified this method only returns the uid.
-    * @param {boolean=} opt_noInheritance Optional flag indicating if this
-    *     object's uid property can be inherited from parents or not.
-    * @throws {Error} when invoked to indicate the method should be overridden.
-    */
+  this['metalNamed']['core']['getFunctionName'] = getFunctionName; /**
+                                                                    * Gets an unique id. If `opt_object` argument is passed, the object is
+                                                                    * mutated with an unique id. Consecutive calls with the same object
+                                                                    * reference won't mutate the object again, instead the current object uid
+                                                                    * returns. See {@link UID_PROPERTY}.
+                                                                    * @param {Object=} opt_object Optional object to be mutated with the uid. If
+                                                                    *     not specified this method only returns the uid.
+                                                                    * @param {boolean=} opt_noInheritance Optional flag indicating if this
+                                                                    *     object's uid property can be inherited from parents or not.
+                                                                    * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                    */
 
-		}, {
-			key: 'getUid',
-			value: function getUid(opt_object, opt_noInheritance) {
-				if (opt_object) {
-					var id = opt_object[core.UID_PROPERTY];
-					if (opt_noInheritance && !opt_object.hasOwnProperty(core.UID_PROPERTY)) {
-						id = null;
-					}
-					return id || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
-				}
-				return core.uniqueIdCounter_++;
-			}
+  function getUid(opt_object, opt_noInheritance) {
+    if (opt_object) {
+      var id = opt_object[UID_PROPERTY];
+      if (opt_noInheritance && !opt_object.hasOwnProperty(UID_PROPERTY)) {
+        id = null;
+      }
+      return id || (opt_object[UID_PROPERTY] = uniqueIdCounter_++);
+    }
+    return uniqueIdCounter_++;
+  }
 
-			/**
-    * The identity function. Returns its first argument.
-    * @param {*=} opt_returnValue The single value that will be returned.
-    * @return {?} The first argument.
-    */
+  this['metalNamed']['core']['getUid'] = getUid; /**
+                                                  * The identity function. Returns its first argument.
+                                                  * @param {*=} opt_returnValue The single value that will be returned.
+                                                  * @return {?} The first argument.
+                                                  */
 
-		}, {
-			key: 'identityFunction',
-			value: function identityFunction(opt_returnValue) {
-				return opt_returnValue;
-			}
+  function identityFunction(opt_returnValue) {
+    return opt_returnValue;
+  }
 
-			/**
-    * Returns true if the specified value is a boolean.
-    * @param {?} val Variable to test.
-    * @return {boolean} Whether variable is boolean.
-    */
+  this['metalNamed']['core']['identityFunction'] = identityFunction; /**
+                                                                      * Returns true if the specified value is a boolean.
+                                                                      * @param {?} val Variable to test.
+                                                                      * @return {boolean} Whether variable is boolean.
+                                                                      */
 
-		}, {
-			key: 'isBoolean',
-			value: function isBoolean(val) {
-				return typeof val === 'boolean';
-			}
+  function isBoolean(val) {
+    return typeof val === 'boolean';
+  }
 
-			/**
-    * Returns true if the specified value is not undefined.
-    * @param {?} val Variable to test.
-    * @return {boolean} Whether variable is defined.
-    */
+  this['metalNamed']['core']['isBoolean'] = isBoolean; /**
+                                                        * Returns true if the specified value is not undefined.
+                                                        * @param {?} val Variable to test.
+                                                        * @return {boolean} Whether variable is defined.
+                                                        */
 
-		}, {
-			key: 'isDef',
-			value: function isDef(val) {
-				return val !== undefined;
-			}
+  function isDef(val) {
+    return val !== undefined;
+  }
 
-			/**
-    * Returns true if value is not undefined or null.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isDef'] = isDef; /**
+                                                * Returns true if value is not undefined or null.
+                                                * @param {*} val
+                                                * @return {boolean}
+                                                */
 
-		}, {
-			key: 'isDefAndNotNull',
-			value: function isDefAndNotNull(val) {
-				return core.isDef(val) && !core.isNull(val);
-			}
+  function isDefAndNotNull(val) {
+    return isDef(val) && !isNull(val);
+  }
 
-			/**
-    * Returns true if value is a document.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isDefAndNotNull'] = isDefAndNotNull; /**
+                                                                    * Returns true if value is a document.
+                                                                    * @param {*} val
+                                                                    * @return {boolean}
+                                                                    */
 
-		}, {
-			key: 'isDocument',
-			value: function isDocument(val) {
-				return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 9;
-			}
+  function isDocument(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 9;
+  }
 
-			/**
-    * Returns true if value is a dom element.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isDocument'] = isDocument; /**
+                                                          * Returns true if value is a dom element.
+                                                          * @param {*} val
+                                                          * @return {boolean}
+                                                          */
 
-		}, {
-			key: 'isElement',
-			value: function isElement(val) {
-				return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
-			}
+  function isElement(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
+  }
 
-			/**
-    * Returns true if the specified value is a function.
-    * @param {?} val Variable to test.
-    * @return {boolean} Whether variable is a function.
-    */
+  this['metalNamed']['core']['isElement'] = isElement; /**
+                                                        * Returns true if the specified value is a function.
+                                                        * @param {?} val Variable to test.
+                                                        * @return {boolean} Whether variable is a function.
+                                                        */
 
-		}, {
-			key: 'isFunction',
-			value: function isFunction(val) {
-				return typeof val === 'function';
-			}
+  function isFunction(val) {
+    return typeof val === 'function';
+  }
 
-			/**
-    * Returns true if value is null.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isFunction'] = isFunction; /**
+                                                          * Returns true if value is null.
+                                                          * @param {*} val
+                                                          * @return {boolean}
+                                                          */
 
-		}, {
-			key: 'isNull',
-			value: function isNull(val) {
-				return val === null;
-			}
+  function isNull(val) {
+    return val === null;
+  }
 
-			/**
-    * Returns true if the specified value is a number.
-    * @param {?} val Variable to test.
-    * @return {boolean} Whether variable is a number.
-    */
+  this['metalNamed']['core']['isNull'] = isNull; /**
+                                                  * Returns true if the specified value is a number.
+                                                  * @param {?} val Variable to test.
+                                                  * @return {boolean} Whether variable is a number.
+                                                  */
 
-		}, {
-			key: 'isNumber',
-			value: function isNumber(val) {
-				return typeof val === 'number';
-			}
+  function isNumber(val) {
+    return typeof val === 'number';
+  }
 
-			/**
-    * Returns true if value is a window.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isNumber'] = isNumber; /**
+                                                      * Returns true if value is a window.
+                                                      * @param {*} val
+                                                      * @return {boolean}
+                                                      */
 
-		}, {
-			key: 'isWindow',
-			value: function isWindow(val) {
-				return val !== null && val === val.window;
-			}
+  function isWindow(val) {
+    return val !== null && val === val.window;
+  }
 
-			/**
-    * Returns true if the specified value is an object. This includes arrays
-    * and functions.
-    * @param {?} val Variable to test.
-    * @return {boolean} Whether variable is an object.
-    */
+  this['metalNamed']['core']['isWindow'] = isWindow; /**
+                                                      * Returns true if the specified value is an object. This includes arrays
+                                                      * and functions.
+                                                      * @param {?} val Variable to test.
+                                                      * @return {boolean} Whether variable is an object.
+                                                      */
 
-		}, {
-			key: 'isObject',
-			value: function isObject(val) {
-				var type = typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val);
-				return type === 'object' && val !== null || type === 'function';
-			}
+  function isObject(val) {
+    var type = typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val);
+    return type === 'object' && val !== null || type === 'function';
+  }
 
-			/**
-    * Returns true if value is a Promise.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isObject'] = isObject; /**
+                                                      * Returns true if value is a Promise.
+                                                      * @param {*} val
+                                                      * @return {boolean}
+                                                      */
 
-		}, {
-			key: 'isPromise',
-			value: function isPromise(val) {
-				return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
-			}
+  function isPromise(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
+  }
 
-			/**
-    * Returns true if value is a string.
-    * @param {*} val
-    * @return {boolean}
-    */
+  this['metalNamed']['core']['isPromise'] = isPromise; /**
+                                                        * Returns true if value is a string.
+                                                        * @param {*} val
+                                                        * @return {boolean}
+                                                        */
 
-		}, {
-			key: 'isString',
-			value: function isString(val) {
-				return typeof val === 'string' || val instanceof String;
-			}
+  function isString(val) {
+    return typeof val === 'string' || val instanceof String;
+  }
 
-			/**
-    * Merges the values of a static property a class with the values of that
-    * property for all its super classes, and stores it as a new static
-    * property of that class. If the static property already existed, it won't
-    * be recalculated.
-    * @param {!function()} constructor Class constructor.
-    * @param {string} propertyName Property name to be collected.
-    * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
-    *   with the values of the property for the current class and all its super classes.
-    *   Should return the merged value to be stored on the current class.
-    * @return {boolean} Returns true if merge happens, false otherwise.
-    */
+  this['metalNamed']['core']['isString'] = isString; /**
+                                                      * Merges the values of a export function property a class with the values of that
+                                                      * property for all its super classes, and stores it as a new static
+                                                      * property of that class. If the export function property already existed, it won't
+                                                      * be recalculated.
+                                                      * @param {!function()} constructor Class constructor.
+                                                      * @param {string} propertyName Property name to be collected.
+                                                      * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
+                                                      *   with the values of the property for the current class and all its super classes.
+                                                      *   Should return the merged value to be stored on the current class.
+                                                      * @return {boolean} Returns true if merge happens, false otherwise.
+                                                      */
 
-		}, {
-			key: 'mergeSuperClassesProperty',
-			value: function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
-				var mergedName = propertyName + '_MERGED';
-				if (constructor.hasOwnProperty(mergedName)) {
-					return false;
-				}
+  function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
+    var mergedName = propertyName + '_MERGED';
+    if (constructor.hasOwnProperty(mergedName)) {
+      return false;
+    }
 
-				var merged = core.collectSuperClassesProperty(constructor, propertyName);
-				if (opt_mergeFn) {
-					merged = opt_mergeFn(merged);
-				}
-				constructor[mergedName] = merged;
-				return true;
-			}
+    var merged = collectSuperClassesProperty(constructor, propertyName);
+    if (opt_mergeFn) {
+      merged = opt_mergeFn(merged);
+    }
+    constructor[mergedName] = merged;
+    return true;
+  }
 
-			/**
-    * Null function used for default values of callbacks, etc.
-    * @return {void} Nothing.
-    */
+  this['metalNamed']['core']['mergeSuperClassesProperty'] = mergeSuperClassesProperty; /**
+                                                                                        * Null function used for default values of callbacks, etc.
+                                                                                        * @return {void} Nothing.
+                                                                                        */
 
-		}, {
-			key: 'nullFunction',
-			value: function nullFunction() {}
-		}]);
-		return core;
-	}();
-
-	/**
-  * Unique id property prefix.
-  * @type {String}
-  * @protected
-  */
-
-
-	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
-
-	/**
-  * Counter for unique id.
-  * @type {Number}
-  * @private
-  */
-	core.uniqueIdCounter_ = 1;
-
-	this.metal.core = core;
+  function nullFunction() {}
+  this['metalNamed']['core']['nullFunction'] = nullFunction;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.core;
+	var isDef = this['metalNamed']['core']['isDef'];
 
 	var array = function () {
 		function array() {
@@ -588,7 +534,7 @@ babelHelpers;
 			key: 'slice',
 			value: function slice(arr, start, opt_end) {
 				var sliced = [];
-				var end = core.isDef(opt_end) ? opt_end : arr.length;
+				var end = isDef(opt_end) ? opt_end : arr.length;
 				for (var i = start; i < end; i++) {
 					sliced.push(arr[i]);
 				}
@@ -598,7 +544,7 @@ babelHelpers;
 		return array;
 	}();
 
-	this.metal.array = array;
+	this['metal']['array'] = array;
 }).call(this);
 /*!
  * Polyfill from Google's Closure Library.
@@ -835,7 +781,7 @@ babelHelpers;
 		return opt_returnValue;
 	};
 
-	this.metal.async = async;
+	this['metal']['async'] = async;
 }).call(this);
 'use strict';
 
@@ -898,7 +844,7 @@ babelHelpers;
 		return Disposable;
 	}();
 
-	this.metal.Disposable = Disposable;
+	this['metal']['Disposable'] = Disposable;
 }).call(this);
 'use strict';
 
@@ -995,7 +941,7 @@ babelHelpers;
 		return object;
 	}();
 
-	this.metal.object = object;
+	this['metal']['object'] = object;
 }).call(this);
 'use strict';
 
@@ -1084,25 +1030,34 @@ babelHelpers;
 		return string;
 	}();
 
-	this.metal.string = string;
+	this['metal']['string'] = string;
 }).call(this);
 'use strict';
 
 (function () {
-  var core = this.metal.core;
-  var array = this.metal.array;
-  var async = this.metal.async;
-  var Disposable = this.metal.Disposable;
-  var object = this.metal.object;
-  var string = this.metal.string;
-  this.metal.metal = core;
-  this.metalNamed.metal = this.metalNamed.metal || {};
-  this.metalNamed.metal.core = core;
-  this.metalNamed.metal.array = array;
-  this.metalNamed.metal.async = async;
-  this.metalNamed.metal.Disposable = Disposable;
-  this.metalNamed.metal.object = object;
-  this.metalNamed.metal.string = string;
+  var core = this['metalNamed']['core'];
+  var array = this['metal']['array'];
+  var async = this['metal']['async'];
+  var Disposable = this['metal']['Disposable'];
+  var object = this['metal']['object'];
+  var string = this['metal']['string'];
+  this['metalNamed']['metal'] = this['metalNamed']['metal'] || {};
+  Object.keys(this['metalNamed']['core']).forEach(function (key) {
+    this['metalNamed']['metal'][key] = this['metalNamed']['core'][key];
+  });
+  this['metalNamed']['metal']['array'] = array;
+  this['metalNamed']['metal']['async'] = async;
+  this['metalNamed']['metal']['Disposable'] = Disposable;
+  this['metalNamed']['metal']['object'] = object;
+  this['metalNamed']['metal']['string'] = string;
+
+  // This is for backwards compatibility, making sure that old imports for the
+  // "core" object still work. It's best to use the named exports for each
+  // function instead though, since that allows bundlers like Rollup to reduce the
+  // bundle size by removing unused code.
+
+  this['metal']['metal'] = core;
+  this['metalNamed']['metal']['core'] = core;
 }).call(this);
 'use strict';
 
@@ -1135,12 +1090,12 @@ babelHelpers;
 		return domData;
 	}();
 
-	this.metal.domData = domData;
+	this['metal']['domData'] = domData;
 }).call(this);
 'use strict';
 
 (function () {
-	var Disposable = this.metalNamed.metal.Disposable;
+	var Disposable = this['metalNamed']['metal']['Disposable'];
 
 	/**
   * EventHandle utility. Holds information about an event subscription, and
@@ -1215,15 +1170,16 @@ babelHelpers;
 		return EventHandle;
 	}(Disposable);
 
-	this.metal.EventHandle = EventHandle;
+	this['metal']['EventHandle'] = EventHandle;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var array = this.metalNamed.metal.array;
-	var Disposable = this.metalNamed.metal.Disposable;
-	var EventHandle = this.metal.EventHandle;
+	var array = this['metalNamed']['metal']['array'];
+	var Disposable = this['metalNamed']['metal']['Disposable'];
+	var isFunction = this['metalNamed']['metal']['isFunction'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var EventHandle = this['metal']['EventHandle'];
 
 	/**
   * EventEmitter utility.
@@ -1484,7 +1440,7 @@ babelHelpers;
 		}, {
 			key: 'normalizeEvents_',
 			value: function normalizeEvents_(events) {
-				return core.isString(events) ? [events] : events;
+				return isString(events) ? [events] : events;
 			}
 
 			/**
@@ -1630,7 +1586,7 @@ babelHelpers;
 		}, {
 			key: 'validateListener_',
 			value: function validateListener_(listener) {
-				if (!core.isFunction(listener)) {
+				if (!isFunction(listener)) {
 					throw new TypeError('Listener must be a function');
 				}
 			}
@@ -1638,14 +1594,14 @@ babelHelpers;
 		return EventEmitter;
 	}(Disposable);
 
-	this.metal.EventEmitter = EventEmitter;
+	this['metal']['EventEmitter'] = EventEmitter;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var object = this.metalNamed.metal.object;
-	var Disposable = this.metalNamed.metal.Disposable;
+	var array = this['metalNamed']['metal']['array'];
+	var object = this['metalNamed']['metal']['object'];
+	var Disposable = this['metalNamed']['metal']['Disposable'];
 
 	/**
   * EventEmitterProxy utility. It's responsible for linking two EventEmitter
@@ -1875,12 +1831,12 @@ babelHelpers;
 		return EventEmitterProxy;
 	}(Disposable);
 
-	this.metal.EventEmitterProxy = EventEmitterProxy;
+	this['metal']['EventEmitterProxy'] = EventEmitterProxy;
 }).call(this);
 'use strict';
 
 (function () {
-	var Disposable = this.metalNamed.metal.Disposable;
+	var Disposable = this['metalNamed']['metal']['Disposable'];
 
 	/**
   * EventHandler utility. It's useful for easily removing a group of
@@ -1950,29 +1906,29 @@ babelHelpers;
 		return EventHandler;
 	}(Disposable);
 
-	this.metal.EventHandler = EventHandler;
+	this['metal']['EventHandler'] = EventHandler;
 }).call(this);
 'use strict';
 
 (function () {
-  var EventEmitter = this.metal.EventEmitter;
-  var EventEmitterProxy = this.metal.EventEmitterProxy;
-  var EventHandle = this.metal.EventHandle;
-  var EventHandler = this.metal.EventHandler;
-  this.metal.events = EventEmitter;
-  this.metalNamed.events = this.metalNamed.events || {};
-  this.metalNamed.events.EventEmitter = EventEmitter;
-  this.metalNamed.events.EventEmitterProxy = EventEmitterProxy;
-  this.metalNamed.events.EventHandle = EventHandle;
-  this.metalNamed.events.EventHandler = EventHandler;
+  var EventEmitter = this['metal']['EventEmitter'];
+  var EventEmitterProxy = this['metal']['EventEmitterProxy'];
+  var EventHandle = this['metal']['EventHandle'];
+  var EventHandler = this['metal']['EventHandler'];
+  this['metal']['events'] = EventEmitter;
+  this['metalNamed']['events'] = this['metalNamed']['events'] || {};
+  this['metalNamed']['events']['EventEmitter'] = EventEmitter;
+  this['metalNamed']['events']['EventEmitterProxy'] = EventEmitterProxy;
+  this['metalNamed']['events']['EventHandle'] = EventHandle;
+  this['metalNamed']['events']['EventHandler'] = EventHandler;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var core = this.metalNamed.metal.core;
-	var domData = this.metal.domData;
-	var EventHandle = this.metalNamed.events.EventHandle;
+	var array = this['metalNamed']['metal']['array'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var domData = this['metal']['domData'];
+	var EventHandle = this['metalNamed']['events']['EventHandle'];
 
 	/**
   * This is a special EventHandle, that is responsible for dom delegated events
@@ -2011,8 +1967,8 @@ babelHelpers;
 			value: function removeListener() {
 				var data = domData.get(this.emitter_);
 				var selector = this.selector_;
-				var arr = core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
-				var key = core.isString(selector) ? selector : this.event_;
+				var arr = isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
+				var key = isString(selector) ? selector : this.event_;
 
 				array.remove(arr[key] || [], this.listener_);
 				if (arr[key] && arr[key].length === 0) {
@@ -2023,12 +1979,12 @@ babelHelpers;
 		return DomDelegatedEventHandle;
 	}(EventHandle);
 
-	this.metal.DomDelegatedEventHandle = DomDelegatedEventHandle;
+	this['metal']['DomDelegatedEventHandle'] = DomDelegatedEventHandle;
 }).call(this);
 'use strict';
 
 (function () {
-	var EventHandle = this.metalNamed.events.EventHandle;
+	var EventHandle = this['metalNamed']['events']['EventHandle'];
 
 	/**
   * This is a special EventHandle, that is responsible for dom events, instead
@@ -2071,18 +2027,27 @@ babelHelpers;
 		return DomEventHandle;
 	}(EventHandle);
 
-	this.metal.DomEventHandle = DomEventHandle;
+	this['metal']['DomEventHandle'] = DomEventHandle;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var domData = this.metal.domData;
-	var DomDelegatedEventHandle = this.metal.DomDelegatedEventHandle;
-	var DomEventHandle = this.metal.DomEventHandle;
+	var isDef = this['metalNamed']['metal']['isDef'];
+	var isDocument = this['metalNamed']['metal']['isDocument'];
+	var isElement = this['metalNamed']['metal']['isElement'];
+	var isObject = this['metalNamed']['metal']['isObject'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var object = this['metalNamed']['metal']['object'];
+	var domData = this['metal']['domData'];
+	var DomDelegatedEventHandle = this['metal']['DomDelegatedEventHandle'];
+	var DomEventHandle = this['metal']['DomEventHandle'];
 
 
+	var elementsByTag_ = {};
+	var customEvents = {};
+
+	this['metalNamed']['dom'] = this['metalNamed']['dom'] || {};
+	this['metalNamed']['dom']['customEvents'] = customEvents;
 	var NEXT_TARGET = '__metal_next_target__';
 	var USE_CAPTURE = {
 		blur: true,
@@ -2093,904 +2058,793 @@ babelHelpers;
 		scroll: true
 	};
 
-	var dom = function () {
-		function dom() {
-			babelHelpers.classCallCheck(this, dom);
+	/**
+  * Adds the requested CSS classes to an element.
+  * @param {!Element|!Nodelist} elements The element or elements to add CSS classes to.
+  * @param {string} classes CSS classes to add.
+  */
+	function addClasses(elements, classes) {
+		if (!isObject(elements) || !isString(classes)) {
+			return;
 		}
 
-		babelHelpers.createClass(dom, null, [{
-			key: 'addClasses',
+		if (!elements.length) {
+			elements = [elements];
+		}
 
-			/**
-    * Adds the requested CSS classes to an element.
-    * @param {!Element|!Nodelist} elements The element or elements to add CSS classes to.
-    * @param {string} classes CSS classes to add.
-    */
-			value: function addClasses(elements, classes) {
-				if (!core.isObject(elements) || !core.isString(classes)) {
-					return;
-				}
-
-				if (!elements.length) {
-					elements = [elements];
-				}
-
-				for (var i = 0; i < elements.length; i++) {
-					if ('classList' in elements[i]) {
-						dom.addClassesWithNative_(elements[i], classes);
-					} else {
-						dom.addClassesWithoutNative_(elements[i], classes);
-					}
-				}
+		for (var i = 0; i < elements.length; i++) {
+			if ('classList' in elements[i]) {
+				addClassesWithNative_(elements[i], classes);
+			} else {
+				addClassesWithoutNative_(elements[i], classes);
 			}
+		}
+	}
 
-			/**
-    * Adds the requested CSS classes to an element using classList.
-    * @param {!Element} element The element to add CSS classes to.
-    * @param {string} classes CSS classes to add.
-    * @protected
-    */
+	this['metalNamed']['dom']['addClasses'] = addClasses; /**
+                                                        * Adds the requested CSS classes to an element using classList.
+                                                        * @param {!Element} element The element to add CSS classes to.
+                                                        * @param {string} classes CSS classes to add.
+                                                        * @private
+                                                        */
 
-		}, {
-			key: 'addClassesWithNative_',
-			value: function addClassesWithNative_(element, classes) {
-				classes.split(' ').forEach(function (className) {
-					if (className) {
-						element.classList.add(className);
-					}
-				});
+	function addClassesWithNative_(element, classes) {
+		classes.split(' ').forEach(function (className) {
+			if (className) {
+				element.classList.add(className);
 			}
+		});
+	}
 
-			/**
-    * Adds the requested CSS classes to an element without using classList.
-    * @param {!Element} element The element to add CSS classes to.
-    * @param {string} classes CSS classes to add.
-    * @protected
-    */
+	/**
+  * Adds the requested CSS classes to an element without using classList.
+  * @param {!Element} element The element to add CSS classes to.
+  * @param {string} classes CSS classes to add.
+  * @private
+  */
+	function addClassesWithoutNative_(element, classes) {
+		var elementClassName = ' ' + element.className + ' ';
+		var classesToAppend = '';
 
-		}, {
-			key: 'addClassesWithoutNative_',
-			value: function addClassesWithoutNative_(element, classes) {
-				var elementClassName = ' ' + element.className + ' ';
-				var classesToAppend = '';
+		classes = classes.split(' ');
 
-				classes = classes.split(' ');
+		for (var i = 0; i < classes.length; i++) {
+			var className = classes[i];
 
-				for (var i = 0; i < classes.length; i++) {
-					var className = classes[i];
+			if (elementClassName.indexOf(' ' + className + ' ') === -1) {
+				classesToAppend += ' ' + className;
+			}
+		}
 
-					if (elementClassName.indexOf(' ' + className + ' ') === -1) {
-						classesToAppend += ' ' + className;
-					}
+		if (classesToAppend) {
+			element.className = element.className + classesToAppend;
+		}
+	}
+
+	/**
+  * Adds an event listener to the given element, to be triggered via delegate.
+  * @param {!Element} element
+  * @param {string} eventName
+  * @param {!function()} listener
+  * @private
+  */
+	function addElementListener_(element, eventName, listener) {
+		var data = domData.get(element);
+		addToArr_(data.listeners, eventName, listener);
+	}
+
+	/**
+  * Adds an event listener to the given element, to be triggered via delegate
+  * selectors.
+  * @param {!Element} element
+  * @param {string} eventName
+  * @param {string} selector
+  * @param {!function()} listener
+  * @private
+  */
+	function addSelectorListener_(element, eventName, selector, listener) {
+		var data = domData.get(element);
+		addToArr_(data.delegating[eventName].selectors, selector, listener);
+	}
+
+	/**
+  * Adds a value to an array inside an object, creating it first if it doesn't
+  * yet exist.
+  * @param {!Array} arr
+  * @param {string} key
+  * @param {*} value
+  * @private
+  */
+	function addToArr_(arr, key, value) {
+		if (!arr[key]) {
+			arr[key] = [];
+		}
+		arr[key].push(value);
+	}
+
+	/**
+  * Attaches a delegate listener, unless there's already one attached.
+  * @param {!Element} element
+  * @param {string} eventName
+  * @private
+  */
+	function attachDelegateEvent_(element, eventName) {
+		var data = domData.get(element);
+		if (!data.delegating[eventName]) {
+			data.delegating[eventName] = {
+				handle: on(element, eventName, handleDelegateEvent_, !!USE_CAPTURE[eventName]),
+				selectors: {}
+			};
+		}
+	}
+
+	/**
+  * Gets the closest element up the tree from the given element (including
+  * itself) that matches the specified selector, or null if none match.
+  * @param {Element} element
+  * @param {string} selector
+  * @return {Element}
+  */
+	function closest(element, selector) {
+		while (element && !match(element, selector)) {
+			element = element.parentNode;
+		}
+		return element;
+	}
+
+	this['metalNamed']['dom']['closest'] = closest; /**
+                                                  * Appends a child node with text or other nodes to a parent node. If
+                                                  * child is a HTML string it will be automatically converted to a document
+                                                  * fragment before appending it to the parent.
+                                                  * @param {!Element} parent The node to append nodes to.
+                                                  * @param {!(Element|NodeList|string)} child The thing to append to the parent.
+                                                  * @return {!Element} The appended child.
+                                                  */
+
+	function append(parent, child) {
+		if (isString(child)) {
+			child = buildFragment(child);
+		}
+		if (child instanceof NodeList) {
+			var childArr = Array.prototype.slice.call(child);
+			for (var i = 0; i < childArr.length; i++) {
+				parent.appendChild(childArr[i]);
+			}
+		} else {
+			parent.appendChild(child);
+		}
+		return child;
+	}
+
+	this['metalNamed']['dom']['append'] = append; /**
+                                                * Helper for converting a HTML string into a document fragment.
+                                                * @param {string} htmlString The HTML string to convert.
+                                                * @return {!Element} The resulting document fragment.
+                                                */
+
+	function buildFragment(htmlString) {
+		var tempDiv = document.createElement('div');
+		tempDiv.innerHTML = '<br>' + htmlString;
+		tempDiv.removeChild(tempDiv.firstChild);
+
+		var fragment = document.createDocumentFragment();
+		while (tempDiv.firstChild) {
+			fragment.appendChild(tempDiv.firstChild);
+		}
+		return fragment;
+	}
+
+	this['metalNamed']['dom']['buildFragment'] = buildFragment; /**
+                                                              * Checks if the first element contains the second one.
+                                                              * @param {!Element} element1
+                                                              * @param {!Element} element2
+                                                              * @return {boolean}
+                                                              */
+
+	function contains(element1, element2) {
+		if (isDocument(element1)) {
+			// document.contains is not defined on IE9, so call it on documentElement instead.
+			return element1.documentElement.contains(element2);
+		} else {
+			return element1.contains(element2);
+		}
+	}
+
+	this['metalNamed']['dom']['contains'] = contains; /**
+                                                    * Listens to the specified event on the given DOM element, but only calls the
+                                                    * given callback listener when it's triggered by elements that match the
+                                                    * given selector or target element.
+                                                    * @param {!Element} element The DOM element the event should be listened on.
+                                                    * @param {string} eventName The name of the event to listen to.
+                                                    * @param {!Element|string} selectorOrTarget Either an element or css selector
+                                                    *     that should match the event for the listener to be triggered.
+                                                    * @param {!function(!Object)} callback Function to be called when the event
+                                                    *     is triggered. It will receive the normalized event object.
+                                                    * @param {boolean=} opt_default Optional flag indicating if this is a default
+                                                    *     listener. That means that it would only be executed after all non
+                                                    *     default listeners, and only if the event isn't prevented via
+                                                    *     `preventDefault`.
+                                                    * @return {!EventHandle} Can be used to remove the listener.
+                                                    */
+
+	function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
+		var customConfig = customEvents[eventName];
+		if (customConfig && customConfig.delegate) {
+			eventName = customConfig.originalEvent;
+			callback = customConfig.handler.bind(customConfig, callback);
+		}
+
+		if (opt_default) {
+			// Wrap callback so we don't set property directly on it.
+			callback = callback.bind();
+			callback.defaultListener_ = true;
+		}
+
+		attachDelegateEvent_(element, eventName);
+		if (isString(selectorOrTarget)) {
+			addSelectorListener_(element, eventName, selectorOrTarget, callback);
+		} else {
+			addElementListener_(selectorOrTarget, eventName, callback);
+		}
+
+		return new DomDelegatedEventHandle(isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, isString(selectorOrTarget) ? selectorOrTarget : null);
+	}
+
+	this['metalNamed']['dom']['delegate'] = delegate; /**
+                                                    * Verifies if the element is able to trigger the Click event,
+                                                    * simulating browsers behaviour, avoiding event listeners to be called by triggerEvent method.
+                                                    * @param {Element} node Element to be checked.
+                                                    * @param {string} eventName The event name.
+                                                    * @private
+                                                    */
+
+	function isAbleToInteractWith_(node, eventName) {
+		var currElement = node;
+		var isAble = true;
+		var matchesSelector = 'button, input, select, textarea, fieldset';
+
+		if (eventName === 'click') {
+			while (currElement) {
+				if (currElement.disabled && match(currElement, matchesSelector)) {
+					isAble = false;
+					break;
 				}
 
-				if (classesToAppend) {
-					element.className = element.className + classesToAppend;
-				}
+				currElement = currElement.parentNode;
 			}
+		}
 
-			/**
-    * Adds an event listener to the given element, to be triggered via delegate.
-    * @param {!Element} element
-    * @param {string} eventName
-    * @param {!function()} listener
-    * @protected
-    */
+		return isAble;
+	}
 
-		}, {
-			key: 'addElementListener_',
-			value: function addElementListener_(element, eventName, listener) {
-				var data = domData.get(element);
-				dom.addToArr_(data.listeners, eventName, listener);
+	/**
+  * Inserts node in document as last element.
+  * @param {Element} node Element to remove children from.
+  */
+	function enterDocument(node) {
+		node && append(document.body, node);
+	}
+
+	this['metalNamed']['dom']['enterDocument'] = enterDocument; /**
+                                                              * Removes node from document.
+                                                              * @param {Element} node Element to remove children from.
+                                                              */
+
+	function exitDocument(node) {
+		if (node && node.parentNode) {
+			node.parentNode.removeChild(node);
+		}
+	}
+
+	this['metalNamed']['dom']['exitDocument'] = exitDocument; /**
+                                                            * This is called when an event is triggered by a delegate listener. All
+                                                            * matching listeners of this event type from `target` to `currentTarget` will
+                                                            * be triggered.
+                                                            * @param {!Event} event The event payload.
+                                                            * @return {boolean} False if at least one of the triggered callbacks returns
+                                                            *     false, or true otherwise.
+                                                            * @private
+                                                            */
+
+	function handleDelegateEvent_(event) {
+		normalizeDelegateEvent_(event);
+		var currElement = isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
+		var ret = true;
+		var container = event.currentTarget;
+		var limit = event.currentTarget.parentNode;
+		var defFns = [];
+
+		while (currElement && currElement !== limit && !event.stopped) {
+			event.delegateTarget = currElement;
+			ret &= triggerMatchedListeners_(container, currElement, event, defFns);
+			currElement = currElement.parentNode;
+		}
+
+		for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
+			event.delegateTarget = defFns[i].element;
+			ret &= defFns[i].fn(event);
+		}
+
+		event.delegateTarget = null;
+		event[NEXT_TARGET] = limit;
+		return ret;
+	}
+
+	/**
+  * Checks if the given element has the requested css class.
+  * @param {!Element} element
+  * @param {string} className
+  * @return {boolean}
+  */
+	function hasClass(element, className) {
+		if ('classList' in element) {
+			return hasClassWithNative_(element, className);
+		} else {
+			return hasClassWithoutNative_(element, className);
+		}
+	}
+
+	this['metalNamed']['dom']['hasClass'] = hasClass; /**
+                                                    * Checks if the given element has the requested css class using classList.
+                                                    * @param {!Element} element
+                                                    * @param {string} className
+                                                    * @return {boolean}
+                                                    * @private
+                                                    */
+
+	function hasClassWithNative_(element, className) {
+		return element.classList.contains(className);
+	}
+
+	/**
+  * Checks if the given element has the requested css class without using classList.
+  * @param {!Element} element
+  * @param {string} className
+  * @return {boolean}
+  * @private
+  */
+	function hasClassWithoutNative_(element, className) {
+		return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0;
+	}
+
+	/**
+  * Checks if the given element is empty or not.
+  * @param {!Element} element
+  * @return {boolean}
+  */
+	function isEmpty(element) {
+		return element.childNodes.length === 0;
+	}
+
+	this['metalNamed']['dom']['isEmpty'] = isEmpty; /**
+                                                  * Check if an element matches a given selector.
+                                                  * @param {Element} element
+                                                  * @param {string} selector
+                                                  * @return {boolean}
+                                                  */
+
+	function match(element, selector) {
+		if (!element || element.nodeType !== 1) {
+			return false;
+		}
+
+		var p = Element.prototype;
+		var m = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector;
+		if (m) {
+			return m.call(element, selector);
+		}
+
+		return matchFallback_(element, selector);
+	}
+
+	this['metalNamed']['dom']['match'] = match; /**
+                                              * Check if an element matches a given selector, using an internal implementation
+                                              * instead of calling existing javascript functions.
+                                              * @param {Element} element
+                                              * @param {string} selector
+                                              * @return {boolean}
+                                              * @private
+                                              */
+
+	function matchFallback_(element, selector) {
+		var nodes = document.querySelectorAll(selector, element.parentNode);
+		for (var i = 0; i < nodes.length; ++i) {
+			if (nodes[i] === element) {
+				return true;
 			}
+		}
+		return false;
+	}
 
-			/**
-    * Adds an event listener to the given element, to be triggered via delegate
-    * selectors.
-    * @param {!Element} element
-    * @param {string} eventName
-    * @param {string} selector
-    * @param {!function()} listener
-    * @protected
-    */
-
-		}, {
-			key: 'addSelectorListener_',
-			value: function addSelectorListener_(element, eventName, selector, listener) {
-				var data = domData.get(element);
-				dom.addToArr_(data.delegating[eventName].selectors, selector, listener);
-			}
-
-			/**
-    * Adds a value to an array inside an object, creating it first if it doesn't
-    * yet exist.
-    * @param {!Array} arr
-    * @param {string} key
-    * @param {*} value
-    * @protected
-    */
-
-		}, {
-			key: 'addToArr_',
-			value: function addToArr_(arr, key, value) {
-				if (!arr[key]) {
-					arr[key] = [];
-				}
-				arr[key].push(value);
-			}
-
-			/**
-    * Attaches a delegate listener, unless there's already one attached.
-    * @param {!Element} element
-    * @param {string} eventName
-    * @protected
-    */
-
-		}, {
-			key: 'attachDelegateEvent_',
-			value: function attachDelegateEvent_(element, eventName) {
-				var data = domData.get(element);
-				if (!data.delegating[eventName]) {
-					data.delegating[eventName] = {
-						handle: dom.on(element, eventName, dom.handleDelegateEvent_, !!USE_CAPTURE[eventName]),
-						selectors: {}
-					};
-				}
-			}
-
-			/**
-    * Gets the closest element up the tree from the given element (including
-    * itself) that matches the specified selector, or null if none match.
-    * @param {Element} element
-    * @param {string} selector
-    * @return {Element}
-    */
-
-		}, {
-			key: 'closest',
-			value: function closest(element, selector) {
-				while (element && !dom.match(element, selector)) {
-					element = element.parentNode;
-				}
+	/**
+  * Returns the next sibling of the given element that matches the specified
+  * selector, or null if there is none.
+  * @param {!Element} element
+  * @param {?string} selector
+  */
+	function next(element, selector) {
+		do {
+			element = element.nextSibling;
+			if (element && match(element, selector)) {
 				return element;
 			}
+		} while (element);
+		return null;
+	}
 
-			/**
-    * Appends a child node with text or other nodes to a parent node. If
-    * child is a HTML string it will be automatically converted to a document
-    * fragment before appending it to the parent.
-    * @param {!Element} parent The node to append nodes to.
-    * @param {!(Element|NodeList|string)} child The thing to append to the parent.
-    * @return {!Element} The appended child.
-    */
+	this['metalNamed']['dom']['next'] = next; /**
+                                            * Normalizes the event payload for delegate listeners.
+                                            * @param {!Event} event
+                                            * @private
+                                            */
 
-		}, {
-			key: 'append',
-			value: function append(parent, child) {
-				if (core.isString(child)) {
-					child = dom.buildFragment(child);
-				}
-				if (child instanceof NodeList) {
-					var childArr = Array.prototype.slice.call(child);
-					for (var i = 0; i < childArr.length; i++) {
-						parent.appendChild(childArr[i]);
-					}
-				} else {
-					parent.appendChild(child);
-				}
-				return child;
+	function normalizeDelegateEvent_(event) {
+		event.stopPropagation = stopPropagation_;
+		event.stopImmediatePropagation = stopImmediatePropagation_;
+	}
+
+	/**
+  * Listens to the specified event on the given DOM element. This function normalizes
+  * DOM event payloads and functions so they'll work the same way on all supported
+  * browsers.
+  * @param {!Element|string} element The DOM element to listen to the event on, or
+  *   a selector that should be delegated on the entire document.
+  * @param {string} eventName The name of the event to listen to.
+  * @param {!function(!Object)} callback Function to be called when the event is
+  *   triggered. It will receive the normalized event object.
+  * @param {boolean} opt_capture Flag indicating if listener should be triggered
+  *   during capture phase, instead of during the bubbling phase. Defaults to false.
+  * @return {!DomEventHandle} Can be used to remove the listener.
+  */
+	function on(element, eventName, callback, opt_capture) {
+		if (isString(element)) {
+			return delegate(document, eventName, element, callback);
+		}
+		var customConfig = customEvents[eventName];
+		if (customConfig && customConfig.event) {
+			eventName = customConfig.originalEvent;
+			callback = customConfig.handler.bind(customConfig, callback);
+		}
+		element.addEventListener(eventName, callback, opt_capture);
+		return new DomEventHandle(element, eventName, callback, opt_capture);
+	}
+
+	this['metalNamed']['dom']['on'] = on; /**
+                                        * Listens to the specified event on the given DOM element once. This
+                                        * function normalizes DOM event payloads and functions so they'll work the
+                                        * same way on all supported browsers.
+                                        * @param {!Element} element The DOM element to listen to the event on.
+                                        * @param {string} eventName The name of the event to listen to.
+                                        * @param {!function(!Object)} callback Function to be called when the event
+                                        *   is triggered. It will receive the normalized event object.
+                                        * @return {!DomEventHandle} Can be used to remove the listener.
+                                        */
+
+	function once(element, eventName, callback) {
+		var domEventHandle = on(element, eventName, function () {
+			domEventHandle.removeListener();
+			return callback.apply(this, arguments);
+		});
+		return domEventHandle;
+	}
+
+	this['metalNamed']['dom']['once'] = once; /**
+                                            * Gets the first parent from the given element that matches the specified
+                                            * selector, or null if none match.
+                                            * @param {!Element} element
+                                            * @param {string} selector
+                                            * @return {Element}
+                                            */
+
+	function parent(element, selector) {
+		return closest(element.parentNode, selector);
+	}
+
+	this['metalNamed']['dom']['parent'] = parent; /**
+                                                * Registers a custom event.
+                                                * @param {string} eventName The name of the custom event.
+                                                * @param {!Object} customConfig An object with information about how the event
+                                                *   should be handled.
+                                                */
+
+	function registerCustomEvent(eventName, customConfig) {
+		customEvents[eventName] = customConfig;
+	}
+
+	this['metalNamed']['dom']['registerCustomEvent'] = registerCustomEvent; /**
+                                                                          * Removes all the child nodes on a DOM node.
+                                                                          * @param {Element} node Element to remove children from.
+                                                                          */
+
+	function removeChildren(node) {
+		var child;
+		while (child = node.firstChild) {
+			node.removeChild(child);
+		}
+	}
+
+	this['metalNamed']['dom']['removeChildren'] = removeChildren; /**
+                                                                * Removes the requested CSS classes from an element.
+                                                                * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
+                                                                * @param {string} classes CSS classes to remove.
+                                                                */
+
+	function removeClasses(elements, classes) {
+		if (!isObject(elements) || !isString(classes)) {
+			return;
+		}
+
+		if (!elements.length) {
+			elements = [elements];
+		}
+
+		for (var i = 0; i < elements.length; i++) {
+			if ('classList' in elements[i]) {
+				removeClassesWithNative_(elements[i], classes);
+			} else {
+				removeClassesWithoutNative_(elements[i], classes);
 			}
+		}
+	}
 
-			/**
-    * Helper for converting a HTML string into a document fragment.
-    * @param {string} htmlString The HTML string to convert.
-    * @return {!Element} The resulting document fragment.
-    */
+	this['metalNamed']['dom']['removeClasses'] = removeClasses; /**
+                                                              * Removes the requested CSS classes from an element using classList.
+                                                              * @param {!Element} element The element to remove CSS classes from.
+                                                              * @param {string} classes CSS classes to remove.
+                                                              * @private
+                                                              */
 
-		}, {
-			key: 'buildFragment',
-			value: function buildFragment(htmlString) {
-				var tempDiv = document.createElement('div');
-				tempDiv.innerHTML = '<br>' + htmlString;
-				tempDiv.removeChild(tempDiv.firstChild);
-
-				var fragment = document.createDocumentFragment();
-				while (tempDiv.firstChild) {
-					fragment.appendChild(tempDiv.firstChild);
-				}
-				return fragment;
+	function removeClassesWithNative_(element, classes) {
+		classes.split(' ').forEach(function (className) {
+			if (className) {
+				element.classList.remove(className);
 			}
+		});
+	}
 
-			/**
-    * Checks if the first element contains the second one.
-    * @param {!Element} element1
-    * @param {!Element} element2
-    * @return {boolean}
-    */
+	/**
+  * Removes the requested CSS classes from an element without using classList.
+  * @param {!Element} element The element to remove CSS classes from.
+  * @param {string} classes CSS classes to remove.
+  * @private
+  */
+	function removeClassesWithoutNative_(element, classes) {
+		var elementClassName = ' ' + element.className + ' ';
 
-		}, {
-			key: 'contains',
-			value: function contains(element1, element2) {
-				if (core.isDocument(element1)) {
-					// document.contains is not defined on IE9, so call it on documentElement instead.
-					return element1.documentElement.contains(element2);
-				} else {
-					return element1.contains(element2);
-				}
+		classes = classes.split(' ');
+
+		for (var i = 0; i < classes.length; i++) {
+			elementClassName = elementClassName.replace(' ' + classes[i] + ' ', ' ');
+		}
+
+		element.className = elementClassName.trim();
+	}
+
+	/**
+  * Replaces the first element with the second.
+  * @param {Element} element1
+  * @param {Element} element2
+  */
+	function replace(element1, element2) {
+		if (element1 && element2 && element1 !== element2 && element1.parentNode) {
+			element1.parentNode.insertBefore(element2, element1);
+			element1.parentNode.removeChild(element1);
+		}
+	}
+
+	this['metalNamed']['dom']['replace'] = replace; /**
+                                                  * The function that replaces `stopImmediatePropagation_` for events.
+                                                  * @private
+                                                  */
+
+	function stopImmediatePropagation_() {
+		var event = this; // jshint ignore:line
+		event.stopped = true;
+		event.stoppedImmediate = true;
+		Event.prototype.stopImmediatePropagation.call(event);
+	}
+
+	/**
+  * The function that replaces `stopPropagation` for events.
+  * @private
+  */
+	function stopPropagation_() {
+		var event = this; // jshint ignore:line
+		event.stopped = true;
+		Event.prototype.stopPropagation.call(event);
+	}
+
+	/**
+  * Checks if the given element supports the given event type.
+  * @param {!Element|string} element The DOM element or element tag name to check.
+  * @param {string} eventName The name of the event to check.
+  * @return {boolean}
+  */
+	function supportsEvent(element, eventName) {
+		if (customEvents[eventName]) {
+			return true;
+		}
+
+		if (isString(element)) {
+			if (!elementsByTag_[element]) {
+				elementsByTag_[element] = document.createElement(element);
 			}
+			element = elementsByTag_[element];
+		}
+		return 'on' + eventName in element;
+	}
 
-			/**
-    * Listens to the specified event on the given DOM element, but only calls the
-    * given callback listener when it's triggered by elements that match the
-    * given selector or target element.
-    * @param {!Element} element The DOM element the event should be listened on.
-    * @param {string} eventName The name of the event to listen to.
-    * @param {!Element|string} selectorOrTarget Either an element or css selector
-    *     that should match the event for the listener to be triggered.
-    * @param {!function(!Object)} callback Function to be called when the event
-    *     is triggered. It will receive the normalized event object.
-    * @param {boolean=} opt_default Optional flag indicating if this is a default
-    *     listener. That means that it would only be executed after all non
-    *     default listeners, and only if the event isn't prevented via
-    *     `preventDefault`.
-    * @return {!EventHandle} Can be used to remove the listener.
-    */
+	this['metalNamed']['dom']['supportsEvent'] = supportsEvent; /**
+                                                              * Converts the given argument to a DOM element. Strings are assumed to
+                                                              * be selectors, and so a matched element will be returned. If the arg
+                                                              * is already a DOM element it will be the return value.
+                                                              * @param {string|Element|Document} selectorOrElement
+                                                              * @return {Element} The converted element, or null if none was found.
+                                                              */
 
-		}, {
-			key: 'delegate',
-			value: function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
-				var customConfig = dom.customEvents[eventName];
-				if (customConfig && customConfig.delegate) {
-					eventName = customConfig.originalEvent;
-					callback = customConfig.handler.bind(customConfig, callback);
-				}
-
-				if (opt_default) {
-					// Wrap callback so we don't set property directly on it.
-					callback = callback.bind();
-					callback.defaultListener_ = true;
-				}
-
-				dom.attachDelegateEvent_(element, eventName);
-				if (core.isString(selectorOrTarget)) {
-					dom.addSelectorListener_(element, eventName, selectorOrTarget, callback);
-				} else {
-					dom.addElementListener_(selectorOrTarget, eventName, callback);
-				}
-
-				return new DomDelegatedEventHandle(core.isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, core.isString(selectorOrTarget) ? selectorOrTarget : null);
+	function toElement(selectorOrElement) {
+		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
+			return selectorOrElement;
+		} else if (isString(selectorOrElement)) {
+			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
+				return document.getElementById(selectorOrElement.substr(1));
+			} else {
+				return document.querySelector(selectorOrElement);
 			}
+		} else {
+			return null;
+		}
+	}
 
-			/**
-    * Verifies if the element is able to trigger the Click event,
-    * simulating browsers behaviour, avoiding event listeners to be called by dom.triggerEvent method.
-    * @param {Element} node Element to be checked.
-    * @param {string} eventName The event name.
-    */
+	this['metalNamed']['dom']['toElement'] = toElement; /**
+                                                      * Adds or removes one or more classes from an element. If any of the classes
+                                                      * is present, it will be removed from the element, or added otherwise.
+                                                      * @param {!Element} element The element which classes will be toggled.
+                                                      * @param {string} classes The classes which have to added or removed from the element.
+                                                      */
 
-		}, {
-			key: 'isAbleToInteractWith_',
-			value: function isAbleToInteractWith_(node, eventName) {
-				var currElement = node;
-				var isAble = true;
-				var matchesSelector = 'button, input, select, textarea, fieldset';
+	function toggleClasses(element, classes) {
+		if (!isObject(element) || !isString(classes)) {
+			return;
+		}
 
-				if (eventName === 'click') {
-					while (currElement) {
-						if (currElement.disabled && dom.match(currElement, matchesSelector)) {
-							isAble = false;
-							break;
-						}
+		if ('classList' in element) {
+			toggleClassesWithNative_(element, classes);
+		} else {
+			toggleClassesWithoutNative_(element, classes);
+		}
+	}
 
-						currElement = currElement.parentNode;
-					}
-				}
+	this['metalNamed']['dom']['toggleClasses'] = toggleClasses; /**
+                                                              * Adds or removes one or more classes from an element using classList.
+                                                              * If any of the classes is present, it will be removed from the element,
+                                                              * or added otherwise.
+                                                              * @param {!Element} element The element which classes will be toggled.
+                                                              * @param {string} classes The classes which have to added or removed from the element.
+                                                              * @private
+                                                              */
 
-				return isAble;
+	function toggleClassesWithNative_(element, classes) {
+		classes.split(' ').forEach(function (className) {
+			element.classList.toggle(className);
+		});
+	}
+
+	/**
+  * Adds or removes one or more classes from an element without using classList.
+  * If any of the classes is present, it will be removed from the element,
+  * or added otherwise.
+  * @param {!Element} element The element which classes will be toggled.
+  * @param {string} classes The classes which have to added or removed from the element.
+  * @private
+  */
+	function toggleClassesWithoutNative_(element, classes) {
+		var elementClassName = ' ' + element.className + ' ';
+
+		classes = classes.split(' ');
+
+		for (var i = 0; i < classes.length; i++) {
+			var className = ' ' + classes[i] + ' ';
+			var classIndex = elementClassName.indexOf(className);
+
+			if (classIndex === -1) {
+				elementClassName = elementClassName + classes[i] + ' ';
+			} else {
+				elementClassName = elementClassName.substring(0, classIndex) + ' ' + elementClassName.substring(classIndex + className.length);
 			}
+		}
 
-			/**
-    * Inserts node in document as last element.
-    * @param {Element} node Element to remove children from.
-    */
+		element.className = elementClassName.trim();
+	}
 
-		}, {
-			key: 'enterDocument',
-			value: function enterDocument(node) {
-				node && dom.append(document.body, node);
-			}
+	/**
+  * Triggers the specified event on the given element.
+  * NOTE: This should mostly be used for testing, not on real code.
+  * @param {!Element} element The node that should trigger the event.
+  * @param {string} eventName The name of the event to be triggred.
+  * @param {Object=} opt_eventObj An object with data that should be on the
+  *   triggered event's payload.
+  */
+	function triggerEvent(element, eventName, opt_eventObj) {
+		if (isAbleToInteractWith_(element, eventName)) {
+			var eventObj = document.createEvent('HTMLEvents');
+			eventObj.initEvent(eventName, true, true);
+			object.mixin(eventObj, opt_eventObj);
+			element.dispatchEvent(eventObj);
+		}
+	}
 
-			/**
-    * Removes node from document.
-    * @param {Element} node Element to remove children from.
-    */
+	this['metalNamed']['dom']['triggerEvent'] = triggerEvent; /**
+                                                            * Triggers the given listeners array.
+                                                            * @param {Array<!function()>} listeners
+                                                            * @param {!Event} event
+                                                            * @param {!Element} element
+                                                            * @param {!Array} defaultFns Array to collect default listeners in, instead
+                                                            *     of running them.
+                                                            * @return {boolean} False if at least one of the triggered callbacks returns
+                                                            *     false, or true otherwise.
+                                                            * @private
+                                                            */
 
-		}, {
-			key: 'exitDocument',
-			value: function exitDocument(node) {
-				if (node && node.parentNode) {
-					node.parentNode.removeChild(node);
-				}
-			}
-
-			/**
-    * This is called when an event is triggered by a delegate listener. All
-    * matching listeners of this event type from `target` to `currentTarget` will
-    * be triggered.
-    * @param {!Event} event The event payload.
-    * @return {boolean} False if at least one of the triggered callbacks returns
-    *     false, or true otherwise.
-    * @protected
-    */
-
-		}, {
-			key: 'handleDelegateEvent_',
-			value: function handleDelegateEvent_(event) {
-				dom.normalizeDelegateEvent_(event);
-				var currElement = core.isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
-				var ret = true;
-				var container = event.currentTarget;
-				var limit = event.currentTarget.parentNode;
-				var defFns = [];
-
-				while (currElement && currElement !== limit && !event.stopped) {
-					event.delegateTarget = currElement;
-					ret &= dom.triggerMatchedListeners_(container, currElement, event, defFns);
-					currElement = currElement.parentNode;
-				}
-
-				for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
-					event.delegateTarget = defFns[i].element;
-					ret &= defFns[i].fn(event);
-				}
-
-				event.delegateTarget = null;
-				event[NEXT_TARGET] = limit;
-				return ret;
-			}
-
-			/**
-    * Checks if the given element has the requested css class.
-    * @param {!Element} element
-    * @param {string} className
-    * @return {boolean}
-    */
-
-		}, {
-			key: 'hasClass',
-			value: function hasClass(element, className) {
-				if ('classList' in element) {
-					return dom.hasClassWithNative_(element, className);
-				} else {
-					return dom.hasClassWithoutNative_(element, className);
-				}
-			}
-
-			/**
-    * Checks if the given element has the requested css class using classList.
-    * @param {!Element} element
-    * @param {string} className
-    * @return {boolean}
-    * @protected
-    */
-
-		}, {
-			key: 'hasClassWithNative_',
-			value: function hasClassWithNative_(element, className) {
-				return element.classList.contains(className);
-			}
-
-			/**
-    * Checks if the given element has the requested css class without using classList.
-    * @param {!Element} element
-    * @param {string} className
-    * @return {boolean}
-    * @protected
-    */
-
-		}, {
-			key: 'hasClassWithoutNative_',
-			value: function hasClassWithoutNative_(element, className) {
-				return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0;
-			}
-
-			/**
-    * Checks if the given element is empty or not.
-    * @param {!Element} element
-    * @return {boolean}
-    */
-
-		}, {
-			key: 'isEmpty',
-			value: function isEmpty(element) {
-				return element.childNodes.length === 0;
-			}
-
-			/**
-    * Check if an element matches a given selector.
-    * @param {Element} element
-    * @param {string} selector
-    * @return {boolean}
-    */
-
-		}, {
-			key: 'match',
-			value: function match(element, selector) {
-				if (!element || element.nodeType !== 1) {
-					return false;
-				}
-
-				var p = Element.prototype;
-				var m = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector;
-				if (m) {
-					return m.call(element, selector);
-				}
-
-				return dom.matchFallback_(element, selector);
-			}
-
-			/**
-    * Check if an element matches a given selector, using an internal implementation
-    * instead of calling existing javascript functions.
-    * @param {Element} element
-    * @param {string} selector
-    * @return {boolean}
-    * @protected
-    */
-
-		}, {
-			key: 'matchFallback_',
-			value: function matchFallback_(element, selector) {
-				var nodes = document.querySelectorAll(selector, element.parentNode);
-				for (var i = 0; i < nodes.length; ++i) {
-					if (nodes[i] === element) {
-						return true;
-					}
-				}
-				return false;
-			}
-
-			/**
-    * Returns the next sibling of the given element that matches the specified
-    * selector, or null if there is none.
-    * @param {!Element} element
-    * @param {?string} selector
-    */
-
-		}, {
-			key: 'next',
-			value: function next(element, selector) {
-				do {
-					element = element.nextSibling;
-					if (element && dom.match(element, selector)) {
-						return element;
-					}
-				} while (element);
-				return null;
-			}
-
-			/**
-    * Normalizes the event payload for delegate listeners.
-    * @param {!Event} event
-    */
-
-		}, {
-			key: 'normalizeDelegateEvent_',
-			value: function normalizeDelegateEvent_(event) {
-				event.stopPropagation = dom.stopPropagation_;
-				event.stopImmediatePropagation = dom.stopImmediatePropagation_;
-			}
-
-			/**
-    * Listens to the specified event on the given DOM element. This function normalizes
-    * DOM event payloads and functions so they'll work the same way on all supported
-    * browsers.
-    * @param {!Element|string} element The DOM element to listen to the event on, or
-    *   a selector that should be delegated on the entire document.
-    * @param {string} eventName The name of the event to listen to.
-    * @param {!function(!Object)} callback Function to be called when the event is
-    *   triggered. It will receive the normalized event object.
-    * @param {boolean} opt_capture Flag indicating if listener should be triggered
-    *   during capture phase, instead of during the bubbling phase. Defaults to false.
-    * @return {!DomEventHandle} Can be used to remove the listener.
-    */
-
-		}, {
-			key: 'on',
-			value: function on(element, eventName, callback, opt_capture) {
-				if (core.isString(element)) {
-					return dom.delegate(document, eventName, element, callback);
-				}
-				var customConfig = dom.customEvents[eventName];
-				if (customConfig && customConfig.event) {
-					eventName = customConfig.originalEvent;
-					callback = customConfig.handler.bind(customConfig, callback);
-				}
-				element.addEventListener(eventName, callback, opt_capture);
-				return new DomEventHandle(element, eventName, callback, opt_capture);
-			}
-
-			/**
-    * Listens to the specified event on the given DOM element once. This
-    * function normalizes DOM event payloads and functions so they'll work the
-    * same way on all supported browsers.
-    * @param {!Element} element The DOM element to listen to the event on.
-    * @param {string} eventName The name of the event to listen to.
-    * @param {!function(!Object)} callback Function to be called when the event
-    *   is triggered. It will receive the normalized event object.
-    * @return {!DomEventHandle} Can be used to remove the listener.
-    */
-
-		}, {
-			key: 'once',
-			value: function once(element, eventName, callback) {
-				var domEventHandle = this.on(element, eventName, function () {
-					domEventHandle.removeListener();
-					return callback.apply(this, arguments);
+	function triggerListeners_(listeners, event, element, defaultFns) {
+		var ret = true;
+		listeners = listeners || [];
+		for (var i = 0; i < listeners.length && !event.stoppedImmediate; i++) {
+			if (listeners[i].defaultListener_) {
+				defaultFns.push({
+					element: element,
+					fn: listeners[i]
 				});
-				return domEventHandle;
+			} else {
+				ret &= listeners[i](event);
 			}
+		}
+		return ret;
+	}
 
-			/**
-    * Gets the first parent from the given element that matches the specified
-    * selector, or null if none match.
-    * @param {!Element} element
-    * @param {string} selector
-    * @return {Element}
-    */
+	/**
+  * Triggers all listeners for the given event type that are stored in the
+  * specified element.
+  * @param {!Element} container
+  * @param {!Element} element
+  * @param {!Event} event
+  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  *     of running them.
+  * @return {boolean} False if at least one of the triggered callbacks returns
+  *     false, or true otherwise.
+  * @private
+  */
+	function triggerMatchedListeners_(container, element, event, defaultFns) {
+		if (event.type === 'click' && event.button === 2) {
+			// Firefox triggers "click" events on the document for right clicks. This
+			// causes our delegate logic to trigger it for regular elements too, which
+			// shouldn't happen. Ignoring them here.
+			return;
+		}
 
-		}, {
-			key: 'parent',
-			value: function parent(element, selector) {
-				return dom.closest(element.parentNode, selector);
+		var data = domData.get(element);
+		var listeners = data.listeners[event.type];
+		var ret = triggerListeners_(listeners, event, element, defaultFns);
+
+		var selectorsMap = domData.get(container).delegating[event.type].selectors;
+		var selectors = Object.keys(selectorsMap);
+		for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
+			if (match(element, selectors[i])) {
+				listeners = selectorsMap[selectors[i]];
+				ret &= triggerListeners_(listeners, event, element, defaultFns);
 			}
+		}
 
-			/**
-    * Registers a custom event.
-    * @param {string} eventName The name of the custom event.
-    * @param {!Object} customConfig An object with information about how the event
-    *   should be handled.
-    */
-
-		}, {
-			key: 'registerCustomEvent',
-			value: function registerCustomEvent(eventName, customConfig) {
-				dom.customEvents[eventName] = customConfig;
-			}
-
-			/**
-    * Removes all the child nodes on a DOM node.
-    * @param {Element} node Element to remove children from.
-    */
-
-		}, {
-			key: 'removeChildren',
-			value: function removeChildren(node) {
-				var child;
-				while (child = node.firstChild) {
-					node.removeChild(child);
-				}
-			}
-
-			/**
-    * Removes the requested CSS classes from an element.
-    * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
-    * @param {string} classes CSS classes to remove.
-    */
-
-		}, {
-			key: 'removeClasses',
-			value: function removeClasses(elements, classes) {
-				if (!core.isObject(elements) || !core.isString(classes)) {
-					return;
-				}
-
-				if (!elements.length) {
-					elements = [elements];
-				}
-
-				for (var i = 0; i < elements.length; i++) {
-					if ('classList' in elements[i]) {
-						dom.removeClassesWithNative_(elements[i], classes);
-					} else {
-						dom.removeClassesWithoutNative_(elements[i], classes);
-					}
-				}
-			}
-
-			/**
-    * Removes the requested CSS classes from an element using classList.
-    * @param {!Element} element The element to remove CSS classes from.
-    * @param {string} classes CSS classes to remove.
-    * @protected
-    */
-
-		}, {
-			key: 'removeClassesWithNative_',
-			value: function removeClassesWithNative_(element, classes) {
-				classes.split(' ').forEach(function (className) {
-					if (className) {
-						element.classList.remove(className);
-					}
-				});
-			}
-
-			/**
-    * Removes the requested CSS classes from an element without using classList.
-    * @param {!Element} element The element to remove CSS classes from.
-    * @param {string} classes CSS classes to remove.
-    * @protected
-    */
-
-		}, {
-			key: 'removeClassesWithoutNative_',
-			value: function removeClassesWithoutNative_(element, classes) {
-				var elementClassName = ' ' + element.className + ' ';
-
-				classes = classes.split(' ');
-
-				for (var i = 0; i < classes.length; i++) {
-					elementClassName = elementClassName.replace(' ' + classes[i] + ' ', ' ');
-				}
-
-				element.className = elementClassName.trim();
-			}
-
-			/**
-    * Replaces the first element with the second.
-    * @param {Element} element1
-    * @param {Element} element2
-    */
-
-		}, {
-			key: 'replace',
-			value: function replace(element1, element2) {
-				if (element1 && element2 && element1 !== element2 && element1.parentNode) {
-					element1.parentNode.insertBefore(element2, element1);
-					element1.parentNode.removeChild(element1);
-				}
-			}
-
-			/**
-    * The function that replaces `stopImmediatePropagation_` for events.
-    * @protected
-    */
-
-		}, {
-			key: 'stopImmediatePropagation_',
-			value: function stopImmediatePropagation_() {
-				this.stopped = true;
-				this.stoppedImmediate = true;
-				Event.prototype.stopImmediatePropagation.call(this);
-			}
-
-			/**
-    * The function that replaces `stopPropagation` for events.
-    * @protected
-    */
-
-		}, {
-			key: 'stopPropagation_',
-			value: function stopPropagation_() {
-				this.stopped = true;
-				Event.prototype.stopPropagation.call(this);
-			}
-
-			/**
-    * Checks if the given element supports the given event type.
-    * @param {!Element|string} element The DOM element or element tag name to check.
-    * @param {string} eventName The name of the event to check.
-    * @return {boolean}
-    */
-
-		}, {
-			key: 'supportsEvent',
-			value: function supportsEvent(element, eventName) {
-				if (dom.customEvents[eventName]) {
-					return true;
-				}
-
-				if (core.isString(element)) {
-					if (!elementsByTag[element]) {
-						elementsByTag[element] = document.createElement(element);
-					}
-					element = elementsByTag[element];
-				}
-				return 'on' + eventName in element;
-			}
-
-			/**
-    * Converts the given argument to a DOM element. Strings are assumed to
-    * be selectors, and so a matched element will be returned. If the arg
-    * is already a DOM element it will be the return value.
-    * @param {string|Element|Document} selectorOrElement
-    * @return {Element} The converted element, or null if none was found.
-    */
-
-		}, {
-			key: 'toElement',
-			value: function toElement(selectorOrElement) {
-				if (core.isElement(selectorOrElement) || core.isDocument(selectorOrElement)) {
-					return selectorOrElement;
-				} else if (core.isString(selectorOrElement)) {
-					if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
-						return document.getElementById(selectorOrElement.substr(1));
-					} else {
-						return document.querySelector(selectorOrElement);
-					}
-				} else {
-					return null;
-				}
-			}
-
-			/**
-    * Adds or removes one or more classes from an element. If any of the classes
-    * is present, it will be removed from the element, or added otherwise.
-    * @param {!Element} element The element which classes will be toggled.
-    * @param {string} classes The classes which have to added or removed from the element.
-    */
-
-		}, {
-			key: 'toggleClasses',
-			value: function toggleClasses(element, classes) {
-				if (!core.isObject(element) || !core.isString(classes)) {
-					return;
-				}
-
-				if ('classList' in element) {
-					dom.toggleClassesWithNative_(element, classes);
-				} else {
-					dom.toggleClassesWithoutNative_(element, classes);
-				}
-			}
-
-			/**
-    * Adds or removes one or more classes from an element using classList.
-    * If any of the classes is present, it will be removed from the element,
-    * or added otherwise.
-    * @param {!Element} element The element which classes will be toggled.
-    * @param {string} classes The classes which have to added or removed from the element.
-    */
-
-		}, {
-			key: 'toggleClassesWithNative_',
-			value: function toggleClassesWithNative_(element, classes) {
-				classes.split(' ').forEach(function (className) {
-					element.classList.toggle(className);
-				});
-			}
-
-			/**
-    * Adds or removes one or more classes from an element without using classList.
-    * If any of the classes is present, it will be removed from the element,
-    * or added otherwise.
-    * @param {!Element} element The element which classes will be toggled.
-    * @param {string} classes The classes which have to added or removed from the element.
-    */
-
-		}, {
-			key: 'toggleClassesWithoutNative_',
-			value: function toggleClassesWithoutNative_(element, classes) {
-				var elementClassName = ' ' + element.className + ' ';
-
-				classes = classes.split(' ');
-
-				for (var i = 0; i < classes.length; i++) {
-					var className = ' ' + classes[i] + ' ';
-					var classIndex = elementClassName.indexOf(className);
-
-					if (classIndex === -1) {
-						elementClassName = elementClassName + classes[i] + ' ';
-					} else {
-						elementClassName = elementClassName.substring(0, classIndex) + ' ' + elementClassName.substring(classIndex + className.length);
-					}
-				}
-
-				element.className = elementClassName.trim();
-			}
-
-			/**
-    * Triggers the specified event on the given element.
-    * NOTE: This should mostly be used for testing, not on real code.
-    * @param {!Element} element The node that should trigger the event.
-    * @param {string} eventName The name of the event to be triggred.
-    * @param {Object=} opt_eventObj An object with data that should be on the
-    *   triggered event's payload.
-    */
-
-		}, {
-			key: 'triggerEvent',
-			value: function triggerEvent(element, eventName, opt_eventObj) {
-				if (dom.isAbleToInteractWith_(element, eventName)) {
-					var eventObj = document.createEvent('HTMLEvents');
-					eventObj.initEvent(eventName, true, true);
-					object.mixin(eventObj, opt_eventObj);
-					element.dispatchEvent(eventObj);
-				}
-			}
-
-			/**
-    * Triggers the given listeners array.
-    * @param {Array<!function()>} listeners
-    * @param {!Event} event
-    * @param {!Element} element
-    * @param {!Array} defaultFns Array to collect default listeners in, instead
-    *     of running them.
-    * @return {boolean} False if at least one of the triggered callbacks returns
-    *     false, or true otherwise.
-    * @protected
-    */
-
-		}, {
-			key: 'triggerListeners_',
-			value: function triggerListeners_(listeners, event, element, defaultFns) {
-				var ret = true;
-				listeners = listeners || [];
-				for (var i = 0; i < listeners.length && !event.stoppedImmediate; i++) {
-					if (listeners[i].defaultListener_) {
-						defaultFns.push({
-							element: element,
-							fn: listeners[i]
-						});
-					} else {
-						ret &= listeners[i](event);
-					}
-				}
-				return ret;
-			}
-
-			/**
-    * Triggers all listeners for the given event type that are stored in the
-    * specified element.
-    * @param {!Element} container
-    * @param {!Element} element
-    * @param {!Event} event
-    * @param {!Array} defaultFns Array to collect default listeners in, instead
-    *     of running them.
-    * @return {boolean} False if at least one of the triggered callbacks returns
-    *     false, or true otherwise.
-    * @protected
-    */
-
-		}, {
-			key: 'triggerMatchedListeners_',
-			value: function triggerMatchedListeners_(container, element, event, defaultFns) {
-				if (event.type === 'click' && event.button === 2) {
-					// Firefox triggers "click" events on the document for right clicks. This
-					// causes our delegate logic to trigger it for regular elements too, which
-					// shouldn't happen. Ignoring them here.
-					return;
-				}
-
-				var data = domData.get(element);
-				var listeners = data.listeners[event.type];
-				var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
-
-				var selectorsMap = domData.get(container).delegating[event.type].selectors;
-				var selectors = Object.keys(selectorsMap);
-				for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
-					if (dom.match(element, selectors[i])) {
-						listeners = selectorsMap[selectors[i]];
-						ret &= dom.triggerListeners_(listeners, event, element, defaultFns);
-					}
-				}
-
-				return ret;
-			}
-		}]);
-		return dom;
-	}();
-
-	var elementsByTag = {};
-	dom.customEvents = {};
-
-	this.metal.dom = dom;
+		return ret;
+	}
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var EventEmitterProxy = this.metalNamed.events.EventEmitterProxy;
+	var delegate = this['metalNamed']['dom']['delegate'];
+	var on = this['metalNamed']['dom']['on'];
+	var supportsEvent = this['metalNamed']['dom']['supportsEvent'];
+	var EventEmitterProxy = this['metalNamed']['events']['EventEmitterProxy'];
 
 	/**
   * DomEventEmitterProxy utility. It extends `EventEmitterProxy` to also accept
@@ -3023,9 +2877,9 @@ babelHelpers;
 						var index = event.indexOf(':', 9);
 						var eventName = event.substring(9, index);
 						var selector = event.substring(index + 1);
-						return dom.delegate(this.originEmitter_, eventName, selector, listener);
+						return delegate(this.originEmitter_, eventName, selector, listener);
 					} else {
-						return dom.on(this.originEmitter_, event, listener);
+						return on(this.originEmitter_, event, listener);
 					}
 				} else {
 					return babelHelpers.get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'addListener_', this).call(this, event, listener);
@@ -3057,7 +2911,7 @@ babelHelpers;
 				if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
 					return true;
 				}
-				return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
+				return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || supportsEvent(this.originEmitter_, event);
 			}
 
 			/**
@@ -3077,13 +2931,13 @@ babelHelpers;
 		return DomEventEmitterProxy;
 	}(EventEmitterProxy);
 
-	this.metal.DomEventEmitterProxy = DomEventEmitterProxy;
+	this['metal']['DomEventEmitterProxy'] = DomEventEmitterProxy;
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var string = this.metalNamed.metal.string;
+	var append = this['metalNamed']['dom']['append'];
+	var string = this['metalNamed']['metal']['string'];
 
 	/**
   * Class with static methods responsible for doing browser feature checks.
@@ -3146,7 +3000,7 @@ babelHelpers;
 				if (features.attrOrderChange_ === undefined) {
 					var originalContent = '<div data-component="" data-ref=""></div>';
 					var element = document.createElement('div');
-					dom.append(element, originalContent);
+					append(element, originalContent);
 					features.attrOrderChange_ = originalContent !== element.innerHTML;
 				}
 				return features.attrOrderChange_;
@@ -3159,13 +3013,14 @@ babelHelpers;
 	features.animationEventName_ = undefined;
 	features.attrOrderChange_ = undefined;
 
-	this.metal.features = features;
+	this['metal']['features'] = features;
 }).call(this);
 'use strict';
 
 (function () {
-	var async = this.metalNamed.metal.async;
-	var dom = this.metal.dom;
+	var async = this['metalNamed']['metal']['async'];
+	var exitDocument = this['metalNamed']['dom']['exitDocument'];
+	var once = this['metalNamed']['dom']['once'];
 
 	/**
   * Utility functions for running javascript code in the global scope.
@@ -3194,7 +3049,7 @@ babelHelpers;
 				} else {
 					document.head.appendChild(script);
 				}
-				dom.exitDocument(script);
+				exitDocument(script);
 				return script;
 			}
 
@@ -3215,11 +3070,11 @@ babelHelpers;
 				script.src = src;
 
 				var callback = function callback() {
-					dom.exitDocument(script);
+					exitDocument(script);
 					opt_callback && opt_callback();
 				};
-				dom.once(script, 'load', callback);
-				dom.once(script, 'error', callback);
+				once(script, 'load', callback);
+				once(script, 'error', callback);
 
 				if (opt_appendFn) {
 					opt_appendFn(script);
@@ -3250,7 +3105,7 @@ babelHelpers;
 					async.nextTick(callback);
 					return;
 				}
-				dom.exitDocument(script);
+				exitDocument(script);
 				if (script.src) {
 					return globalEval.runFile(script.src, opt_callback, opt_appendFn);
 				} else {
@@ -3304,13 +3159,13 @@ babelHelpers;
 		return globalEval;
 	}();
 
-	this.metal.globalEval = globalEval;
+	this['metal']['globalEval'] = globalEval;
 }).call(this);
 'use strict';
 
 (function () {
-	var async = this.metalNamed.metal.async;
-	var dom = this.metal.dom;
+	var async = this['metalNamed']['metal']['async'];
+	var once = this['metalNamed']['dom']['once'];
 
 	/**
   * Utility functions for running styles.
@@ -3386,8 +3241,8 @@ babelHelpers;
 				if (style.tagName === 'STYLE') {
 					async.nextTick(callback);
 				} else {
-					dom.once(style, 'load', callback);
-					dom.once(style, 'error', callback);
+					once(style, 'load', callback);
+					once(style, 'error', callback);
 				}
 
 				if (opt_appendFn) {
@@ -3431,13 +3286,13 @@ babelHelpers;
 		return globalEvalStyles;
 	}();
 
-	this.metal.globalEvalStyles = globalEvalStyles;
+	this['metal']['globalEvalStyles'] = globalEvalStyles;
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var features = this.metal.features;
+	var registerCustomEvent = this['metalNamed']['dom']['registerCustomEvent'];
+	var features = this['metal']['features'];
 
 
 	var mouseEventMap = {
@@ -3447,7 +3302,7 @@ babelHelpers;
 		pointerleave: 'pointerout'
 	};
 	Object.keys(mouseEventMap).forEach(function (eventName) {
-		dom.registerCustomEvent(eventName, {
+		registerCustomEvent(eventName, {
 			delegate: true,
 			handler: function handler(callback, event) {
 				var related = event.relatedTarget;
@@ -3467,7 +3322,7 @@ babelHelpers;
 	};
 	Object.keys(animationEventMap).forEach(function (eventType) {
 		var eventName = animationEventMap[eventType];
-		dom.registerCustomEvent(eventName, {
+		registerCustomEvent(eventName, {
 			event: true,
 			delegate: true,
 			handler: function handler(callback, event) {
@@ -3481,27 +3336,39 @@ babelHelpers;
 'use strict';
 
 (function () {
-  var dom = this.metal.dom;
-  var domData = this.metal.domData;
-  var DomEventEmitterProxy = this.metal.DomEventEmitterProxy;
-  var DomEventHandle = this.metal.DomEventHandle;
-  var features = this.metal.features;
-  var globalEval = this.metal.globalEval;
-  var globalEvalStyles = this.metal.globalEvalStyles;
-  this.metal.dom = dom;
-  this.metalNamed.dom = this.metalNamed.dom || {};
-  this.metalNamed.dom.dom = dom;
-  this.metalNamed.dom.domData = domData;
-  this.metalNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
-  this.metalNamed.dom.DomEventHandle = DomEventHandle;
-  this.metalNamed.dom.features = features;
-  this.metalNamed.dom.globalEval = globalEval;
-  this.metalNamed.dom.globalEvalStyles = globalEvalStyles;
+  var dom = this['metalNamed']['dom'];
+  var domData = this['metal']['domData'];
+  var DomEventEmitterProxy = this['metal']['DomEventEmitterProxy'];
+  var DomEventHandle = this['metal']['DomEventHandle'];
+  var features = this['metal']['features'];
+  var globalEval = this['metal']['globalEval'];
+  var globalEvalStyles = this['metal']['globalEvalStyles'];
+  this['metalNamed']['dom'] = this['metalNamed']['dom'] || {};
+  Object.keys(this['metalNamed']['dom']).forEach(function (key) {
+    this['metalNamed']['dom'][key] = this['metalNamed']['dom'][key];
+  });
+  this['metalNamed']['dom']['domData'] = domData;
+  this['metalNamed']['dom']['DomEventEmitterProxy'] = DomEventEmitterProxy;
+  this['metalNamed']['dom']['DomEventHandle'] = DomEventHandle;
+  this['metalNamed']['dom']['features'] = features;
+  this['metalNamed']['dom']['globalEval'] = globalEval;
+  this['metalNamed']['dom']['globalEvalStyles'] = globalEvalStyles;
+
+  // This is for backwards compatibility, making sure that old imports for the
+  // "dom" object still work. It's best to use the named exports for each function
+  // instead though, since that allows bundlers like Rollup to reduce the bundle
+  // size by removing unused code.
+
+  this['metal']['dom'] = dom;
+  this['metalNamed']['dom']['dom'] = dom;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
+	var getFunctionName = this['metalNamed']['metal']['getFunctionName'];
+	var isDef = this['metalNamed']['metal']['isDef'];
+	var isDefAndNotNull = this['metalNamed']['metal']['isDefAndNotNull'];
+	var isNull = this['metalNamed']['metal']['isNull'];
 
 	/**
   * Provides access to various type validators that will return an
@@ -3639,7 +3506,7 @@ babelHelpers;
 						required = validator.config.required;
 						validator = validator.config.validator;
 					}
-					if (required && !core.isDefAndNotNull(value[key]) || isInvalid(validator(value[key]))) {
+					if (required && !isDefAndNotNull(value[key]) || isInvalid(validator(value[key]))) {
 						return composeError('Expected object with a specific shape', name, context);
 					}
 				}
@@ -3657,10 +3524,10 @@ babelHelpers;
   * @return {!Error} Instance of Error class.
   */
 	function composeError(error, name, context) {
-		var compName = context ? core.getFunctionName(context.constructor) : null;
+		var compName = context ? getFunctionName(context.constructor) : null;
 		var renderer = context && context.getRenderer && context.getRenderer();
 		var parent = renderer && renderer.getParent ? context.getRenderer().getParent() : null;
-		var parentName = parent ? core.getFunctionName(parent.constructor) : null;
+		var parentName = parent ? getFunctionName(parent.constructor) : null;
 		var location = parentName ? 'Check render method of \'' + parentName + '\'.' : '';
 		return new Error('Warning: Invalid state passed to \'' + name + '\'. ' + (error + ' Passed to \'' + compName + '\'. ' + location));
 	}
@@ -3695,7 +3562,7 @@ babelHelpers;
   */
 	function maybe(typeValidator) {
 		return function (value, name, context) {
-			if (!core.isDef(value) || core.isNull(value)) {
+			if (!isDef(value) || isNull(value)) {
 				return true;
 			}
 			return typeValidator(value, name, context);
@@ -3729,13 +3596,13 @@ babelHelpers;
 		};
 	}
 
-	this.metal.validators = validators;
+	this['metal']['validators'] = validators;
 }).call(this);
 'use strict';
 
 (function () {
-	var object = this.metalNamed.metal.object;
-	var validators = this.metal.validators;
+	var object = this['metalNamed']['metal']['object'];
+	var validators = this['metal']['validators'];
 
 	/**
   * Sugar api that can be used as an alternative for manually building `State`
@@ -3768,7 +3635,7 @@ babelHelpers;
    * @return {!Object} `State` configuration object.
    */
 		required: function required() {
-			var _required = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+			var _required = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
 			return mergeConfig(this, { required: _required });
 		},
@@ -3828,16 +3695,20 @@ babelHelpers;
 		};
 	});
 
-	this.metal.Config = Config;
+	this['metal']['Config'] = Config;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var async = this.metalNamed.metal.async;
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var EventEmitter = this.metalNamed.events.EventEmitter;
+	var array = this['metalNamed']['metal']['array'];
+	var async = this['metalNamed']['metal']['async'];
+	var isDefAndNotNull = this['metalNamed']['metal']['isDefAndNotNull'];
+	var isFunction = this['metalNamed']['metal']['isFunction'];
+	var isObject = this['metalNamed']['metal']['isObject'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var mergeSuperClassesProperty = this['metalNamed']['metal']['mergeSuperClassesProperty'];
+	var object = this['metalNamed']['metal']['object'];
+	var EventEmitter = this['metalNamed']['events']['EventEmitter'];
 
 	/**
   * State adds support for having object properties that can be watched for
@@ -3975,7 +3846,7 @@ babelHelpers;
 		}, {
 			key: 'addToState',
 			value: function addToState(configsOrName, opt_initialValuesOrConfig, opt_contextOrInitialValue) {
-				if (core.isString(configsOrName)) {
+				if (isString(configsOrName)) {
 					return this.addKeyToState.apply(this, arguments);
 				}
 
@@ -4032,7 +3903,7 @@ babelHelpers;
 				var info = this.stateInfo_[name];
 				if (info.config.required) {
 					var value = info.state === State.KeyStates.INITIALIZED ? this.get(name) : info.initialValue;
-					if (!core.isDefAndNotNull(value)) {
+					if (!isDefAndNotNull(value)) {
 						console.error('The property called "' + name + '" is required but didn\'t ' + 'receive a value.');
 					}
 				}
@@ -4118,9 +3989,9 @@ babelHelpers;
 		}, {
 			key: 'callFunction_',
 			value: function callFunction_(fn, args) {
-				if (core.isString(fn)) {
+				if (isString(fn)) {
 					return this.context_[fn].apply(this.context_, args);
-				} else if (core.isFunction(fn)) {
+				} else if (isFunction(fn)) {
 					return fn.apply(this.context_, args);
 				}
 			}
@@ -4389,7 +4260,7 @@ babelHelpers;
     * @protected
     */
 			value: function mergeInvalidKeys_() {
-				core.mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
+				mergeSuperClassesProperty(this.constructor, 'INVALID_KEYS', function (values) {
 					return array.flatten(values).reduce(function (merged, val) {
 						if (val) {
 							merged[val] = true;
@@ -4566,7 +4437,7 @@ babelHelpers;
 			key: 'shouldInformChange_',
 			value: function shouldInformChange_(name, prevVal) {
 				var info = this.stateInfo_[name];
-				return info.state === State.KeyStates.INITIALIZED && (core.isObject(prevVal) || prevVal !== this.get(name));
+				return info.state === State.KeyStates.INITIALIZED && (isObject(prevVal) || prevVal !== this.get(name));
 			}
 
 			/**
@@ -4633,7 +4504,7 @@ babelHelpers;
 		}, {
 			key: 'mergeStateStatic',
 			value: function mergeStateStatic(ctor) {
-				return core.mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
+				return mergeSuperClassesProperty(ctor, 'STATE', State.mergeState);
 			}
 		}]);
 		return State;
@@ -4659,19 +4530,19 @@ babelHelpers;
 		INITIALIZED: 2
 	};
 
-	this.metal.State = State;
+	this['metal']['State'] = State;
 }).call(this);
 'use strict';
 
 (function () {
-  var validators = this.metal.validators;
-  var Config = this.metal.Config;
-  var State = this.metal.State;
-  this.metal.state = State;
-  this.metalNamed.state = this.metalNamed.state || {};
-  this.metalNamed.state.validators = validators;
-  this.metalNamed.state.Config = Config;
-  this.metalNamed.state.State = State;
+  var validators = this['metal']['validators'];
+  var Config = this['metal']['Config'];
+  var State = this['metal']['State'];
+  this['metal']['state'] = State;
+  this['metalNamed']['state'] = this['metalNamed']['state'] || {};
+  this['metalNamed']['state']['validators'] = validators;
+  this['metalNamed']['state']['Config'] = Config;
+  this['metalNamed']['state']['State'] = State;
 }).call(this);
 'use strict';
 
@@ -4719,13 +4590,13 @@ babelHelpers;
 		return Geometry;
 	}();
 
-	this.metal.Geometry = Geometry;
+	this['metal']['Geometry'] = Geometry;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var Geometry = this.metal.Geometry;
+	var core = this['metal']['metal'];
+	var Geometry = this['metal']['Geometry'];
 
 	/**
   * Class with static methods responsible for doing browser position checks.
@@ -5104,12 +4975,12 @@ babelHelpers;
 		return Position;
 	}();
 
-	this.metal.Position = Position;
+	this['metal']['Position'] = Position;
 }).call(this);
 'use strict';
 
 (function () {
-	var Position = this.metal.Position;
+	var Position = this['metal']['Position'];
 
 	/**
   * Align utility. Computes region or best region to align an element with
@@ -5334,29 +5205,29 @@ babelHelpers;
 	Align.Bottom = Align.BottomCenter;
 	Align.Left = Align.LeftCenter;
 
-	this.metal.Align = Align;
+	this['metal']['Align'] = Align;
 }).call(this);
 'use strict';
 
 (function () {
-  var Align = this.metal.Align;
-  var Geometry = this.metal.Geometry;
-  var Position = this.metal.Position;
-  this.metal.position = Position;
-  this.metalNamed.position = this.metalNamed.position || {};
-  this.metalNamed.position.Align = Align;
-  this.metalNamed.position.Geometry = Geometry;
-  this.metalNamed.position.Position = Position;
+  var Align = this['metal']['Align'];
+  var Geometry = this['metal']['Geometry'];
+  var Position = this['metal']['Position'];
+  this['metal']['position'] = Position;
+  this['metalNamed']['position'] = this['metalNamed']['position'] || {};
+  this['metalNamed']['position']['Align'] = Align;
+  this['metalNamed']['position']['Geometry'] = Geometry;
+  this['metalNamed']['position']['Position'] = Position;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metalNamed.dom.dom;
-	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
-	var State = this.metal.state;
-	var EventEmitter = this.metal.events;
-	var Position = this.metal.position;
+	var core = this['metal']['metal'];
+	var dom = this['metalNamed']['dom']['dom'];
+	var DomEventEmitterProxy = this['metalNamed']['dom']['DomEventEmitterProxy'];
+	var State = this['metal']['state'];
+	var EventEmitter = this['metal']['events'];
+	var Position = this['metal']['position'];
 
 	/**
   * Affix utility.
@@ -5529,14 +5400,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Affix = Affix;
+	this['metal']['Affix'] = Affix;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metalNamed.dom.dom;
-	var features = this.metalNamed.dom.features;
+	var core = this['metal']['metal'];
+	var dom = this['metalNamed']['dom']['dom'];
+	var features = this['metalNamed']['dom']['features'];
 
 	var Anim = function () {
 		function Anim() {
@@ -5638,17 +5509,17 @@ babelHelpers;
 		return Anim;
 	}();
 
-	this.metal.Anim = Anim;
+	this['metal']['Anim'] = Anim;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var EventEmitter = this.metalNamed.events.EventEmitter;
-	var EventEmitterProxy = this.metalNamed.events.EventEmitterProxy;
-	var State = this.metal.state;
+	var array = this['metalNamed']['metal']['array'];
+	var mergeSuperClassesProperty = this['metalNamed']['metal']['mergeSuperClassesProperty'];
+	var object = this['metalNamed']['metal']['object'];
+	var EventEmitter = this['metalNamed']['events']['EventEmitter'];
+	var EventEmitterProxy = this['metalNamed']['events']['EventEmitterProxy'];
+	var State = this['metal']['state'];
 
 	var ComponentDataManager = function (_EventEmitter) {
 		babelHelpers.inherits(ComponentDataManager, _EventEmitter);
@@ -5665,7 +5536,7 @@ babelHelpers;
 
 			_this.component_ = component;
 
-			core.mergeSuperClassesProperty(_this.constructor, 'BLACKLIST', array.firstDefinedValue);
+			mergeSuperClassesProperty(_this.constructor, 'BLACKLIST', array.firstDefinedValue);
 			State.mergeStateStatic(_this.component_.constructor);
 
 			_this.createState_(data, _this.component_);
@@ -5870,13 +5741,13 @@ babelHelpers;
 		wasRendered: true
 	};
 
-	this.metal.ComponentDataManager = ComponentDataManager;
+	this['metal']['ComponentDataManager'] = ComponentDataManager;
 }).call(this);
 'use strict';
 
 (function () {
-	var EventEmitter = this.metalNamed.events.EventEmitter;
-	var EventHandler = this.metalNamed.events.EventHandler;
+	var EventEmitter = this['metalNamed']['events']['EventEmitter'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
 
 	/**
   * Base class that component renderers should extend from. It defines the
@@ -6052,20 +5923,27 @@ babelHelpers;
 		return ComponentRenderer;
 	}(EventEmitter);
 
-	this.metal.ComponentRenderer = ComponentRenderer;
+	this['metal']['ComponentRenderer'] = ComponentRenderer;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var dom = this.metalNamed.dom.dom;
-	var DomEventEmitterProxy = this.metalNamed.dom.DomEventEmitterProxy;
-	var ComponentDataManager = this.metal.ComponentDataManager;
-	var ComponentRenderer = this.metal.ComponentRenderer;
-	var EventEmitter = this.metalNamed.events.EventEmitter;
-	var EventHandler = this.metalNamed.events.EventHandler;
+	var array = this['metalNamed']['metal']['array'];
+	var getFunctionName = this['metalNamed']['metal']['getFunctionName'];
+	var isBoolean = this['metalNamed']['metal']['isBoolean'];
+	var isDefAndNotNull = this['metalNamed']['metal']['isDefAndNotNull'];
+	var isElement = this['metalNamed']['metal']['isElement'];
+	var isFunction = this['metalNamed']['metal']['isFunction'];
+	var isObject = this['metalNamed']['metal']['isObject'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var mergeSuperClassesProperty = this['metalNamed']['metal']['mergeSuperClassesProperty'];
+	var object = this['metalNamed']['metal']['object'];
+	var DomEventEmitterProxy = this['metalNamed']['dom']['DomEventEmitterProxy'];
+	var toElement = this['metalNamed']['dom']['toElement'];
+	var ComponentDataManager = this['metal']['ComponentDataManager'];
+	var ComponentRenderer = this['metal']['ComponentRenderer'];
+	var EventEmitter = this['metalNamed']['events']['EventEmitter'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
 
 	/**
   * Component collects common behaviors to be followed by UI components, such
@@ -6186,8 +6064,8 @@ babelHelpers;
     */
 			_this.DEFAULT_ELEMENT_PARENT = document.body;
 
-			core.mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
-			core.mergeSuperClassesProperty(_this.constructor, 'SYNC_UPDATES', array.firstDefinedValue);
+			mergeSuperClassesProperty(_this.constructor, 'ELEMENT_CLASSES', _this.mergeElementClasses_);
+			mergeSuperClassesProperty(_this.constructor, 'SYNC_UPDATES', array.firstDefinedValue);
 
 			_this.element = _this.initialConfig_.element;
 
@@ -6313,7 +6191,7 @@ babelHelpers;
 		}, {
 			key: 'createDataManager',
 			value: function createDataManager() {
-				core.mergeSuperClassesProperty(this.constructor, 'DATA_MANAGER', array.firstDefinedValue);
+				mergeSuperClassesProperty(this.constructor, 'DATA_MANAGER', array.firstDefinedValue);
 				return new this.constructor.DATA_MANAGER_MERGED(this, Component.DATA);
 			}
 
@@ -6326,7 +6204,7 @@ babelHelpers;
 		}, {
 			key: 'createRenderer',
 			value: function createRenderer() {
-				core.mergeSuperClassesProperty(this.constructor, 'RENDERER', array.firstDefinedValue);
+				mergeSuperClassesProperty(this.constructor, 'RENDERER', array.firstDefinedValue);
 				return new this.constructor.RENDERER_MERGED(this);
 			}
 
@@ -6448,11 +6326,11 @@ babelHelpers;
 				var info = {
 					fn: value
 				};
-				if (core.isObject(value) && !core.isFunction(value)) {
+				if (isObject(value) && !isFunction(value)) {
 					info.selector = value.selector;
 					info.fn = value.fn;
 				}
-				if (core.isString(info.fn)) {
+				if (isString(info.fn)) {
 					info.fn = this.getListenerFn(info.fn);
 				}
 				return info;
@@ -6491,10 +6369,10 @@ babelHelpers;
 		}, {
 			key: 'getListenerFn',
 			value: function getListenerFn(fnName) {
-				if (core.isFunction(this[fnName])) {
+				if (isFunction(this[fnName])) {
 					return this[fnName].bind(this);
 				} else {
-					console.error('No function named "' + fnName + '" was found in the ' + 'component "' + core.getFunctionName(this.constructor) + '". Make ' + 'sure that you specify valid function names when adding inline listeners.');
+					console.error('No function named "' + fnName + '" was found in the ' + 'component "' + getFunctionName(this.constructor) + '". Make ' + 'sure that you specify valid function names when adding inline listeners.');
 				}
 			}
 
@@ -6532,7 +6410,7 @@ babelHelpers;
 			key: 'fireStateKeyChange_',
 			value: function fireStateKeyChange_(key, opt_change) {
 				var fn = this['sync' + key.charAt(0).toUpperCase() + key.slice(1)];
-				if (core.isFunction(fn)) {
+				if (isFunction(fn)) {
 					if (!opt_change) {
 						var manager = this.getDataManager();
 						opt_change = {
@@ -6724,8 +6602,8 @@ babelHelpers;
 			value: function renderElement_(opt_parentElement, opt_siblingElement) {
 				var element = this.element;
 				if (element && (opt_siblingElement || !element.parentNode)) {
-					var parent = dom.toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
-					parent.insertBefore(element, dom.toElement(opt_siblingElement));
+					var parent = toElement(opt_parentElement) || this.DEFAULT_ELEMENT_PARENT;
+					parent.insertBefore(element, toElement(opt_siblingElement));
 				}
 			}
 
@@ -6852,7 +6730,7 @@ babelHelpers;
 		}, {
 			key: 'validatorEventsFn_',
 			value: function validatorEventsFn_(val) {
-				return !core.isDefAndNotNull(val) || core.isObject(val);
+				return !isDefAndNotNull(val) || isObject(val);
 			}
 		}, {
 			key: 'element',
@@ -6860,12 +6738,12 @@ babelHelpers;
 				return this.elementVal_;
 			},
 			set: function set(val) {
-				if (!core.isElement(val) && !core.isString(val) && core.isDefAndNotNull(val)) {
+				if (!isElement(val) && !isString(val) && isDefAndNotNull(val)) {
 					return;
 				}
 
 				if (val) {
-					val = dom.toElement(val) || this.elementVal_;
+					val = toElement(val) || this.elementVal_;
 				}
 
 				if (this.elementVal_ !== val) {
@@ -6889,7 +6767,7 @@ babelHelpers;
 			value: function render(Ctor, opt_configOrElement, opt_element) {
 				var config = opt_configOrElement;
 				var element = opt_element;
-				if (core.isElement(opt_configOrElement)) {
+				if (isElement(opt_configOrElement)) {
 					config = null;
 					element = opt_configOrElement;
 				}
@@ -6915,7 +6793,7 @@ babelHelpers;
    */
 		elementClasses: {
 			setter: 'setterElementClassesFn_',
-			validator: core.isString,
+			validator: isString,
 			value: ''
 		},
 
@@ -6935,7 +6813,7 @@ babelHelpers;
    * @type {boolean}
    */
 		visible: {
-			validator: core.isBoolean,
+			validator: isBoolean,
 			value: true
 		}
 	};
@@ -6980,12 +6858,12 @@ babelHelpers;
   */
 	Component.prototype[Component.COMPONENT_FLAG] = true;
 
-	this.metal.Component = Component;
+	this['metal']['Component'] = Component;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
+	var getFunctionName = this['metalNamed']['metal']['getFunctionName'];
 
 	/**
   * The component registry is used to register components, so they can
@@ -7033,7 +6911,7 @@ babelHelpers;
 					if (constructorFn.hasOwnProperty('NAME')) {
 						name = constructorFn.NAME;
 					} else {
-						name = core.getFunctionName(constructorFn);
+						name = getFunctionName(constructorFn);
 					}
 				}
 				constructorFn.NAME = name;
@@ -7053,21 +6931,21 @@ babelHelpers;
 
 	ComponentRegistry.components_ = {};
 
-	this.metal.ComponentRegistry = ComponentRegistry;
+	this['metal']['ComponentRegistry'] = ComponentRegistry;
 }).call(this);
 'use strict';
 
 (function () {
-  var Component = this.metal.Component;
-  var ComponentDataManager = this.metal.ComponentDataManager;
-  var ComponentRegistry = this.metal.ComponentRegistry;
-  var ComponentRenderer = this.metal.ComponentRenderer;
-  this.metal.component = Component;
-  this.metalNamed.component = this.metalNamed.component || {};
-  this.metalNamed.component.Component = Component;
-  this.metalNamed.component.ComponentDataManager = ComponentDataManager;
-  this.metalNamed.component.ComponentRegistry = ComponentRegistry;
-  this.metalNamed.component.ComponentRenderer = ComponentRenderer;
+  var Component = this['metal']['Component'];
+  var ComponentDataManager = this['metal']['ComponentDataManager'];
+  var ComponentRegistry = this['metal']['ComponentRegistry'];
+  var ComponentRenderer = this['metal']['ComponentRenderer'];
+  this['metal']['component'] = Component;
+  this['metalNamed']['component'] = this['metalNamed']['component'] || {};
+  this['metalNamed']['component']['Component'] = Component;
+  this['metalNamed']['component']['ComponentDataManager'] = ComponentDataManager;
+  this['metalNamed']['component']['ComponentRegistry'] = ComponentRegistry;
+  this['metalNamed']['component']['ComponentRenderer'] = ComponentRenderer;
 }).call(this);
 'use strict';
 
@@ -8298,8 +8176,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var object = this.metalNamed.metal.object;
+	var array = this['metalNamed']['metal']['array'];
+	var object = this['metalNamed']['metal']['object'];
 
 	/**
   * Class responsible for intercepting incremental dom functions through AOP.
@@ -8413,12 +8291,12 @@ babelHelpers;
 
 	IncrementalDOM.attributes[IncrementalDOM.symbols.default] = handleCall.bind(null, 'attributes');
 
-	this.metal.IncrementalDomAop = IncrementalDomAop;
+	this['metal']['IncrementalDomAop'] = IncrementalDomAop;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
+	var isString = this['metalNamed']['metal']['isString'];
 
 	/**
   * Utility functions used to handle incremental dom calls.
@@ -8479,20 +8357,20 @@ babelHelpers;
 		}, {
 			key: 'isComponentTag',
 			value: function isComponentTag(tag) {
-				return !core.isString(tag) || tag[0] === tag[0].toUpperCase();
+				return !isString(tag) || tag[0] === tag[0].toUpperCase();
 			}
 		}]);
 		return IncrementalDomUtils;
 	}();
 
-	this.metal.IncrementalDomUtils = IncrementalDomUtils;
+	this['metal']['IncrementalDomUtils'] = IncrementalDomUtils;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var IncrementalDomAop = this.metal.IncrementalDomAop;
-	var IncrementalDomUtils = this.metal.IncrementalDomUtils;
+	var isDef = this['metalNamed']['metal']['isDef'];
+	var IncrementalDomAop = this['metal']['IncrementalDomAop'];
+	var IncrementalDomUtils = this['metal']['IncrementalDomUtils'];
 
 	/**
   * Provides helpers for capturing children elements from incremental dom calls,
@@ -8534,6 +8412,18 @@ babelHelpers;
 			}
 
 			/**
+    * Returns the owner of the current child node being rendered (or nothing
+    * if there's no child being rendered).
+    * @return {ComponentRenderer}
+    */
+
+		}, {
+			key: 'getCurrentOwner',
+			value: function getCurrentOwner() {
+				return currNodeOwner_;
+			}
+
+			/**
     * Gets the node's original owner's renderer.
     * @param {!Object} node
     * @return {ComponentRenderer}
@@ -8562,11 +8452,13 @@ babelHelpers;
 					return;
 				}
 
+				currNodeOwner_ = IncrementalDomChildren.getOwner(tree);
 				if (opt_skipNode && opt_skipNode(tree)) {
+					currNodeOwner_ = null;
 					return;
 				}
 
-				if (core.isDef(tree.text)) {
+				if (isDef(tree.text)) {
 					var args = tree.args ? tree.args : [];
 					args[0] = tree.text;
 					IncrementalDOM.text.apply(null, args);
@@ -8580,12 +8472,14 @@ babelHelpers;
 					}
 					IncrementalDOM.elementClose(tree.tag);
 				}
+				currNodeOwner_ = null;
 			}
 		}]);
 		return IncrementalDomChildren;
 	}();
 
 	var callback_;
+	var currNodeOwner_;
 	var currentParent_;
 	var isCapturing_ = false;
 	var renderer_;
@@ -8677,7 +8571,7 @@ babelHelpers;
   */
 	IncrementalDomChildren.CHILD_OWNER = '__metalChildOwner';
 
-	this.metal.IncrementalDomChildren = IncrementalDomChildren;
+	this['metal']['IncrementalDomChildren'] = IncrementalDomChildren;
 }).call(this);
 'use strict';
 
@@ -8736,22 +8630,29 @@ babelHelpers;
 		return IncrementalDomUnusedComponents;
 	}();
 
-	this.metal.IncrementalDomUnusedComponents = IncrementalDomUnusedComponents;
+	this['metal']['IncrementalDomUnusedComponents'] = IncrementalDomUnusedComponents;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var dom = this.metal.dom;
-	var domData = this.metalNamed.dom.domData;
-	var Component = this.metalNamed.component.Component;
-	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
-	var ComponentRenderer = this.metalNamed.component.ComponentRenderer;
-	var IncrementalDomAop = this.metal.IncrementalDomAop;
-	var IncrementalDomChildren = this.metal.IncrementalDomChildren;
-	var IncrementalDomUnusedComponents = this.metal.IncrementalDomUnusedComponents;
-	var IncrementalDomUtils = this.metal.IncrementalDomUtils;
+	var getCompatibilityModeData = this['metalNamed']['metal']['getCompatibilityModeData'];
+	var getUid = this['metalNamed']['metal']['getUid'];
+	var isBoolean = this['metalNamed']['metal']['isBoolean'];
+	var isDef = this['metalNamed']['metal']['isDef'];
+	var isDefAndNotNull = this['metalNamed']['metal']['isDefAndNotNull'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var object = this['metalNamed']['metal']['object'];
+	var append = this['metalNamed']['dom']['append'];
+	var delegate = this['metalNamed']['dom']['delegate'];
+	var domData = this['metalNamed']['dom']['domData'];
+	var exitDocument = this['metalNamed']['dom']['exitDocument'];
+	var Component = this['metalNamed']['component']['Component'];
+	var ComponentRegistry = this['metalNamed']['component']['ComponentRegistry'];
+	var ComponentRenderer = this['metalNamed']['component']['ComponentRenderer'];
+	var IncrementalDomAop = this['metal']['IncrementalDomAop'];
+	var IncrementalDomChildren = this['metal']['IncrementalDomChildren'];
+	var IncrementalDomUnusedComponents = this['metal']['IncrementalDomUnusedComponents'];
+	var IncrementalDomUtils = this['metal']['IncrementalDomUtils'];
 
 	/**
   * Class responsible for rendering components via incremental dom.
@@ -8855,7 +8756,7 @@ babelHelpers;
 
 				element[key] = fn;
 				if (fn) {
-					if (core.isString(fn)) {
+					if (isString(fn)) {
 						if (key[0] === 'd') {
 							// Allow data-on[eventkey] listeners to stay in the dom, as they
 							// won't cause conflicts.
@@ -8863,7 +8764,7 @@ babelHelpers;
 						}
 						fn = this.component_.getListenerFn(fn);
 					}
-					element[handleKey] = dom.delegate(document, eventName, element, fn);
+					element[handleKey] = delegate(document, eventName, element, fn);
 				} else {
 					element.removeAttribute(key);
 				}
@@ -8989,7 +8890,7 @@ babelHelpers;
 		}, {
 			key: 'getRef_',
 			value: function getRef_(config) {
-				var compatData = core.getCompatibilityModeData();
+				var compatData = getCompatibilityModeData();
 				if (compatData) {
 					var renderers = compatData.renderers;
 					var useKey = !renderers || renderers.indexOf(this.constructor) !== -1 || renderers.indexOf(this.constructor.RENDERER_NAME) !== -1;
@@ -9005,32 +8906,31 @@ babelHelpers;
     * creating it if it doesn't yet exist.
     * @param {string|!Function} tagOrCtor The tag name.
     * @param {!Object} config The config object for the sub component.
-    * @param {Component=} opt_owner
+    * @param {!Component} owner
     * @return {!Component} The sub component.
     * @protected
     */
 
 		}, {
 			key: 'getSubComponent_',
-			value: function getSubComponent_(tagOrCtor, config, opt_owner) {
+			value: function getSubComponent_(tagOrCtor, config, owner) {
 				var Ctor = tagOrCtor;
-				if (core.isString(Ctor)) {
+				if (isString(Ctor)) {
 					Ctor = ComponentRegistry.getConstructor(tagOrCtor);
 				}
 
 				var ref = this.getRef_(config);
 				var data = IncrementalDomRenderer.getCurrentData();
 				var comp;
-				if (core.isDef(ref)) {
-					var owner = opt_owner || this.component_;
+				if (isDef(ref)) {
 					comp = this.match_(owner.components[ref], Ctor, config);
 					owner.addSubComponent(ref, comp);
 					owner.refs[ref] = comp;
-				} else if (core.isDef(config.key)) {
+				} else if (isDef(config.key)) {
 					comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
 					data.currComps.keys[config.key] = comp;
 				} else {
-					var type = core.getUid(Ctor, true);
+					var type = getUid(Ctor, true);
 					data.currComps.order[type] = data.currComps.order[type] || [];
 					var order = data.currComps.order[type];
 					comp = this.match_((data.prevComps.order[type] || [])[order.length], Ctor, config);
@@ -9055,7 +8955,7 @@ babelHelpers;
 				if (!element || !element.parentNode) {
 					var parent = document.createElement('div');
 					if (element) {
-						dom.append(parent, element);
+						append(parent, element);
 					}
 					return parent;
 				}
@@ -9105,8 +9005,7 @@ babelHelpers;
 			value: function handleChildRender_(node) {
 				if (node.tag && IncrementalDomUtils.isComponentTag(node.tag)) {
 					node.props.children = this.buildChildren_(node.props.children);
-					var owner = IncrementalDomChildren.getOwner(node);
-					this.renderFromTag_(node.tag, node.props, owner && owner.getComponent());
+					this.renderFromTag_(node.tag, node.props);
 					return true;
 				}
 			}
@@ -9171,7 +9070,7 @@ babelHelpers;
 					// "checked" as an attribute only, which can cause bugs since that won't
 					// necessarily check/uncheck the element it's set on. See
 					// https://github.com/google/incremental-dom/issues/198 for more details.
-					value = core.isDefAndNotNull(value) && value !== false;
+					value = isDefAndNotNull(value) && value !== false;
 				}
 
 				if (name === 'value' && element.value !== value) {
@@ -9185,7 +9084,7 @@ babelHelpers;
 					element[name] = value;
 				}
 
-				if (core.isBoolean(value)) {
+				if (isBoolean(value)) {
 					// Incremental dom sets boolean values as string data attributes, which
 					// is counter intuitive. This changes the behavior to use the actual
 					// boolean value.
@@ -9284,8 +9183,9 @@ babelHelpers;
 				this.updateElementIfNotReached_(node);
 
 				var config = IncrementalDomUtils.buildConfigFromCall(args);
-				if (core.isDefAndNotNull(config.ref)) {
-					this.component_.refs[config.ref] = node;
+				if (isDefAndNotNull(config.ref)) {
+					var owner = IncrementalDomChildren.getCurrentOwner() || this;
+					owner.getComponent().refs[config.ref] = node;
 				}
 				return node;
 			}
@@ -9409,7 +9309,7 @@ babelHelpers;
 				var tempParent = this.guaranteeParent_();
 				if (tempParent) {
 					IncrementalDOM.patch(tempParent, this.renderInsidePatchDontSkip_);
-					dom.exitDocument(this.component_.element);
+					exitDocument(this.component_.element);
 					if (this.component_.element && this.component_.inDocument) {
 						this.component_.renderElement_(this.attachData_.parent, this.attachData_.sibling);
 					}
@@ -9487,15 +9387,14 @@ babelHelpers;
     * Renders the contents for the given tag.
     * @param {!function()|string} tag
     * @param {!Object} config
-    * @param {Component=} opt_owner
     * @protected
     */
 
 		}, {
 			key: 'renderFromTag_',
-			value: function renderFromTag_(tag, config, opt_owner) {
-				if (core.isString(tag) || tag.prototype.getRenderer) {
-					var comp = this.renderSubComponent_(tag, config, opt_owner);
+			value: function renderFromTag_(tag, config) {
+				if (isString(tag) || tag.prototype.getRenderer) {
+					var comp = this.renderSubComponent_(tag, config);
 					this.updateElementIfNotReached_(comp.element);
 					return comp.element;
 				} else {
@@ -9570,15 +9469,16 @@ babelHelpers;
     * updated instead.
     * @param {string|!function()} tagOrCtor The tag name or constructor function.
     * @param {!Object} config The config object for the sub component.
-    * @param {Component=} opt_owner
     * @return {!Component} The updated sub component.
     * @protected
     */
 
 		}, {
 			key: 'renderSubComponent_',
-			value: function renderSubComponent_(tagOrCtor, config, opt_owner) {
-				var comp = this.getSubComponent_(tagOrCtor, config, opt_owner);
+			value: function renderSubComponent_(tagOrCtor, config) {
+				var ownerRenderer = IncrementalDomChildren.getCurrentOwner() || this;
+				var owner = ownerRenderer.getComponent();
+				var comp = this.getSubComponent_(tagOrCtor, config, owner);
 				this.updateContext_(comp);
 				var renderer = comp.getRenderer();
 				if (renderer instanceof IncrementalDomRenderer) {
@@ -9586,7 +9486,7 @@ babelHelpers;
 					var parentRenderer = parentComp.getRenderer();
 					parentRenderer.childComponents_.push(comp);
 					renderer.parent_ = parentComp;
-					renderer.owner_ = opt_owner || this.component_;
+					renderer.owner_ = owner;
 					if (!config.key && !parentRenderer.rootElementReached_) {
 						config.key = parentRenderer.config_.key;
 					}
@@ -9825,11 +9725,11 @@ babelHelpers;
 	IncrementalDomRenderer.LISTENER_REGEX = /^(?:on([A-Z]\w+))|(?:data-on(\w+))$/;
 
 	// Name of this renderer. Renderers should provide this as a way to identify
-	// them via a simple string (when calling core.enableCompatibilityMode to
-	// add support to old features for specific renderers for example).
+	// them via a simple string (when calling enableCompatibilityMode to add
+	// support to old features for specific renderers for example).
 	IncrementalDomRenderer.RENDERER_NAME = 'incremental-dom';
 
-	this.metal.IncrementalDomRenderer = IncrementalDomRenderer;
+	this['metal']['IncrementalDomRenderer'] = IncrementalDomRenderer;
 }).call(this);
 'use strict';
 
@@ -12481,15 +12381,15 @@ babelHelpers;
      */
     goog.i18n.bidi.Format = {
       /** Unicode "Left-To-Right Embedding" (LRE) character. */
-      LRE: '‪',
+      LRE: '\u202A',
       /** Unicode "Right-To-Left Embedding" (RLE) character. */
-      RLE: '‫',
+      RLE: '\u202B',
       /** Unicode "Pop Directional Formatting" (PDF) character. */
-      PDF: '‬',
+      PDF: '\u202C',
       /** Unicode "Left-To-Right Mark" (LRM) character. */
-      LRM: '‎',
+      LRM: '\u200E',
       /** Unicode "Right-To-Left Mark" (RLM) character. */
-      RLM: '‏'
+      RLM: '\u200F'
     };
 
     /**
@@ -12573,7 +12473,7 @@ babelHelpers;
      * @type {string}
      * @private
      */
-    goog.i18n.bidi.ltrChars_ = 'A-Za-zÀ-ÖØ-öø-ʸ̀-֐ࠀ-῿' + '‎Ⰰ-﬜︀-﹯﻽-￿';
+    goog.i18n.bidi.ltrChars_ = 'A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\u02B8\u0300-\u0590\u0800-\u1FFF' + '\u200E\u2C00-\uFB1C\uFE00-\uFE6F\uFEFD-\uFFFF';
 
     /**
      * A practical pattern to identify strong RTL character. This pattern is not
@@ -12582,7 +12482,7 @@ babelHelpers;
      * @type {string}
      * @private
      */
-    goog.i18n.bidi.rtlChars_ = '֑-ۯۺ-߿‏יִ-﷿ﹰ-ﻼ';
+    goog.i18n.bidi.rtlChars_ = '\u0591-\u06EF\u06FA-\u07FF\u200F\uFB1D-\uFDFF\uFE70-\uFEFC';
 
     /**
      * Simplified regular expression for an HTML tag (opening or closing) or an HTML
@@ -13024,7 +12924,7 @@ babelHelpers;
      * @return {string} Processed string with double/single quote replaced.
      */
     goog.i18n.bidi.normalizeHebrewQuote = function (str) {
-      return str.replace(goog.i18n.bidi.doubleQuoteSubstituteRe_, '$1״').replace(goog.i18n.bidi.singleQuoteSubstituteRe_, '$1׳');
+      return str.replace(goog.i18n.bidi.doubleQuoteSubstituteRe_, '$1\u05F4').replace(goog.i18n.bidi.singleQuoteSubstituteRe_, '$1\u05F3');
     };
 
     /**
@@ -14654,7 +14554,7 @@ babelHelpers;
     });
   }
 
-  this.metal.unescape = unescape;
+  this['metal']['unescape'] = unescape;
 
   /**
    * Regular expression that matches an HTML entity.
@@ -14666,7 +14566,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var unescape = this.metal.unescape;
+	var unescape = this['metal']['unescape'];
 
 
 	var parser_;
@@ -14750,13 +14650,13 @@ babelHelpers;
 		return HTML2IncDom;
 	}();
 
-	this.metal.HTML2IncDom = HTML2IncDom;
+	this['metal']['HTML2IncDom'] = HTML2IncDom;
 }).call(this);
 'use strict';
 
 (function () {
-  var HTML2IncDom = this.metal.HTML2IncDom;
-  this.metal.withParser = HTML2IncDom;
+  var HTML2IncDom = this['metal']['HTML2IncDom'];
+  this['metal']['withParser'] = HTML2IncDom;
 }).call(this);
 'use strict';
 
@@ -14839,17 +14739,19 @@ babelHelpers;
 		}
 	};
 
-	this.metal.SoyAop = SoyAop;
+	this['metal']['SoyAop'] = SoyAop;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var ComponentRegistry = this.metalNamed.component.ComponentRegistry;
-	var HTML2IncDom = this.metal.withParser;
-	var IncrementalDomRenderer = this.metal.IncrementalDomRenderer;
-	var SoyAop = this.metal.SoyAop;
+	var isFunction = this['metalNamed']['metal']['isFunction'];
+	var isObject = this['metalNamed']['metal']['isObject'];
+	var isString = this['metalNamed']['metal']['isString'];
+	var object = this['metalNamed']['metal']['object'];
+	var ComponentRegistry = this['metalNamed']['component']['ComponentRegistry'];
+	var HTML2IncDom = this['metal']['withParser'];
+	var IncrementalDomRenderer = this['metal']['IncrementalDomRenderer'];
+	var SoyAop = this['metal']['SoyAop'];
 
 	// The injected data that will be passed to soy templates.
 
@@ -14872,7 +14774,7 @@ babelHelpers;
     */
 			value: function addMissingStateKeys_() {
 				var elementTemplate = this.component_.constructor.TEMPLATE;
-				if (!core.isFunction(elementTemplate)) {
+				if (!isFunction(elementTemplate)) {
 					return;
 				}
 
@@ -14914,7 +14816,7 @@ babelHelpers;
 					data[key] = value;
 				});
 				for (var i = 0; i < params.length; i++) {
-					if (!data[params[i]] && core.isFunction(component[params[i]])) {
+					if (!data[params[i]] && isFunction(component[params[i]])) {
 						data[params[i]] = component[params[i]].bind(component);
 					}
 				}
@@ -14992,7 +14894,7 @@ babelHelpers;
     */
 			value: function renderIncDom() {
 				var elementTemplate = this.component_.constructor.TEMPLATE;
-				if (core.isFunction(elementTemplate) && !this.component_.render) {
+				if (isFunction(elementTemplate) && !this.component_.render) {
 					elementTemplate = SoyAop.getOriginalFn(elementTemplate);
 					SoyAop.startInterception(Soy.handleInterceptedCall_);
 					elementTemplate(this.buildTemplateData_(elementTemplate.params || []), null, ijData);
@@ -15051,7 +14953,7 @@ babelHelpers;
 		}, {
 			key: 'handleInterceptedCall_',
 			value: function handleInterceptedCall_(originalFn) {
-				var opt_data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+				var opt_data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 				var args = [originalFn.componentCtor, null, []];
 				for (var key in opt_data) {
@@ -15062,7 +14964,7 @@ babelHelpers;
 		}, {
 			key: 'register',
 			value: function register(componentCtor, templates) {
-				var mainTemplate = arguments.length <= 2 || arguments[2] === undefined ? 'render' : arguments[2];
+				var mainTemplate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'render';
 
 				componentCtor.RENDERER = Soy;
 				componentCtor.TEMPLATE = SoyAop.getOriginalFn(templates[mainTemplate]);
@@ -15092,10 +14994,10 @@ babelHelpers;
 		}, {
 			key: 'toIncDom',
 			value: function toIncDom(value) {
-				if (core.isObject(value) && core.isString(value.content) && value.contentKind === 'HTML') {
+				if (isObject(value) && isString(value.content) && value.contentKind === 'HTML') {
 					value = value.content;
 				}
-				if (core.isString(value)) {
+				if (isString(value)) {
 					value = HTML2IncDom.buildFn(value);
 				}
 				return value;
@@ -15106,17 +15008,17 @@ babelHelpers;
 
 	Soy.RENDERER_NAME = 'soy';
 
-	this.metal.Soy = Soy;
-	this.metalNamed.Soy = this.metalNamed.Soy || {};
-	this.metalNamed.Soy.Soy = Soy;
-	this.metalNamed.Soy.SoyAop = SoyAop;
+	this['metal']['Soy'] = Soy;
+	this['metalNamed']['Soy'] = this['metalNamed']['Soy'] || {};
+	this['metalNamed']['Soy']['Soy'] = Soy;
+	this['metalNamed']['Soy']['SoyAop'] = SoyAop;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -15175,7 +15077,7 @@ babelHelpers;
       if (opt_data.dismissible) {
         ie_open('button', null, null, 'type', 'button', 'class', 'close', 'aria-label', 'Close', 'data-onclick', 'toggle');
         ie_open('span', null, null, 'aria-hidden', 'true');
-        itext('×');
+        itext('\xD7');
         ie_close('span');
         ie_close('button');
       }
@@ -15204,22 +15106,22 @@ babelHelpers;
   }(Component);
 
   Soy.register(Alert, templates);
-  this.metalNamed.Alert = this.metalNamed.Alert || {};
-  this.metalNamed.Alert.Alert = Alert;
-  this.metalNamed.Alert.templates = templates;
-  this.metal.Alert = templates;
+  this['metalNamed']['Alert'] = this['metalNamed']['Alert'] || {};
+  this['metalNamed']['Alert']['Alert'] = Alert;
+  this['metalNamed']['Alert']['templates'] = templates;
+  this['metal']['Alert'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var dom = this.metal.dom;
-	var Anim = this.metal.Anim;
-	var Component = this.metal.component;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.Alert;
+	var core = this['metalNamed']['metal']['core'];
+	var dom = this['metal']['dom'];
+	var Anim = this['metal']['Anim'];
+	var Component = this['metal']['component'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['Alert'];
 
 	/**
   * Alert component.
@@ -15461,7 +15363,7 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Alert = Alert;
+	this['metal']['Alert'] = Alert;
 }).call(this);
 'use strict';
 
@@ -15490,10 +15392,10 @@ babelHelpers;
 		clearTimeout(debounced.id);
 	}
 
-	this.metal.debounce = debounce;
-	this.metalNamed.debounce = this.metalNamed.debounce || {};
-	this.metalNamed.debounce.cancelDebounce = cancelDebounce;
-	this.metalNamed.debounce.debounce = debounce;
+	this['metal']['debounce'] = debounce;
+	this['metalNamed']['debounce'] = this['metalNamed']['debounce'] || {};
+	this['metalNamed']['debounce']['cancelDebounce'] = cancelDebounce;
+	this['metalNamed']['debounce']['debounce'] = debounce;
 }).call(this);
 /*!
  * Promises polyfill from Google's Closure Library.
@@ -15501,15 +15403,17 @@ babelHelpers;
  *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
  *
  * NOTE(eduardo): Promise support is not ready on all supported browsers,
- * therefore core.js is temporarily using Google's promises as polyfill. It
- * supports cancellable promises and has clean and fast implementation.
+ * therefore metal-promise is temporarily using Google's promises as polyfill.
+ * It supports cancellable promises and has clean and fast implementation.
  */
 
 'use strict';
 
 (function () {
-  var core = this.metalNamed.metal.core;
-  var async = this.metalNamed.metal.async;
+  var isDef = this['metalNamed']['metal']['isDef'];
+  var isFunction = this['metalNamed']['metal']['isFunction'];
+  var isObject = this['metalNamed']['metal']['isObject'];
+  var async = this['metalNamed']['metal']['async'];
 
   /**
    * Provides a more strict interface for Thenables in terms of
@@ -15906,7 +15810,7 @@ babelHelpers;
    * @override
    */
   CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
-    return this.addChildPromise_(core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+    return this.addChildPromise_(isFunction(opt_onFulfilled) ? opt_onFulfilled : null, isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
   };
   Thenable.addImplementation(CancellablePromise);
 
@@ -16115,7 +16019,7 @@ babelHelpers;
       callbackEntry.onRejected = onRejected ? function (reason) {
         try {
           var result = onRejected.call(opt_context, reason);
-          if (!core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
+          if (!isDef(result) && reason.IS_CANCELLATION_ERROR) {
             // Propagate cancellation to children if no other result is returned.
             reject(reason);
           } else {
@@ -16191,10 +16095,10 @@ babelHelpers;
       this.state_ = CancellablePromise.State_.BLOCKED;
       x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
       return;
-    } else if (core.isObject(x)) {
+    } else if (isObject(x)) {
       try {
         var then = x.then;
-        if (core.isFunction(then)) {
+        if (isFunction(then)) {
           this.tryThen_(x, then);
           return;
         }
@@ -16412,18 +16316,18 @@ babelHelpers;
   /** @override */
   CancellablePromise.CancellationError.prototype.name = 'cancel';
 
-  this.metalNamed.Promise = this.metalNamed.Promise || {};
-  this.metalNamed.Promise.CancellablePromise = CancellablePromise;
-  this.metal.Promise = CancellablePromise;
+  this['metalNamed']['Promise'] = this['metalNamed']['Promise'] || {};
+  this['metalNamed']['Promise']['CancellablePromise'] = CancellablePromise;
+  this['metal']['Promise'] = CancellablePromise;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var CancellablePromise = this.metal.Promise;
-	var Component = this.metal.component;
-	var EventHandler = this.metalNamed.events.EventHandler;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var CancellablePromise = this['metal']['Promise'];
+	var Component = this['metal']['component'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
 
 	/*
   * AutocompleteBase component.
@@ -16599,14 +16503,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.AutocompleteBase = AutocompleteBase;
+	this['metal']['AutocompleteBase'] = AutocompleteBase;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -16717,19 +16621,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(ListItem, templates);
-  this.metalNamed.ListItem = this.metalNamed.ListItem || {};
-  this.metalNamed.ListItem.ListItem = ListItem;
-  this.metalNamed.ListItem.templates = templates;
-  this.metal.ListItem = templates;
+  this['metalNamed']['ListItem'] = this['metalNamed']['ListItem'] || {};
+  this['metalNamed']['ListItem']['ListItem'] = ListItem;
+  this['metalNamed']['ListItem']['templates'] = templates;
+  this['metal']['ListItem'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.ListItem;
+	var core = this['metal']['metal'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['ListItem'];
 
 	/**
   * List component.
@@ -16796,14 +16700,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.ListItem = ListItem;
+	this['metal']['ListItem'] = ListItem;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -16894,19 +16798,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(List, templates);
-  this.metalNamed.List = this.metalNamed.List || {};
-  this.metalNamed.List.List = List;
-  this.metalNamed.List.templates = templates;
-  this.metal.List = templates;
+  this['metalNamed']['List'] = this['metalNamed']['List'] || {};
+  this['metalNamed']['List']['List'] = List;
+  this['metalNamed']['List']['templates'] = templates;
+  this['metal']['List'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.List;
+	var dom = this['metal']['dom'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['List'];
 
 	/**
   * List component.
@@ -16977,14 +16881,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.List = List;
+	this['metal']['List'] = List;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -17054,23 +16958,23 @@ babelHelpers;
   }(Component);
 
   Soy.register(Autocomplete, templates);
-  this.metalNamed.Autocomplete = this.metalNamed.Autocomplete || {};
-  this.metalNamed.Autocomplete.Autocomplete = Autocomplete;
-  this.metalNamed.Autocomplete.templates = templates;
-  this.metal.Autocomplete = templates;
+  this['metalNamed']['Autocomplete'] = this['metalNamed']['Autocomplete'] || {};
+  this['metalNamed']['Autocomplete']['Autocomplete'] = Autocomplete;
+  this['metalNamed']['Autocomplete']['templates'] = templates;
+  this['metal']['Autocomplete'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var debounce = this.metal.debounce;
-	var dom = this.metal.dom;
-	var Promise = this.metalNamed.Promise.CancellablePromise;
-	var Align = this.metalNamed.position.Align;
-	var AutocompleteBase = this.metal.AutocompleteBase;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.Autocomplete;
+	var core = this['metal']['metal'];
+	var debounce = this['metal']['debounce'];
+	var dom = this['metal']['dom'];
+	var Promise = this['metalNamed']['Promise']['CancellablePromise'];
+	var Align = this['metalNamed']['position']['Align'];
+	var AutocompleteBase = this['metal']['AutocompleteBase'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['Autocomplete'];
 
 	/*
   * Autocomplete component.
@@ -17296,24 +17200,24 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Autocomplete = Autocomplete;
+	this['metal']['Autocomplete'] = Autocomplete;
 }).call(this);
 'use strict';
 
 (function () {
-  var Autocomplete = this.metal.Autocomplete;
-  var AutocompleteBase = this.metal.AutocompleteBase;
-  this.metal.autocomplete = Autocomplete;
-  this.metalNamed.autocomplete = this.metalNamed.autocomplete || {};
-  this.metalNamed.autocomplete.Autocomplete = Autocomplete;
-  this.metalNamed.autocomplete.AutocompleteBase = AutocompleteBase;
+  var Autocomplete = this['metal']['Autocomplete'];
+  var AutocompleteBase = this['metal']['AutocompleteBase'];
+  this['metal']['autocomplete'] = Autocomplete;
+  this['metalNamed']['autocomplete'] = this['metalNamed']['autocomplete'] || {};
+  this['metalNamed']['autocomplete']['Autocomplete'] = Autocomplete;
+  this['metalNamed']['autocomplete']['AutocompleteBase'] = AutocompleteBase;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -17422,19 +17326,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(ButtonGroup, templates);
-  this.metalNamed.ButtonGroup = this.metalNamed.ButtonGroup || {};
-  this.metalNamed.ButtonGroup.ButtonGroup = ButtonGroup;
-  this.metalNamed.ButtonGroup.templates = templates;
-  this.metal.ButtonGroup = templates;
+  this['metalNamed']['ButtonGroup'] = this['metalNamed']['ButtonGroup'] || {};
+  this['metalNamed']['ButtonGroup']['ButtonGroup'] = ButtonGroup;
+  this['metalNamed']['ButtonGroup']['templates'] = templates;
+  this['metal']['ButtonGroup'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.ButtonGroup;
+	var core = this['metal']['metal'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['ButtonGroup'];
 
 	/**
   * Responsible for handling groups of buttons.
@@ -17553,14 +17457,14 @@ babelHelpers;
   */
 	ButtonGroup.SELECTED_CLASS = 'btn-group-selected';
 
-	this.metal.ButtonGroup = ButtonGroup;
+	this['metal']['ButtonGroup'] = ButtonGroup;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var State = this.metal.state;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var State = this['metal']['state'];
 
 	/**
   * Clipboard component.
@@ -17895,14 +17799,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Clipboard = Clipboard;
+	this['metal']['Clipboard'] = Clipboard;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -18288,17 +18192,17 @@ babelHelpers;
   }(Component);
 
   Soy.register(Datatable, templates);
-  this.metalNamed.Datatable = this.metalNamed.Datatable || {};
-  this.metalNamed.Datatable.Datatable = Datatable;
-  this.metalNamed.Datatable.templates = templates;
-  this.metal.Datatable = templates;
+  this['metalNamed']['Datatable'] = this['metalNamed']['Datatable'] || {};
+  this['metalNamed']['Datatable']['Datatable'] = Datatable;
+  this['metalNamed']['Datatable']['templates'] = templates;
+  this['metal']['Datatable'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var EventEmitter = this.metal.events;
+	var core = this['metal']['metal'];
+	var EventEmitter = this['metal']['events'];
 
 	/**
   * Listens to keyboard events and uses them to move focus between different
@@ -18557,7 +18461,7 @@ babelHelpers;
 	// The regex used to extract the position from an element's ref.
 	KeyboardFocusManager.REF_REGEX = /.+-(\d+)$/;
 
-	this.metal.KeyboardFocusManager = KeyboardFocusManager;
+	this['metal']['KeyboardFocusManager'] = KeyboardFocusManager;
 }).call(this);
 'use strict';
 
@@ -18655,7 +18559,10 @@ babelHelpers;
 
 		}, {
 			key: 'testUserAgent',
-			value: function testUserAgent(userAgent, platform) {
+			value: function testUserAgent() {
+				var userAgent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+				var platform = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
 				/**
      * Holds the user agent value extracted from browser native user agent.
      * @type {string}
@@ -18750,18 +18657,18 @@ babelHelpers;
 
 	UA.testUserAgent(UA.getNativeUserAgent(), UA.getNativePlatform());
 
-	this.metal.UA = UA;
+	this['metal']['UA'] = UA;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var templates = this.metal.Datatable;
-	var Component = this.metal.component;
-	var KeyboardFocusManager = this.metal.KeyboardFocusManager;
-	var Soy = this.metal.Soy;
-	var UA = this.metal.UA;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var templates = this['metal']['Datatable'];
+	var Component = this['metal']['component'];
+	var KeyboardFocusManager = this['metal']['KeyboardFocusManager'];
+	var Soy = this['metal']['Soy'];
+	var UA = this['metal']['UA'];
 
 	var Datatable = function (_Component) {
 		babelHelpers.inherits(Datatable, _Component);
@@ -19387,14 +19294,14 @@ babelHelpers;
 		UNDEFINED: 'undefined'
 	};
 
-	this.metal.Datatable = Datatable;
+	this['metal']['Datatable'] = Datatable;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -19487,23 +19394,23 @@ babelHelpers;
   }(Component);
 
   Soy.register(Dropdown, templates);
-  this.metalNamed.Dropdown = this.metalNamed.Dropdown || {};
-  this.metalNamed.Dropdown.Dropdown = Dropdown;
-  this.metalNamed.Dropdown.templates = templates;
-  this.metal.Dropdown = templates;
+  this['metalNamed']['Dropdown'] = this['metalNamed']['Dropdown'] || {};
+  this['metalNamed']['Dropdown']['Dropdown'] = Dropdown;
+  this['metalNamed']['Dropdown']['templates'] = templates;
+  this['metal']['Dropdown'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var dom = this.metal.dom;
-	var Align = this.metalNamed.position.Align;
-	var Component = this.metal.component;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.Dropdown;
+	var core = this['metalNamed']['metal']['core'];
+	var object = this['metalNamed']['metal']['object'];
+	var dom = this['metal']['dom'];
+	var Align = this['metalNamed']['position']['Align'];
+	var Component = this['metal']['component'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['Dropdown'];
 
 	/**
   * Dropdown component.
@@ -19815,14 +19722,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Dropdown = Dropdown;
+	this['metal']['Dropdown'] = Dropdown;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -19903,7 +19810,7 @@ babelHelpers;
         if (!noCloseButton) {
           ie_open('button', null, null, 'type', 'button', 'class', 'close', 'data-onclick', 'hide', 'aria-label', 'Close');
           ie_open('span', null, null, 'aria-hidden', 'true');
-          itext('×');
+          itext('\xD7');
           ie_close('span');
           ie_close('button');
         }
@@ -19952,21 +19859,21 @@ babelHelpers;
   }(Component);
 
   Soy.register(Modal, templates);
-  this.metalNamed.Modal = this.metalNamed.Modal || {};
-  this.metalNamed.Modal.Modal = Modal;
-  this.metalNamed.Modal.templates = templates;
-  this.metal.Modal = templates;
+  this['metalNamed']['Modal'] = this['metalNamed']['Modal'] || {};
+  this['metalNamed']['Modal']['Modal'] = Modal;
+  this['metalNamed']['Modal']['templates'] = templates;
+  this['metal']['Modal'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var templates = this.metal.Modal;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
+	var templates = this['metal']['Modal'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
 
 	/**
   * Modal component.
@@ -20298,14 +20205,14 @@ babelHelpers;
 
 	Soy.register(Modal, templates);
 
-	this.metal.Modal = Modal;
+	this['metal']['Modal'] = Modal;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -20438,20 +20345,20 @@ babelHelpers;
   }(Component);
 
   Soy.register(Pagination, templates);
-  this.metalNamed.Pagination = this.metalNamed.Pagination || {};
-  this.metalNamed.Pagination.Pagination = Pagination;
-  this.metalNamed.Pagination.templates = templates;
-  this.metal.Pagination = templates;
+  this['metalNamed']['Pagination'] = this['metalNamed']['Pagination'] || {};
+  this['metalNamed']['Pagination']['Pagination'] = Pagination;
+  this['metalNamed']['Pagination']['templates'] = templates;
+  this['metal']['Pagination'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var templates = this.metal.Pagination;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
+	var core = this['metalNamed']['metal']['core'];
+	var object = this['metalNamed']['metal']['object'];
+	var templates = this['metal']['Pagination'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
 
 	/**
   * UI Component that navigate through paged data.
@@ -20716,16 +20623,16 @@ babelHelpers;
 		CHANGE_REQUEST: 'changeRequest'
 	};
 
-	this.metal.Pagination = Pagination;
+	this['metal']['Pagination'] = Pagination;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var Align = this.metalNamed.position.Align;
-	var Component = this.metal.component;
-	var EventHandler = this.metalNamed.events.EventHandler;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var Align = this['metalNamed']['position']['Align'];
+	var Component = this['metal']['component'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
 
 	/**
   * The base class to be shared between components that have tooltip behavior.
@@ -21058,14 +20965,14 @@ babelHelpers;
   */
 	TooltipBase.PositionClasses = ['top', 'right', 'bottom', 'left'];
 
-	this.metal.TooltipBase = TooltipBase;
+	this['metal']['TooltipBase'] = TooltipBase;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -21153,19 +21060,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(Tooltip, templates);
-  this.metalNamed.Tooltip = this.metalNamed.Tooltip || {};
-  this.metalNamed.Tooltip.Tooltip = Tooltip;
-  this.metalNamed.Tooltip.templates = templates;
-  this.metal.Tooltip = templates;
+  this['metalNamed']['Tooltip'] = this['metalNamed']['Tooltip'] || {};
+  this['metalNamed']['Tooltip']['Tooltip'] = Tooltip;
+  this['metalNamed']['Tooltip']['templates'] = templates;
+  this['metal']['Tooltip'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var Soy = this.metal.Soy;
-	var TooltipBase = this.metal.TooltipBase;
-	var templates = this.metal.Tooltip;
+	var dom = this['metal']['dom'];
+	var Soy = this['metal']['Soy'];
+	var TooltipBase = this['metal']['TooltipBase'];
+	var templates = this['metal']['Tooltip'];
 
 	/**
   * Tooltip component.
@@ -21225,17 +21132,17 @@ babelHelpers;
   */
 	Tooltip.Align = TooltipBase.Align;
 
-	this.metal.Tooltip = Tooltip;
-	this.metalNamed.Tooltip = this.metalNamed.Tooltip || {};
-	this.metalNamed.Tooltip.Tooltip = Tooltip;
-	this.metalNamed.Tooltip.TooltipBase = TooltipBase;
+	this['metal']['Tooltip'] = Tooltip;
+	this['metalNamed']['Tooltip'] = this['metalNamed']['Tooltip'] || {};
+	this['metalNamed']['Tooltip']['Tooltip'] = Tooltip;
+	this['metalNamed']['Tooltip']['TooltipBase'] = TooltipBase;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -21337,19 +21244,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(Popover, templates);
-  this.metalNamed.Popover = this.metalNamed.Popover || {};
-  this.metalNamed.Popover.Popover = Popover;
-  this.metalNamed.Popover.templates = templates;
-  this.metal.Popover = templates;
+  this['metalNamed']['Popover'] = this['metalNamed']['Popover'] || {};
+  this['metalNamed']['Popover']['Popover'] = Popover;
+  this['metalNamed']['Popover']['templates'] = templates;
+  this['metal']['Popover'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var Soy = this.metal.Soy;
-	var TooltipBase = this.metalNamed.Tooltip.TooltipBase;
-	var templates = this.metal.Popover;
+	var core = this['metal']['metal'];
+	var Soy = this['metal']['Soy'];
+	var TooltipBase = this['metalNamed']['Tooltip']['TooltipBase'];
+	var templates = this['metal']['Popover'];
 
 	/**
   * Popover component. Extends the behavior from `TooltipBase`, adding
@@ -21449,14 +21356,14 @@ babelHelpers;
   */
 	Popover.Align = TooltipBase.Align;
 
-	this.metal.Popover = Popover;
+	this['metal']['Popover'] = Popover;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -21544,19 +21451,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(ProgressBar, templates);
-  this.metalNamed.ProgressBar = this.metalNamed.ProgressBar || {};
-  this.metalNamed.ProgressBar.ProgressBar = ProgressBar;
-  this.metalNamed.ProgressBar.templates = templates;
-  this.metal.ProgressBar = templates;
+  this['metalNamed']['ProgressBar'] = this['metalNamed']['ProgressBar'] || {};
+  this['metalNamed']['ProgressBar']['ProgressBar'] = ProgressBar;
+  this['metalNamed']['ProgressBar']['templates'] = templates;
+  this['metal']['ProgressBar'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.ProgressBar;
+	var core = this['metal']['metal'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['ProgressBar'];
 
 	/**
   * UI Component that renders a progress bar.
@@ -21679,14 +21586,14 @@ babelHelpers;
 	};
 	Soy.register(ProgressBar, templates);
 
-	this.metal.ProgressBar = ProgressBar;
+	this['metal']['ProgressBar'] = ProgressBar;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -21779,19 +21686,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(Rating, templates);
-  this.metalNamed.Rating = this.metalNamed.Rating || {};
-  this.metalNamed.Rating.Rating = Rating;
-  this.metalNamed.Rating.templates = templates;
-  this.metal.Rating = templates;
+  this['metalNamed']['Rating'] = this['metalNamed']['Rating'] || {};
+  this['metalNamed']['Rating']['Rating'] = Rating;
+  this['metalNamed']['Rating']['templates'] = templates;
+  this['metal']['Rating'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-    var core = this.metal.metal;
-    var Component = this.metal.component;
-    var Soy = this.metal.Soy;
-    var templates = this.metal.Rating;
+    var core = this['metal']['metal'];
+    var Component = this['metal']['component'];
+    var Soy = this['metal']['Soy'];
+    var templates = this['metal']['Rating'];
 
     var Rating = function (_Component) {
         babelHelpers.inherits(Rating, _Component);
@@ -21982,15 +21889,15 @@ babelHelpers;
     };
     Soy.register(Rating, templates);
 
-    this.metal.Rating = Rating;
+    this['metal']['Rating'] = Rating;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var Position = this.metal.position;
-	var State = this.metal.state;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var Position = this['metal']['position'];
+	var State = this['metal']['state'];
 
 	/**
   * Scrollspy utility.
@@ -22322,14 +22229,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Scrollspy = Scrollspy;
+	this['metal']['Scrollspy'] = Scrollspy;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -22448,20 +22355,20 @@ babelHelpers;
   }(Component);
 
   Soy.register(Select, templates);
-  this.metalNamed.Select = this.metalNamed.Select || {};
-  this.metalNamed.Select.Select = Select;
-  this.metalNamed.Select.templates = templates;
-  this.metal.Select = templates;
+  this['metalNamed']['Select'] = this['metalNamed']['Select'] || {};
+  this['metalNamed']['Select']['Select'] = Select;
+  this['metalNamed']['Select']['templates'] = templates;
+  this['metal']['Select'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.Select;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['Select'];
 
 	/**
   * Responsible for rendering and handling a custom select component, based
@@ -22751,14 +22658,14 @@ babelHelpers;
   */
 	Select.ELEMENT_CLASSES = 'select';
 
-	this.metal.Select = Select;
+	this['metal']['Select'] = Select;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var State = this.metal.state;
-	var Position = this.metal.position;
+	var core = this['metal']['metal'];
+	var State = this['metal']['state'];
+	var Position = this['metal']['position'];
 
 	/**
   * Helper called by the `Drag` instance that scrolls elements when the
@@ -22942,15 +22849,15 @@ babelHelpers;
 		}
 	};
 
-	this.metal.DragAutoScroll = DragAutoScroll;
+	this['metal']['DragAutoScroll'] = DragAutoScroll;
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
-	var EventEmitter = this.metalNamed.events.EventEmitter;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var Position = this.metal.position;
+	var dom = this['metal']['dom'];
+	var EventEmitter = this['metalNamed']['events']['EventEmitter'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
+	var Position = this['metal']['position'];
 
 	/**
   * Helper called by the `Drag` instance that emits an event whenever
@@ -23064,12 +22971,12 @@ babelHelpers;
 		return DragScrollDelta;
 	}(EventEmitter);
 
-	this.metal.DragScrollDelta = DragScrollDelta;
+	this['metal']['DragScrollDelta'] = DragScrollDelta;
 }).call(this);
 'use strict';
 
 (function () {
-	var dom = this.metal.dom;
+	var dom = this['metal']['dom'];
 
 	/**
   * Helper called by the `Drag` instance that creates a shim element
@@ -23171,20 +23078,20 @@ babelHelpers;
 
 	DragShim.docShim_ = null;
 
-	this.metal.DragShim = DragShim;
+	this['metal']['DragShim'] = DragShim;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var dom = this.metal.dom;
-	var DragAutoScroll = this.metal.DragAutoScroll;
-	var DragScrollDelta = this.metal.DragScrollDelta;
-	var DragShim = this.metal.DragShim;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var Position = this.metal.position;
-	var State = this.metal.state;
+	var core = this['metalNamed']['metal']['core'];
+	var object = this['metalNamed']['metal']['object'];
+	var dom = this['metal']['dom'];
+	var DragAutoScroll = this['metal']['DragAutoScroll'];
+	var DragScrollDelta = this['metal']['DragScrollDelta'];
+	var DragShim = this['metal']['DragShim'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
+	var Position = this['metal']['position'];
+	var State = this['metal']['state'];
 
 	/**
   * Responsible for making elements draggable. Handles all the logic
@@ -24167,17 +24074,17 @@ babelHelpers;
 		CLONE: 'clone'
 	};
 
-	this.metal.Drag = Drag;
+	this['metal']['Drag'] = Drag;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this.metalNamed.metal.array;
-	var core = this.metalNamed.metal.core;
-	var object = this.metalNamed.metal.object;
-	var dom = this.metal.dom;
-	var Drag = this.metal.Drag;
-	var Position = this.metal.position;
+	var array = this['metalNamed']['metal']['array'];
+	var core = this['metalNamed']['metal']['core'];
+	var object = this['metalNamed']['metal']['object'];
+	var dom = this['metal']['dom'];
+	var Drag = this['metal']['Drag'];
+	var Position = this['metal']['position'];
 
 	/**
   * Adds the functionality of dropping dragged elements to specific
@@ -24446,23 +24353,23 @@ babelHelpers;
 		TARGET_LEAVE: 'targetLeave'
 	};
 
-	this.metal.DragDrop = DragDrop;
+	this['metal']['DragDrop'] = DragDrop;
 }).call(this);
 'use strict';
 
 (function () {
-  var Drag = this.metal.Drag;
-  var DragDrop = this.metal.DragDrop;
-  this.metalNamed.drag = this.metalNamed.drag || {};
-  this.metalNamed.drag.Drag = Drag;
-  this.metalNamed.drag.DragDrop = DragDrop;
+  var Drag = this['metal']['Drag'];
+  var DragDrop = this['metal']['DragDrop'];
+  this['metalNamed']['drag'] = this['metalNamed']['drag'] || {};
+  this['metalNamed']['drag']['Drag'] = Drag;
+  this['metalNamed']['drag']['DragDrop'] = DragDrop;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -24548,22 +24455,22 @@ babelHelpers;
   }(Component);
 
   Soy.register(Slider, templates);
-  this.metalNamed.Slider = this.metalNamed.Slider || {};
-  this.metalNamed.Slider.Slider = Slider;
-  this.metalNamed.Slider.templates = templates;
-  this.metal.Slider = templates;
+  this['metalNamed']['Slider'] = this['metalNamed']['Slider'] || {};
+  this['metalNamed']['Slider']['Slider'] = Slider;
+  this['metalNamed']['Slider']['templates'] = templates;
+  this['metal']['Slider'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var Component = this.metal.component;
-	var Drag = this.metalNamed.drag.Drag;
-	var Position = this.metal.position;
-	var Soy = this.metal.Soy;
-	var templates = this.metal.Slider;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var Component = this['metal']['component'];
+	var Drag = this['metalNamed']['drag']['Drag'];
+	var Position = this['metal']['position'];
+	var Soy = this['metal']['Soy'];
+	var templates = this['metal']['Slider'];
 
 	/**
   * Slider component.
@@ -24802,14 +24709,14 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Slider = Slider;
+	this['metal']['Slider'] = Slider;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -24879,19 +24786,19 @@ babelHelpers;
   }(Component);
 
   Soy.register(Switcher, templates);
-  this.metalNamed.Switcher = this.metalNamed.Switcher || {};
-  this.metalNamed.Switcher.Switcher = Switcher;
-  this.metalNamed.Switcher.templates = templates;
-  this.metal.Switcher = templates;
+  this['metalNamed']['Switcher'] = this['metalNamed']['Switcher'] || {};
+  this['metalNamed']['Switcher']['Switcher'] = Switcher;
+  this['metalNamed']['Switcher']['templates'] = templates;
+  this['metal']['Switcher'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var templates = this.metal.Switcher;
-	var Component = this.metal.component;
-	var Soy = this.metal.Soy;
+	var core = this['metal']['metal'];
+	var templates = this['metal']['Switcher'];
+	var Component = this['metal']['component'];
+	var Soy = this['metal']['Soy'];
 
 	/**
   * Switcher component.
@@ -24950,15 +24857,15 @@ babelHelpers;
 	};
 	Soy.register(Switcher, templates);
 
-	this.metal.Switcher = Switcher;
+	this['metal']['Switcher'] = Switcher;
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var dom = this.metal.dom;
-	var EventHandler = this.metalNamed.events.EventHandler;
-	var State = this.metal.state;
+	var core = this['metal']['metal'];
+	var dom = this['metal']['dom'];
+	var EventHandler = this['metalNamed']['events']['EventHandler'];
+	var State = this['metal']['state'];
 
 	/**
   * Toggler component.
@@ -25147,14 +25054,14 @@ babelHelpers;
   */
 	Toggler.CSS_HEADER_EXPANDED = 'toggler-header-expanded';
 
-	this.metal.Toggler = Toggler;
+	this['metal']['Toggler'] = Toggler;
 }).call(this);
 'use strict';
 
 (function () {
   /* jshint ignore:start */
-  var Component = this.metal.component;
-  var Soy = this.metal.Soy;
+  var Component = this['metal']['component'];
+  var Soy = this['metal']['Soy'];
 
   var templates;
   goog.loadModule(function (exports) {
@@ -25311,20 +25218,20 @@ babelHelpers;
   }(Component);
 
   Soy.register(Treeview, templates);
-  this.metalNamed.Treeview = this.metalNamed.Treeview || {};
-  this.metalNamed.Treeview.Treeview = Treeview;
-  this.metalNamed.Treeview.templates = templates;
-  this.metal.Treeview = templates;
+  this['metalNamed']['Treeview'] = this['metalNamed']['Treeview'] || {};
+  this['metalNamed']['Treeview']['Treeview'] = Treeview;
+  this['metalNamed']['Treeview']['templates'] = templates;
+  this['metal']['Treeview'] = templates;
   /* jshint ignore:end */
 }).call(this);
 'use strict';
 
 (function () {
-	var core = this.metal.metal;
-	var templates = this.metal.Treeview;
-	var Component = this.metal.component;
-	var KeyboardFocusManager = this.metal.KeyboardFocusManager;
-	var Soy = this.metal.Soy;
+	var core = this['metal']['metal'];
+	var templates = this['metal']['Treeview'];
+	var Component = this['metal']['component'];
+	var KeyboardFocusManager = this['metal']['KeyboardFocusManager'];
+	var Soy = this['metal']['Soy'];
 
 	/**
   * Treeview component.
@@ -25555,7 +25462,7 @@ babelHelpers;
 		}
 	};
 
-	this.metal.Treeview = Treeview;
+	this['metal']['Treeview'] = Treeview;
 }).call(this);
 }).call(this);
 //# sourceMappingURL=metal.js.map

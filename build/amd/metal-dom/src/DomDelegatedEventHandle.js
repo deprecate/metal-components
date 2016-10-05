@@ -92,8 +92,8 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
 			value: function removeListener() {
 				var data = _domData2.default.get(this.emitter_);
 				var selector = this.selector_;
-				var arr = _metal.core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
-				var key = _metal.core.isString(selector) ? selector : this.event_;
+				var arr = (0, _metal.isString)(selector) ? data.delegating[this.event_].selectors : data.listeners;
+				var key = (0, _metal.isString)(selector) ? selector : this.event_;
 
 				_metal.array.remove(arr[key] || [], this.listener_);
 				if (arr[key] && arr[key].length === 0) {

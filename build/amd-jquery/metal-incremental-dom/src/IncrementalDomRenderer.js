@@ -5,8 +5,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		value: true
 	});
 
-	var _dom2 = _interopRequireDefault(_dom);
-
 	var _IncrementalDomAop2 = _interopRequireDefault(_IncrementalDomAop);
 
 	var _IncrementalDomChildren2 = _interopRequireDefault(_IncrementalDomChildren);
@@ -182,7 +180,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 
 				element[key] = fn;
 				if (fn) {
-					if (_metal.core.isString(fn)) {
+					if ((0, _metal.isString)(fn)) {
 						if (key[0] === 'd') {
 							// Allow data-on[eventkey] listeners to stay in the dom, as they
 							// won't cause conflicts.
@@ -190,7 +188,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 						}
 						fn = this.component_.getListenerFn(fn);
 					}
-					element[handleKey] = _dom2.default.delegate(document, eventName, element, fn);
+					element[handleKey] = (0, _dom.delegate)(document, eventName, element, fn);
 				} else {
 					element.removeAttribute(key);
 				}
@@ -251,7 +249,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 		}, {
 			key: 'getRef_',
 			value: function getRef_(config) {
-				var compatData = _metal.core.getCompatibilityModeData();
+				var compatData = (0, _metal.getCompatibilityModeData)();
 				if (compatData) {
 					var renderers = compatData.renderers;
 					var useKey = !renderers || renderers.indexOf(this.constructor) !== -1 || renderers.indexOf(this.constructor.RENDERER_NAME) !== -1;
@@ -263,25 +261,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		}, {
 			key: 'getSubComponent_',
-			value: function getSubComponent_(tagOrCtor, config, opt_owner) {
+			value: function getSubComponent_(tagOrCtor, config, owner) {
 				var Ctor = tagOrCtor;
-				if (_metal.core.isString(Ctor)) {
+				if ((0, _metal.isString)(Ctor)) {
 					Ctor = _component.ComponentRegistry.getConstructor(tagOrCtor);
 				}
 
 				var ref = this.getRef_(config);
 				var data = IncrementalDomRenderer.getCurrentData();
 				var comp;
-				if (_metal.core.isDef(ref)) {
-					var owner = opt_owner || this.component_;
+				if ((0, _metal.isDef)(ref)) {
 					comp = this.match_(owner.components[ref], Ctor, config);
 					owner.addSubComponent(ref, comp);
 					owner.refs[ref] = comp;
-				} else if (_metal.core.isDef(config.key)) {
+				} else if ((0, _metal.isDef)(config.key)) {
 					comp = this.match_(data.prevComps.keys[config.key], Ctor, config);
 					data.currComps.keys[config.key] = comp;
 				} else {
-					var type = _metal.core.getUid(Ctor, true);
+					var type = (0, _metal.getUid)(Ctor, true);
 					data.currComps.order[type] = data.currComps.order[type] || [];
 					var order = data.currComps.order[type];
 					comp = this.match_((data.prevComps.order[type] || [])[order.length], Ctor, config);
@@ -297,7 +294,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				if (!element || !element.parentNode) {
 					var parent = document.createElement('div');
 					if (element) {
-						_dom2.default.append(parent, element);
+						(0, _dom.append)(parent, element);
 					}
 					return parent;
 				}
@@ -323,8 +320,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			value: function handleChildRender_(node) {
 				if (node.tag && _IncrementalDomUtils2.default.isComponentTag(node.tag)) {
 					node.props.children = this.buildChildren_(node.props.children);
-					var owner = _IncrementalDomChildren2.default.getOwner(node);
-					this.renderFromTag_(node.tag, node.props, owner && owner.getComponent());
+					this.renderFromTag_(node.tag, node.props);
 					return true;
 				}
 			}
@@ -365,7 +361,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 					// "checked" as an attribute only, which can cause bugs since that won't
 					// necessarily check/uncheck the element it's set on. See
 					// https://github.com/google/incremental-dom/issues/198 for more details.
-					value = _metal.core.isDefAndNotNull(value) && value !== false;
+					value = (0, _metal.isDefAndNotNull)(value) && value !== false;
 				}
 
 				if (name === 'value' && element.value !== value) {
@@ -379,7 +375,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 					element[name] = value;
 				}
 
-				if (_metal.core.isBoolean(value)) {
+				if ((0, _metal.isBoolean)(value)) {
 					// Incremental dom sets boolean values as string data attributes, which
 					// is counter intuitive. This changes the behavior to use the actual
 					// boolean value.
@@ -441,8 +437,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				this.updateElementIfNotReached_(node);
 
 				var config = _IncrementalDomUtils2.default.buildConfigFromCall(args);
-				if (_metal.core.isDefAndNotNull(config.ref)) {
-					this.component_.refs[config.ref] = node;
+				if ((0, _metal.isDefAndNotNull)(config.ref)) {
+					var owner = _IncrementalDomChildren2.default.getCurrentOwner() || this;
+					owner.getComponent().refs[config.ref] = node;
 				}
 				return node;
 			}
@@ -510,7 +507,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 				var tempParent = this.guaranteeParent_();
 				if (tempParent) {
 					IncrementalDOM.patch(tempParent, this.renderInsidePatchDontSkip_);
-					_dom2.default.exitDocument(this.component_.element);
+					(0, _dom.exitDocument)(this.component_.element);
 					if (this.component_.element && this.component_.inDocument) {
 						this.component_.renderElement_(this.attachData_.parent, this.attachData_.sibling);
 					}
@@ -547,9 +544,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		}, {
 			key: 'renderFromTag_',
-			value: function renderFromTag_(tag, config, opt_owner) {
-				if (_metal.core.isString(tag) || tag.prototype.getRenderer) {
-					var comp = this.renderSubComponent_(tag, config, opt_owner);
+			value: function renderFromTag_(tag, config) {
+				if ((0, _metal.isString)(tag) || tag.prototype.getRenderer) {
+					var comp = this.renderSubComponent_(tag, config);
 					this.updateElementIfNotReached_(comp.element);
 					return comp.element;
 				} else {
@@ -597,8 +594,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 			}
 		}, {
 			key: 'renderSubComponent_',
-			value: function renderSubComponent_(tagOrCtor, config, opt_owner) {
-				var comp = this.getSubComponent_(tagOrCtor, config, opt_owner);
+			value: function renderSubComponent_(tagOrCtor, config) {
+				var ownerRenderer = _IncrementalDomChildren2.default.getCurrentOwner() || this;
+				var owner = ownerRenderer.getComponent();
+				var comp = this.getSubComponent_(tagOrCtor, config, owner);
 				this.updateContext_(comp);
 				var renderer = comp.getRenderer();
 				if (renderer instanceof IncrementalDomRenderer) {
@@ -606,7 +605,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 					var parentRenderer = parentComp.getRenderer();
 					parentRenderer.childComponents_.push(comp);
 					renderer.parent_ = parentComp;
-					renderer.owner_ = opt_owner || this.component_;
+					renderer.owner_ = owner;
 					if (!config.key && !parentRenderer.rootElementReached_) {
 						config.key = parentRenderer.config_.key;
 					}
@@ -778,8 +777,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-component/
 	IncrementalDomRenderer.LISTENER_REGEX = /^(?:on([A-Z]\w+))|(?:data-on(\w+))$/;
 
 	// Name of this renderer. Renderers should provide this as a way to identify
-	// them via a simple string (when calling core.enableCompatibilityMode to
-	// add support to old features for specific renderers for example).
+	// them via a simple string (when calling enableCompatibilityMode to add
+	// support to old features for specific renderers for example).
 	IncrementalDomRenderer.RENDERER_NAME = 'incremental-dom';
 
 	exports.default = IncrementalDomRenderer;
