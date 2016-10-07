@@ -14,6 +14,13 @@ import templates from './Select.soy.js';
  */
 class Select extends Component {
 	/**
+	 * @inheritDoc
+	 */
+	attached() {
+		this.on('itemsChanged', this.handleItemsChanged_);
+	}
+
+	/**
 	 * Finds the index of the given element in the items array.
 	 * @param {!Element} element
 	 * @return {number}
@@ -50,6 +57,14 @@ class Select extends Component {
 	}
 
 	/**
+	 * Gets `seletectIndex`'s default value.
+	 * @return {!Dropdown}
+	 */
+	getSelectedIndexDefaultValue_() {
+		return this.label || !this.items.length ? -1 : 0;
+	}
+
+	/**
 	 * Handles a `stateSynced` event for the dropdown.
 	 * @param {!Object} data
 	 * @protected
@@ -68,6 +83,15 @@ class Select extends Component {
 		}
 
 		this.expanded_ = this.getDropdown().expanded;
+	}
+
+	/**
+	 * Handles the `itemsChanged` event. Sets the default value to the `selectedIndex`.
+	 * @param {!Object} data
+	 * @protected
+	*/
+	handleItemsChanged_() {
+		this.selectedIndex = this.getSelectedIndexDefaultValue_();
 	}
 
 	/**
@@ -232,9 +256,7 @@ Select.STATE = {
 	 */
 	selectedIndex: {
 		validator: core.isNumber,
-		valueFn: function() {
-			return this.label || !this.items.length ? -1 : 0;
-		}
+		valueFn: 'getSelectedIndexDefaultValue_'
 	},
 
 	/**

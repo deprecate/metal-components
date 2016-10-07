@@ -152,7 +152,7 @@ describe('Select', function() {
 
 		var dropdown = select.getDropdown();
 		assert.ok(dropdown.expanded);
-		
+
 		select.disabled = true;
 		select.once('stateChanged', function() {
 			assert.ok(!dropdown.expanded);
@@ -164,7 +164,7 @@ describe('Select', function() {
 		select = new Select({
 			items: ['First', 'Second', 'Third']
 		});
-		
+
 		assert.strictEqual(select.selectedIndex, 0);
 		select.disabled = true;
 		select.selectedIndex = 1;
@@ -210,6 +210,17 @@ describe('Select', function() {
 			assert.strictEqual(1, select.selectedIndex);
 			done();
 		});
+	});
+
+	it('should set the default value of seletectIndex state whenever items change', function() {
+		select = new Select({
+			items: ['First', 'Second', 'Third']
+		});
+
+		assert.strictEqual(0, select.selectedIndex);
+		select.selectedIndex = 2;
+		select.items = ['New First', 'New Second', 'New Third'];
+		assert.strictEqual(0, select.selectedIndex);
 	});
 
 	describe('Keyboard', function() {
