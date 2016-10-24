@@ -3,6 +3,7 @@
 import { async } from 'metal';
 import { Align } from 'metal-position';
 import Autocomplete from '../src/Autocomplete';
+import UA from 'metal-useragent';
 import dom from 'metal-dom';
 
 var component;
@@ -12,6 +13,14 @@ var filterData = function(query) {
 	return ['Alabama', 'Alaska'].filter(function(item) {
 		return item.toLowerCase().indexOf(query.toLowerCase()) === 0;
 	});
+};
+
+var simulateFocus = function(element) {
+	element.focus();
+
+	if (UA.isFirefox) {
+		dom.triggerEvent(element, 'focus');
+	}
 };
 
 describe('Autocomplete', function() {
@@ -134,7 +143,7 @@ describe('Autocomplete', function() {
 		dom.enterDocument(otherInput);
 
 		input.setAttribute('value', 'a');
-		input.focus();
+		simulateFocus(input);
 		async.nextTick(function() {
 			async.nextTick(function() {
 				async.nextTick(function() {
@@ -156,7 +165,7 @@ describe('Autocomplete', function() {
 		});
 
 		input.setAttribute('value', 'a');
-		input.focus();
+		simulateFocus(input);
 		async.nextTick(function() {
 			async.nextTick(function() {
 				assert.ok(component.visible);
@@ -175,7 +184,7 @@ describe('Autocomplete', function() {
 		});
 
 		input.value = 'Alabama';
-		dom.triggerEvent(input, 'focus');
+		simulateFocus(input);
 
 		async.nextTick(function() {
 			assert.ok(component.visible);

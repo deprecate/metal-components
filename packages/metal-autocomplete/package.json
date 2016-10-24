@@ -41,6 +41,7 @@
     "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",
     "gulp-metal": "^1.0.0",
+    "metal-useragent": "^2.1.1",
     "steel-bootstrap": "metal/steel-bootstrap#master"
   }
 }
