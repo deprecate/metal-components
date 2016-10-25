@@ -8,7 +8,7 @@
 {template .render}
 	{@param? itemsHtml: html}
 	<div class="list{$elementClasses ? ' ' + $elementClasses : ''}">
-		<ul class="list-group" data-onclick="handleClick">
+		<ul class="list-group" data-onclick="handleClick" role="list">
 			{if isNonnull($itemsHtml)}
 				{$itemsHtml}
 			{else}
