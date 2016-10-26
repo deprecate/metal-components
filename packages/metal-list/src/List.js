@@ -1,5 +1,6 @@
 'use strict';
 
+import core from 'metal';
 import dom from 'metal-dom';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
@@ -35,6 +36,15 @@ Soy.register(List, templates);
  * @static
  */
 List.STATE = {
+	/**
+	 * A unique identifier for the component. It's also used to compound the
+	 * items' ID attribute unless if itemsHtml attribute is used.
+	 * @type {string}
+	 */
+	id: {
+		valueFn: () => 'list-component-' + core.getUid()
+	},
+
 	/**
 	 * The list items. Each is represented by an object that can have the following keys:
 	 *   - textPrimary: The item's main content.

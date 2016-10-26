@@ -39,6 +39,14 @@ Soy.register(ListItem, templates);
  */
 ListItem.STATE = {
 	/**
+	 * A unique identifier for each item.
+	 * @type {string}
+	 */
+	id: {
+		valueFn: () => 'list-component-item' + core.getUid()
+	},
+
+	/**
 	 * The item to be rendered.
 	 * @type {!Object}
 	 */

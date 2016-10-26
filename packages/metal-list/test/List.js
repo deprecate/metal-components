@@ -164,4 +164,68 @@ describe('List', function() {
 
 		dom.triggerEvent(elements[1].childNodes[0], 'click');
 	});
+
+	it('should create an ID attribute in order to other componet could use it', function() {
+		list = new List({
+			items: [{
+				textPrimary: 'Item 1'
+			}, {
+				textPrimary: 'Item 2'
+			}]
+		});
+
+		assert.ok(list.element.querySelector('ul').hasAttribute('id'));
+	});
+
+	it('should create an ID to each item in order to other componet could use it', function() {
+		list = new List({
+			items: [{
+				textPrimary: 'Item 1'
+			}, {
+				textPrimary: 'Item 2'
+			}]
+		});
+
+		var elements = list.element.querySelectorAll('li');
+
+		assert.ok(elements[0].hasAttribute('id'));
+		assert.ok(elements[1].hasAttribute('id'));
+	});
+
+	it('should not create the same ID to its items', function() {
+		list = new List({
+			items: [{
+				textPrimary: 'Item 1'
+			}, {
+				textPrimary: 'Item 2'
+			}]
+		});
+
+		var elements = list.element.querySelectorAll('li');
+
+		assert.notEqual(elements[0].getAttribute('id'), elements[1].getAttribute('id'));
+	});
+
+	it('should not create the same ID for two instances', function() {
+		list = new List({
+			items: [{
+				textPrimary: 'Item 1'
+			}, {
+				textPrimary: 'Item 2'
+			}]
+		});
+
+		var list2 = new List({
+			items: [{
+				textPrimary: 'Item 1'
+			}, {
+				textPrimary: 'Item 2'
+			}]
+		});
+
+		assert.notEqual(
+			list.element.querySelector('ul').getAttribute('id'),
+			list2.element.querySelector('ul').getAttribute('id')
+		);
+	});
 });
