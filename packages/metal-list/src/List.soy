@@ -2,14 +2,17 @@
 
 /**
  * This renders the main element
- * @param id
+ * @param? id
  * @param? elementClasses
  * @param? items
  */
 {template .render}
 	{@param? itemsHtml: html}
 	<div class="list{$elementClasses ? ' ' + $elementClasses : ''}">
-		<ul class="list-group" data-onclick="handleClick" id="{$id}" role="list">
+		<ul
+			class="list-group" data-onclick="handleClick"
+			{if $id}id="{$id}"{/if}
+			role="list">
 			{if isNonnull($itemsHtml)}
 				{$itemsHtml}
 			{else}
