@@ -132,6 +132,47 @@ describe('Autocomplete', function() {
 		});
 	});
 
+	it('should select an option by pressing enter key', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				component.once('select', function(value) {
+					assert.strictEqual('Alabama', value.text);
+					done();
+				});
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 13});
+			});
+		});
+	});
+
+	it('should select an option by pressing space key', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				component.once('select', function(value) {
+					assert.strictEqual('Alabama', value.text);
+					done();
+				});
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 32});
+			});
+		});
+	});
+
+
 	it('should hide element when click outside input', function(done) {
 		component = new Autocomplete({
 			data: filterData,
@@ -189,6 +230,139 @@ describe('Autocomplete', function() {
 		async.nextTick(function() {
 			assert.ok(component.visible);
 			done();
+		});
+	});
+
+	it('should link the input with the list by aria-owns attribute', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		async.nextTick(function() {
+			let listComponentElement = component.getList().element;
+			assert.strictEqual(input.getAttribute('aria-owns'), listComponentElement.querySelector('.list-group').getAttribute('id'));
+			done();
+		});
+	});
+
+	it('should active the first item as soon as the list appears', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				let listComponentElement = component.getList().element;
+				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+				done();
+			});
+		});
+	});
+
+	it('should navigate to the next option by pressing down arrow key', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				let listComponentElement = component.getList().element;
+				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+
+				async.nextTick(function() {
+					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(2)'), 'active'));
+					done();
+				});
+			});
+		});
+	});
+
+	it('should navigate to the last option by pressing up arrow key if the first one is selected', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				let listComponentElement = component.getList().element;
+				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+
+				async.nextTick(function() {
+					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 38});
+
+					let listComponentElement = component.getList().element;
+					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:last-child'), 'active'));
+					done();
+				});
+			});
+		});
+	});
+
+	it('should navigate to the first option by pressing down arrow key if the last one is selected', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				let listComponentElement = component.getList().element;
+				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+
+				async.nextTick(function() {
+					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:last-child'), 'active'));
+					done();
+				});
+			});
+		});
+	});
+
+	it('should navigate to the previous option by pressing up arrow key', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'Al';
+		simulateFocus(input);
+
+		async.nextTick(function() {
+			async.nextTick(function() {
+				let listComponentElement = component.getList().element;
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+				assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(2)'), 'active'));
+
+				async.nextTick(function() {
+					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 38});
+
+					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(2)'), 'active'));
+					done();
+				});
+			});
 		});
 	});
 
