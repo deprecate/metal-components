@@ -25,6 +25,7 @@ class Autocomplete extends AutocompleteBase {
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
 		this.eventHandler_.add(dom.on(this.inputElement, 'keydown', this.handleKeyDown_.bind(this)));
+		this.eventHandler_.add(this.getList().on('rendered', this.handleListRender_.bind(this)));
 		if (this.visible) {
 			this.align();
 		}
@@ -117,6 +118,16 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
+	 * Executed after List rendering.
+	 * @param {number} index
+	 * @protected
+	 */
+	handleListRender_() {
+		if (this.visible) {
+			this.currentList_ = this.element.querySelectorAll('.listitem');
+			this.focusIndex_(0);
+		}
+	}
 
 	/**
 	 * Handles a `keydown` event on this component. Handles keyboard controls.
