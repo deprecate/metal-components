@@ -155,6 +155,8 @@ class Autocomplete extends AutocompleteBase {
 			}
 		}
 	}
+
+	/**
 	 * Handles window resize events. Realigns the autocomplete results list to
 	 * the input field.
 	 */
@@ -162,6 +164,18 @@ class Autocomplete extends AutocompleteBase {
 		if (this.visible) {
 			this.align();
 		}
+	}
+
+	/**
+	 * Listens to the itemSelected event and it tells autocomplete which
+	 * element was selected.
+	 * @param {!Element} item The list selected item.
+	 * @protected
+	 */
+	onListItemSelected_(item) {
+		let selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+		let selectedItem = this.getList().items[selectedIndex];
+		this.selectOption_(selectedItem);
 	}
 
 	/**
@@ -195,14 +209,13 @@ class Autocomplete extends AutocompleteBase {
 
 	/**
 	 * Emits a `select` event with the information about the selected item and
-	 * hides the element.
-	 * @param {!Element} item The list selected item.
+	 * hides the list element.
+	 * @param {!Object} item The list selected item.
 	 * @protected
 	 */
-	onListItemSelected_(item) {
-		var selectedIndex = parseInt(item.getAttribute('data-index'), 10);
+	selectOption_(selectedItem) {
 		this.autocompleteClosing_ = true;
-		this.emit('select', this.getList().items[selectedIndex]);
+		this.emit('select', selectedItem);
 		this.visible = false;
 		this.autocompleteClosing_ = false;
 	}
