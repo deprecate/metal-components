@@ -24,6 +24,7 @@ class Autocomplete extends AutocompleteBase {
 		this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
+		this.eventHandler_.add(dom.on(this.inputElement, 'keydown', this.handleKeyDown_.bind(this)));
 		if (this.visible) {
 			this.align();
 		}
@@ -56,11 +57,33 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
+	 * Focuses the option at the given index.
+	 * @param {number} index
+	 * @protected
+	 */
+	focusIndex_(index) {
+		let option = this.currentList_[index];
+		this.focusedIndex_ = index;
+		this.inputElement.setAttribute('aria-activedescendant', option.getAttribute('id'));
+		this.selectItem_(option);
+	}
+
+	/**
 	 * Returns the `List` component being used to render the matched items.
 	 * @return {!List}
 	 */
 	getList() {
 		return this.components.list;
+	}
+
+	/**
+	 * Handles action keys interactions.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleActionKeys_() {
+		let selectedItem = this.getList().items[this.focusedIndex_];
+		this.selectOption_(selectedItem);
 	}
 
 	/**
@@ -89,10 +112,38 @@ class Autocomplete extends AutocompleteBase {
 	 * @param {!Event} event
 	 */
 	handleInputFocus_() {
+		this.unSelectCurrentFocusedItem_();
 		this.request(this.inputElement.value);
 	}
 
 	/**
+
+	/**
+	 * Handles a `keydown` event on this component. Handles keyboard controls.
+	 * @param {!Event} event
+	 * @protected
+	 */
+	handleKeyDown_(event) {
+		if (this.visible) {
+			switch (event.keyCode) {
+				case 38:
+					this.unSelectCurrentFocusedItem_();
+					this.focusIndex_(this.focusedIndex_ === 0 ? this.getList().items.length - 1 : this.focusedIndex_ - 1);
+					event.preventDefault();
+					break;
+				case 40:
+					this.unSelectCurrentFocusedItem_();
+					this.focusIndex_(this.focusedIndex_ === this.getList().items.length - 1 ? 0 : this.focusedIndex_ + 1);
+					event.preventDefault();
+					break;
+				case 13:
+				case 32:
+					this.handleActionKeys_();
+					event.preventDefault();
+				break;
+			}
+		}
+	}
 	 * Handles window resize events. Realigns the autocomplete results list to
 	 * the input field.
 	 */
@@ -121,6 +172,14 @@ class Autocomplete extends AutocompleteBase {
 			}
 			self.visible = !!(data && data.length > 0);
 		});
+	}
+
+	/**
+	 * Adds the CSS class to mark that item as selected.
+	 * @protected
+	 */
+	selectItem_(option) {
+		dom.addClasses(option, 'active');
 	}
 
 	/**
@@ -158,6 +217,16 @@ class Autocomplete extends AutocompleteBase {
 
 		if (visible) {
 			this.align();
+		}
+	}
+
+	/**
+	 * Removes the CSS class from that current selected element.
+	 * @protected
+	 */
+	unSelectCurrentFocusedItem_() {
+		if (core.isDef(this.focusedIndex_)) {
+				dom.removeClasses(this.currentList_[this.focusedIndex_], 'active');
 		}
 	}
 
