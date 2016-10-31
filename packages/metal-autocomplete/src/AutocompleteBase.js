@@ -93,6 +93,16 @@ class AutocompleteBase extends Component {
  */
 AutocompleteBase.STATE = {
 	/**
+	 * A unique identification for the component. It is also used to compouse
+	 * list items' id.
+	 * @type {function}
+	 * @default Identity function.
+	 */
+	id: {
+		valueFn: () => 'autocomplete-' + core.getUid()
+	},
+
+	/**
 	 * Function or array, which have to return the results from the query.
 	 * If function, it should return an `array` or a `Promise`. In case of
 	 * Promise, it should be resolved with an array containing the results.
