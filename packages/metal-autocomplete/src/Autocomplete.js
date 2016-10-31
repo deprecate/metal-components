@@ -20,6 +20,7 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	attached() {
 		super.attached();
+		this.setAriaAttributes_();
 		this.eventHandler_.add(dom.on(this.inputElement, 'focus', this.handleInputFocus_.bind(this)));
 		this.eventHandler_.add(dom.on(document, 'click', this.handleDocClick_.bind(this)));
 		this.eventHandler_.add(dom.on(window, 'resize', debounce(this.handleWindowResize_.bind(this), 100)));
@@ -134,6 +135,18 @@ class Autocomplete extends AutocompleteBase {
 		this.emit('select', this.getList().items[selectedIndex]);
 		this.visible = false;
 		this.autocompleteClosing_ = false;
+	}
+
+	/**
+	 * Set the required ARIA attributes to the inputElement.
+	 * @protected
+	 */
+	setAriaAttributes_() {
+		this.inputElement.setAttribute('aria-activedescendant', '');
+		this.inputElement.setAttribute('aria-autocomplete', 'list');
+		this.inputElement.setAttribute('aria-haspopup', true);
+		this.inputElement.setAttribute('aria-owns', this.id);
+		this.inputElement.setAttribute('role', 'combobox');
 	}
 
 	/**
