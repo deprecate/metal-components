@@ -10,9 +10,11 @@
 	<li class="listitem list-group-item {$elementClasses ? ' ' + $elementClasses : ''} clearfix"
 		data-index="{$index}" {if $id}id="{$id}"{/if} role="listitem">
 		{if $item.avatar}
+			{if $item.avatar.link} <a href="{$item.avatar.link}" class="avatar-link"> {/if}
 			<span class="list-image pull-left {$item.avatar.class}">
 				{$item.avatar.content}
 			</span>
+			{if $item.avatar.link} </a> {/if}
 		{/if}
 		<div class="list-main-content pull-left">
 			<div class="list-text-primary">
