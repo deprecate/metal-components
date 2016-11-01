@@ -92,12 +92,12 @@ class AutocompleteBadges extends Component {
 		const selectedIndex = +selectedBadge.getAttribute('data-index');
 
 		switch (event.keyCode) {
-			case keyCodeLeftArrow :
+			case KEY_CODE_LEFT_ARROW :
 				if (selectedIndex > 0) {
 					badgesElements[selectedIndex - 1].focus();
 				}
 				break;
-			case keyCodeRightArrow :
+			case KEY_CODE_RIGTH_ARROW :
 				if (selectedIndex < badgesElements.length - 1) {
 					badgesElements[selectedIndex + 1].focus();
 				} else {
@@ -105,7 +105,7 @@ class AutocompleteBadges extends Component {
 				}
 				break;
 
-			case keyCodeBackSpace :
+			case KEY_CODE_BACKSPACE :
 				this.removeBadge_(this.badges[selectedIndex]);
 				if (selectedIndex > 0) {
 					badgesElements[selectedIndex - 1].focus();
@@ -114,7 +114,7 @@ class AutocompleteBadges extends Component {
 				}
 				break;
 
-			case keyCodeEnter :
+			case KEY_CODE_ENTER :
 				this.refs.input.value = this.badges[selectedIndex].text;
 				this.removeBadge_(this.badges[selectedIndex]);
 				this.refs.input.focus();
@@ -136,8 +136,8 @@ class AutocompleteBadges extends Component {
 		}
 
 		switch (event.keyCode) {
-			case keyCodeBackSpace :
-			case keyCodeLeftArrow :
+			case KEY_CODE_BACKSPACE :
+			case KEY_CODE_LEFT_ARROW :
 				if (badgesElements.length > 0) {
 					badgesElements[badgesElements.length - 1].focus();
 					return false;
@@ -165,10 +165,13 @@ class AutocompleteBadges extends Component {
 
 	/**
 	 * Setter for dataItems
+	 * A copy of data items array should be created in oreder to
+	 * avoid changing the array passed to different instances
 	 * @param val
 	 * @returns {!Array<!Object>}
+	 * @protected
 	 */
-	setDataItems(val) {
+	setterDataItems_(val) {
 		return val.slice();
 	}
 
@@ -198,13 +201,13 @@ AutocompleteBadges.STATE = {
 		valueFn: function() {
 			return [];
 		},
-		setter: 'setDataItems'
+		setter: 'setterDataItems_'
 	}
 };
 
-const keyCodeLeftArrow 		= 37;
-const keyCodeRightArrow 	= 39;
-const keyCodeBackSpace 		= 8;
-const keyCodeEnter				= 13;
+const KEY_CODE_LEFT_ARROW 		= 37;
+const KEY_CODE_RIGTH_ARROW 		= 39;
+const KEY_CODE_BACKSPACE 			= 8;
+const KEY_CODE_ENTER					= 13;
 
 export default AutocompleteBadges;

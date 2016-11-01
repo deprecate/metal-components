@@ -104,21 +104,13 @@ describe('AutocompleteBadges', function() {
 			dataItems: elements
 		});
 
-		component.getInput().value = 'a';
-		dom.triggerEvent(component.getInput(), 'input');
-
-		component.getAutocomplete().getList().once('rendered', function() {
-			component.getAutocomplete().once('select', function() {
-				component.once('rendered', function() {
-					component.once('rendered', function() {
-						assert.strictEqual(0, component.element.querySelectorAll('.autocomplete-badges--list li').length);
-						done();
-					});
-					var badge = component.element.querySelectorAll('.autocomplete-badges--list li')[0];
-					dom.triggerEvent(badge.querySelector('.remove'), 'click');
-				});
+		addBadgesHelper_(component, 1, () => {
+			component.once('rendered', function() {
+				assert.strictEqual(0, component.element.querySelectorAll('.autocomplete-badges--list li').length);
+				done();
 			});
-			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
+			var badge = component.element.querySelectorAll('.autocomplete-badges--list li')[0];
+			dom.triggerEvent(badge.querySelector('.remove'), 'click');
 		});
 	});
 
@@ -135,19 +127,11 @@ describe('AutocompleteBadges', function() {
 			dataItems: elements
 		});
 
-		component.getInput().value = 'a';
-		dom.triggerEvent(component.getInput(), 'input');
-
-		component.getAutocomplete().getList().once('rendered', function() {
-			component.getAutocomplete().once('select', function () {
-				component.once('rendered', function () {
-					component.getInput().value = 'some text';
-					dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 8});
-					assert.strictEqual(component.getInput(), document.activeElement);
-					done();
-				});
-			});
-			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
+		addBadgesHelper_(component, 1, () => {
+			component.getInput().value = 'some text';
+			dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 8});
+			assert.strictEqual(component.getInput(), document.activeElement);
+			done();
 		});
 
 	});
@@ -168,38 +152,20 @@ describe('AutocompleteBadges', function() {
 			dataItems: elements
 		});
 
-		component.getInput().value = 'a';
-		dom.triggerEvent(component.getInput(), 'input');
-
-		component.getAutocomplete().getList().once('rendered', function() {
-			component.getAutocomplete().once('select', function () {
-				component.once('rendered', function () {
-					component.getInput().value = 'a';
-					dom.triggerEvent(component.getInput(), 'input');
-					component.getAutocomplete().getList().once('rendered', function() {
-						component.getAutocomplete().once('select', function () {
-							component.once('rendered', function () {
-								dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 37});
-								let badges = component.element.querySelectorAll('.autocomplete-badges--list li');
-								assert.strictEqual(badges[1],document.activeElement);
-								dom.triggerEvent(badges[1], 'keydown', {keyCode : 37});
-								assert.strictEqual(badges[0],document.activeElement);
-								dom.triggerEvent(badges[0], 'keydown', {keyCode : 37});
-								assert.strictEqual(badges[0],document.activeElement);
-								dom.triggerEvent(badges[0], 'keydown', {keyCode : 39});
-								assert.strictEqual(badges[1],document.activeElement);
-								dom.triggerEvent(badges[1], 'keydown', {keyCode : 39});
-								assert.strictEqual(component.getInput(),document.activeElement);
-								done();
-							});
-						});
-						dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
-					});
-				});
-			});
-			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
+		addBadgesHelper_(component, 2, () => {
+			dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 37});
+			let badges = component.element.querySelectorAll('.autocomplete-badges--list li');
+			assert.strictEqual(badges[1],document.activeElement);
+			dom.triggerEvent(badges[1], 'keydown', {keyCode : 37});
+			assert.strictEqual(badges[0],document.activeElement);
+			dom.triggerEvent(badges[0], 'keydown', {keyCode : 37});
+			assert.strictEqual(badges[0],document.activeElement);
+			dom.triggerEvent(badges[0], 'keydown', {keyCode : 39});
+			assert.strictEqual(badges[1],document.activeElement);
+			dom.triggerEvent(badges[1], 'keydown', {keyCode : 39});
+			assert.strictEqual(component.getInput(),document.activeElement);
+			done();
 		});
-
 	});
 
 	it('should respond to backspace key events properly', function(done) {
@@ -208,37 +174,20 @@ describe('AutocompleteBadges', function() {
 			dataItems: elements
 		});
 
-		component.getInput().value = 'a';
-		dom.triggerEvent(component.getInput(), 'input');
-
-		component.getAutocomplete().getList().once('rendered', function() {
-			component.getAutocomplete().once('select', function () {
+		addBadgesHelper_(component, 2, () => {
+			dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 8});
+			let badges = component.element.querySelectorAll('.autocomplete-badges--list li');
+			assert.strictEqual(badges[1],document.activeElement);
+			component.once('rendered', function () {
+				assert.strictEqual(1,component.element.querySelectorAll('.autocomplete-badges--list li').length);
 				component.once('rendered', function () {
-					component.getInput().value = 'a';
-					dom.triggerEvent(component.getInput(), 'input');
-					component.getAutocomplete().getList().once('rendered', function() {
-						component.getAutocomplete().once('select', function () {
-							component.once('rendered', function () {
-								dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 8});
-								let badges = component.element.querySelectorAll('.autocomplete-badges--list li');
-								assert.strictEqual(badges[1],document.activeElement);
-								component.once('rendered', function () {
-									assert.strictEqual(1,component.element.querySelectorAll('.autocomplete-badges--list li').length);
-									component.once('rendered', function () {
-										assert.strictEqual(0,component.element.querySelectorAll('.autocomplete-badges--list li').length);
-										assert.strictEqual(document.activeElement, component.getInput());
-										done();
-									});
-									dom.triggerEvent(badges[0], 'keydown', {keyCode : 8});
-								});
-								dom.triggerEvent(badges[1], 'keydown', {keyCode : 8});
-							});
-						});
-						dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
-					});
+					assert.strictEqual(0,component.element.querySelectorAll('.autocomplete-badges--list li').length);
+					assert.strictEqual(document.activeElement, component.getInput());
+					done();
 				});
+				dom.triggerEvent(badges[0], 'keydown', {keyCode : 8});
 			});
-			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
+			dom.triggerEvent(badges[1], 'keydown', {keyCode : 8});
 		});
 	});
 
@@ -248,26 +197,42 @@ describe('AutocompleteBadges', function() {
 			dataItems: elements
 		});
 
+		addBadgesHelper_(component, 1, () => {
+			dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 37});
+			let badges = component.element.querySelectorAll('.autocomplete-badges--list li');
+			assert.strictEqual(badges[0],document.activeElement);
+			component.once('rendered', function () {
+				assert.strictEqual(0, component.element.querySelectorAll('.autocomplete-badges--list li').length);
+				assert.strictEqual(component.getInput().value, elements.slice().sort().shift());
+				done();
+			});
+			dom.triggerEvent(badges[0], 'keydown', {keyCode : 13});
+		});
+
+	});
+
+	/**
+	 * Helper for adding badges to the component
+	 * @param component
+	 * @param count
+	 * @param callback
+	 * @private
+	 */
+	function addBadgesHelper_ (component, count, callback) {
 		component.getInput().value = 'a';
 		dom.triggerEvent(component.getInput(), 'input');
-
 		component.getAutocomplete().getList().once('rendered', function() {
 			component.getAutocomplete().once('select', function () {
 				component.once('rendered', function () {
-					dom.triggerEvent(component.getInput(), 'keydown', {keyCode : 37});
-					let badges = component.element.querySelectorAll('.autocomplete-badges--list li');
-					assert.strictEqual(badges[0],document.activeElement);
-					component.once('rendered', function () {
-						assert.strictEqual(0, component.element.querySelectorAll('.autocomplete-badges--list li').length);
-						assert.strictEqual(component.getInput().value, elements.slice().sort().shift());
-						done();
-					});
-					dom.triggerEvent(badges[0], 'keydown', {keyCode : 13});
+					if (count > 1) {
+						addBadgesHelper_(component, count - 1, callback);
+					} else {
+						callback();
+					}
 				});
 			});
 			dom.triggerEvent(component.getAutocomplete().element.querySelectorAll('li')[0], 'click');
 		});
-
-	});
+	}
 
 });
