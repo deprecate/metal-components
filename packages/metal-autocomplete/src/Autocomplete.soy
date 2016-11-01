@@ -2,7 +2,7 @@
 
 /**
  * This renders the main element.
- * @param? id
+ * @param? listId
  * @param? elementClasses
  * @param? onListItemSelected_
  */
@@ -12,7 +12,7 @@
 		data-onclick="handleClick_">
 		{call List.render}
 			{param events: ['itemSelected': $onListItemSelected_] /}
-			{param id: $id /}
+			{param id: $listId /}
 			{param ref: 'list' /}
 		{/call}
 	</div>

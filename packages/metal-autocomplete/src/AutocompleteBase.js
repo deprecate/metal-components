@@ -93,12 +93,11 @@ class AutocompleteBase extends Component {
  */
 AutocompleteBase.STATE = {
 	/**
-	 * A unique identification for the component. It is also used to compouse
-	 * list items' id.
-	 * @type {function}
-	 * @default Identity function.
+	 * List's main element ID value. It is also used to compose List items' id.
+	 * @type {string}
+	 * @default autocomplete- + core.getUid()
 	 */
-	id: {
+	listId: {
 		valueFn: () => 'autocomplete-' + core.getUid()
 	},
 

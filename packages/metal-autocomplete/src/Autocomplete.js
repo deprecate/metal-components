@@ -228,7 +228,7 @@ class Autocomplete extends AutocompleteBase {
 		this.inputElement.setAttribute('aria-activedescendant', '');
 		this.inputElement.setAttribute('aria-autocomplete', 'list');
 		this.inputElement.setAttribute('aria-haspopup', true);
-		this.inputElement.setAttribute('aria-owns', this.id);
+		this.inputElement.setAttribute('aria-owns', this.listId);
 		this.inputElement.setAttribute('role', 'combobox');
 	}
 
