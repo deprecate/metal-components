@@ -64,9 +64,10 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	activateListItem_(index) {
 		let option = this.currentList_[index];
+		dom.removeClasses(this.currentList_[this.activeIndex_], 'active');
 		this.activeIndex_ = index;
 		this.inputElement.setAttribute('aria-activedescendant', option.getAttribute('id'));
-		this.selectItem_(option);
+		dom.addClasses(option, 'active');
 	}
 
 	/**
@@ -113,7 +114,6 @@ class Autocomplete extends AutocompleteBase {
 	 * @param {!Event} event
 	 */
 	handleInputFocus_() {
-		this.unSelectCurrentFocusedItem_();
 		this.request(this.inputElement.value);
 	}
 
@@ -138,12 +138,10 @@ class Autocomplete extends AutocompleteBase {
 		if (this.visible) {
 			switch (event.keyCode) {
 				case 38:
-					this.unSelectCurrentFocusedItem_();
 					this.activateListItem_(this.activeIndex_ === 0 ? this.getList().items.length - 1 : this.activeIndex_ - 1);
 					event.preventDefault();
 					break;
 				case 40:
-					this.unSelectCurrentFocusedItem_();
 					this.activateListItem_(this.activeIndex_ === this.getList().items.length - 1 ? 0 : this.activeIndex_ + 1);
 					event.preventDefault();
 					break;
@@ -200,14 +198,6 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
-	 * Adds the CSS class to mark that item as selected.
-	 * @protected
-	 */
-	selectItem_(option) {
-		dom.addClasses(option, 'active');
-	}
-
-	/**
 	 * Emits a `select` event with the information about the selected item and
 	 * hides the list element.
 	 * @param {!Object} item The list selected item.
@@ -241,16 +231,6 @@ class Autocomplete extends AutocompleteBase {
 
 		if (visible) {
 			this.align();
-		}
-	}
-
-	/**
-	 * Removes the CSS class from that current selected element.
-	 * @protected
-	 */
-	unSelectCurrentFocusedItem_() {
-		if (core.isDef(this.activeIndex_)) {
-			dom.removeClasses(this.currentList_[this.activeIndex_], 'active');
 		}
 	}
 
