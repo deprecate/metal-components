@@ -58,13 +58,13 @@ class Autocomplete extends AutocompleteBase {
 	}
 
 	/**
-	 * Focuses the option at the given index.
+	 * Actives an option of the suggestion list by inform an index.
 	 * @param {number} index
 	 * @protected
 	 */
-	focusIndex_(index) {
+	activateListItem_(index) {
 		let option = this.currentList_[index];
-		this.focusedIndex_ = index;
+		this.activeIndex_ = index;
 		this.inputElement.setAttribute('aria-activedescendant', option.getAttribute('id'));
 		this.selectItem_(option);
 	}
@@ -83,7 +83,7 @@ class Autocomplete extends AutocompleteBase {
 	 * @protected
 	 */
 	handleActionKeys_() {
-		let selectedItem = this.getList().items[this.focusedIndex_];
+		let selectedItem = this.getList().items[this.activeIndex_];
 		this.selectOption_(selectedItem);
 	}
 
@@ -125,7 +125,7 @@ class Autocomplete extends AutocompleteBase {
 	handleListRender_() {
 		if (this.visible) {
 			this.currentList_ = this.element.querySelectorAll('.listitem');
-			this.focusIndex_(0);
+			this.activateListItem_(0);
 		}
 	}
 
@@ -139,12 +139,12 @@ class Autocomplete extends AutocompleteBase {
 			switch (event.keyCode) {
 				case 38:
 					this.unSelectCurrentFocusedItem_();
-					this.focusIndex_(this.focusedIndex_ === 0 ? this.getList().items.length - 1 : this.focusedIndex_ - 1);
+					this.activateListItem_(this.activeIndex_ === 0 ? this.getList().items.length - 1 : this.activeIndex_ - 1);
 					event.preventDefault();
 					break;
 				case 40:
 					this.unSelectCurrentFocusedItem_();
-					this.focusIndex_(this.focusedIndex_ === this.getList().items.length - 1 ? 0 : this.focusedIndex_ + 1);
+					this.activateListItem_(this.activeIndex_ === this.getList().items.length - 1 ? 0 : this.activeIndex_ + 1);
 					event.preventDefault();
 					break;
 				case 13:
@@ -249,8 +249,8 @@ class Autocomplete extends AutocompleteBase {
 	 * @protected
 	 */
 	unSelectCurrentFocusedItem_() {
-		if (core.isDef(this.focusedIndex_)) {
-				dom.removeClasses(this.currentList_[this.focusedIndex_], 'active');
+		if (core.isDef(this.activeIndex_)) {
+			dom.removeClasses(this.currentList_[this.activeIndex_], 'active');
 		}
 	}
 
