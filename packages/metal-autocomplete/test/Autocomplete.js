@@ -23,6 +23,19 @@ var simulateFocus = function(element) {
 	}
 };
 
+var getListItem = function(index) {
+	return getListItems().item(index);
+};
+
+var getLastListItem = function() {
+	let list = getListItems();
+	return getListItem(list.length - 1);
+};
+
+var getListItems = function() {
+	return component.getList().element.querySelectorAll('.listitem');
+};
+
 describe('Autocomplete', function() {
 	afterEach(function() {
 		if (component) {
@@ -233,17 +246,14 @@ describe('Autocomplete', function() {
 		});
 	});
 
-	it('should link the input with the list by aria-owns attribute', function(done) {
+	it('should link the input with the list by aria-owns attribute', function() {
 		component = new Autocomplete({
 			data: filterData,
 			inputElement: input
 		});
 
-		async.nextTick(function() {
-			let listComponentElement = component.getList().element;
-			assert.strictEqual(input.getAttribute('aria-owns'), listComponentElement.querySelector('.list-group').getAttribute('id'));
-			done();
-		});
+		let listComponentElement = component.getList().element;
+		assert.strictEqual(input.getAttribute('aria-owns'), listComponentElement.querySelector('.list-group').getAttribute('id'));
 	});
 
 	it('should active the first item as soon as the list appears', function(done) {
@@ -255,12 +265,9 @@ describe('Autocomplete', function() {
 		input.value = 'Al';
 		simulateFocus(input);
 
-		async.nextTick(function() {
-			async.nextTick(function() {
-				let listComponentElement = component.getList().element;
-				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
-				done();
-			});
+		component.on('stateSynced', function() {
+			assert.ok(dom.hasClass(getListItem(0), 'active'));
+			done();
 		});
 	});
 
@@ -273,18 +280,13 @@ describe('Autocomplete', function() {
 		input.value = 'Al';
 		simulateFocus(input);
 
-		async.nextTick(function() {
-			async.nextTick(function() {
-				let listComponentElement = component.getList().element;
-				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+		component.on('stateSynced', function() {
+			assert.ok(dom.hasClass(getListItem(0), 'active'));
 
-				async.nextTick(function() {
-					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
-					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
-					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(2)'), 'active'));
-					done();
-				});
-			});
+			dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+			assert.notOk(dom.hasClass(getListItem(0), 'active'));
+			assert.ok(dom.hasClass(getListItem(1), 'active'));
+			done();
 		});
 	});
 
@@ -295,23 +297,17 @@ describe('Autocomplete', function() {
 		});
 
 		input.value = 'Al';
-		simulateFocus(input);
 
-		async.nextTick(function() {
-			async.nextTick(function() {
-				let listComponentElement = component.getList().element;
-				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+		component.on('stateSynced', function() {
+			assert.ok(dom.hasClass(getListItem(0), 'active'));
 
-				async.nextTick(function() {
-					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 38});
-
-					let listComponentElement = component.getList().element;
-					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
-					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:last-child'), 'active'));
-					done();
-				});
-			});
+			dom.triggerEvent(input, 'keydown', {keyCode: 38});
+			assert.notOk(dom.hasClass(getListItem(0), 'active'));
+			assert.ok(dom.hasClass(getLastListItem(), 'active'));
+			done();
 		});
+
+		simulateFocus(input);
 	});
 
 	it('should navigate to the first option by pressing down arrow key if the last one is selected', function(done) {
@@ -323,19 +319,15 @@ describe('Autocomplete', function() {
 		input.value = 'Al';
 		simulateFocus(input);
 
-		async.nextTick(function() {
-			async.nextTick(function() {
-				let listComponentElement = component.getList().element;
-				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
+		component.on('stateSynced', function() {
+			assert.ok(dom.hasClass(getListItem(0), 'active'));
 
-				async.nextTick(function() {
-					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
-					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
-					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
-					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:last-child'), 'active'));
-					done();
-				});
-			});
+			dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+			dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+
+			assert.ok(dom.hasClass(getListItem(0), 'active'));
+			assert.notOk(dom.hasClass(getListItems(1), 'active'));
+			done();
 		});
 	});
 
@@ -348,21 +340,17 @@ describe('Autocomplete', function() {
 		input.value = 'Al';
 		simulateFocus(input);
 
-		async.nextTick(function() {
-			async.nextTick(function() {
-				let listComponentElement = component.getList().element;
-				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
-				assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
-				assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(2)'), 'active'));
+		component.on('stateSynced', function() {
+			dom.triggerEvent(input, 'keydown', {keyCode: 40});
 
-				async.nextTick(function() {
-					dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 38});
+			assert.notOk(dom.hasClass(getListItem(0), 'active'));
+			assert.ok(dom.hasClass(getListItem(1), 'active'));
 
-					assert.ok(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(1)'), 'active'));
-					assert.notOk(dom.hasClass(listComponentElement.querySelector('.listitem:nth-child(2)'), 'active'));
-					done();
-				});
-			});
+			dom.triggerEvent(input, 'keydown', {keyCode: 38});
+
+			assert.ok(dom.hasClass(getListItem(0), 'active'));
+			assert.notOk(dom.hasClass(getListItem(1), 'active'));
+			done();
 		});
 	});
 
