@@ -11,6 +11,11 @@ import Soy from 'metal-soy';
 import 'metal-list';
 import templates from './Autocomplete.soy.js';
 
+const DOWN = 40;
+const ENTER = 13;
+const SPACE = 32;
+const UP = 38;
+
 /*
  * Autocomplete component.
  */
@@ -68,6 +73,24 @@ class Autocomplete extends AutocompleteBase {
 		this.activeIndex_ = index;
 		this.inputElement.setAttribute('aria-activedescendant', option.getAttribute('id'));
 		dom.addClasses(option, 'active');
+	}
+
+	/**
+	 * Returns the previous index or the last one if the active index was the first.
+	 * @protected
+	 * @return {number} Index
+	 */
+	decreaseIndex_() {
+		return this.activeIndex_ === 0 ? this.getLastIndex_() : this.activeIndex_ - 1;
+	}
+
+	/**
+	 * Returns the last index of the list.
+	 * @protected
+	 * @return {number} Index
+	 */
+	getLastIndex_() {
+		return this.getList().items.length - 1;
 	}
 
 	/**
@@ -137,16 +160,16 @@ class Autocomplete extends AutocompleteBase {
 	handleKeyDown_(event) {
 		if (this.visible) {
 			switch (event.keyCode) {
-				case 38:
-					this.activateListItem_(this.activeIndex_ === 0 ? this.getList().items.length - 1 : this.activeIndex_ - 1);
+				case UP:
+					this.activateListItem_(this.decreaseIndex_());
 					event.preventDefault();
 					break;
-				case 40:
-					this.activateListItem_(this.activeIndex_ === this.getList().items.length - 1 ? 0 : this.activeIndex_ + 1);
+				case DOWN:
+					this.activateListItem_(this.increaseIndex_());
 					event.preventDefault();
 					break;
-				case 13:
-				case 32:
+				case ENTER:
+				case SPACE:
 					this.handleActionKeys_();
 					event.preventDefault();
 				break;
@@ -162,6 +185,15 @@ class Autocomplete extends AutocompleteBase {
 		if (this.visible) {
 			this.align();
 		}
+	}
+
+	/**
+	 * Returns the next index or zero if the active index was the last.
+	 * @protected
+	 * @return {number} Index
+	 */
+	increaseIndex_() {
+		return this.activeIndex_ === this.getLastIndex_() ? 0 : this.activeIndex_ + 1;
 	}
 
 	/**
