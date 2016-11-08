@@ -354,6 +354,25 @@ describe('Autocomplete', function() {
 		});
 	});
 
+	it('should not create an exception in keydown listener if the list is not visible', function(done) {
+		component = new Autocomplete({
+			data: filterData,
+			inputElement: input
+		});
+
+		input.value = 'New York City';
+		simulateFocus(input);
+		async.nextTick(function() {
+			assert.doesNotThrow(function() {
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 40});
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 38});
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 13});
+				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 32});
+				done();
+			});
+		});
+	});
+
 	describe('Align', function() {
 		beforeEach(function() {
 			sinon.stub(Align, 'align');
