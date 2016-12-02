@@ -58,13 +58,12 @@ describe('Autocomplete', function() {
 			inputElement: input
 		});
 
-		component.request('a').then(function() {
-			async.nextTick(function() {
-				assert.ok(component.visible);
-				assert.strictEqual(2, component.element.querySelectorAll('li').length);
-				done();
-			});
+		component.on('stateSynced', function() {
+			assert.ok(component.visible);
+			assert.strictEqual(2, component.element.querySelectorAll('li').length);
+			done();
 		});
+		component.request('a');
 	});
 
 	it('should process invalid query and hide element', function(done) {
@@ -129,20 +128,19 @@ describe('Autocomplete', function() {
 			inputElement: input
 		});
 
+		component.on('stateSynced', function() {
+			component.once('select', function(value) {
+				assert.strictEqual('Alabama', value.text);
+				component.on('stateSynced', function() {
+					assert.ok(!component.visible);
+					done();
+				});
+			});
+			dom.triggerEvent(component.element.querySelectorAll('li')[0], 'click');
+		});
+
 		input.setAttribute('value', 'a');
 		dom.triggerEvent(input, 'input');
-		async.nextTick(function() {
-			async.nextTick(function() {
-				component.once('select', function(value) {
-					assert.strictEqual('Alabama', value.text);
-					async.nextTick(function() {
-						assert.ok(!component.visible);
-						done();
-					});
-				});
-				dom.triggerEvent(component.element.querySelectorAll('li')[0], 'click');
-			});
-		});
 	});
 
 	it('should select an option by pressing enter key', function(done) {
@@ -151,18 +149,16 @@ describe('Autocomplete', function() {
 			inputElement: input
 		});
 
+		component.on('stateSynced', function() {
+			component.once('select', function(value) {
+				assert.strictEqual('Alabama', value.text);
+				done();
+			});
+			dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 13});
+		});
+
 		input.value = 'Al';
 		simulateFocus(input);
-
-		async.nextTick(function() {
-			async.nextTick(function() {
-				component.once('select', function(value) {
-					assert.strictEqual('Alabama', value.text);
-					done();
-				});
-				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 13});
-			});
-		});
 	});
 
 	it('should select an option by pressing space key', function(done) {
@@ -171,18 +167,16 @@ describe('Autocomplete', function() {
 			inputElement: input
 		});
 
+		component.on('stateSynced', function() {
+			component.once('select', function(value) {
+				assert.strictEqual('Alabama', value.text);
+				done();
+			});
+			dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 32});
+		});
+
 		input.value = 'Al';
 		simulateFocus(input);
-
-		async.nextTick(function() {
-			async.nextTick(function() {
-				component.once('select', function(value) {
-					assert.strictEqual('Alabama', value.text);
-					done();
-				});
-				dom.triggerEvent(component.inputElement, 'keydown', {keyCode: 32});
-			});
-		});
 	});
 
 
@@ -196,20 +190,19 @@ describe('Autocomplete', function() {
 		otherInput.type = 'text';
 		dom.enterDocument(otherInput);
 
+		component.on('stateSynced', function() {
+			async.nextTick(function() {
+				assert.ok(!component.visible);
+				dom.exitDocument(otherInput);
+				done();
+			});
+			assert.ok(component.visible);
+			otherInput.focus();
+			dom.triggerEvent(otherInput, 'click');
+		});
+
 		input.setAttribute('value', 'a');
 		simulateFocus(input);
-		async.nextTick(function() {
-			async.nextTick(function() {
-				async.nextTick(function() {
-					assert.ok(!component.visible);
-					dom.exitDocument(otherInput);
-					done();
-				});
-				assert.ok(component.visible);
-				otherInput.focus();
-				dom.triggerEvent(otherInput, 'click');
-			});
-		});
 	});
 
 	it('should not hide element when clicking inside input', function(done) {
@@ -218,9 +211,7 @@ describe('Autocomplete', function() {
 			inputElement: input
 		});
 
-		input.setAttribute('value', 'a');
-		simulateFocus(input);
-		async.nextTick(function() {
+		component.on('stateSynced', function() {
 			async.nextTick(function() {
 				assert.ok(component.visible);
 				done();
@@ -228,6 +219,9 @@ describe('Autocomplete', function() {
 			assert.ok(component.visible);
 			dom.triggerEvent(input, 'click');
 		});
+
+		input.setAttribute('value', 'a');
+		simulateFocus(input);
 	});
 
 	it('should show element when focus input', function(done) {
@@ -238,12 +232,14 @@ describe('Autocomplete', function() {
 		});
 
 		input.value = 'Alabama';
-		simulateFocus(input);
 
-		async.nextTick(function() {
+		assert.notOk(component.visible);
+		component.on('stateSynced', function() {
 			assert.ok(component.visible);
 			done();
 		});
+
+		simulateFocus(input);
 	});
 
 	it('should link the input with the list by aria-owns attribute', function() {
