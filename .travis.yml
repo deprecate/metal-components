@@ -3,6 +3,8 @@ jdk:
   - oraclejdk8
 addons:
   sauce_connect: true
+  jwt:
+    secure: zYBxdqSLxgR7tIIHq4PlvLdoCBSYgZDxlk3wTMMSNMfd0Rbmz4MPq+poawkCIMvW+WuEgPl1mikC0UbIM7IyM7l5kRDDhnyvowDtpQFnzXWs7/2b/QSQfb3jleczwRFZzRtdAT4uLWBGuR/8XMLAbLvP4EBshe/WLIGZg54QR7QKFkywFxrSF8oE3qeG4JKrH7fah067C3RbJu7WhQpTe417Gza6y0uO+A2+uKkyzI92HiaDCTNwZBn9a8rqwsld/hTkyWIEpA/EeK1+zPP8T5STfYChEo+q/6iTucPfQOUnwrfOOBW8RkYxS7wHXwsBANFqgR5ynH02Yf0JxgQemImqWW8aq1RUio7lPc3f7sHL/1J8xXdbmWswM5awCrJrHmkBU5DMtN5kZzd22Q4/RVMcxZZe0lyt+THEcQXv5wgSBILLJJRc6Ot7qqU5lsqIKP8LYA1+ywCjIgrhA0eu2eSV1kazevTy62Yql57X2Mdyn03zV14Y/jOQA5dducfXduHdB0vbSB7waCKv4lhL37sCPATrCh6+RuYei/aVNGD9abT07uHlUm/FOIasdNH5FLpq3tGOqXCR+i89dby3zPHWz3dt6sW2axVVz5/Ltm2CiQT7Yn5thFhaAzQb7SK3Tr2r1wN//A9bfiTmLLBbhp97TC4+CStmchEtaMRvEEU=
 before_install:
   - nvm install 5
 install:
