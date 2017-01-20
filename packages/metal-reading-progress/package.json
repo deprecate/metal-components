@@ -33,6 +33,6 @@
     "bootstrap": "^3.3.6",
     "gulp": "^3.8.11",
     "gulp-metal": "^1.0.0",
-    "westyle": "github:wedeploy/westyle#master"
+    "marble": "github:wedeploy/marble#master"
   }
 }
