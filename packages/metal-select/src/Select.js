@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'metal';
+import { core, array } from 'metal';
 import dom from 'metal-dom';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
@@ -90,8 +90,10 @@ class Select extends Component {
 	 * @param {!Object} data
 	 * @protected
 	*/
-	handleItemsChanged_() {
-		this.selectedIndex = this.getSelectedIndexDefaultValue_();
+	handleItemsChanged_(event) {
+		if (event.prevVal && !array.equal(event.newVal, event.prevVal)) {
+			this.selectedIndex = this.getSelectedIndexDefaultValue_();
+		}
 	}
 
 	/**
@@ -151,6 +153,15 @@ class Select extends Component {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	prepareStateForRender(data) {
+		return Object.assign({}, data, {
+			items: this.items.map(item => Soy.toIncDom(item))
+		});
+	}
+
+	/**
 	 * Selects the item for the given element, and closes the dropdown.
 	 * @param {!Element} itemElement
 	 * @protected
@@ -160,14 +171,6 @@ class Select extends Component {
 		this.expanded_ = false;
 	}
 
-	/**
-	 * Setter for items attribute.
-	 * @param {!Array<string>} items
-	 * @protected
-	 */
-	setItems_(items) {
-		return items.map((item) => Soy.toIncDom(item));
-	}
 
 }
 Soy.register(Select, templates);
@@ -229,16 +232,14 @@ Select.STATE = {
 	},
 
 	/**
-	 * A list representing the select dropdown items.
+	 * A public list representing the select dropdown items. Its value is synced
+	 * with the `internaItems` attribute for internal manipulation.
 	 * @type {!Array<string>}
 	 * @default []
 	 */
 	items: {
-		setter: 'setItems_',
 		validator: val => val instanceof Array,
-		valueFn: function() {
-			return [];
-		}
+		value: []
 	},
 
 	/**
