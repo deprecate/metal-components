@@ -28,9 +28,9 @@
 			{param body kind="html"}
 				{foreach $item in $items}
 					<li
+						class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}"
 						data-onclick="{$handleItemClick_ ?: ''}"
-						data-onkeydown="{$handleItemKeyDown_ ?: ''}"
-						class="select-option{$currSelectedIndex == index($item) ? ' selected' : ''}">
+						data-onkeydown="{$handleItemKeyDown_ ?: ''}">
 						<a href="javascript:;">{$item}</a>
 					</li>
 				{/foreach}
