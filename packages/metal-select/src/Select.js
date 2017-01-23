@@ -112,7 +112,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	handleItemKeyDown_(event) {
-		if ((event.keyCode === 13 || event.keyCode === 32)) {
+		if ( (event.keyCode === 13 || event.keyCode === 32) ) {
 			this.closedWithKeyboard_ = true;
 			this.selectItem_(event.delegateTarget);
 			event.preventDefault();
