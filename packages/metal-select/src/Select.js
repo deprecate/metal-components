@@ -27,10 +27,10 @@ class Select extends Component {
 	 * @protected
 	 */
 	findItemIndex_(element) {
-		var items = this.element.querySelectorAll('li');
-		for (var i = 0; i < items.length; i++) {
-			if (items.item(i) === element) {
-				return i;
+		const items = this.element.querySelectorAll('li');
+		for (const [index, item] of items.entries()) {
+			if (item === element) {
+				return index;
 			}
 		}
 	}
@@ -41,7 +41,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	focusIndex_(index) {
-		var option = this.element.querySelector('.select-option:nth-child(' + (index + 1) + ') a');
+		var option = this.element.querySelector(`.select-option:nth-child(${index + 1}) a`);
 		if (option) {
 			this.focusedIndex_ = index;
 			option.focus();
