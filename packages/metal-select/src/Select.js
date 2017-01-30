@@ -41,7 +41,7 @@ class Select extends Component {
 	 * @protected
 	 */
 	focusIndex_(index) {
-		var option = this.element.querySelector(`.select-option:nth-child(${index + 1}) a`);
+		const option = this.element.querySelector(`.select-option:nth-child(${index + 1}) a`);
 		if (option) {
 			this.focusedIndex_ = index;
 			option.focus();
