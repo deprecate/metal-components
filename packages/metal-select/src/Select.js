@@ -21,7 +21,7 @@ class Select extends Component {
 	}
 
 	/**
-	 * Finds the index of the given element in the items array.
+	 * Finds the index of the given element in the items collection.
 	 * @param {!Element} element
 	 * @return {number}
 	 * @protected
