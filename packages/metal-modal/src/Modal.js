@@ -186,7 +186,7 @@ Modal.STATE = {
 
 	/**
 	 * Content to be placed inside modal body. Can be either an html string or
-	 * a function that calls incremental dom for rendeirng the body.
+	 * a function that calls incremental-dom to render the body.
 	 * @type {string|function()}
 	 */
 	body: {
@@ -202,7 +202,7 @@ Modal.STATE = {
 
 	/**
 	 * Content to be placed inside modal footer. Can be either an html string or
-	 * a function that calls incremental dom for rendeirng the footer.
+	 * a function that calls incremental-dom to render the footer.
 	 * @type {string|function()}
 	 */
 	footer: {
@@ -218,7 +218,7 @@ Modal.STATE = {
 
 	/**
 	 * Content to be placed inside modal header. Can be either an html string or
-	 * a function that calls incremental dom for rendeirng the header.
+	 * a function that calls incremental-dom to render the header.
 	 * @type {string|function()}
 	 */
 	header: {
