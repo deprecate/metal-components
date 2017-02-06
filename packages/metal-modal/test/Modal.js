@@ -380,15 +380,16 @@ describe('Modal', function() {
 		});
 	});
 
-	it('should modal progressive enchance always as hidden', function() {
+	it('should progressive enhance always as hidden', function() {
 		var data = {
-			id: 'modal',
-			elementClasses: 'centered',
-			header: 'header',
-			headerId: 'header',
 			body: 'body',
 			bodyId: 'header',
+			elementClasses: 'centered',
 			footer: 'footer',
+			header: 'header',
+			headerId: 'header',
+			id: 'modal',
+			noCloseButton: true,
 			overlay: true,
 			role: 'dialog'
 		};
@@ -397,13 +398,14 @@ describe('Modal', function() {
 		var outerHTML = element.innerHTML;
 
 		modal = new Modal({
-			element: element.childNodes[0],
-			elementClasses: 'centered',
-			header: 'header',
-			headerId: 'header',
 			body: 'body',
 			bodyId: 'header',
+			element: element.childNodes[0],
+			elementClasses: 'centered',
 			footer: 'footer',
+			header: 'header',
+			headerId: 'header',
+			noCloseButton: true,
 			visible: false
 		});
 
