@@ -2,17 +2,17 @@
 
 /**
  * This renders the main element.
- * @param disabled
- * @param? elementClasses
  * @param tab
  * @param tabs
+ * @param? disabled
+ * @param? elementClasses
  * @param? type
  */
 {template .render}
 	{if length($tabs) > 0}
 		<ul class="nav {$type != 'none' ? 'nav-' + $type : ''} {$elementClasses ?: ''}" role="tablist">
 			{foreach $currentTab in $tabs}
-				{let $isDisabled: $disabled or $currentTab.disabled /}
+				{let $isDisabled: (isNonnull($disabled) and $disabled) or $currentTab.disabled /}
 				{let $isCurrentTab: $tab == index($currentTab) /}
 
 				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($currentTab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
