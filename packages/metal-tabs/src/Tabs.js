@@ -185,8 +185,8 @@ class Tabs extends Component {
 
 	/**
 	 * Toggles the disabled state of the tab at the given index in the tabs array.
-	 * If the tab at the given index is active but toggled disabled the first
-	 * the first not disabled tab will be selected.
+	 * If the tab at the given index is active, then the next nearest enabled tab
+	 * will become the new active tab.
 	 * @param  {number} index
 	 */
 	toggleTabDisabled(index) {
