@@ -17,13 +17,14 @@
 
 				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($currentTab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
 					<a
-						{if not $isDisabled}href="#"{/if}
-						ref="tab-{index($currentTab)}"
-						role="tab"
 						aria-expanded="{$isCurrentTab ? 'true' : 'false'}"
 						data-toggle="tab"
 						data-unfocusable="{$isDisabled ? 'true' : 'false'}"
-						tabindex="{$isCurrentTab ? '0' : '-1'}">
+						{if not $isDisabled}href="#"{/if}
+						ref="tab-{index($currentTab)}"
+						role="tab"
+						tabindex="{$isCurrentTab ? '0' : '-1'}"
+					>
 						{$currentTab.label}
 					</a>
 				</li>
