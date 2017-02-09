@@ -462,4 +462,25 @@ describe('Modal', function() {
 		modal.show();
 		assert.ok(modal.visible);
 	});
+
+	it('should emit the "hide" event when the hide method is called', function() {
+		var spy = sinon.spy();
+		modal = new Modal({
+			events: {hide: spy},
+			visible: false
+		});
+		modal.hide();
+		assert.ok(spy.called);
+	});
+
+	it('should not set visibility to false on "hide" when preventDefault is called on the hide event', function() {
+		modal = new Modal({
+			events: {
+				hide: event => event.preventDefault()
+			},
+			visible: true
+		});
+		modal.hide();
+		assert.ok(modal.visible);
+	});
 });
