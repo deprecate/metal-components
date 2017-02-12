@@ -2,14 +2,13 @@
 
 /**
  * This renders the main element.
+ * @param tab
+ * @param tabs
+ * @param? disabled
+ * @param? elementClasses
+ * @param? type
  */
 {template .render}
-	{@param tab: int}
-	{@param tabs: list<?>}
-	{@param? disabled: bool}
-	{@param? elementClasses: string}
-	{@param? type: string}
-
 	{if length($tabs) > 0}
 		<ul class="nav {$type != 'none' ? 'nav-' + $type : ''} {$elementClasses ?: ''}" role="tablist">
 			{foreach $currentTab in $tabs}
