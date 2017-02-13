@@ -39,7 +39,7 @@
 			{param expanded: $disabled ? false : $expanded_ /}
 			{param header kind="html"}
 				<button
-					class="{$buttonClass ? $buttonClass : ''} dropdown-select"
+					class="{$buttonClass ?: 'btn btn-default'} dropdown-select"
 					disabled="{$disabled}"
 					type="button"
 					data-onclick="toggle"
@@ -50,7 +50,7 @@
 					{else}
 						{$items[$currSelectedIndex]}
 					{/if}
-					{sp}<span class="{$arrowClass ? $arrowClass : 'caret'}"></span>
+					{sp}<span class="{$arrowClass ?: 'caret'}"></span>
 				</button>
 			{/param}
 			{param ref: 'dropdown' /}
