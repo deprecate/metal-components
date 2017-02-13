@@ -158,9 +158,8 @@ class Select extends Component {
 	 * @inheritDoc
 	 */
 	prepareStateForRender(data) {
-		return Object.assign({}, data, {
-			items: this.items.map(item => Soy.toIncDom(item))
-		});
+		data.items = this.items.map(item => Soy.toIncDom(item));
+		return data;
 	}
 
 	/**
