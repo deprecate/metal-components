@@ -7,6 +7,8 @@ import templates from './Modal.soy.js';
 import Component from 'metal-component';
 import Soy from 'metal-soy';
 
+const KEY_CODE_ESC = 27;
+
 /**
  * Modal component.
  */
@@ -84,7 +86,7 @@ class Modal extends Component {
 	 * @protected
 	 */
 	handleKeyup_(event) {
-		if (event.keyCode === 27) {
+		if (event.keyCode === KEY_CODE_ESC) {
 			this.hide();
 		}
 	}
