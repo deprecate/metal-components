@@ -23,6 +23,8 @@ class Modal extends Component {
 	 */
 	attached() {
 		this.autoFocus_(this.autoFocus);
+
+		this.addListener('hide', this.defaultHideFn_, true);
 	}
 
 	/**
@@ -38,6 +40,13 @@ class Modal extends Component {
 				element.focus();
 			}
 		}
+	}
+
+	/**
+	 * Run only if no listener calls event.preventDefault().
+	 */
+	defaultHideFn_() {
+		this.visible = false;
 	}
 
 	/**
@@ -81,10 +90,10 @@ class Modal extends Component {
 	}
 
 	/**
-	 * Hides the modal, setting its `visible` state key to false.
+	 * Emits a hide event.
 	 */
 	hide() {
-		this.visible = false;
+		this.emit('hide');
 	}
 
 	/**
