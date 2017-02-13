@@ -503,5 +503,21 @@ describe('Select', function() {
 			});
 			assert.strictEqual('', element.childNodes[0].querySelector('input[type="hidden"]').value);
 		});
+
+		it('should add default button classes in template', () => {
+			const element = document.createElement('div');
+			IncrementalDOM.patch(element, () => {
+				Select.TEMPLATE({
+					id: 'select',
+					items: [],
+					values: []
+				});
+			});
+
+			const classNames = Select.STATE.buttonClass.value.split(' ');
+			const buttonElement = element.querySelector('button');
+
+			classNames.forEach(className => assert.isTrue(dom.hasClass(buttonElement, className)));
+		});
 	});
 });
