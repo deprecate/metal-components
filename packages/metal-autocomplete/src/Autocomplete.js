@@ -41,7 +41,7 @@ class Autocomplete extends AutocompleteBase {
 	 */
 	align() {
 		this.element.style.width = this.inputElement.offsetWidth + 'px';
-		var position = Align.align(this.element, this.inputElement, Align.Bottom);
+		var position = Align.align(this.element, this.inputElement, Align.Bottom, this.autoBestAlign);
 
 		dom.removeClasses(this.element, this.positionCss_);
 		switch (position) {
@@ -289,6 +289,18 @@ Soy.register(Autocomplete, templates);
  * @static
  */
 Autocomplete.STATE = {
+	/**
+	 * Activate or Deactivate the suggestion of the best align region. If true,
+	 * the component will try to find a better region to align, otherwise,
+	 * it will keep the position at the bottom.
+	 * @type {boolean}
+	 * @default true.
+	 */
+	autoBestAlign: {
+		value: true,
+		validator: core.isBoolean
+	},
+
 	/**
 	 * Function that converts a given item to the format that should be used by
 	 * the autocomplete.

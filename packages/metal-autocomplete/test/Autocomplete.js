@@ -486,5 +486,26 @@ describe('Autocomplete', function() {
 
 			assert.ok(dom.hasClass(component.element, 'autocomplete-top'));
 		});
+
+		it('should allow stopping looking for a better region to show the list', function() {
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				autoBestAlign: false,
+				visible: true
+			});
+
+			assert.strictEqual(false, Align.align.args[0][3]);
+		});
+
+		it('should do not stop looking for a better region to show the list by default', function() {
+			component = new Autocomplete({
+				data: filterData,
+				inputElement: input,
+				visible: true
+			});
+
+			assert.strictEqual(true, Align.align.args[0][3]);
+		});
 	});
 });
