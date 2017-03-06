@@ -212,6 +212,14 @@ Modal.STATE = {
 	},
 
 	/**
+	 * Classes that will be applied to the modal-dialog element.
+	 * @type {string}
+	 */
+	dialogClasses: {
+		validator: core.isString
+	},
+
+	/**
 	 * Content to be placed inside modal footer. Can be either an html string or
 	 * a function that calls incremental-dom to render the footer.
 	 * @type {string|function()}
