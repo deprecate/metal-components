@@ -483,4 +483,12 @@ describe('Modal', function() {
 		modal.hide();
 		assert.ok(modal.visible);
 	});
+
+	it('should add classes passed to "dialogClasses" to the modal dialog element', function() {
+		modal = new Modal({
+			dialogClasses: 'modal-lg'
+		});
+		var dialog = modal.element.querySelector('.modal-dialog');
+		assert.ok(dialog.classList.contains('modal-lg'));
+	});
 });
