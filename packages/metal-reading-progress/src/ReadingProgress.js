@@ -118,7 +118,8 @@ ReadingProgress.STATE = {
 	 */
 	items: {
 		setter: 'setterItemsFn_',
-		validator: Array.isArray
+		validator: Array.isArray,
+		value: []
 	},
 
 	/**
