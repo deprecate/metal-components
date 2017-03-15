@@ -123,6 +123,17 @@ describe('ReadingProgress', function() {
 		assert.strictEqual('60', circle.getAttribute('stroke-dashoffset'));
 	});
 
+	it('should set the title as an empty string if title element is not found', function() {
+		readingProgress = new ReadingProgress({
+			items: ['#content1', '#content2', '#content3'],
+			titleSelector: 'h2'
+		});
+
+		assert.strictEqual('', readingProgress.items[0].title);
+		assert.strictEqual('', readingProgress.items[1].title);
+		assert.strictEqual('', readingProgress.items[2].title);
+	});
+
 	function getBigText(charCount) {
 		var text = '';
 		for (var i = 0; i < charCount; i++) {

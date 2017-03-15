@@ -32,7 +32,11 @@ class ReadingProgress extends Component {
 
 		var element = document.getElementById(item.href.substr(1));
 		if (!item.title) {
-			item.title = element.querySelector(this.titleSelector).textContent;
+			item.title = '';
+			let titleElement = element.querySelector(this.titleSelector);
+			if (titleElement) {
+				item.title = titleElement.textContent;
+			}
 		}
 		if (!item.time) {
 			var charCount = element.textContent.length;
