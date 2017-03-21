@@ -99,15 +99,15 @@ class Toggler extends State {
 	 */
 	toggle(header) {
 		var content = this.getContentElement_(header);
-		dom.toggleClasses(content, Toggler.CSS_EXPANDED);
-		dom.toggleClasses(content, Toggler.CSS_COLLAPSED);
+		dom.toggleClasses(content, this.cssExpanded);
+		dom.toggleClasses(content, this.cssCollapsed);
 
-		if (dom.hasClass(content, Toggler.CSS_EXPANDED)) {
-			dom.addClasses(header, Toggler.CSS_HEADER_EXPANDED);
-			dom.removeClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+		if (dom.hasClass(content, this.cssExpanded)) {
+			dom.addClasses(header, this.cssHeaderExpanded);
+			dom.removeClasses(header, this.cssHeaderCollapsed);
 		} else {
-			dom.removeClasses(header, Toggler.CSS_HEADER_EXPANDED);
-			dom.addClasses(header, Toggler.CSS_HEADER_COLLAPSED);
+			dom.removeClasses(header, this.cssHeaderExpanded);
+			dom.addClasses(header, this.cssHeaderCollapsed);
 		}
 	}
 }
@@ -140,27 +140,40 @@ Toggler.STATE = {
 	 */
 	header: {
 		validator: value => core.isString(value) || core.isElement(value)
+	},
+
+	/**
+	 * The CSS class added to the content when it's collapsed.
+	 */
+	cssCollapsed: {
+		validator: core.isString,
+		value: 'toggler-collapsed'
+	},
+
+
+	/**
+	 * The CSS class added to the content when it's expanded.
+	 */
+	cssExpanded: {
+		validator: core.isString,
+		value: 'toggler-expanded'
+	},
+
+	/**
+	 * The CSS class added to the header when the content is collapsed.
+	 */
+	cssHeaderCollapsed: {
+		validator: core.isString,
+		value: 'toggler-header-collapsed'
+	},
+
+	/**
+	 * The CSS class added to the header when the content is expanded.
+	 */
+	cssHeaderExpanded: {
+		validator: core.isString,
+		value: 'toggler-header-expanded'
 	}
 };
-
-/**
- * The CSS class added to the content when it's collapsed.
- */
-Toggler.CSS_COLLAPSED = 'toggler-collapsed';
-
-/**
- * The CSS class added to the content when it's expanded.
- */
-Toggler.CSS_EXPANDED = 'toggler-expanded';
-
-/**
- * The CSS class added to the header when the content is collapsed.
- */
-Toggler.CSS_HEADER_COLLAPSED = 'toggler-header-collapsed';
-
-/**
- * The CSS class added to the header when the content is expanded.
- */
-Toggler.CSS_HEADER_EXPANDED = 'toggler-header-expanded';
 
 export default Toggler;
