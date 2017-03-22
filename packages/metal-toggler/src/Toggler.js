@@ -99,15 +99,15 @@ class Toggler extends State {
 	 */
 	toggle(header) {
 		var content = this.getContentElement_(header);
-		dom.toggleClasses(content, this.cssExpanded);
-		dom.toggleClasses(content, this.cssCollapsed);
+		dom.toggleClasses(content, this.expandedClasses);
+		dom.toggleClasses(content, this.collapsedClasses);
 
-		if (dom.hasClass(content, this.cssExpanded)) {
-			dom.addClasses(header, this.cssHeaderExpanded);
-			dom.removeClasses(header, this.cssHeaderCollapsed);
+		if (dom.hasClass(content, this.expandedClasses)) {
+			dom.addClasses(header, this.headerExpandedClasses);
+			dom.removeClasses(header, this.headerCollapsedClasses);
 		} else {
-			dom.removeClasses(header, this.cssHeaderExpanded);
-			dom.addClasses(header, this.cssHeaderCollapsed);
+			dom.removeClasses(header, this.headerExpandedClasses);
+			dom.addClasses(header, this.headerCollapsedClasses);
 		}
 	}
 }
@@ -143,34 +143,34 @@ Toggler.STATE = {
 	},
 
 	/**
-	 * The CSS class added to the content when it's collapsed.
+	 * The CSS classes added to the content when it's collapsed.
 	 */
-	cssCollapsed: {
+	collapsedClasses: {
 		validator: core.isString,
 		value: 'toggler-collapsed'
 	},
 
 
 	/**
-	 * The CSS class added to the content when it's expanded.
+	 * The CSS classes added to the content when it's expanded.
 	 */
-	cssExpanded: {
+	expandedClasses: {
 		validator: core.isString,
 		value: 'toggler-expanded'
 	},
 
 	/**
-	 * The CSS class added to the header when the content is collapsed.
+	 * The CSS classes added to the header when the content is collapsed.
 	 */
-	cssHeaderCollapsed: {
+	headerCollapsedClasses: {
 		validator: core.isString,
 		value: 'toggler-header-collapsed'
 	},
 
 	/**
-	 * The CSS class added to the header when the content is expanded.
+	 * The CSS classes added to the header when the content is expanded.
 	 */
-	cssHeaderExpanded: {
+	headerExpandedClasses: {
 		validator: core.isString,
 		value: 'toggler-header-expanded'
 	}
