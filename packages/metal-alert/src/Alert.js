@@ -165,9 +165,16 @@ Alert.STATE = {
 
 	/**
 	 * The body content of the alert.
-	 * @type {string}
+	 * @type {html|string}
 	 */
 	body: {
+	},
+
+	/**
+	 * The content of close button of the alert.
+	 * @type {html|string}
+	 */
+	closeButtonHtml: {
 	},
 
 	/**
