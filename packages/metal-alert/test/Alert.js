@@ -150,4 +150,22 @@ describe('Alert', function() {
 			});
 		});
 	});
+
+	it('should define a new close button', function() {
+		component = new Alert({
+			closeButtonHtml: '<span class="icon-16-cancel">x</span>'
+		});
+
+		let closeButton = component.element.querySelector('span');
+	 	assert.ok(dom.hasClass(closeButton, 'icon-16-cancel'));
+	});
+
+	it('should set a text as the close button value', function() {
+		component = new Alert({
+			closeButtonHtml: 'close'
+		});
+
+		let closeButton = component.element.querySelector('button');
+	 	assert.strictEqual(closeButton.textContent, 'close');
+	});
 });
