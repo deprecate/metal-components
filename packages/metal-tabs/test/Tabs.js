@@ -172,7 +172,7 @@ describe('Tabs', function() {
 			]
 		});
 
-		var tabElements = tabs.element.querySelectorAll('a');
+		var tabElements = tabs.element.querySelectorAll('button');
 		assert.strictEqual('true', tabElements[0].getAttribute('aria-expanded'));
 		assert.strictEqual('false', tabElements[1].getAttribute('aria-expanded'));
 
@@ -385,7 +385,7 @@ describe('Tabs', function() {
 				]
 			});
 
-			var tabElements = tabs.element.querySelectorAll('a');
+			var tabElements = tabs.element.querySelectorAll('button');
 			dom.triggerEvent(tabElements[0], 'keydown', {
 				keyCode: 39
 			});
@@ -422,7 +422,7 @@ describe('Tabs', function() {
 				]
 			});
 
-			var tabElements = tabs.element.querySelectorAll('a');
+			var tabElements = tabs.element.querySelectorAll('button');
 			dom.triggerEvent(tabElements[2], 'keydown', {
 				keyCode: 39
 			});
@@ -453,7 +453,7 @@ describe('Tabs', function() {
 			});
 
 			tabs.once('stateSynced', function() {
-				const tabElements = tabs.element.querySelectorAll('a');
+				const tabElements = tabs.element.querySelectorAll('button');
 				dom.triggerEvent(tabElements[3], 'keydown', {
 					keyCode: 39
 				});
@@ -484,7 +484,7 @@ describe('Tabs', function() {
 				]
 			});
 
-			var tabElements = tabs.element.querySelectorAll('a');
+			var tabElements = tabs.element.querySelectorAll('button');
 			dom.triggerEvent(tabElements[0], 'keydown', {
 				keyCode: 39
 			});

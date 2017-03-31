@@ -14,7 +14,7 @@ class Tabs extends Component {
 	 * @inheritDoc
 	 */
 	attached() {
-		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'a')
+		this.keyboardFocusManager_ = new KeyboardFocusManager(this, 'button')
 			.setCircularLength(this.tabs.length)
 			.start();
 	}

@@ -15,18 +15,22 @@
 				{let $isDisabled: (isNonnull($disabled) and $disabled) or $currentTab.disabled /}
 				{let $isCurrentTab: $tab == index($currentTab) /}
 
-				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}" data-index="{index($currentTab)}" {if not $isDisabled and not $isCurrentTab}data-onclick="onClickItem"{/if} role="presentation">
-					<a
+				<li class="{$isDisabled ? 'disabled' : ''} {$isCurrentTab ? 'active' : ''}"
+					data-index="{index($currentTab)}"
+					{if not $isDisabled and not $isCurrentTab}
+					data-onclick="onClickItem"
+					{/if}
+					role="presentation">
+					<button
 						aria-expanded="{$isCurrentTab ? 'true' : 'false'}"
 						data-toggle="tab"
 						data-unfocusable="{$isDisabled ? 'true' : 'false'}"
-						{if not $isDisabled}href="#"{/if}
 						ref="tab-{index($currentTab)}"
 						role="tab"
 						tabindex="{$isCurrentTab ? '0' : '-1'}"
-					>
+						type="button">
 						{$currentTab.label}
-					</a>
+					</button>
 				</li>
 			{/foreach}
 		</ul>
