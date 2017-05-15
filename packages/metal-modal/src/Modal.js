@@ -278,8 +278,8 @@ Modal.STATE = {
 	 * @type {Element}
 	 */
 	overlayElement: {
-		initOnly: true,
-		valueFn: 'valueOverlayElementFn_'
+		valueFn: 'valueOverlayElementFn_',
+		writeOnce: true
 	},
 
 	/**
