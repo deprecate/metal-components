@@ -95,19 +95,43 @@ class Toggler extends State {
 	}
 
 	/**
+	* Manually expand the content's visibility.
+	* @param {!Element} header
+	* @param {!Element} header
+	*/
+	expand(header, content) {
+		dom.addClasses(content, this.expandedClasses);
+		dom.removeClasses(content, this.collapsedClasses);
+		dom.addClasses(header, this.headerExpandedClasses);
+		dom.removeClasses(header, this.headerCollapsedClasses);
+	}
+
+	/**
+	* Manually collapse the content's visibility.
+	* @param {!Element} header
+	* @param {!Element} header
+	*/
+	collapse(header, content) {
+		dom.removeClasses(content, this.expandedClasses);
+		dom.addClasses(content, this.collapsedClasses);
+		dom.removeClasses(header, this.headerExpandedClasses);
+		dom.addClasses(header, this.headerCollapsedClasses);
+	}
+
+	/**
 	 * Toggles the content's visibility.
+	 * @param {!Element} header
 	 */
 	toggle(header) {
+		if (header === undefined) {
+			header = this.header;
+		}
 		var content = this.getContentElement_(header);
-		dom.toggleClasses(content, this.expandedClasses);
-		dom.toggleClasses(content, this.collapsedClasses);
-
 		if (dom.hasClass(content, this.expandedClasses)) {
-			dom.addClasses(header, this.headerExpandedClasses);
-			dom.removeClasses(header, this.headerCollapsedClasses);
-		} else {
-			dom.removeClasses(header, this.headerExpandedClasses);
-			dom.addClasses(header, this.headerCollapsedClasses);
+			this.collapse(header, content);
+		}
+		else {
+			this.expand(header, content);
 		}
 	}
 }
