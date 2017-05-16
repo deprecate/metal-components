@@ -97,9 +97,9 @@ class Toggler extends State {
 	/**
 	* Manually expand the content's visibility.
 	* @param {!Element} header
-	* @param {!Element} header
 	*/
-	expand(header, content) {
+	expand(header = this.header) {
+		var content = this.getContentElement_(header);
 		dom.addClasses(content, this.expandedClasses);
 		dom.removeClasses(content, this.collapsedClasses);
 		dom.addClasses(header, this.headerExpandedClasses);
@@ -109,9 +109,9 @@ class Toggler extends State {
 	/**
 	* Manually collapse the content's visibility.
 	* @param {!Element} header
-	* @param {!Element} header
 	*/
-	collapse(header, content) {
+	collapse(header = this.header) {
+		var content = this.getContentElement_(header);
 		dom.removeClasses(content, this.expandedClasses);
 		dom.addClasses(content, this.collapsedClasses);
 		dom.removeClasses(header, this.headerExpandedClasses);
@@ -122,16 +122,11 @@ class Toggler extends State {
 	 * Toggles the content's visibility.
 	 * @param {!Element} header
 	 */
-	toggle(header) {
-		if (header === undefined) {
-			header = this.header;
-		}
-		var content = this.getContentElement_(header);
-		if (dom.hasClass(content, this.expandedClasses)) {
-			this.collapse(header, content);
-		}
-		else {
-			this.expand(header, content);
+	toggle(header = this.header) {
+		if (dom.hasClass(header, this.headerExpandedClasses)) {
+			this.collapse(header);
+		} else {
+			this.expand(header);
 		}
 	}
 }
