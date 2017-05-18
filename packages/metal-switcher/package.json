@@ -25,8 +25,6 @@
     "switcher"
   ],
   "dependencies": {
-    "bootstrap": "^3.3.6",
-    "bootstrap-sass": "^3.3.6",
     "metal": "^2.0.0",
     "metal-component": "^2.0.0",
     "metal-dom": "^2.0.0",
@@ -36,6 +34,7 @@
     "babel-cli": "^6.4.5",
     "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",
-    "gulp-metal": "^1.0.0"
+    "gulp-metal": "^1.0.0",
+    "marble": "^2.10.12"
   }
 }
