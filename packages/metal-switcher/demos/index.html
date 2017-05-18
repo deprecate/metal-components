@@ -4,15 +4,158 @@
 	<meta charset="UTF-8">
 	<title>Demo: Switcher</title>
 
-	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
-	<link rel="stylesheet" href="../build/switcher.css">
+	<link rel="stylesheet" href="../node_modules/marble/build/marble.css">
 
 	<script src="../build/globals/switcher.js"></script>
+	<style type="text/css">
+		body {
+			padding: 100px;
+		}
+		.switchers {
+			margin-bottom: 12px;
+		}
+		.switchers > .switcher {
+			display: inline-block;
+			margin-right: 12px;
+		}
+	</style>
 </head>
 <body>
 	<h1>Switcher</h1>
+	<div id="medium" class="switchers">
+		<h3>Medium Size</h3>
+	</div>
+
 	<script type="text/javascript">
-		window.switcher = new metal.Switcher();
+		window.switcher1 = new metal.Switcher({}, '#medium');
+		window.switcher2 = new metal.Switcher({
+			'elementClasses': 'red'
+		}, '#medium');
+		window.switcher3 = new metal.Switcher({
+			'elementClasses': 'yellow'
+		}, '#medium');
+		window.switcher4 = new metal.Switcher({
+			'elementClasses': 'orange'
+		}, '#medium');
+		window.switcher5 = new metal.Switcher({
+			'elementClasses': 'blue'
+		}, '#medium');
+		window.switcher6 = new metal.Switcher({
+			'elementClasses': 'violet'
+		}, '#medium');
+		window.switcher7 = new metal.Switcher({
+			'elementClasses': 'green'
+		}, '#medium');
+		window.switcher8 = new metal.Switcher({
+			'elementClasses': 'primary'
+		}, '#medium');
 	</script>
+
+	<div id="large" class="switchers">
+		<h3>Large Size</h3>
+	</div>
+
+	<script type="text/javascript">
+		window.switcherLarge1 = new metal.Switcher({
+			'elementClasses': 'switcher-lg'
+		}, '#large');
+		window.switcherLarge2 = new metal.Switcher({
+			'elementClasses': 'switcher-lg red',
+		}, '#large');
+		window.switcherLarge3 = new metal.Switcher({
+			'elementClasses': 'switcher-lg yellow',
+		}, '#large');
+		window.switcherLarge4 = new metal.Switcher({
+			'elementClasses': 'switcher-lg orange',
+		}, '#large');
+		window.switcherLarge5 = new metal.Switcher({
+			'elementClasses': 'switcher-lg blue',
+		}, '#large');
+		window.switcherLarge6 = new metal.Switcher({
+			'elementClasses': 'switcher-lg violet',
+		}, '#large');
+		window.switcherLarge7 = new metal.Switcher({
+			'elementClasses': 'switcher-lg green',
+		}, '#large');
+		window.switcherLarge8 = new metal.Switcher({
+			'elementClasses': 'switcher-lg primary',
+		}, '#large');
+	</script>
+
+	<div id="small" class="switchers">
+		<h3>Small Size</h3>
+	</div>
+
+	<script type="text/javascript">
+		window.switcherSmall1 = new metal.Switcher({
+			'elementClasses': 'switcher-sm',
+		}, '#small');
+		window.switcherSmall2 = new metal.Switcher({
+			'elementClasses': 'switcher-sm red',
+		}, '#small');
+		window.switcherSmall3 = new metal.Switcher({
+			'elementClasses': 'switcher-sm yellow',
+		}, '#small');
+		window.switcherSmall4 = new metal.Switcher({
+			'elementClasses': 'switcher-sm orange',
+		}, '#small');
+		window.switcherSmall5 = new metal.Switcher({
+			'elementClasses': 'switcher-sm blue',
+		}, '#small');
+		window.switcherSmall6 = new metal.Switcher({
+			'elementClasses': 'switcher-sm violet',
+		}, '#small');
+		window.switcherSmall7 = new metal.Switcher({
+			'elementClasses': 'switcher-sm green',
+		}, '#small');
+		window.switcherSmall8 = new metal.Switcher({
+			'elementClasses': 'switcher-sm primary',
+		}, '#small');
+	</script>
+
+	<div id="disabled" class="switchers">
+		<h3>Disabled</h3>
+		<script type="text/javascript">
+		window.switcherDisabled1 = new metal.Switcher({
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled2 = new metal.Switcher({
+			'elementClasses': 'red',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled3 = new metal.Switcher({
+			'elementClasses': 'yellow',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled4 = new metal.Switcher({
+			'elementClasses': 'orange',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled5 = new metal.Switcher({
+			'elementClasses': 'blue',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled6 = new metal.Switcher({
+			'elementClasses': 'violet',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled7 = new metal.Switcher({
+			'elementClasses': 'green',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+		window.switcherDisabled8 = new metal.Switcher({
+			'elementClasses': 'primary',
+			'disabled': true,
+			'checked': true,
+		}, '#disabled');
+	</script>
+	</div>
 </body>
 </html>
