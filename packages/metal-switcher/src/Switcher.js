@@ -13,7 +13,9 @@ class Switcher extends Component {
 	 * Handles switcher click.
 	 */
 	handleClick() {
-		this.checked = !this.checked;
+		if (!this.disabled) {
+			this.checked = !this.checked;
+		}
 	}
 
 	/**
@@ -21,7 +23,9 @@ class Switcher extends Component {
 	 */
 	handleKeyUp() {
 		if (event.keyCode === 13 || event.keyCode === 32) {
-			this.checked = !this.checked;
+			if (!this.disabled) {
+				this.checked = !this.checked;
+			}
 		}
 	}
 }
@@ -38,6 +42,15 @@ Switcher.STATE = {
 	 * @default false
 	 */
 	checked: {
+		validator: core.isBoolean,
+		value: false
+	},
+	/**
+	 * Flag indicating if the switcher is disabled or not.
+	 * @type {boolean}
+	 * @default false
+	 */
+	disabled: {
 		validator: core.isBoolean,
 		value: false
 	}

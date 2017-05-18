@@ -100,4 +100,35 @@ describe('Switcher', function() {
 
 		assert.strictEqual(switcher.element.outerHTML, outerHTML);
 	});
+
+	//disabled
+	it('should not toggle switcher on click when the component is disabled', function(done) {
+		switcher = new Switcher({
+			disabled: true
+		});
+		dom.triggerEvent(switcher.element, 'click');
+		async.nextTick(function() {
+			assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
+			done();
+		});
+	});
+
+	it('should not toggle switcher on ENTER or SPACE keys when the component is disabled', function(done) {
+		switcher = new Switcher({
+			disabled: true
+		});
+		dom.triggerEvent(switcher.element, 'keyup', {
+			keyCode: 13
+		});
+		async.nextTick(function() {
+			assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
+			dom.triggerEvent(switcher.element, 'keyup', {
+				keyCode: 32
+			});
+			async.nextTick(function() {
+				assert.ok(!dom.hasClass(switcher.element, 'switcher-on'));
+				done();
+			});
+		});
+	});
 });

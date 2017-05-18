@@ -3,11 +3,12 @@
 /**
  * This renders the main element
  * @param? checked
+ * @param? disabled
  * @param? elementClasses
  */
 {template .render}
 	<div
-		class="switcher{$elementClasses ? ' ' + $elementClasses : ''}{$checked ? ' switcher-on' : ''}"
+		class="switcher{$elementClasses ? ' ' + $elementClasses : ''}{$disabled ? ' disabled' : ''}{$checked ? ' switcher-on' : ''}"
 		data-onclick="handleClick"
 		data-onkeyup="handleKeyUp"
 		role="checkbox"
