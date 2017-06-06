@@ -18,8 +18,8 @@ class Popover extends TooltipBase {
 	 * @param {Element} prevAlignElement
 	 * @override
 	 */
-	syncAlignElement(alignElement) {
-		super.syncAlignElement(alignElement);
+	syncCurrentAlignElement(alignElement) {
+		super.syncCurrentAlignElement(alignElement);
 
 		if (alignElement) {
 			var dataContent = alignElement.getAttribute('data-content');
