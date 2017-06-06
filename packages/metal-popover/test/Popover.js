@@ -90,7 +90,7 @@ describe('Popover', function() {
 		dom.triggerEvent(trigger, 'click');
 		setTimeout(function() {
 			assert.ok(popover.visible);
-			assert.strictEqual(trigger, popover.alignElement);
+			assert.strictEqual(trigger, popover.currentAlignElement);
 			dom.exitDocument(trigger);
 			done();
 		}, 25);
