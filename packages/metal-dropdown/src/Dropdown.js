@@ -245,7 +245,8 @@ Dropdown.STATE = {
 	 * @default false
 	 */
 	expanded: {
-		value: false
+		value: false,
+		internal: true
 	},
 
 	/**
