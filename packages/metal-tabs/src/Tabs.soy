@@ -22,12 +22,13 @@
 					{/if}
 					role="presentation">
 					<button
+						aria-disabled="{$isDisabled ? 'true' : 'false'}"
 						aria-expanded="{$isCurrentTab ? 'true' : 'false'}"
-						data-toggle="tab"
 						data-unfocusable="{$isDisabled ? 'true' : 'false'}"
+						data-toggle="tab"
+						{if $isDisabled}disabled{/if}
 						ref="tab-{index($currentTab)}"
 						role="tab"
-						tabindex="{$isCurrentTab ? '0' : '-1'}"
 						type="button">
 						{$currentTab.label}
 					</button>
