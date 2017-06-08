@@ -102,7 +102,7 @@ class Tabs extends Component {
 	}
 
 	/**
-	 * Removes the tab at the given index from the tabs array.
+	 * Finds the first enabled tab and returns its index.
 	 * @return {number} Returns the index of the first tab which is not disabled.
 	 */
 	findFirstAvailableIndex_() {
