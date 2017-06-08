@@ -1,7 +1,7 @@
 {
   "name": "metal-reading-progress",
   "version": "2.0.0",
-  "description": "An reading progress indicator",
+  "description": "A reading progress indicator",
   "license": "BSD",
   "repository": "metal/metal-reading-progress",
   "engines": {
