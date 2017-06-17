@@ -35,8 +35,6 @@
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
-    "babel-preset-metal": "^4.0.0",
-    "gulp": "^3.8.11",
-    "gulp-metal": "^1.0.0"
+    "babel-preset-metal": "^4.0.0"
   }
 }
